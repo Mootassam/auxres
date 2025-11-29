@@ -17,9 +17,15 @@
        margin: 0 auto;
        height: 100dvh;
        position: relative;
-       background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
+       /* background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%); */
    }
 
+
+   .background {
+
+       background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
+
+   }
 
 
 
@@ -70,7 +76,7 @@
    }
 
 
-   .invalid-feedback{ 
-    color: red;
-    font-size: 12px;
+   .invalid-feedback {
+       color: red;
+       font-size: 12px;
    }

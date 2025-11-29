@@ -5,43 +5,31 @@ function Home() {
     <>
       <div className="container">
         {/* Header */}
-        <div className="header">
-          <div className="logo">
-            <i className="fas fa-coins logo-icon" />
-            AureX
-          </div>
-          <div className="header-icons">
-            <div className="icon-circle">
-              <i className="far fa-envelope" />
-            </div>
-            <div className="icon-circle">
-              <i className="far fa-user" />
-            </div>
-          </div>
-        </div>
-        {/* Hero Section */}
         <div className="hero-section">
+          <div className="header">
+            <div className="logo">
+              <img src='./images/logo.png' style={{ height: '32px' }} />
+
+            </div>
+            <div className="header-icons">
+              <div className="icon-circle">
+                <i className="far fa-envelope" />
+              </div>
+              <div className="icon-circle">
+                <i className="far fa-user" />
+              </div>
+            </div>
+          </div>
+          {/* Hero Section */}
+
           <div className="crypto-illustration">
-            <div className="hand" />
-            <div className="coin bitcoin">
-              <i className="fab fa-bitcoin" />
-            </div>
-            <div className="coin ethereum">
-              <i className="fab fa-ethereum" />
-            </div>
+            <img src="./images/header.png" alt="Crypto Illustration" style={{ height: '100%' }} />
           </div>
           <div className="slogan">Where Fortune Meets Precision</div>
         </div>
         {/* Promo Banner */}
         <div className="promo-banner">
-          <div className="promo-text">
-            To make financial more efficient and more freedom to wealth
-          </div>
-          <div className="pagination-dots">
-            <div className="dot active" />
-            <div className="dot" />
-            <div className="dot" />
-          </div>
+          <img src="./images/slides/1.png" alt="Promo" style={{ width: '100%' }} />
         </div>
         {/* Announcement Card */}
         <div className="announcement-card">
@@ -81,6 +69,14 @@ function Home() {
             techniques. Its primary function is to automatically buy and sell
             financial products and cryptocurrencies based on market data and
             specific trading strategies to achieve stable profits or control risks.
+          </div>
+        </div>
+
+
+            <div className="ai-card2">
+          <div className="ai-title">Explore NFTs with AureX</div>
+          <div className="ai-description">
+          Step into the world of NFTs with AureX, your all-in-one digital asset trading wallet. Designed for both beginners and professional traders, AureX lets you explore, buy, sell,and 
           </div>
         </div>
         {/* Stats Section */}
@@ -234,19 +230,17 @@ function Home() {
 
         .header-icons {
             display: flex;
-            gap: 16px;
+
         }
 
         .icon-circle {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            color: #555;
+            color: #fff;
             font-size: 18px;
         }
 
@@ -254,6 +248,9 @@ function Home() {
         .hero-section {
             text-align: center;
             margin: 20px 0 30px;
+                background: linear-gradient(rgb(16, 108, 245), rgb(242, 244, 247));
+
+                padding: 0px 10px;
         }
 
         .crypto-illustration {
@@ -261,7 +258,6 @@ function Home() {
             max-width: 280px;
             height: 200px;
             margin: 0 auto 20px;
-            background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
             border-radius: 20px;
             display: flex;
             align-items: center;
@@ -318,17 +314,14 @@ function Home() {
 
         /* Promo Banner */
         .promo-banner {
-            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
+            padding: 0px 20px 20px ;
             color: white;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
+
         }
 
-        .promo-banner::before {
+             .promo-banner > img  { width: 100%;
+             height: 130px;} 
+         .promo-banner::before {
             content: "";
             position: absolute;
             top: -50%;
@@ -421,7 +414,7 @@ function Home() {
         .feature-card {
             background: white;
             border-radius: 16px;
-            padding: 20px;
+            padding: 10px 20px;
             margin-bottom: 16px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
@@ -430,7 +423,6 @@ function Home() {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
         }
 
         .card-title {
@@ -466,19 +458,41 @@ function Home() {
             padding: 20px;
             margin-bottom: 20px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            background-image: url('./images/ai.png');
+            background-size: cover;
+            width: 100%;
+            background-position: center;  
+          background-repeat: no-repeat;
+
+          height: 470px;
+        }
+
+
+         .ai-card2 {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            background-image: url('./images/ai2.png');
+            background-size: cover;
+            width: 100%;
+            background-position: center;  
+          background-repeat: no-repeat;
+
+          height: 470px;
         }
 
         .ai-title {
             font-size: 20px;
             font-weight: 700;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             color: #222;
         }
 
         .ai-description {
-            font-size: 15px;
-            color: #555;
-            line-height: 1.5;
+            font-size: 14px;
+            color: #888f99;
         }
 
         /* Stats Section */
