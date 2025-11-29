@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Center</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+
+            background: ;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            position: relative;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
+        }
+
+        /* Header Section */
+        .header {
+            background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
+            min-height: 280px;
+            position: relative;
+            padding: 20px;
+        }
+
+        .nav-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .back-arrow {
+            color: white;
+            font-size: 20px;
+            font-weight: 300;
+        }
+
+        .page-title {
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .profile-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .avatar-container {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .avatar-ring {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 2px dashed rgba(255, 255, 255, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: rotate 15s linear infinite;
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sunglasses {
+            position: absolute;
+            top: 30px;
+            font-size: 30px;
+            color: #333;
+            transform: rotate(-10deg);
+        }
+
+        .username {
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .user-id {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .certification-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .status-badge {
+            border: 1px solid white;
+            border-radius: 16px;
+            padding: 6px 16px;
+            color: white;
+            font-size: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .status-badge:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .status-icon {
+            font-size: 10px;
+        }
+
+        .verify-button {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 16px;
+            padding: 6px 12px;
+            color: #106cf5;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .verify-button:hover {
+            background: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Content Section */
+        .content-card {
+            background: white;
+            border-radius: 40px 40px 0 0;
+            /* margin-top: -40px; */
+            padding: 30px 20px 100px;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .menu-list {
+            list-style: none;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 18px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .icon-container {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            font-size: 18px;
+        }
+
+        .icon-green {
+            background-color: #e7f7ef;
+            color: #37b66a;
+        }
+
+        .icon-gray {
+            background-color: #f5f5f5;
+            color: #666;
+        }
+
+        .icon-blue {
+            background-color: #e6f0ff;
+            color: #106cf5;
+        }
+
+        .icon-orange {
+            background-color: #fff2e6;
+            color: #ff7a00;
+        }
+
+        .menu-text {
+            flex: 1;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .menu-action {
+            display: flex;
+            align-items: center;
+            color: #999;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+            margin-right: 10px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: #37b66a;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(20px);
+        }
+
+        .chevron {
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        /* Animations */
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 6px rgba(255, 255, 255, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 380px) {
+            .container {
+                padding: 0;
+            }
+
+            .header {
+                padding: 16px;
+            }
+
+            .content-card {
+                padding: 25px 16px 100px;
+            }
+
+            .menu-item {
+                padding: 16px 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="nav-bar">
+                <div class="back-arrow">
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+                <div class="page-title">Personal center</div>
+            </div>
+
+            <div class="profile-section">
+                <div class="avatar-container">
+                    <div class="avatar-ring">
+                        <div class="avatar">
+                            <i class="fas fa-bunny"></i>
+                            <div class="sunglasses">
+                                <i class="fas fa-sunglasses"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="username">btcgang2...</div>
+                <div class="user-id">ID: AZ46UJ8X</div>
+
+                <!-- Certification Status Section -->
+                <div class="certification-status">
+                    <div class="status-badge pulse">
+                        <i class="fas fa-exclamation-circle status-icon"></i>
+                        Not certified
+                    </div>
+                    <button class="verify-button">
+                        Verify Now
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Section -->
+        <div class="content-card">
+            <ul class="menu-list">
+                <li class="menu-item">
+                    <div class="icon-container icon-green">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="menu-text">Simulated trading</div>
+                    <div class="menu-action">
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="slider"></span>
+                        </label>
+                        <i class="fas fa-chevron-right chevron"></i>
+                    </div>
+                </li>
+
+                <li class="menu-item">
+                    <div class="icon-container icon-gray">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="menu-text">Preferences</div>
+                    <div class="menu-action">
+                        <i class="fas fa-chevron-right chevron"></i>
+                    </div>
+                </li>
+
+                <li class="menu-item">
+                    <div class="icon-container icon-blue">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="menu-text">Security center</div>
+                    <div class="menu-action">
+                        <i class="fas fa-chevron-right chevron"></i>
+                    </div>
+                </li>
+
+                <li class="menu-item">
+                    <div class="icon-container icon-green">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="menu-text">Authentication</div>
+                    <div class="menu-action">
+                        <i class="fas fa-chevron-right chevron"></i>
+                    </div>
+                </li>
+
+                <li class="menu-item">
+                    <div class="icon-container icon-green">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="menu-text">Account change records</div>
+                    <div class="menu-action">
+                        <i class="fas fa-chevron-right chevron"></i>
+                    </div>
+                </li>
+
+                <li class="menu-item">
+                    <div class="icon-container icon-orange">
+                        <i class="fas fa-gift"></i>
+                    </div>
+                    <div class="menu-text">Invite friends</div>
+                    <div class="menu-action">
+                        <i class="fas fa-chevron-right chevron"></i>
+                    </div>
+                </li>
+
+                <li class="menu-item">
+                    <div class="icon-container icon-blue">
+                        <i class="fas fa-comment-dots"></i>
+                    </div>
+                    <div class="menu-text">Online service</div>
+                    <div class="menu-action">
+                        <i class="fas fa-chevron-right chevron"></i>
+                    </div>
+                </li>
+
+                <li class="menu-item">
+                    <div class="icon-container icon-green">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="menu-text">Platform introduction</div>
+                    <div class="menu-action">
+                        <i class="fas fa-chevron-right chevron"></i>
+                    </div>
+                </li>
+
+                <li class="menu-item">
+                    <div class="icon-container icon-blue">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                    <div class="menu-text">Help center</div>
+                    <div class="menu-action">
+                        <i class="fas fa-chevron-right chevron"></i>
+                    </div>
+                </li>
+
+                <li class="menu-item">
+                    <div class="icon-container icon-green">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <div class="menu-text">Download</div>
+                    <div class="menu-action">
+                        <i class="fas fa-chevron-right chevron"></i>
+                    </div>
+                </li>
+
+                <li class="menu-item">
+                    <div class="icon-container icon-gray">
+                        <i class="fas fa-trash-alt"></i>
+                    </div>
+                    <div class="menu-text">Clear cache</div>
+                    <div class="menu-action">
+                        <i class="fas fa-chevron-right chevron"></i>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactivity to the toggle switch
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleSwitch = document.querySelector('.toggle-switch input');
+
+            toggleSwitch.addEventListener('change', function () {
+                if (this.checked) {
+                    console.log('Simulated trading enabled');
+                } else {
+                    console.log('Simulated trading disabled');
+                }
+            });
+
+            // Add click handlers for menu items
+            const menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function () {
+                    const text = this.querySelector('.menu-text').textContent;
+                    console.log(`Clicked: ${text}`);
+                });
+            });
+
+            // Add click handler for verify button
+            const verifyButton = document.querySelector('.verify-button');
+            verifyButton.addEventListener('click', function () {
+                console.log('Verify certification clicked');
+                alert('Redirecting to certification process...');
+            });
+        });
+    </script>
+</body>
+
+</html>

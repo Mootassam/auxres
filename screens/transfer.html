@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            height: 100dvh;
+            position: relative;
+            background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
+        }
+
+        /* Header Section */
+        .header {
+            padding: 15px 20px;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-arrow {
+            font-size: 18px;
+            font-weight: 300;
+        }
+
+        .page-title {
+            font-size: 18px;
+            font-weight: 600;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .header-icon {
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* Content Section */
+        .content-card {
+            background: white;
+            border-radius: 40px 40px 0 0;
+            height: calc(100% - 60px);
+            padding: 30px 20px 100px;
+            overflow-y: auto;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        /* Currency Selector */
+        .currency-selector {
+            margin-bottom: 20px;
+        }
+
+        .selector-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .selector-label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .selected-currency {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .currency-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #26a17b 0%, #1e8a63 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .currency-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+        }
+
+        .selector-arrow {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .warning-message {
+            color: #d40000;
+            font-size: 13px;
+            margin-top: 10px;
+
+            padding-left: 5px;
+            border-left: 3px solid #f56c6c;
+        }
+
+        /* Wallet Section */
+        .wallet-section {
+            background: #f8f9fa;
+            margin-bottom: 20px;
+            position: relative;
+            display: flex
+        }
+
+        .wallet-card {
+            background: white;
+            width: 100%;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .wallet-row {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            gap: 30px
+        }
+
+        .wallet-row:first-child {
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .wallet-label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .wallet-value {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #000;
+        }
+
+        .wallet-arrow {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .transfer-direction {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .direction-arrow {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 12px;
+        }
+
+        .swap-wallets {
+            right: 20px;
+            top: 50%;
+            width: 42px;
+            background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .swap-wallets:hover {
+            opacity: 0.9;
+        }
+
+        /* Quantity Section */
+        .quantity-section {
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #106cf5;
+        }
+
+        .input-actions {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .token-symbol {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .max-button {
+            background: #e6f0ff;
+            border: none;
+            border-radius: 6px;
+            padding: 4px 8px;
+            color: #106cf5;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .max-button:hover {
+            background: #d0e2ff;
+        }
+
+        .balance-info {
+            font-size: 13px;
+            color: #666;
+            text-align: right;
+        }
+
+        /* Transfer Button */
+        .transfer-button {
+            background: #ccc;
+            border: none;
+            border-radius: 12px;
+            padding: 16px 20px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: not-allowed;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .transfer-button.enabled {
+            background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
+            cursor: pointer;
+        }
+
+        .transfer-button.enabled:hover {
+            opacity: 0.9;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 350px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #999;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .currency-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .currency-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .currency-item:hover {
+            background: #f8f9fa;
+        }
+
+        .currency-item.selected {
+            background: #e6f0ff;
+        }
+
+        .check-icon {
+            color: #106cf5;
+            font-size: 12px;
+            margin-left: auto;
+            display: none;
+        }
+
+        .currency-item.selected .check-icon {
+            display: block;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 380px) {
+            .container {
+                padding: 0;
+            }
+
+            .header {
+                padding: 16px;
+            }
+
+            .content-card {
+                padding: 25px 16px 100px;
+            }
+
+            .currency-selector,
+            .wallet-section,
+            .quantity-section {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="nav-bar">
+                <div class="back-arrow">
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+                <div class="page-title">Transfer</div>
+                <div class="header-icon">
+                    <i class="fas fa-receipt"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Section -->
+        <div class="content-card">
+            <!-- Currency Selector -->
+            <div class="currency-selector">
+                <div class="selector-header">
+                    <div class="selector-label">Select currency</div>
+                </div>
+                <div class="selected-currency" id="currencySelector">
+                    <div class="currency-icon">USDT</div>
+                    <div class="currency-name">USDT</div>
+                    <i class="fas fa-chevron-down selector-arrow"></i>
+                </div>
+                <div class="warning-message">
+                    There are currently no assets available, please select another
+                </div>
+            </div>
+
+            <!-- Wallet Section -->
+            <div class="wallet-section">
+                <div class="wallet-card">
+                    <div class="wallet-row">
+                        <div class="wallet-label">From:</div>
+                        <div class="wallet-value">
+                            Exchange
+                            <i class="fas fa-chevron-right wallet-arrow"></i>
+                        </div>
+                    </div>
+
+                    <div class="transfer-direction">
+                        <div class="direction-arrow">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                    </div>
+
+                    <div class="wallet-row">
+                        <div class="wallet-label">Arrive:</div>
+                        <div class="wallet-value">
+                            Trade
+                            <i class="fas fa-chevron-right wallet-arrow"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="swap-wallets" id="swapWallets">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+            </div>
+
+            <!-- Quantity Section -->
+            <div class="quantity-section">
+                <div class="input-group">
+                    <input type="text" class="input-field" placeholder="0.00" id="amountInput">
+                    <div class="input-actions">
+                        <div class="token-symbol">USDT</div>
+                        <button class="max-button" id="maxButton">Maximum</button>
+                    </div>
+                </div>
+                <div class="balance-info">Available: 0 USDT</div>
+            </div>
+
+            <!-- Transfer Button -->
+            <button class="transfer-button" id="transferButton" disabled>
+                Transfer
+            </button>
+        </div>
+    </div>
+
+    <!-- Currency Selection Modal -->
+    <div class="modal-overlay" id="currencyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Select Currency</div>
+                <button class="modal-close" id="closeCurrencyModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <ul class="currency-list">
+                <li class="currency-item selected" data-currency="USDT">
+                    <div class="currency-icon">USDT</div>
+                    <div class="currency-name">USDT</div>
+                    <i class="fas fa-check check-icon"></i>
+                </li>
+                <li class="currency-item" data-currency="BTC">
+                    <div class="currency-icon">BTC</div>
+                    <div class="currency-name">Bitcoin</div>
+                    <i class="fas fa-check check-icon"></i>
+                </li>
+                <li class="currency-item" data-currency="ETH">
+                    <div class="currency-icon">ETH</div>
+                    <div class="currency-name">Ethereum</div>
+                    <i class="fas fa-check check-icon"></i>
+                </li>
+                <li class="currency-item" data-currency="USDC">
+                    <div class="currency-icon">USDC</div>
+                    <div class="currency-name">USDC</div>
+                    <i class="fas fa-check check-icon"></i>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const backArrow = document.querySelector('.back-arrow');
+            const receiptIcon = document.querySelector('.header-icon');
+            const currencySelector = document.getElementById('currencySelector');
+            const currencyModal = document.getElementById('currencyModal');
+            const closeCurrencyModal = document.getElementById('closeCurrencyModal');
+            const currencyItems = document.querySelectorAll('.currency-item');
+            const swapWallets = document.getElementById('swapWallets');
+            const maxButton = document.getElementById('maxButton');
+            const amountInput = document.getElementById('amountInput');
+            const transferButton = document.getElementById('transferButton');
+
+            // Back arrow functionality
+            backArrow.addEventListener('click', function () {
+                console.log('Back arrow clicked');
+                // In a real app, this would navigate back
+            });
+
+            // Receipt icon functionality
+            receiptIcon.addEventListener('click', function () {
+                console.log('Receipt icon clicked');
+                // In a real app, this would show transfer history
+                alert('Showing transfer history...');
+            });
+
+            // Currency selection modal
+            currencySelector.addEventListener('click', function () {
+                currencyModal.style.display = 'flex';
+            });
+
+            closeCurrencyModal.addEventListener('click', function () {
+                currencyModal.style.display = 'none';
+            });
+
+            // Close modal when clicking outside
+            currencyModal.addEventListener('click', function (e) {
+                if (e.target === currencyModal) {
+                    currencyModal.style.display = 'none';
+                }
+            });
+
+            // Currency item selection
+            currencyItems.forEach(item => {
+                item.addEventListener('click', function () {
+                    const currency = this.getAttribute('data-currency');
+
+                    // Update selected currency
+                    currencyItems.forEach(i => i.classList.remove('selected'));
+                    this.classList.add('selected');
+
+                    // Close modal
+                    currencyModal.style.display = 'none';
+
+                    console.log(`Selected currency: ${currency}`);
+
+                    // Update warning message based on selection
+                    const warningMessage = document.querySelector('.warning-message');
+                    if (currency === 'USDT') {
+                        warningMessage.textContent = 'There are currently no assets available, please select another';
+                    } else {
+                        warningMessage.textContent = `Switching to ${currency} transfer`;
+                        warningMessage.style.color = '#37b66a';
+                        warningMessage.style.borderLeftColor = '#37b66a';
+                        warningMessage.style.background = 'rgba(55, 182, 106, 0.05)';
+                    }
+                });
+            });
+
+            // Swap wallets functionality
+            swapWallets.addEventListener('click', function () {
+                const fromWallet = document.querySelector('.wallet-row:first-child .wallet-value');
+                const toWallet = document.querySelector('.wallet-row:last-child .wallet-value');
+
+                const fromText = fromWallet.textContent.trim();
+                const toText = toWallet.textContent.trim();
+
+                fromWallet.textContent = toText + ' ';
+                toWallet.textContent = fromText + ' ';
+
+                // Re-add the arrows
+                fromWallet.innerHTML += '<i class="fas fa-chevron-right wallet-arrow"></i>';
+                toWallet.innerHTML += '<i class="fas fa-chevron-right wallet-arrow"></i>';
+
+                console.log('Swapped wallet directions');
+            });
+
+            // Max button functionality
+            maxButton.addEventListener('click', function () {
+                amountInput.value = '0';
+                console.log('Max button clicked - but balance is 0');
+                // In a real app with balance, this would fill with available amount
+            });
+
+            // Amount input validation
+            amountInput.addEventListener('input', function () {
+                const amount = parseFloat(this.value) || 0;
+
+                // Enable/disable transfer button based on amount
+                if (amount > 0) {
+                    transferButton.disabled = false;
+                    transferButton.classList.add('enabled');
+                } else {
+                    transferButton.disabled = true;
+                    transferButton.classList.remove('enabled');
+                }
+            });
+
+            // Transfer button functionality
+            transferButton.addEventListener('click', function () {
+                if (this.disabled) return;
+
+                const amount = amountInput.value;
+                const fromWallet = document.querySelector('.wallet-row:first-child .wallet-value').textContent.trim();
+                const toWallet = document.querySelector('.wallet-row:last-child .wallet-value').textContent.trim();
+
+                console.log(`Transferring ${amount} USDT from ${fromWallet} to ${toWallet}`);
+                // In a real app, this would process the transfer
+                alert(`Transferring ${amount} USDT from ${fromWallet} to ${toWallet}`);
+            });
+        });
+    </script>
+</body>
+
+</html>

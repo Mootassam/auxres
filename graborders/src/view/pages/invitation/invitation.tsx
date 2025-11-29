@@ -1,0 +1,766 @@
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { i18n } from "../../../i18n";
+import authSelectors from "src/modules/auth/authSelectors";
+import userFormActions from "src/modules/user/form/userFormActions";
+import userFormSelectors from "src/modules/user/form/userFormSelectors";
+import UserService from "src/modules/user/userService";
+import SubHeader from "src/view/shared/Header/SubHeader";
+import Dates from "src/view/shared/utils/Dates";
+
+function Invitation() {
+  const dispatch = useDispatch();
+  const currentUser = useSelector(authSelectors.selectCurrentUser);
+  const listMembers = useSelector(userFormSelectors.listMembers);
+  const Loading = useSelector(userFormSelectors.loading);
+  const listUser = useSelector(userFormSelectors.lisUsers);
+  const userLoading = useSelector(userFormSelectors.usersLoading);
+  const totalReward = useSelector(userFormSelectors.reward);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalData, setModalData] = useState({
+    title: "",
+    members: [],
+    type: "", // "approved" or "pending"
+  });
+  const [copySuccess, setCopySuccess] = useState(false);
+
+  useEffect(() => {
+    if (currentUser?.refcode) {
+      dispatch(userFormActions.rewardCount());
+      dispatch(userFormActions.doTree(currentUser.refcode));
+    }
+  }, [dispatch, currentUser?.refcode]);
+
+  // ✅ Fixed Clipboard Copy
+  const copyReferralCode = async () => {
+    if (!currentUser?.refcode) return;
+
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(currentUser.refcode);
+      } else {
+        // Fallback for insecure contexts
+        const textArea = document.createElement("textarea");
+        textArea.value = currentUser.refcode;
+        textArea.style.position = "fixed";
+        textArea.style.opacity = "0";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+      }
+
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  };
+
+  // ✅ Share functionality
+  const shareReferral = (platform: string) => {
+    const shareText = `Join AureX using my referral code: ${currentUser?.refcode}`;
+    const shareUrl = window.location.origin;
+
+    switch (platform) {
+      case "whatsapp":
+        window.open(
+          `https://wa.me/?text=${encodeURIComponent(shareText)}`,
+          "_blank"
+        );
+        break;
+      case "email":
+        window.open(
+          `mailto:?subject=Join AureX&body=${encodeURIComponent(shareText)}`,
+          "_blank"
+        );
+        break;
+      case "sms":
+        window.open(`sms:?body=${encodeURIComponent(shareText)}`, "_blank");
+        break;
+      case "more":
+        if (navigator.share) {
+          navigator.share({
+            title: "AureX Referral",
+            text: shareText,
+            url: shareUrl,
+          });
+        } else {
+          copyReferralCode();
+        }
+        break;
+      default:
+        break;
+    }
+  };
+
+  const handleOpenModal = (level: number, type: "approved" | "pending") => {
+    const title = `${level}${getOrdinalSuffix(level)} Generation ${type === "approved" ? "Approved" : "Pending"
+      } Members`;
+
+    setModalData({
+      title,
+      members: [],
+      type,
+    });
+    setIsModalOpen(true);
+
+    const values = {
+      status: type,
+      refCode: currentUser?.refcode,
+      level,
+    };
+
+    dispatch(userFormActions.byLevel(values));
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setModalData({
+      title: "",
+      members: [],
+      type: "",
+    });
+  };
+
+  const getOrdinalSuffix = (number: number) => {
+    if (number === 1) return "st";
+    if (number === 2) return "nd";
+    if (number === 3) return "rd";
+    return "th";
+  };
+
+  const getGenerationTitle = (level: number) => {
+    return `${level}${getOrdinalSuffix(level)} Generation Members`;
+  };
+
+  return (
+    <div className="container">
+
+
+      <SubHeader title={i18n("pages.invitation.title")} />
+
+      {/* Invite Section */}
+      <div className="invite-earn-section">
+        <div className="invite-section-title">{i18n("pages.invitation.earnTogether")}</div>
+        <div className="invite-desc">
+          {i18n("pages.invitation.description")}
+        </div>
+
+        {/* Referral Code */}
+        <div className="referral-text">{i18n("pages.invitation.yourReferralCode")}</div>
+        <div className="referral-code-value" id="referralCode">
+          {currentUser?.refcode || i18n("pages.invitation.loading")}
+        </div>
+        <button
+          className="referral-copy-btn"
+          id="copyReferralBtn"
+          onClick={copyReferralCode}
+        >
+          <i className="fas fa-copy" />
+          {copySuccess ? i18n("pages.invitation.copied") : i18n("pages.invitation.copyCode")}
+        </button>
+
+        {/* Share Options */}
+        <div className="share-buttons">
+          <div className="share-btn" onClick={() => shareReferral("whatsapp")}>
+            <i className="fab fa-whatsapp share-icon-img" />
+          </div>
+          <div className="share-btn" onClick={() => shareReferral("email")}>
+            <i className="fas fa-envelope share-icon-img" />
+          </div>
+          <div className="share-btn" onClick={() => shareReferral("sms")}>
+            <i className="fas fa-sms share-icon-img" />
+          </div>
+          <div className="share-btn" onClick={() => shareReferral("more")}>
+            <i className="fas fa-share-alt share-icon-img" />
+          </div>
+        </div>
+      </div>
+
+      {/* Rewards Section */}
+      {/* Total Earned Section */}
+      <div className="total-earned-section">
+        <div className="total-earned-card">
+          <div className="total-earned-label">{i18n("pages.invitation.totalEarned")}</div>
+          <div className="total-earned-amount">{totalReward.toFixed(0)} USDT</div>
+          <div className="total-earned-subtitle">{i18n("pages.invitation.allTimeCommission")}</div>
+        </div>
+      </div>
+
+      {/* Generation Stats Section */}
+      <div className="generation-stats-container">
+        <div className="invite-section-title">{i18n("pages.invitation.generationMembers")}</div>
+        <div className="generation-stats-grid">
+          {Loading && <h2> {i18n("pages.invitation.loading")} </h2>}
+          {!Loading && listMembers?.length === 0 && (
+            <div
+              style={{ textAlign: "center", color: "#AAAAAA", padding: "20px" }}
+            >
+              {i18n("pages.invitation.noGenerationData")}
+            </div>
+          )}
+          {!Loading &&
+            listMembers?.map((item: any, index: number) => (
+              <div className="generation-stat-item first-gen" key={index}>
+                <div className="generation-stat-title">
+                  <i className="fas fa-crown" />
+                  {getGenerationTitle(item?.level)}
+                </div>
+                <div className="generation-stats-details">
+                  <div
+                    className="generation-stat-detail generation-stat-approved"
+                    onClick={() => handleOpenModal(item.level, "approved")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <div className="generation-stat-value">
+                      {item?.approvedCount || 0}
+                    </div>
+                    <div className="generation-stat-label">
+                      {i18n("pages.invitation.approvedMembers")}
+                    </div>
+                  </div>
+                  <div
+                    className="generation-stat-detail generation-stat-pending"
+                    onClick={() => handleOpenModal(item.level, "pending")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <div className="generation-stat-value">
+                      {item?.pendingCount || 0}
+                    </div>
+                    <div className="generation-stat-label">{i18n("pages.invitation.pendingMembers")}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+        </div>
+      </div>
+
+      {/* Commission Structure Section */}
+      <div className="commission-container">
+        <div className="invite-section-title">{i18n("pages.invitation.commissionStructure")}</div>
+        <div className="commission-grid">
+          <div className="commission-item first-gen">
+            <div className="commission-title">
+              <i className="fas fa-crown" />
+              {i18n("pages.invitation.firstGeneration")}
+            </div>
+            <div className="commission-details">
+              <div className="commission-detail">
+                <span className="commission-label">
+                  {i18n("pages.invitation.firstDepositCommission")}
+                </span>
+                <span className="commission-value">15%</span>
+              </div>
+              <div className="commission-detail">
+                <span className="commission-label">
+                  {i18n("pages.invitation.stakingProfitsCommission")}
+                </span>
+                <span className="commission-value">10%</span>
+              </div>
+            </div>
+          </div>
+          <div className="commission-item second-gen">
+            <div className="commission-title">
+              <i className="fas fa-users" />
+              {i18n("pages.invitation.secondGeneration")}
+            </div>
+            <div className="commission-details">
+              <div className="commission-detail">
+                <span className="commission-label">
+                  {i18n("pages.invitation.firstDepositCommission")}
+                </span>
+                <span className="commission-value">10%</span>
+              </div>
+              <div className="commission-detail">
+                <span className="commission-label">
+                  {i18n("pages.invitation.stakingProfitsCommission")}
+                </span>
+                <span className="commission-value">7%</span>
+              </div>
+            </div>
+          </div>
+          <div className="commission-item third-gen">
+            <div className="commission-title">
+              <i className="fas fa-user-friends" />
+              {i18n("pages.invitation.thirdGeneration")}
+            </div>
+            <div className="commission-details">
+              <div className="commission-detail">
+                <span className="commission-label">
+                  {i18n("pages.invitation.firstDepositCommission")}
+                </span>
+                <span className="commission-value">5%</span>
+              </div>
+              <div className="commission-detail">
+                <span className="commission-label">
+                  {i18n("pages.invitation.stakingProfitsCommission")}
+                </span>
+                <span className="commission-value">4%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* How It Works */}
+      <div className="how-it-works-container">
+        <div className="invite-section-title">{i18n("pages.invitation.howItWorks")}</div>
+        <div className="steps-container">
+          <div className="step-item">
+            <div className="step-number-circle">1</div>
+            <div className="step-content-text">
+              <div className="step-title-text">{i18n("pages.invitation.steps.shareCode.title")}</div>
+              <div className="step-desc">
+                {i18n("pages.invitation.steps.shareCode.description")}
+              </div>
+            </div>
+          </div>
+          <div className="step-item">
+            <div className="step-number-circle">2</div>
+            <div className="step-content-text">
+              <div className="step-title-text">{i18n("pages.invitation.steps.friendsSignUp.title")}</div>
+              <div className="step-desc">
+                {i18n("pages.invitation.steps.friendsSignUp.description")}
+              </div>
+            </div>
+          </div>
+          <div className="step-item">
+            <div className="step-number-circle">3</div>
+            <div className="step-content-text">
+              <div className="step-title-text">{i18n("pages.invitation.steps.earnCommissions.title")}</div>
+              <div className="step-desc">
+                {i18n("pages.invitation.steps.earnCommissions.description")}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ✅ Toast Notification */}
+      {copySuccess && (
+        <div
+          className="toast-notification"
+          id="referralToast"
+          style={{
+            position: "fixed",
+            bottom: "20px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "#00C076",
+            color: "white",
+            padding: "12px 24px",
+            borderRadius: "8px",
+            fontWeight: "500",
+            zIndex: 1001,
+          }}
+        >
+          {i18n("pages.invitation.referralCopied")}
+        </div>
+      )}
+
+      {/* Members Modal */}
+      {isModalOpen && (
+        <div className="modal-overlay " onClick={handleCloseModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 className="modal-title">{modalData.title}</h3>
+              <button className="modal-close-btn" onClick={handleCloseModal}>
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <div className="modal-body">
+              {userLoading ? (
+                <div
+                  style={{
+                    textAlign: "center",
+                    padding: "40px",
+                    color: "#F3BA2F",
+                  }}
+                >
+                  <i
+                    className="fas fa-spinner fa-spin"
+                    style={{ fontSize: "24px", marginBottom: "15px" }}
+                  ></i>
+                  <p>{i18n("pages.invitation.loadingMembers")}</p>
+                </div>
+              ) : listUser && listUser.length > 0 ? (
+                <ul className="members-list">
+                  {listUser.map((member: any, index: number) => (
+                    <li key={index} className="member-item">
+                      <div className="member-info">
+                        <div className="member-email">{member.email}</div>
+                        <div className="member-date">
+                          {modalData.type === "approved"
+                            ? `${i18n("pages.invitation.approved")}: ${Dates.formatDateTime(
+                              member.updatedAt || member.createdAt
+                            )}`
+                            : `${i18n("pages.invitation.joined")}: ${Dates.formatDateTime(
+                              member.createdAt
+                            )}`}
+                        </div>
+                      </div>
+                      <div
+                        className={`member-status ${modalData.type === "approved"
+                          ? "status-approved"
+                          : "status-pending"
+                          }`}
+                      >
+                        {modalData.type}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="empty-state">
+                  <i className="fas fa-users"></i>
+                  <p>{i18n("pages.invitation.noMembersFound")}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      <div
+        className="toast-notification"
+        id="referralToast"
+        style={{
+          display: copySuccess ? "block" : "none",
+          position: "fixed",
+          bottom: "20px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          background: "#00C076",
+          color: "white",
+          padding: "12px 24px",
+          borderRadius: "8px",
+          fontWeight: "500",
+          zIndex: "1001",
+        }}
+      >
+        {i18n("pages.invitation.referralCopied")}
+      </div>
+
+      {/* Members Modal */}
+      <div
+        className={`modal-overlay ${isModalOpen ? "active" : ""}`}
+        onClick={handleCloseModal}
+      >
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-header">
+            <h3 className="modal-title">{modalData.title}</h3>
+            <button className="modal-close-btn" onClick={handleCloseModal}>
+              <i className="fas fa-times"></i>
+            </button>
+          </div>
+          <div className="modal-body">
+            {userLoading ? (
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "40px",
+                  color: "#F3BA2F",
+                }}
+              >
+                <i
+                  className="fas fa-spinner fa-spin"
+                  style={{ fontSize: "24px", marginBottom: "15px" }}
+                ></i>
+                <p>{i18n("pages.invitation.loadingMembers")}</p>
+              </div>
+            ) : listUser && listUser.length > 0 ? (
+              <ul className="members-list">
+                {listUser.map((member, index) => (
+                  <li key={index} className="member-item">
+                    <div className="member-info">
+                      <div className="member-email">{member.email}</div>
+                      <div className="member-date">
+                        {modalData.type === "approved"
+                          ? `${i18n("pages.invitation.approved")}: ${Dates.formatDateTime(
+                            member.updatedAt || member.createdAt
+                          )}`
+                          : `${i18n("pages.invitation.joined")}: ${Dates.formatDateTime(member.createdAt)}`}
+                      </div>
+                    </div>
+                    <div
+                      className={`member-status ${modalData.type === "approved"
+                        ? "status-approved"
+                        : "status-pending"
+                        }`}
+                    >
+                      {modalData.type}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="empty-state">
+                <i className="fas fa-users"></i>
+                <p>{i18n("pages.invitation.noMembersFound")}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+
+      <style>{`
+        /* Modal Styles */
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.8);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          padding: 20px;
+          opacity: 0;
+          visibility: hidden;
+          transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+          opacity: 1;
+          visibility: visible;
+        }
+
+        .modal-content {
+          background: linear-gradient(145deg, #1A1A1A, #2A2A2A);
+          border-radius: 16px;
+          padding: 0;
+          width: 100%;
+          max-width: 400px;
+          max-height: 90vh;
+          overflow: hidden;
+          transform: translateY(50px);
+          transition: transform 0.3s ease;
+          border: 1px solid #2A2A2A;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-overlay.active .modal-content {
+          transform: translateY(0);
+        }
+
+        .modal-header {
+          padding: 20px 25px;
+          border-bottom: 1px solid #3A3A3A;
+          background: linear-gradient(145deg, #2A2A2A, #1A1A1A);
+          position: relative;
+        }
+
+        .modal-header::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 4px;
+          background: linear-gradient(90deg, #F3BA2F, #ffd700);
+        }
+
+        .modal-title {
+          font-size: 20px;
+          font-weight: bold;
+          color: #F3BA2F;
+          margin: 0;
+        }
+
+        .modal-close-btn {
+          position: absolute;
+          top: 20px;
+          right: 25px;
+          background: none;
+          border: none;
+          color: #AAAAAA;
+          font-size: 24px;
+          cursor: pointer;
+          transition: color 0.2s;
+          width: 30px;
+          height: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+        }
+
+        .modal-close-btn:hover {
+          color: #F3BA2F;
+          background-color: rgba(243, 186, 47, 0.1);
+        }
+
+        .modal-body {
+          padding: 0;
+          max-height: 60vh;
+          overflow-y: auto;
+        }
+
+        .members-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+
+        .member-item {
+          padding: 15px 25px;
+          border-bottom: 1px solid #3A3A3A;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          transition: background-color 0.2s;
+        }
+
+        .member-item:hover {
+          background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .member-item:last-child {
+          border-bottom: none;
+        }
+
+        .member-info {
+          flex: 1;
+        }
+
+        .member-email {
+          color: #FFFFFF;
+          font-weight: 500;
+          margin-bottom: 5px;
+          font-size: 14px;
+        }
+
+        .member-date {
+          color: #AAAAAA;
+          font-size: 12px;
+        }
+
+        .member-status {
+          padding: 4px 12px;
+          border-radius: 20px;
+          font-size: 11px;
+          font-weight: bold;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .status-approved {
+          background: linear-gradient(90deg, #00C076, #00ff95);
+          color: #000000;
+        }
+
+        .status-pending {
+          background: linear-gradient(90deg, #F3BA2F, #ffd700);
+          color: #000000;
+        }
+
+        .empty-state {
+          padding: 40px 25px;
+          text-align: center;
+          color: #AAAAAA;
+        }
+
+        .empty-state i {
+          font-size: 48px;
+          margin-bottom: 15px;
+          color: #3A3A3A;
+        }
+
+        .empty-state p {
+          margin: 0;
+          font-size: 14px;
+        }
+
+        /* Scrollbar Styling */
+        .modal-body::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        .modal-body::-webkit-scrollbar-track {
+          background: #1A1A1A;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb {
+          background: #F3BA2F;
+          border-radius: 3px;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb:hover {
+          background: #ffd700;
+        }
+
+        @media (max-width: 480px) {
+          .modal-content {
+            margin: 10px;
+            max-height: 85vh;
+          }
+          
+          .modal-header {
+            padding: 15px 20px;
+          }
+          
+          .modal-title {
+            font-size: 18px;
+          }
+          
+          .member-item {
+            padding: 12px 20px;
+          }
+        }
+
+          .total-earned-section {
+    margin: 20px 0;
+  }
+
+  .total-earned-card {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    border-radius: 16px;
+    padding: 30px 20px;
+    border: 1px solid #333333;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .total-earned-label {
+    color: #aaaaaa;
+    font-size: 14px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .total-earned-amount {
+    font-size: 42px;
+    font-weight: bold;
+    color: #F3BA2F;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 10px rgba(243, 186, 47, 0.3);
+  }
+
+  .total-earned-subtitle {
+    color: #666666;
+    font-size: 12px;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 480px) {
+    .total-earned-card {
+      padding: 25px 15px;
+    }
+
+    .total-earned-amount {
+      font-size: 36px;
+    }
+  }
+      `}</style>
+    </div>
+  );
+}
+
+export default Invitation;

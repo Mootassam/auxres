@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOGE/USDT Trading</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: #ffffff;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            height: 100dvh;
+            position: relative;
+            background: #f2f4f7;
+        }
+
+        /* Header Section */
+        .header {
+            padding: 15px 20px;
+            color: #000;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-arrow {
+            font-size: 18px;
+            font-weight: 300;
+        }
+
+        .trading-pair {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .header-icon {
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* Price Section */
+        .price-section {
+            padding: 20px;
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+            border-radius: 40px 40px 0 0;
+        }
+
+        .current-price {
+            font-size: 28px;
+            font-weight: 700;
+            color: #37b66a;
+            margin-bottom: 4px;
+        }
+
+        .usd-price {
+            font-size: 16px;
+            color: #6c757d;
+            margin-bottom: 8px;
+        }
+
+        .price-change {
+            font-size: 14px;
+            font-weight: 600;
+            color: #f56c6c;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            padding: 15px 20px;
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+
+        .stat-label {
+            color: #6c757d;
+        }
+
+        .stat-value {
+            color: #333;
+            font-weight: 500;
+        }
+
+        /* Chart Section */
+        .chart-section {
+            padding: 20px;
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .timeframe-selector {
+            display: flex;
+            gap: 8px;
+        }
+
+        .timeframe {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #6c757d;
+        }
+
+        .timeframe.active {
+            background: #e9ecef;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .chart-container {
+            height: 200px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            position: relative;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .chart-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .price-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 1px;
+            border-top: 1px dashed #f56c6c;
+            top: 60%;
+        }
+
+        .price-line-label {
+            position: absolute;
+            right: 5px;
+            top: 60%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2px 6px;
+            font-size: 10px;
+            color: #f56c6c;
+            border-radius: 2px;
+        }
+
+        .volume-container {
+            height: 40px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            position: relative;
+            margin-top: 10px;
+        }
+
+        .volume-bars {
+            display: flex;
+            align-items: flex-end;
+            height: 100%;
+            padding: 0 5px;
+            gap: 2px;
+        }
+
+        .volume-bar {
+            flex: 1;
+            background: #6c757d;
+            border-radius: 1px 1px 0 0;
+            min-height: 1px;
+        }
+
+        .volume-label {
+            position: absolute;
+            left: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 10px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .ma-legends {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            font-size: 11px;
+        }
+
+        .ma-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .ma-color {
+            width: 8px;
+            height: 2px;
+            border-radius: 1px;
+        }
+
+        .ma5 {
+            background: #106cf5;
+        }
+
+        .ma10 {
+            background: #ff7a00;
+        }
+
+        .ma20 {
+            background: #37b66a;
+        }
+
+        /* Tabs Section */
+        .tabs-section {
+            padding: 0 20px;
+            background: white;
+        }
+
+        .tabs-header {
+            display: flex;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6c757d;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            color: #106cf5;
+            border-bottom: 2px solid #106cf5;
+        }
+
+        .tab-content {
+            padding: 15px 0;
+            min-height: 200px;
+        }
+
+        /* Order Book */
+        .order-book {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .order-book-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 8px;
+            padding: 0 5px;
+        }
+
+        .order-book-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .order-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            padding: 4px 5px;
+            border-radius: 4px;
+        }
+
+        .buy-side .order-price {
+            color: #37b66a;
+        }
+
+        .sell-side .order-price {
+            color: #f56c6c;
+        }
+
+        .order-amount {
+            color: #6c757d;
+        }
+
+        .buy-side {
+            background: rgba(55, 182, 106, 0.05);
+        }
+
+        .sell-side {
+            background: rgba(245, 108, 108, 0.05);
+        }
+
+        /* Latest Transactions */
+        .transactions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            padding: 6px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .transaction-time {
+            color: #6c757d;
+        }
+
+        .transaction-price {
+            font-weight: 500;
+        }
+
+        .transaction-amount {
+            color: #6c757d;
+        }
+
+        .transaction-type.buy {
+            color: #37b66a;
+        }
+
+        .transaction-type.sell {
+            color: #f56c6c;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 380px) {
+            .container {
+                padding: 0;
+            }
+
+            .header,
+            .price-section,
+            .stats-section,
+            .chart-section,
+            .tabs-section {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="nav-bar">
+                <div class="back-arrow">
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+                <div class="trading-pair">
+                    DOGE / USDT
+                </div>
+                <div class="header-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Price Section -->
+        <div class="price-section">
+            <div class="current-price">0.14858</div>
+            <div class="usd-price">$0.15</div>
+            <div class="price-change">−2.11%</div>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-label">24H High</div>
+                    <div class="stat-value">0.15234</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">24H Low</div>
+                    <div class="stat-value">0.14567</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">DOGE Volume</div>
+                    <div class="stat-value">1.2B</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">USDT Volume</div>
+                    <div class="stat-value">178.5M</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="chart-section">
+            <div class="chart-header">
+                <div class="chart-title">DOGE/USDT Chart</div>
+                <div class="timeframe-selector">
+                    <div class="timeframe">1H</div>
+                    <div class="timeframe">1D</div>
+                    <div class="timeframe active">Month</div>
+                    <div class="timeframe">1Y</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-placeholder">
+                    Candlestick Chart - Month Timeframe
+                </div>
+                <div class="price-line">
+                    <div class="price-line-label">0.14864</div>
+                </div>
+            </div>
+
+            <div class="volume-container">
+                <div class="volume-label">VOL</div>
+                <div class="volume-bars">
+                    <div class="volume-bar" style="height: 30%;"></div>
+                    <div class="volume-bar" style="height: 45%;"></div>
+                    <div class="volume-bar" style="height: 60%;"></div>
+                    <div class="volume-bar" style="height: 35%;"></div>
+                    <div class="volume-bar" style="height: 70%;"></div>
+                    <div class="volume-bar" style="height: 50%;"></div>
+                    <div class="volume-bar" style="height: 40%;"></div>
+                    <div class="volume-bar" style="height: 65%;"></div>
+                    <div class="volume-bar" style="height: 55%;"></div>
+                    <div class="volume-bar" style="height: 45%;"></div>
+                </div>
+            </div>
+
+            <div class="ma-legends">
+                <div class="ma-item">
+                    <div class="ma-color ma5"></div>
+                    <div>MA5: 0.14923</div>
+                </div>
+                <div class="ma-item">
+                    <div class="ma-color ma10"></div>
+                    <div>MA10: 0.14895</div>
+                </div>
+                <div class="ma-item">
+                    <div class="ma-color ma20"></div>
+                    <div>MA20: 0.14812</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs Section -->
+        <div class="tabs-section">
+            <div class="tabs-header">
+                <div class="tab active">Order Book</div>
+                <div class="tab">Latest Transaction</div>
+            </div>
+
+            <div class="tab-content">
+                <!-- Order Book Content -->
+                <div class="order-book">
+                    <div class="order-book-header">
+                        <div>Buy Quantity</div>
+                        <div>Price (USDT)</div>
+                        <div>Sell Quantity</div>
+                    </div>
+
+                    <div class="order-book-rows">
+                        <!-- Buy Side -->
+                        <div class="order-row buy-side">
+                            <div class="order-amount">12,458.90</div>
+                            <div class="order-price">0.14855</div>
+                            <div class="order-amount"></div>
+                        </div>
+                        <div class="order-row buy-side">
+                            <div class="order-amount">8,742.31</div>
+                            <div class="order-price">0.14853</div>
+                            <div class="order-amount"></div>
+                        </div>
+                        <div class="order-row buy-side">
+                            <div class="order-amount">15,328.67</div>
+                            <div class="order-price">0.14850</div>
+                            <div class="order-amount"></div>
+                        </div>
+                        <div class="order-row buy-side">
+                            <div class="order-amount">9,876.54</div>
+                            <div class="order-price">0.14848</div>
+                            <div class="order-amount"></div>
+                        </div>
+                        <div class="order-row buy-side">
+                            <div class="order-amount">11,234.56</div>
+                            <div class="order-price">0.14845</div>
+                            <div class="order-amount"></div>
+                        </div>
+
+                        <!-- Current Price Separator -->
+                        <div class="order-row" style="background: #e9ecef; font-weight: 600;">
+                            <div class="order-amount"></div>
+                            <div class="order-price">0.14858</div>
+                            <div class="order-amount"></div>
+                        </div>
+
+                        <!-- Sell Side -->
+                        <div class="order-row sell-side">
+                            <div class="order-amount"></div>
+                            <div class="order-price">0.14860</div>
+                            <div class="order-amount">7,654.32</div>
+                        </div>
+                        <div class="order-row sell-side">
+                            <div class="order-amount"></div>
+                            <div class="order-price">0.14862</div>
+                            <div class="order-amount">10,987.65</div>
+                        </div>
+                        <div class="order-row sell-side">
+                            <div class="order-amount"></div>
+                            <div class="order-price">0.14865</div>
+                            <div class="order-amount">8,432.10</div>
+                        </div>
+                        <div class="order-row sell-side">
+                            <div class="order-amount"></div>
+                            <div class="order-price">0.14868</div>
+                            <div class="order-amount">12,345.67</div>
+                        </div>
+                        <div class="order-row sell-side">
+                            <div class="order-amount"></div>
+                            <div class="order-price">0.14870</div>
+                            <div class="order-amount">9,876.54</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Latest Transactions Content (Hidden by default) -->
+                <div class="transactions-list" style="display: none;">
+                    <div class="transaction-item">
+                        <div class="transaction-time">14:23:15</div>
+                        <div class="transaction-price">0.14858</div>
+                        <div class="transaction-amount">1,245.67</div>
+                        <div class="transaction-type buy">Buy</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-time">14:22:48</div>
+                        <div class="transaction-price">0.14860</div>
+                        <div class="transaction-amount">876.54</div>
+                        <div class="transaction-type sell">Sell</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-time">14:22:32</div>
+                        <div class="transaction-price">0.14855</div>
+                        <div class="transaction-amount">2,345.67</div>
+                        <div class="transaction-type buy">Buy</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-time">14:22:15</div>
+                        <div class="transaction-price">0.14862</div>
+                        <div class="transaction-amount">1,567.89</div>
+                        <div class="transaction-type sell">Sell</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-time">14:21:58</div>
+                        <div class="transaction-price">0.14858</div>
+                        <div class="transaction-amount">3,456.78</div>
+                        <div class="transaction-type buy">Buy</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const tabs = document.querySelectorAll('.tab');
+            const orderBook = document.querySelector('.order-book');
+            const transactionsList = document.querySelector('.transactions-list');
+            const backArrow = document.querySelector('.back-arrow');
+
+            // Tab switching functionality
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function () {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+
+                    // Show/hide content based on tab
+                    if (this.textContent === 'Order Book') {
+                        orderBook.style.display = 'flex';
+                        transactionsList.style.display = 'none';
+                    } else {
+                        orderBook.style.display = 'none';
+                        transactionsList.style.display = 'flex';
+                    }
+                });
+            });
+
+            // Back arrow functionality
+            backArrow.addEventListener('click', function () {
+                console.log('Back arrow clicked');
+                // In a real app, this would navigate back
+            });
+
+            // Timeframe selector functionality
+            const timeframes = document.querySelectorAll('.timeframe');
+            timeframes.forEach(timeframe => {
+                timeframe.addEventListener('click', function () {
+                    timeframes.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    console.log(`Timeframe changed to: ${this.textContent}`);
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

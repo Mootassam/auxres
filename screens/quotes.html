@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Quotes - Blockchain</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            font-size: 14px;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: #ffffff;
+            color: #333;
+            line-height: 1.6;
+            padding-bottom: 80px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .page-container {
+            max-width: 400px;
+            width: 100%;
+        }
+
+        /* Header Styles */
+        .header {
+            background-color: #106cf5;
+            color: white;
+            padding: 10px 20px 20px;
+            position: relative;
+        }
+
+        .header-title {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .search-bar {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-bar i {
+            margin-right: 10px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .search-bar input {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 16px;
+            width: 100%;
+            outline: none;
+        }
+
+        .search-bar input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Main Content */
+
+
+        .table-header {
+            display: flex;
+
+            font-weight: 600;
+            color: #6c757d;
+
+            font-size: 12px;
+        }
+
+        .table-row {
+            display: flex;
+            /* border-bottom: 1px solid #f1f3f4; */
+            align-items: center;
+            transition: background-color 0.2s;
+            margin-top:8px !important ;
+
+
+        }
+        .table-row:last-child {
+            border-bottom: none;
+        }
+
+        .table-row:hover {
+            background-color: #f8f9fa;
+        }
+
+        .pair-col {
+            flex: 2;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .price-col {
+            flex: 2;
+            text-align: right;
+            margin-right: 15px;
+        }
+
+        .change-col {
+            flex: 1;
+            text-align: right;
+        }
+
+        .crypto-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #f0f2f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 14px;
+            color: #106cf5;
+            font-weight: bold;
+        }
+
+        .crypto-price {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .usd-price {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+
+        .change-positive {
+            background-color: #37b66a;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 0px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-block;
+            min-width: 70px;
+            text-align: center;
+        }
+
+        .change-negative {
+            background-color: #e53858;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 0px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-block;
+            min-width: 70px;
+            text-align: center;
+        }
+
+        /* Navigation Bar */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            background-color: #f5f5f5;
+            z-index: 100;
+            max-width: 400px;
+            margin: 0 auto;
+            border-radius: 30px 30px 0 0;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #8e8e93;
+            font-size: 12px;
+            transition: color 0.2s;
+        }
+
+        .nav-item.active {
+            color: #106cf5;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 380px) {
+
+
+            .table-row {
+                padding: 14px 15px;
+            }
+
+            .crypto-icon {
+                width: 28px;
+                height: 28px;
+                margin-right: 10px;
+            }
+        }
+
+        /* Animation for price changes */
+        @keyframes pulseGreen {
+            0% {
+                background-color: #37b66a;
+            }
+
+            50% {
+                background-color: #2da15a;
+            }
+
+            100% {
+                background-color: #37b66a;
+            }
+        }
+
+        @keyframes pulseRed {
+            0% {
+                background-color: #e53858;
+            }
+
+            50% {
+                background-color: #d32f4e;
+            }
+
+            100% {
+                background-color: #e53858;
+            }
+        }
+
+        .price-update {
+            animation-duration: 1s;
+            animation-iteration-count: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-container" style=" background-color: #106cf5">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">Blockchain</div>
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search crypto...">
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="container"
+            style="    border-radius: 21px 21px 0 0; background-color: white;   padding: 20px 16px 0;">
+            <div class="table-header">
+                <div class="pair-col" style="font-size: 12px;">Trading Pair</div>
+                <div class="price-col" style="font-size: 12px;">Latest Price</div>
+                <div class="change-col" style="font-size: 12px;">24H Change</div>
+            </div>
+
+            <div class="table-row">
+                <div class="pair-col">
+                    <div class="crypto-icon">SH</div>
+                    <span>SHIB/USDT</span>
+                </div>
+                <div class="price-col">
+                    <div class="crypto-price">0.000025</div>
+                    <div class="usd-price">$0.000025</div>
+                </div>
+                <div class="change-col">
+                    <span class="change-positive">+2.31%</span>
+                </div>
+            </div>
+
+            <div class="table-row">
+                <div class="pair-col">
+                    <div class="crypto-icon">US</div>
+                    <span>USDC/USDT</span>
+                </div>
+                <div class="price-col">
+                    <div class="crypto-price">1.0002</div>
+                    <div class="usd-price">$1.0002</div>
+                </div>
+                <div class="change-col">
+                    <span class="change-positive">+0.01%</span>
+                </div>
+            </div>
+
+            <div class="table-row">
+                <div class="pair-col">
+                    <div class="crypto-icon">DO</div>
+                    <span>DOGE/USDT</span>
+                </div>
+                <div class="price-col">
+                    <div class="crypto-price">0.1456</div>
+                    <div class="usd-price">$0.1456</div>
+                </div>
+                <div class="change-col">
+                    <span class="change-positive">+3.07%</span>
+                </div>
+            </div>
+
+            <div class="table-row">
+                <div class="pair-col">
+                    <div class="crypto-icon">TR</div>
+                    <span>TRX/USDT</span>
+                </div>
+                <div class="price-col">
+                    <div class="crypto-price">0.1054</div>
+                    <div class="usd-price">$0.1054</div>
+                </div>
+                <div class="change-col">
+                    <span class="change-negative">-1.50%</span>
+                </div>
+            </div>
+
+            <div class="table-row">
+                <div class="pair-col">
+                    <div class="crypto-icon">XR</div>
+                    <span>XRP/USDT</span>
+                </div>
+                <div class="price-col">
+                    <div class="crypto-price">0.5321</div>
+                    <div class="usd-price">$0.5321</div>
+                </div>
+                <div class="change-col">
+                    <span class="change-negative">-0.73%</span>
+                </div>
+            </div>
+
+            <div class="table-row">
+                <div class="pair-col">
+                    <div class="crypto-icon">AD</div>
+                    <span>ADA/USDT</span>
+                </div>
+                <div class="price-col">
+                    <div class="crypto-price">0.4623</div>
+                    <div class="usd-price">$0.4623</div>
+                </div>
+                <div class="change-col">
+                    <span class="change-positive">+1.24%</span>
+                </div>
+            </div>
+
+            <div class="table-row">
+                <div class="pair-col">
+                    <div class="crypto-icon">FI</div>
+                    <span>FIL/USDT</span>
+                </div>
+                <div class="price-col">
+                    <div class="crypto-price">5.6721</div>
+                    <div class="usd-price">$5.6721</div>
+                </div>
+                <div class="change-col">
+                    <span class="change-positive">+0.89%</span>
+                </div>
+            </div>
+
+            <div class="table-row">
+                <div class="pair-col">
+                    <div class="crypto-icon">MA</div>
+                    <span>MATIC/USDT</span>
+                </div>
+                <div class="price-col">
+                    <div class="crypto-price">0.7823</div>
+                    <div class="usd-price">$0.7823</div>
+                </div>
+                <div class="change-col">
+                    <span class="change-negative">-0.45%</span>
+                </div>
+            </div>
+
+            <div class="table-row">
+                <div class="pair-col">
+                    <div class="crypto-icon">TO</div>
+                    <span>TON/USDT</span>
+                </div>
+                <div class="price-col">
+                    <div class="crypto-price">6.4521</div>
+                    <div class="usd-price">$6.4521</div>
+                </div>
+                <div class="change-col">
+                    <span class="change-positive">+4.12%</span>
+                </div>
+            </div>
+
+            <div class="table-row">
+                <div class="pair-col">
+                    <div class="crypto-icon">LI</div>
+                    <span>LINK/USDT</span>
+                </div>
+                <div class="price-col">
+                    <div class="crypto-price">14.2365</div>
+                    <div class="usd-price">$14.2365</div>
+                </div>
+                <div class="change-col">
+                    <span class="change-positive">+2.67%</span>
+                </div>
+            </div>
+
+            <div class="table-row">
+                <div class="pair-col">
+                    <div class="crypto-icon">DO</div>
+                    <span>DOT/USDT</span>
+                </div>
+                <div class="price-col">
+                    <div class="crypto-price">6.8921</div>
+                    <div class="usd-price">$6.8921</div>
+                </div>
+                <div class="change-col">
+                    <span class="change-negative">-1.23%</span>
+                </div>
+            </div>
+
+            <div class="table-row">
+                <div class="pair-col">
+                    <div class="crypto-icon">EO</div>
+                    <span>EOS/USDT</span>
+                </div>
+                <div class="price-col">
+                    <div class="crypto-price">0.8123</div>
+                    <div class="usd-price">$0.8123</div>
+                </div>
+                <div class="change-col">
+                    <span class="change-positive">+0.56%</span>
+                </div>
+            </div>
+
+            <div class="table-row">
+                <div class="pair-col">
+                    <div class="crypto-icon">SO</div>
+                    <span>SOL/USDT</span>
+                </div>
+                <div class="price-col">
+                    <div class="crypto-price">142.65</div>
+                    <div class="usd-price">$142.65</div>
+                </div>
+                <div class="change-col">
+                    <span class="change-positive">+5.32%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <div class="nav-bar">
+            <div class="nav-item">
+                <i class="fas fa-home nav-icon"></i>
+                <span>Home</span>
+            </div>
+            <div class="nav-item active">
+                <i class="fas fa-chart-line nav-icon"></i>
+                <span>Quotes</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-exchange-alt nav-icon"></i>
+                <span>Trade</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-wallet nav-icon"></i>
+                <span>Finance</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-chart-pie nav-icon"></i>
+                <span>Assets</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulate price updates
+        function simulatePriceUpdates() {
+            const rows = document.querySelectorAll('.table-row');
+            const changes = document.querySelectorAll('.change-positive, .change-negative');
+
+            // Randomly update some prices and changes
+            setInterval(() => {
+                const randomIndex = Math.floor(Math.random() * rows.length);
+                const row = rows[randomIndex];
+                const changeElement = changes[randomIndex];
+
+                // Add animation class
+                row.classList.add('price-update');
+
+                // Randomly determine if it's positive or negative
+                const isPositive = Math.random() > 0.5;
+                const changeValue = (Math.random() * 5).toFixed(2);
+
+                if (isPositive) {
+                    changeElement.textContent = `+${changeValue}%`;
+                    changeElement.className = 'change-positive';
+                    row.style.animationName = 'pulseGreen';
+                } else {
+                    changeElement.textContent = `-${changeValue}%`;
+                    changeElement.className = 'change-negative';
+                    row.style.animationName = 'pulseRed';
+                }
+
+                // Remove animation class after animation completes
+                setTimeout(() => {
+                    row.classList.remove('price-update');
+                }, 1000);
+
+            }, 5000);
+        }
+
+        // Initialize price updates simulation
+        document.addEventListener('DOMContentLoaded', simulatePriceUpdates);
+    </script>
+</body>
+
+</html>

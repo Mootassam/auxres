@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AureX - Cryptocurrency Trading</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: #f2f4f7;
+            color: #333;
+            line-height: 1.6;
+            padding-bottom: 80px;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: #106cf5;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            margin-right: 8px;
+            font-size: 22px;
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 16px;
+        }
+
+        .icon-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            color: #555;
+            font-size: 18px;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            margin: 20px 0 30px;
+        }
+
+        .crypto-illustration {
+            width: 100%;
+            max-width: 280px;
+            height: 200px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(16, 108, 245, 0.15);
+        }
+
+        .coin {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .bitcoin {
+            background: linear-gradient(135deg, #F7931A 0%, #F15A24 100%);
+            top: 30px;
+            left: 50px;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .ethereum {
+            background: linear-gradient(135deg, #627EEA 0%, #8A63D2 100%);
+            bottom: 40px;
+            right: 50px;
+            animation: float 4s ease-in-out infinite 1s;
+        }
+
+        .hand {
+            position: absolute;
+            bottom: 0;
+            width: 120px;
+            height: 100px;
+            background: #FFD7B5;
+            border-radius: 50% 50% 0 0;
+            z-index: 2;
+        }
+
+        .slogan {
+            color: #106cf5;
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        /* Promo Banner */
+        .promo-banner {
+            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            color: white;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .promo-banner::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .promo-banner::after {
+            content: "";
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+        }
+
+        .promo-text {
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 1.4;
+            position: relative;
+            z-index: 2;
+        }
+
+        .pagination-dots {
+            display: flex;
+            justify-content: center;
+            margin-top: 12px;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .dot.active {
+            background: #106cf5;
+            width: 20px;
+            border-radius: 3px;
+        }
+
+        /* Announcement Card */
+        .announcement-card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .announcement-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f0f7ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #106cf5;
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        .announcement-content {
+            flex: 1;
+        }
+
+        .announcement-title {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .announcement-desc {
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* Feature Cards */
+        .feature-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .quick-trade-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .highlight {
+            color: #106cf5;
+        }
+
+        .card-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .arrow-button {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #106cf5;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .ai-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .ai-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #222;
+        }
+
+        .ai-description {
+            font-size: 15px;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #222;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #106cf5;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Services Section */
+        .services-section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .service-item {
+            text-align: center;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .service-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #106cf5;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-size: 18px;
+        }
+
+        .service-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .service-desc {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* News Section */
+        .news-section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .news-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .news-item:last-child {
+            border-bottom: none;
+        }
+
+        .news-date {
+            font-size: 12px;
+            color: #106cf5;
+            margin-bottom: 4px;
+        }
+
+        .news-title {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        /* Partners Section */
+        .partners-section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .partners-title {
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 16px;
+            color: #222;
+        }
+
+        .partners-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+        }
+
+        .partner-item {
+            height: 60px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #555;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
+            border-radius: 16px;
+            padding: 30px 20px;
+            margin-bottom: 20px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 6px 15px rgba(16, 108, 245, 0.2);
+        }
+
+        .cta-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .cta-subtitle {
+            font-size: 16px;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .cta-button {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Navigation Bar */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            z-index: 100;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #8e8e93;
+            font-size: 12px;
+            transition: color 0.2s;
+        }
+
+        .nav-item.active {
+            color: #106cf5;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        /* Animations */
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-10px) rotate(5deg);
+            }
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 380px) {
+            .container {
+                padding: 0 12px;
+            }
+            
+            .crypto-illustration {
+                height: 180px;
+            }
+            
+            .coin {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+            
+            .stats-grid, .services-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-coins logo-icon"></i>
+                AureX
+            </div>
+            <div class="header-icons">
+                <div class="icon-circle">
+                    <i class="far fa-envelope"></i>
+                </div>
+                <div class="icon-circle">
+                    <i class="far fa-user"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <div class="crypto-illustration">
+                <div class="hand"></div>
+                <div class="coin bitcoin">
+                    <i class="fab fa-bitcoin"></i>
+                </div>
+                <div class="coin ethereum">
+                    <i class="fab fa-ethereum"></i>
+                </div>
+            </div>
+            <div class="slogan">Where Fortune Meets Precision</div>
+        </div>
+
+        <!-- Promo Banner -->
+        <div class="promo-banner">
+            <div class="promo-text">To make financial more efficient and more freedom to wealth</div>
+            <div class="pagination-dots">
+                <div class="dot active"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+
+        <!-- Announcement Card -->
+        <div class="announcement-card">
+            <div class="announcement-icon">
+                <i class="fas fa-bullhorn"></i>
+            </div>
+            <div class="announcement-content">
+                <div class="announcement-title">Maintenance notice</div>
+                <div class="announcement-desc">Contract server upgrade and maintenance announcement on January 15, 2023</div>
+            </div>
+        </div>
+
+        <!-- QuickTrade Card -->
+        <div class="feature-card">
+            <div class="quick-trade-header">
+                <div>
+                    <div class="card-title"><span class="highlight">Quick</span>Trade</div>
+                    <div class="card-subtitle">Fast transactions and simple operation</div>
+                </div>
+                <div class="arrow-button">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Trading Card -->
+        <div class="ai-card">
+            <div class="ai-title">AI Smart Trading</div>
+            <div class="ai-description">
+                An AI quantitative trading robot is an automated trading system that combines artificial intelligence (AI) with quantitative trading techniques. Its primary function is to automatically buy and sell financial products and cryptocurrencies based on market data and specific trading strategies to achieve stable profits or control risks.
+            </div>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="stats-section">
+            <div class="section-title">Our Impact</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value">30M+</div>
+                    <div class="stat-label">Number of users</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">6000+</div>
+                    <div class="stat-label">Cooperating organization</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">7.8B+</div>
+                    <div class="stat-label">Liquidity</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">89M</div>
+                    <div class="stat-label">Orders processed per second</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services Section -->
+        <div class="services-section">
+            <div class="section-title">Our Services</div>
+            <div class="services-grid">
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <div class="service-title">24-hour service</div>
+                    <div class="service-desc">Ready to answer all your questions</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="service-title">High interest rate</div>
+                    <div class="service-desc">Finance, high return rate</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="service-title">Liquidity mining</div>
+                    <div class="service-desc">Liquidity makes easy profits</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-file-contract"></i>
+                    </div>
+                    <div class="service-title">High contract</div>
+                    <div class="service-desc">Small capital high lever, rich easily</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="service-title">Expert team</div>
+                    <div class="service-desc">Expert technical team at your service</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="service-title">Security protection</div>
+                    <div class="service-desc">Powerful cloud data protect your security</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- News Section -->
+        <div class="news-section">
+            <div class="section-title">News from the circle</div>
+            <div class="news-item">
+                <div class="news-date">10-14-2025</div>
+                <div class="news-title">Elon Musk Says Bitcoin Is Based on Energy, Which Is Impossible to Fake</div>
+            </div>
+            <div class="news-item">
+                <div class="news-date">10-5-2025</div>
+                <div class="news-title">Bitcoin Touches Record Price Above $125,000</div>
+            </div>
+            <div class="news-item">
+                <div class="news-date">9-17-2025</div>
+                <div class="news-title">Giant Trump statue holding Bitcoin displayed outside US Capitol to mark Fed rate decision</div>
+            </div>
+        </div>
+
+        <!-- Partners Section -->
+        <div class="partners-section">
+            <div class="partners-title">World Ecological Partner</div>
+            <div class="partners-grid">
+                <div class="partner-item">Binance</div>
+                <div class="partner-item">Coinbase</div>
+                <div class="partner-item">Kraken</div>
+                <div class="partner-item">FTX</div>
+                <div class="partner-item">Bitfinex</div>
+                <div class="partner-item">Huobi</div>
+            </div>
+        </div>
+
+        <!-- CTA Section -->
+        <div class="cta-section">
+            <div class="cta-title">Start trading cryptocurrency?</div>
+            <div class="cta-subtitle">Open your cryptocurrency account now</div>
+            <div class="cta-buttons">
+                <div class="cta-button">
+                    <i class="fab fa-android"></i>
+                    <span>Android</span>
+                </div>
+                <div class="cta-button">
+                    <i class="fab fa-apple"></i>
+                    <span>IOS</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+        <div class="nav-item active">
+            <i class="fas fa-home nav-icon"></i>
+            <span>Home</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-chart-line nav-icon"></i>
+            <span>Quotes</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-exchange-alt nav-icon"></i>
+            <span>Trade</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-wallet nav-icon"></i>
+            <span>Finance</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-chart-pie nav-icon"></i>
+            <span>Assets</span>
+        </div>
+    </div>
+
+    <script>
+        // Simple animation for promo banner dots
+        document.addEventListener('DOMContentLoaded', function() {
+            const dots = document.querySelectorAll('.pagination-dots .dot');
+            let currentActive = 0;
+            
+            setInterval(() => {
+                dots[currentActive].classList.remove('active');
+                currentActive = (currentActive + 1) % dots.length;
+                dots[currentActive].classList.add('active');
+            }, 3000);
+        });
+    </script>
+</body>
+</html>

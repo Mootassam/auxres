@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BTC/USDT Perpetual</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            height: 100dvh;
+            position: relative;
+            background: white;
+        }
+
+        /* Header Section */
+        .header {
+            background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
+            padding: 15px 20px;
+            color: white;
+        }
+
+        .trading-pair {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .pair-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pair-name {
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .perpetual-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .header-icons i {
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .current-price {
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            height: calc(100vh - 200px);
+        }
+
+        /* Order Panel */
+        .order-panel {
+            flex: 1;
+            padding: 15px;
+        }
+
+        .order-type-tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 5px 10px;
+            text-align: center;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: #37b66a;
+            color: white;
+        }
+
+        .dropdown-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .dropdown {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f5f5f5;
+            border-radius: 6px;
+            padding: 10px 5px;
+            font-size: 12px;
+            position: relative;
+        }
+
+        .dropdown::after {
+            content: "▼";
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 10px;
+            color: #666;
+        }
+
+        .order-type {
+            background: #f5f5f5;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background: #f9f9f9;
+            color: #999;
+        }
+
+        .slider-container {
+            margin: 20px 0;
+        }
+
+        .slider-percentages {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .percentage {
+            font-size: 12px;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .slider {
+            width: 100%;
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .slider-fill {
+            position: absolute;
+            height: 100%;
+            background: #106cf5;
+            border-radius: 2px;
+            width: 50%;
+        }
+
+        .balance-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #106cf5;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .checkbox.checked::after {
+            content: "✓";
+            color: #106cf5;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .order-button {
+            width: 100%;
+            padding: 15px;
+            background: #37b66a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* Order Book */
+        .order-book {
+            flex: 1;
+            padding: 15px;
+        }
+
+        .order-book-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .order-list {
+            list-style: none;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 12px;
+        }
+
+        .buy-price {
+            color: #37b66a;
+        }
+
+        .sell-price {
+            color: #f56c6c;
+        }
+
+        .market-price {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: #37b66a;
+            margin: 10px 0;
+            padding: 8px;
+            background: rgba(55, 182, 106, 0.1);
+            border-radius: 6px;
+        }
+
+        /* Bottom Panel */
+        .bottom-panel {
+            position: absolute;
+            bottom: 60px;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .panel-tabs {
+            display: flex;
+            background: #f5f5f5;
+        }
+
+        .panel-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-size: 12px;
+            cursor: pointer;
+
+
+        }
+
+        .panel-tab.active {
+            background: white;
+            font-weight: 600;
+        }
+
+        .panel-content {
+            padding: 20px;
+            text-align: center;
+            color: #999;
+            font-size: 14px;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            color: #106cf5;
+        }
+
+        .nav-icon {
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="trading-pair">
+                <div class="pair-info">
+                    <div class="pair-name">BTC / USDT</div>
+                    <div class="perpetual-badge">Perpetual</div>
+                </div>
+                <div class="header-icons">
+                    <i class="fas fa-sliders-h"></i>
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Order Panel -->
+            <div class="order-panel">
+                <div class="order-type-tabs">
+                    <div class="tab active">Long</div>
+                    <div class="tab">Short</div>
+                </div>
+
+                <div class="dropdown-group">
+                    <div class="dropdown">Full warehouse mode</div>
+                    <div class="dropdown">100X</div>
+                </div>
+
+                <div class="order-type">Market</div>
+
+                <div class="input-group">
+                    <div class="input-label">Price</div>
+                    <input type="text" class="input-field" value="87051.75" readonly>
+                </div>
+
+                <div class="input-group">
+                    <div class="input-label">Quantity</div>
+                    <input type="text" class="input-field" placeholder="—Please enter the quantity (pieces)">
+                </div>
+
+                <div class="slider-container">
+                    <div class="slider-percentages">
+                        <div class="percentage">0%</div>
+                        <div class="percentage">25%</div>
+                        <div class="percentage">50%</div>
+                        <div class="percentage">75%</div>
+                        <div class="percentage">100%</div>
+                    </div>
+                    <div class="slider">
+                        <div class="slider-fill"></div>
+                    </div>
+                </div>
+
+                <div class="balance-info">
+                    <div>Available: 0.00 USDT</div>
+                    <div>Maximum open position: 0.00</div>
+                </div>
+
+                <div class="checkbox-group">
+                    <div class="checkbox checked"></div>
+                    <div>Tp/sl</div>
+                </div>
+
+                <button class="order-button">Long</button>
+            </div>
+
+            <!-- Order Book -->
+            <div class="order-book">
+                <div class="order-book-title">Order Book</div>
+                <ul class="order-list">
+                    <li class="order-item">
+                        <span class="buy-price">87064.81</span>
+                        <span>6.64K</span>
+                    </li>
+                    <li class="order-item">
+                        <span class="buy-price">87064.93</span>
+                        <span>539.73</span>
+                    </li>
+                    <li class="order-item">
+                        <span class="buy-price">87064.87</span>
+                        <span>92.93</span>
+                    </li>
+                    <li class="order-item">
+                        <span class="buy-price">87064.75</span>
+                        <span>45.21</span>
+                    </li>
+                    <li class="order-item">
+                        <span class="buy-price">87064.69</span>
+                        <span>28.67</span>
+                    </li>
+                </ul>
+
+                <div class="market-price">87051.75</div>
+
+                <ul class="order-list">
+                    <li class="order-item">
+                        <span class="sell-price">87064.71</span>
+                        <span>23.81</span>
+                    </li>
+                    <li class="order-item">
+                        <span class="sell-price">87064.65</span>
+                        <span>57.31</span>
+                    </li>
+                    <li class="order-item">
+                        <span class="sell-price">87064.69</span>
+                        <span>91.32</span>
+                    </li>
+                    <li class="order-item">
+                        <span class="sell-price">87064.55</span>
+                        <span>15.42</span>
+                    </li>
+                    <li class="order-item">
+                        <span class="sell-price">87064.49</span>
+                        <span>38.76</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Bottom Panel -->
+        <div class="bottom-panel">
+            <div class="panel-tabs">
+                <div class="panel-tab active">Positions</div>
+                <div class="panel-tab">Orders</div>
+                <div class="panel-tab">History orders</div>
+                <div class="panel-tab">Transaction</div>
+            </div>
+            <div class="panel-content">
+                No data
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item">
+                <i class="fas fa-home nav-icon"></i>
+                <div>Home</div>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-chart-line nav-icon"></i>
+                <div>Quotes</div>
+            </div>
+            <div class="nav-item active">
+                <i class="fas fa-exchange-alt nav-icon"></i>
+                <div>Trade</div>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-wallet nav-icon"></i>
+                <div>Finance</div>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-chart-pie nav-icon"></i>
+                <div>Assets</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab switching
+            const orderTabs = document.querySelectorAll('.order-type-tabs .tab');
+            orderTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    orderTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update order button text
+                    const orderButton = document.querySelector('.order-button');
+                    orderButton.textContent = this.textContent;
+                    orderButton.style.background = this.textContent === 'Long' ? '#37b66a' : '#f56c6c';
+                });
+            });
+
+            // Panel tab switching
+            const panelTabs = document.querySelectorAll('.panel-tab');
+            panelTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    panelTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Navigation switching
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    navItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Slider percentage clicks
+            const percentages = document.querySelectorAll('.percentage');
+            percentages.forEach(percent => {
+                percent.addEventListener('click', function() {
+                    const sliderFill = document.querySelector('.slider-fill');
+                    const value = this.textContent.replace('%', '');
+                    sliderFill.style.width = value + '%';
+                });
+            });
+
+            // Toggle checkbox
+            const checkbox = document.querySelector('.checkbox');
+            checkbox.addEventListener('click', function() {
+                this.classList.toggle('checked');
+            });
+        });
+    </script>
+</body>
+</html>
