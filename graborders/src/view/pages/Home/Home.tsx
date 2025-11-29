@@ -251,23 +251,40 @@ function Home() {
         <div className="news-section">
           <div className="section-title">News from the circle</div>
           <div className="news-item">
-            <div className="news-date">10-14-2025</div>
-            <div className="news-title">
-              Elon Musk Says Bitcoin Is Based on Energy, Which Is Impossible to Fake
+            <div>
+              <div className="news-date">10-14-2025</div>
+              <div className="news-title">
+                Elon Musk Says Bitcoin Is Based on Energy, Which Is Impossible to Fake
+              </div>
+            </div>
+            <div>
+              <img src="./images/news/elon.jpg" alt="" style={{ width: "128px", height: "72px" }} />
             </div>
           </div>
           <div className="news-item">
-            <div className="news-date">10-5-2025</div>
-            <div className="news-title">
-              Bitcoin Touches Record Price Above $125,000
+            <div>
+              <div className="news-date">10-5-2025</div>
+              <div className="news-title">
+                Bitcoin Touches Record Price Above $125,000
+              </div>
+            </div>
+            <div>
+              <img src="./images/news/bitcoin.jpg" alt="" style={{ width: "128px", height: "72px" }} />
+
             </div>
           </div>
           <div className="news-item">
-            <div className="news-date">9-17-2025</div>
-            <div className="news-title">
-              Giant Trump statue holding Bitcoin displayed outside US Capitol to
-              mark Fed rate decision
+            <div>
+              <div className="news-date">9-17-2025</div>
+              <div className="news-title">
+                Giant Trump statue holding Bitcoin displayed outside US Capitol to
+                mark Fed rate decision
+              </div>
             </div>
+
+            <img src="./images/news/trump.jpg" alt="" style={{ width: "128px", height: "72px" }} />
+
+            <div></div>
           </div>
         </div>
         {/* Partners Section */}
@@ -697,6 +714,8 @@ width: 70%;}
 
         .news-item {
             padding: 12px 0;
+            display: flex;
+            justify-content: space-between;
             border-bottom: 1px solid #f1f3f4;
         }
 
