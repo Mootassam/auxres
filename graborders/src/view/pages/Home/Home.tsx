@@ -176,6 +176,77 @@ function Home() {
 
 
         </div>
+
+        <div className="demo-section">
+          <div className="section-title">Fast swap
+            Swap your coins without any worries</div>
+          <div className='section-subtitle'>From Bitcoin to Dogecoin, we make buying and selling crypto easy. Protect your crypto with best-in-class cold storage.</div>
+          <div className="demo-photo">
+
+            <img src="./images/demo/phone1.png" alt="" className='image_demo' />
+
+
+          </div>
+
+
+        </div>
+
+        <div className="demo-section">
+          <div className="section-title">For advanced traders
+            Powerful tools for design</div>
+          <div className='section-subtitle'>Powerful analytical tools coupled with our security guarantee provide the ultimate trading experience. Take advantage of sophisticated charting capabilities, real-time order books and deep liquidity on hundreds of markets.</div>
+          <div className="demo-photo">
+
+            <img src="./images/demo/phone2.png" alt="" className='image_demo' />
+
+
+          </div>
+
+
+        </div>
+
+
+        <div className="demo-section">
+          <div className="section-title">For advanced traders
+            Powerful tools for design</div>
+          <div className='section-subtitle'>Powerful analytical tools coupled with our security guarantee provide the ultimate trading experience. Take advantage of sophisticated charting capabilities, real-time order books and deep liquidity on hundreds of markets.</div>
+          <div className="demo-photo">
+
+            <img src="./images/demo/phone3.png" alt="" className='image_demo' />
+
+
+          </div>
+
+
+        </div>
+
+        <div className="demo-section">
+          <div className="section-title">For advanced traders
+            Powerful tools for design</div>
+          <div className='section-subtitle'>Powerful analytical tools coupled with our security guarantee provide the ultimate trading experience. Take advantage of sophisticated charting capabilities, real-time order books and deep liquidity on hundreds of markets.</div>
+          <div className="demo-photo">
+
+            <img src="./images/demo/phone4.png" alt="" className='image_demo' />
+
+
+          </div>
+
+
+        </div>
+
+        <div className="demo-section">
+          <div className="section-title">For advanced traders
+            Powerful tools for design</div>
+          <div className='section-subtitle'>Powerful analytical tools coupled with our security guarantee provide the ultimate trading experience. Take advantage of sophisticated charting capabilities, real-time order books and deep liquidity on hundreds of markets.</div>
+          <div className="demo-photo">
+
+            <img src="./images/demo/phone5.png" alt="" className='image_demo' />
+
+
+          </div>
+
+
+        </div>
         {/* News Section */}
         <div className="news-section">
           <div className="section-title">News from the circle</div>
@@ -212,23 +283,19 @@ function Home() {
           </div>
         </div>
         {/* CTA Section */}
-        <div className="cta-section">
-          <div className="cta-title">Start trading cryptocurrency?</div>
-          <div className="cta-subtitle">Open your cryptocurrency account now</div>
-          <div className="cta-buttons">
-            <div className="cta-button">
-              <i className="fab fa-android" />
-              <span>Android</span>
-            </div>
-            <div className="cta-button">
-              <i className="fab fa-apple" />
-              <span>IOS</span>
-            </div>
-          </div>
-        </div>
+
       </div>
       <style>{`
-   
+   .demo-photo { 
+    display: flex;  
+
+    justify-content: center;
+    
+   }
+
+.image_demo { 
+
+width: 70%;}
 
    .service__image { 
    width: 50px;}
@@ -575,8 +642,12 @@ function Home() {
         /* Services Section */
         .services-section {
             padding: 20px;
-            margin-bottom: 20px;
         }
+
+      demo-section {
+      padding: 0 20px;
+      margin-bottom: 10px;
+      }
 
         .services-grid {
             display: flex;
