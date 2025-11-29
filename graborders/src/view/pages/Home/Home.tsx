@@ -73,10 +73,10 @@ function Home() {
         </div>
 
 
-            <div className="ai-card2">
+        <div className="ai-card2">
           <div className="ai-title">Explore NFTs with AureX</div>
           <div className="ai-description">
-          Step into the world of NFTs with AureX, your all-in-one digital asset trading wallet. Designed for both beginners and professional traders, AureX lets you explore, buy, sell,and 
+            Step into the world of NFTs with AureX, your all-in-one digital asset trading wallet. Designed for both beginners and professional traders, AureX lets you explore, buy, sell,and
           </div>
         </div>
         {/* Stats Section */}
@@ -104,56 +104,77 @@ function Home() {
         {/* Services Section */}
         <div className="services-section">
           <div className="section-title">Our Services</div>
+          <div className='section-subtitle'>Provide you with comprehensive 24-hour manual customer service specialist services to protect your transactions</div>
           <div className="services-grid">
+
             <div className="service-item">
               <div className="service-icon">
-                <i className="fas fa-headset" />
+                <img src="./images/services/s1.png" className='service__image' alt="" />
               </div>
-              <div className="service-title">24-hour service</div>
-              <div className="service-desc">Ready to answer all your questions</div>
+              <div className="service__description">
+                <div className="service-title">High interest rate</div>
+                <div className="service-desc">Finance, high return rate</div>
+              </div>
             </div>
+
             <div className="service-item">
               <div className="service-icon">
-                <i className="fas fa-chart-line" />
+                <img src="./images/services/s2.png" alt="" className='service__image' />
+
               </div>
-              <div className="service-title">High interest rate</div>
-              <div className="service-desc">Finance, high return rate</div>
+              <div className="service__description">
+                <div className="service-title">Liquidity mining</div>
+                <div className="service-desc">Liquidity makes easy profits</div>
+              </div>
             </div>
+
             <div className="service-item">
               <div className="service-icon">
-                <i className="fas fa-coins" />
+                <img src="./images/services/s3.png" alt="" className='service__image' />
+
               </div>
-              <div className="service-title">Liquidity mining</div>
-              <div className="service-desc">Liquidity makes easy profits</div>
+              <div className="service__description">
+                <div className="service-title">24-hour service</div>
+                <div className="service-desc">Ready to answer all your questions</div>
+              </div>
             </div>
+
             <div className="service-item">
               <div className="service-icon">
-                <i className="fas fa-file-contract" />
+                <img src="./images/services/s4.png" alt="" className='service__image' />
+
               </div>
-              <div className="service-title">High contract</div>
-              <div className="service-desc">
-                Small capital high lever, rich easily
+              <div className="service__description">
+                <div className="service-title">High contract</div>
+                <div className="service-desc">Small capital high lever, rich easily</div>
               </div>
             </div>
+
             <div className="service-item">
               <div className="service-icon">
-                <i className="fas fa-users" />
+                <img src="./images/services/s5.png" alt="" className='service__image' />
+
               </div>
-              <div className="service-title">Expert team</div>
-              <div className="service-desc">
-                Expert technical team at your service
+              <div className="service__description">
+                <div className="service-title">Expert team</div>
+                <div className="service-desc">Expert technical team at your service</div>
               </div>
             </div>
+
             <div className="service-item">
               <div className="service-icon">
-                <i className="fas fa-shield-alt" />
+                <img src="./images/services/s6.png" alt="" className='service__image' />
+
               </div>
-              <div className="service-title">Security protection</div>
-              <div className="service-desc">
-                Powerful cloud data protect your security
+              <div className="service__description">
+                <div className="service-title">Security protection</div>
+                <div className="service-desc">Powerful cloud data protect your security</div>
               </div>
             </div>
+
           </div>
+
+
         </div>
         {/* News Section */}
         <div className="news-section">
@@ -208,6 +229,14 @@ function Home() {
       </div>
       <style>{`
    
+
+   .service__image { 
+   width: 50px;}
+   .service__description { 
+   
+   display: flex;
+   flex-direction: column;
+   }
         .header {
             display: flex;
             justify-content: space-between;
@@ -373,7 +402,7 @@ function Home() {
 
         /* Announcement Card */
         .announcement-card {
-            background: white;
+            background : #f2f4f7;
             border-radius: 16px;
             padding: 16px;
             margin-bottom: 16px;
@@ -412,7 +441,7 @@ function Home() {
 
         /* Feature Cards */
         .feature-card {
-            background: white;
+            background : #f2f4f7;
             border-radius: 16px;
             padding: 10px 20px;
             margin-bottom: 16px;
@@ -453,7 +482,7 @@ function Home() {
         }
 
         .ai-card {
-            background: white;
+            background : #f2f4f7;
             border-radius: 16px;
             padding: 20px;
             margin-bottom: 20px;
@@ -469,7 +498,7 @@ function Home() {
 
 
          .ai-card2 {
-            background: white;
+            background : #f2f4f7;
             border-radius: 16px;
             padding: 20px;
             margin-bottom: 20px;
@@ -497,7 +526,7 @@ function Home() {
 
         /* Stats Section */
         .stats-section {
-            background: white;
+            background : #f2f4f7;
             border-radius: 16px;
             padding: 20px;
             margin-bottom: 20px;
@@ -507,10 +536,16 @@ function Home() {
         .section-title {
             font-size: 20px;
             font-weight: 700;
-            margin-bottom: 20px;
-            text-align: center;
             color: #222;
         }
+
+        .section-subtitle {
+           font-size: 12px;
+    color: #888f99;
+    margin-top: 5px;
+    margin-bottom: 25px;
+        }
+            
 
         .stats-grid {
             display: grid;
@@ -539,24 +574,23 @@ function Home() {
 
         /* Services Section */
         .services-section {
-            background: white;
-            border-radius: 16px;
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
         .services-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
+            align-items: left;
+          flex-direction: column ;
             gap: 16px;
         }
 
         .service-item {
-            text-align: center;
-            padding: 16px;
-            background: #f8f9fa;
-            border-radius: 12px;
+        gap: 12px;
+        display: flex;
+    align-items: center;
+    border-bottom: 1px solid #e7eaee;
+    padding-bottom: 15px;
         }
 
         .service-icon {
@@ -568,24 +602,22 @@ function Home() {
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 10px;
             font-size: 18px;
         }
 
         .service-title {
             font-size: 14px;
             font-weight: 600;
-            margin-bottom: 4px;
         }
 
         .service-desc {
-            font-size: 12px;
+            font-size: 10px;
             color: #666;
         }
 
         /* News Section */
         .news-section {
-            background: white;
+            background : #f2f4f7;
             border-radius: 16px;
             padding: 20px;
             margin-bottom: 20px;
@@ -614,7 +646,7 @@ function Home() {
 
         /* Partners Section */
         .partners-section {
-            background: white;
+            background : #f2f4f7;
             border-radius: 16px;
             padding: 20px;
             margin-bottom: 20px;
@@ -691,7 +723,7 @@ function Home() {
             bottom: 0;
             left: 0;
             right: 0;
-            background: white;
+            background : #f2f4f7;
             display: flex;
             justify-content: space-around;
             padding: 12px 0;
