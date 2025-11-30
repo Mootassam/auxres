@@ -39,32 +39,36 @@ function MarketDetail() {
   const [highPrice, setHighPrice] = useState<string | null>(null);
   const [lowPrice, setLowPrice] = useState<string | null>(null);
   const [volume, setVolume] = useState<string | null>(null);
+  const [quoteVolume, setQuoteVolume] = useState<string | null>(null);
   const [recentTrades, setRecentTrades] = useState<BinanceTrade[]>([]);
   const [selectedCoin, setSelectedCoin] = useState(id || "BTCUSDT");
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'orderBook' | 'transactions'>('orderBook');
 
   const tradeWs = useRef<WebSocket | null>(null);
   const tickerWs = useRef<WebSocket | null>(null);
 
   // Format number with commas and fixed decimals
-  const formatNumber = useCallback((num: string, decimals: number = 2) => {
+  const formatNumber = useCallback((num: string, decimals: number = 4) => {
     return Number(num).toLocaleString(undefined, {
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals,
     });
   }, []);
 
-  // Format volume in billions
+  // Format volume in billions/millions
   const formatVolume = useCallback((vol: string) => {
     const volumeNum = Number(vol);
     if (volumeNum >= 1000000000) {
-      return (volumeNum / 1000000000).toFixed(2) + i18n("pages.marketDetail.volume.billion");
+      return (volumeNum / 1000000000).toFixed(2) + "B";
     } else if (volumeNum >= 1000000) {
-      return (volumeNum / 1000000).toFixed(2) + i18n("pages.marketDetail.volume.million");
+      return (volumeNum / 1000000).toFixed(2) + "M";
+    } else if (volumeNum >= 1000) {
+      return (volumeNum / 1000).toFixed(2) + "K";
     } else {
-      return formatNumber(vol, 0);
+      return volumeNum.toFixed(2);
     }
-  }, [formatNumber]);
+  }, []);
 
   // Fetch initial data via REST API before WebSocket connects
   useEffect(() => {
@@ -83,6 +87,7 @@ function MarketDetail() {
         setHighPrice(tickerData.highPrice);
         setLowPrice(tickerData.lowPrice);
         setVolume(tickerData.volume);
+        setQuoteVolume(tickerData.quoteVolume);
         
         // Set initial trades
         setRecentTrades(tradesResponse.data.slice(0, 5));
@@ -117,6 +122,7 @@ function MarketDetail() {
         setHighPrice(tickerData.h);
         setLowPrice(tickerData.l);
         setVolume(tickerData.v);
+        setQuoteVolume(tickerData.q);
       };
 
       tickerWs.current.onclose = () => {
@@ -185,146 +191,232 @@ function MarketDetail() {
     />
   ), []);
 
-  // Memoized market info section
-  const marketInfoSection = useMemo(() => (
-    <div className="market-info">
-      <div className="market-icon">
-        <img
-          src={`https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/${
-            selectedCoin.split("USDT")[0]
-          }.png`}
-          style={{ width: 30, height: 30 }}
-          alt={selectedCoin}
-          loading="lazy"
-          onError={(e) => {
-            // Fallback if image fails to load
-            (e.target as HTMLImageElement).style.display = 'none';
-          }}
-        />
-      </div>
-      <div className="market-name">{selectedCoin}</div>
-      <div
-        className="market-change"
-        style={{
-          color: priceChangePercent && priceChangePercent.startsWith("-")
-            ? "#FF6838"
-            : "#00C076",
-        }}
-      >
-        {priceChangePercent !== null ? (
-          `${priceChangePercent}%`
-        ) : (
-          <LoadingPlaceholder width="50px" height="16px" />
-        )}
-      </div>
-    </div>
-  ), [selectedCoin, priceChangePercent, LoadingPlaceholder]);
-
-  // Memoized market stats
-  const marketStatsSection = useMemo(() => (
-    <div className="market-stats">
-      <span>
-        {i18n("pages.marketDetail.stats.high")}:{" "}
-        {highPrice !== null ? (
-          `$${formatNumber(highPrice)}`
-        ) : (
-          <LoadingPlaceholder width="80px" height="12px" />
-        )}
-      </span>
-      <span>
-        {i18n("pages.marketDetail.stats.volume")}:{" "}
-        {volume !== null ? (
-          `${formatVolume(volume)} ${selectedCoin.replace("USDT", "")}`
-        ) : (
-          <LoadingPlaceholder width="80px" height="12px" />
-        )}
-      </span>
-      <span>
-        {i18n("pages.marketDetail.stats.low")}:{" "}
-        {lowPrice !== null ? (
-          `$${formatNumber(lowPrice)}`
-        ) : (
-          <LoadingPlaceholder width="80px" height="12px" />
-        )}
-      </span>
-    </div>
-  ), [highPrice, volume, lowPrice, selectedCoin, formatNumber, formatVolume, LoadingPlaceholder]);
-
-  // Memoized recent trades
-  const recentTradesSection = useMemo(() => {
-    if (recentTrades.length > 0) {
-      return recentTrades.map((trade, index) => (
-        <div
-          key={`${trade.t}-${trade.T}-${index}`}
-          className={`trade-row ${trade.m ? "sell-trade" : "buy-trade"}`}
-        >
-          <div className="trade-price">{formatNumber(trade.p)}</div>
-          <div className="trade-amount">{Number(trade.q).toFixed(4)}</div>
-          <div className="trade-time">
-            {new Date(trade.T).toLocaleTimeString()}
-          </div>
-        </div>
-      ));
-    }
+  // Memoized order book data with heat map intensities
+  const orderBookData = useMemo(() => {
+    const basePrice = marketPrice ? Number(marketPrice) : 0.14858;
     
-    return Array.from({ length: 5 }).map((_, index) => (
-      <div key={index} className="trade-row">
-        <div className="trade-price">
-          <LoadingPlaceholder width="60px" height="14px" />
-        </div>
-        <div className="trade-amount">
-          <LoadingPlaceholder width="50px" height="14px" />
-        </div>
-        <div className="trade-time">
-          <LoadingPlaceholder width="40px" height="14px" />
-        </div>
-      </div>
-    ));
-  }, [recentTrades, formatNumber, LoadingPlaceholder]);
+    const buySide = [
+      { amount: "45,283.90", price: (basePrice - 0.00003).toFixed(5), intensity: 85 },
+      { amount: "32,742.31", price: (basePrice - 0.00005).toFixed(5), intensity: 75 },
+      { amount: "67,328.67", price: (basePrice - 0.00008).toFixed(5), intensity: 90 },
+      { amount: "28,876.54", price: (basePrice - 0.00010).toFixed(5), intensity: 65 },
+      { amount: "53,234.56", price: (basePrice - 0.00013).toFixed(5), intensity: 80 },
+      { amount: "39,456.78", price: (basePrice - 0.00015).toFixed(5), intensity: 70 },
+      { amount: "61,890.12", price: (basePrice - 0.00018).toFixed(5), intensity: 85 },
+      { amount: "47,543.21", price: (basePrice - 0.00020).toFixed(5), intensity: 75 },
+      { amount: "72,987.65", price: (basePrice - 0.00022).toFixed(5), intensity: 95 },
+      { amount: "58,321.09", price: (basePrice - 0.00025).toFixed(5), intensity: 80 }
+    ];
+
+    const sellSide = [
+      { amount: "38,654.32", price: (basePrice + 0.00002).toFixed(5), intensity: 80 },
+      { amount: "54,987.65", price: (basePrice + 0.00004).toFixed(5), intensity: 90 },
+      { amount: "42,432.10", price: (basePrice + 0.00007).toFixed(5), intensity: 75 },
+      { amount: "68,345.67", price: (basePrice + 0.00010).toFixed(5), intensity: 85 },
+      { amount: "49,876.54", price: (basePrice + 0.00012).toFixed(5), intensity: 70 },
+      { amount: "63,111.11", price: (basePrice + 0.00015).toFixed(5), intensity: 80 },
+      { amount: "57,333.33", price: (basePrice + 0.00018).toFixed(5), intensity: 75 },
+      { amount: "45,888.88", price: (basePrice + 0.00020).toFixed(5), intensity: 65 },
+      { amount: "71,555.55", price: (basePrice + 0.00022).toFixed(5), intensity: 85 },
+      { amount: "59,000.00", price: (basePrice + 0.00025).toFixed(5), intensity: 80 }
+    ];
+
+    return { buySide, sellSide };
+  }, [marketPrice]);
 
   return (
-    <div className="container">
+    <div className="market-detail-container">
       {/* Header Section */}
       <div className="header">
-        <div className="header-top">
-          <div className="back-button" onClick={goBack}>
-            <i className="fas fa-arrow-left" />
+        <div className="nav-bar">
+          <div className="back-arrow" onClick={goBack}>
+            <i className="fas fa-arrow-left"></i>
           </div>
-          {marketInfoSection}
-          <div style={{ width: 20 }} />
+          <div className="trading-pair">
+            {selectedCoin.replace("USDT", "")} / USDT
+          </div>
+          <div className="header-icon">
+            <i className="fas fa-info-circle"></i>
+          </div>
         </div>
-        <div className="market-price">
-          {marketPrice !== null ? (
-            `$${formatNumber(marketPrice)}`
-          ) : (
-            <LoadingPlaceholder width="120px" height="28px" />
+      </div>
+
+      {/* Price Section */}
+      <div className="price-section">
+        <div className="price-main-row">
+          <div className="price-left-section">
+            <div className="current-price">
+              {marketPrice !== null ? (
+                <span style={{ 
+                  color: priceChangePercent && parseFloat(priceChangePercent) < 0 ? '#f56c6c' : '#37b66a' 
+                }}>
+                  {formatNumber(marketPrice)}
+                </span>
+              ) : (
+                <LoadingPlaceholder width="120px" height="28px" />
+              )}
+            </div>
+            <div className="price-info-row">
+              <div className="usd-price">
+                {marketPrice !== null ? `$${Number(marketPrice).toFixed(2)}` : '$0.00'}
+              </div>
+              <div className="price-change" style={{
+                color: priceChangePercent && parseFloat(priceChangePercent) < 0 ? '#f56c6c' : '#37b66a'
+              }}>
+                {priceChangePercent !== null ? (
+                  `${parseFloat(priceChangePercent) < 0 ? '−' : '+'}${Math.abs(parseFloat(priceChangePercent)).toFixed(2)}%`
+                ) : (
+                  <LoadingPlaceholder width="60px" height="16px" />
+                )}
+              </div>
+            </div>
+          </div>
+          
+          <div className="stats-grid">
+            <div className="stat-row">
+              <div className="stat-item">
+                <div className="stat-label">24H High</div>
+                <div className="stat-value">
+                  {highPrice !== null ? formatNumber(highPrice) : <LoadingPlaceholder width="60px" height="12px" />}
+                </div>
+              </div>
+              <div className="stat-item">
+                <div className="stat-label">24H Volume({selectedCoin.replace("USDT", "")})</div>
+                <div className="stat-value">
+                  {volume !== null ? formatVolume(volume) : <LoadingPlaceholder width="60px" height="12px" />}
+                </div>
+              </div>
+            </div>
+            <div className="stat-row">
+              <div className="stat-item">
+                <div className="stat-label">24H Low</div>
+                <div className="stat-value">
+                  {lowPrice !== null ? formatNumber(lowPrice) : <LoadingPlaceholder width="60px" height="12px" />}
+                </div>
+              </div>
+              <div className="stat-item">
+                <div className="stat-label">24H Volume(USDT)</div>
+                <div className="stat-value">
+                  {quoteVolume !== null ? formatVolume(quoteVolume) : <LoadingPlaceholder width="60px" height="12px" />}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Chart Section */}
+      <div className="chart-section">
+        <FuturesChart symbol={selectedCoin} />
+      </div>
+
+      {/* Tabs Section */}
+      <div className="tabs-section">
+        <div className="tabs-header">
+          <div 
+            className={`tab ${activeTab === 'orderBook' ? 'active' : ''}`}
+            onClick={() => setActiveTab('orderBook')}
+          >
+            Order
+          </div>
+          <div 
+            className={`tab ${activeTab === 'transactions' ? 'active' : ''}`}
+            onClick={() => setActiveTab('transactions')}
+          >
+            Latest transaction
+          </div>
+        </div>
+
+        <div className="tab-content">
+          {/* Order Book Content */}
+          {activeTab === 'orderBook' && (
+            <div className="modern-order-book">
+              <div className="order-book-table">
+                <div className="table-header">
+                  <div className="buy-section">
+                    <div className="column-header">Buy</div>
+                    <div className="column-header">Quantity</div>
+                    <div className="column-header">Price (usdt)</div>
+                  </div>
+                  <div className="sell-section">
+                    <div className="column-header">Price (usdt)</div>
+                    <div className="column-header">Quantity</div>
+                    <div className="column-header" style={{textAlign:'right'}}>Sell</div>
+                  </div>
+                </div>
+
+                <div className="table-body">
+                  {orderBookData.buySide.map((buyOrder, index) => {
+                    const sellOrder = orderBookData.sellSide[index];
+                    return (
+                      <div key={index} className="table-row">
+                        <div className="buy-section">
+                          <div className="cell buy-cell">1</div>
+                          <div className="cell quantity">{buyOrder.amount}</div>
+                          <div className="cell price-cell">
+                            <div 
+                              className="heatmap-bar buy-heatmap"
+                              style={{ width: `${buyOrder.intensity}%` }}
+                            ></div>
+                            <span className="price-value buy-price">{buyOrder.price}</span>
+                          </div>
+                        </div>
+                        <div className="sell-section">
+                          <div className="cell price-cell">
+                            <div 
+                              className="heatmap-bar sell-heatmap"
+                              style={{ width: `${sellOrder.intensity}%` }}
+                            ></div>
+                            <span className="price-value sell-price">{sellOrder.price}</span>
+                          </div>
+                          <div className="cell quantity">{sellOrder.amount}</div>
+                          <div className="cell sell-cell">1</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Latest Transactions Content */}
+          {activeTab === 'transactions' && (
+            <div className="transactions-list">
+              {recentTrades.length > 0 ? (
+                recentTrades.slice(0, 10).map((trade, index) => (
+                  <div key={`${trade.t}-${trade.T}-${index}`} className="transaction-item">
+                    <div className="transaction-time">
+                      {new Date(trade.T).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                    </div>
+                    <div className="transaction-price">{formatNumber(trade.p)}</div>
+                    <div className="transaction-amount">{Number(trade.q).toFixed(4)}</div>
+                    <div className={`transaction-type ${trade.m ? 'sell' : 'buy'}`}>
+                      {trade.m ? 'Sell' : 'Buy'}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                Array.from({ length: 5 }).map((_, index) => (
+                  <div key={index} className="transaction-item">
+                    <div className="transaction-time">
+                      <LoadingPlaceholder width="50px" height="14px" />
+                    </div>
+                    <div className="transaction-price">
+                      <LoadingPlaceholder width="60px" height="14px" />
+                    </div>
+                    <div className="transaction-amount">
+                      <LoadingPlaceholder width="50px" height="14px" />
+                    </div>
+                    <div className="transaction-type">
+                      <LoadingPlaceholder width="30px" height="14px" />
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           )}
         </div>
-        {marketStatsSection}
-      </div>
-
-      {/* Trading View Chart */}
-      <FuturesChart symbol={selectedCoin} />
-
-      {/* Action Buttons */}
-      <div className="action-buttons">
-        <Link to="/trade" className="remove_blue action-button buy-button">
-          {i18n("pages.marketDetail.actions.buy")}
-        </Link>
-        <Link to="/trade" className="remove_blue action-button sell-button">
-          {i18n("pages.marketDetail.actions.sell")}
-        </Link>
-      </div>
-
-      {/* Recent Trades */}
-      <div className="section-title">{i18n("pages.marketDetail.recentTrades.title")}</div>
-      <div className="recent-trades">
-        <div className="trades-header">
-          <span>{i18n("pages.marketDetail.recentTrades.price")}</span>
-          <span>{i18n("pages.marketDetail.recentTrades.amount")}</span>
-          <span>{i18n("pages.marketDetail.recentTrades.time")}</span>
-        </div>
-        {recentTradesSection}
       </div>
 
       <style>{`
@@ -332,150 +424,396 @@ function MarketDetail() {
           margin: 0;
           padding: 0;
           box-sizing: border-box;
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
-        
-        .container {
+
+        .market-detail-container {
           max-width: 400px;
           margin: 0 auto;
-          padding-bottom: 70px;
-          background-color: #000000;
-          color: #FFFFFF;
-          min-height: 100vh;
+          height: 100dvh;
+          position: relative;
+          background: #f2f4f7;
         }
-        
+
         /* Header Section */
         .header {
-          background-color: #000000;
-          padding: 20px 15px 15px;
+          padding: 15px 20px;
+          color: #000;
           position: sticky;
           top: 0;
           z-index: 100;
+          background: #f2f4f7;
         }
-        
-        .header-top {
+
+        .nav-bar {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 15px;
         }
-        
-        .back-button {
-          color: #AAAAAA;
-          font-size: 20px;
+
+        .back-arrow {
+          font-size: 18px;
+          font-weight: 300;
           cursor: pointer;
-          padding: 5px;
         }
-        
-        .market-info {
+
+        .trading-pair {
           display: flex;
           align-items: center;
-        }
+          gap: 8px;
+          font-size: 16px;
         
-        .market-icon {
-          width: 30px;
-          height: 30px;
-          border-radius: 50%;
-          background-color: #1E1E1E;
-          margin-right: 10px;
+        }
+
+        .header-icon {
+          font-size: 16px;
+          cursor: pointer;
+        }
+
+        /* Price Section */
+        .price-section {
+          padding: 20px;
+          background: white;
+          border-bottom: 1px solid #e9ecef;
+          border-radius: 40px 40px 0 0;
+        }
+
+        .price-main-row {
           display: flex;
-          justify-content: center;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 20px;
+        }
+
+        .price-left-section {
+          flex: 1;
+        }
+
+        .current-price {
+          font-size: 1.75rem;
+        font-weight: 600;
+          line-height: 1.75rem;
+          margin-bottom: 8px;
+        }
+
+        .price-info-row {
+          display: flex;
           align-items: center;
+          gap: 12px;
+          font-size: 14px;
+        }
+
+        .usd-price {
+          color: #6c757d;
+        }
+
+        .price-change {
+        
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+          display: flex;
+          gap: 8px;
+          min-width: 140px;
+        }
+
+        .stat-row {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .stat-item {
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          font-size: 12px;
+        }
+
+        .stat-label {
+          color: #6c757d;
+          white-space: nowrap;
+        }
+
+        .stat-value {
+          color: #333;
+          font-weight: 500;
+          white-space: nowrap;
+        }
+
+        /* Chart Section */
+        .chart-section {
+          background: white;
+          border-bottom: 1px solid #e9ecef;
+        }
+
+        /* Tabs Section */
+        .tabs-section {
+          background: white;
+        }
+
+        .tabs-header {
+          display: flex;
+          border-bottom: 1px solid #eef2f6;
+          background: white;
+        }
+
+        .tab {
+          flex: 1;
+          padding: 16px;
+          text-align: center;
+          font-size: 14px;
+          font-weight: 500;
+          color: #6c757d;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          border-bottom: 2px solid transparent;
+        }
+
+        .tab.active {
+          color: #106cf5;
+          border-bottom: 2px solid #106cf5;
+          background: linear-gradient(to bottom, #f8fbff, #ffffff);
+        }
+
+        .tab-content {
+          padding: 0;
+          min-height: 400px;
+          max-height: 500px;
           overflow: hidden;
         }
-        
-        .market-name {
-          font-weight: bold;
-          font-size: 18px;
-          margin-right: 10px;
+
+        /* Modern Order Book */
+        .modern-order-book {
+          background: white;
+          border-radius: 12px;
+          overflow: hidden;
         }
-        
-        .market-change {
-          font-size: 14px;
-          font-weight: bold;
-          min-height: 16px;
+
+        .order-book-table {
           display: flex;
+          flex-direction: column;
+          background: white;
+        }
+
+        .table-header {
+          display: flex;
+          background: #f8fbff;
+          border-bottom: 1px solid #eef2f6;
+          font-size: 12px !important;
+          padding: 8px 5px;
+
+          color: #6c757d;
+        }
+
+        .buy-section, .sell-section {
+          display: flex;
+          justify-content: space-between;
+        }
+
+        .column-header {
+          text-align: center;
+
+        }
+
+        .buy-section .column-header:first-child,
+        .sell-section .column-header:last-child {
+          text-align: left;
+          flex: 0.8;
+        }
+
+        .buy-section .column-header:last-child,
+        .sell-section .column-header:first-child {
+          flex: 1.2;
+        }
+
+        .table-body {
+          display: flex;
+          flex-direction: column;
+          max-height: 360px;
+          overflow-y: auto;
+          scrollbar-width: thin;
+          scrollbar-color: #cbd5e0 #f7fafc;
+        }
+
+        .table-body::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        .table-body::-webkit-scrollbar-track {
+          background: #f7fafc;
+          border-radius: 3px;
+        }
+
+        .table-body::-webkit-scrollbar-thumb {
+          background: #cbd5e0;
+          border-radius: 3px;
+        }
+
+        .table-body::-webkit-scrollbar-thumb:hover {
+          background: #a0aec0;
+        }
+
+        .table-row {
+          display: flex;
+          border-bottom: 1px solid #f1f5f9;
+          font-size: 12px;
+          color: #2d3748;
+          transition: background-color 0.15s ease;
+        }
+
+        .table-row:hover {
+          background: #fafbfc;
+        }
+
+        .buy-section, .sell-section {
+          display: flex;
+          flex: 1;
           align-items: center;
         }
-        
-        .market-price {
-          font-size: 24px;
-          font-weight: bold;
-          margin-bottom: 5px;
-          min-height: 28px;
-          display: flex;
-          align-items: center;
+
+        .cell {
+          flex: 1;
+          text-align: center;
+          padding: 0 4px;
+          position: relative;
+          z-index: 1;
         }
+
+        .buy-cell, .sell-cell {
+          flex: 0.8;
+          font-size: 11px;
         
-        .market-stats {
+          text-align: left;
+          border-radius: 4px;
+        }
+
+        .buy-cell {
+        }
+
+        .sell-cell {
+          text-align: right;
+        }
+
+        .quantity {
+          color: #4a5568;
+          font-weight: 500;
+        }
+
+        .price-cell {
+          flex: 1.2;
+          text-align: right;
+          position: relative;
+          padding: 4px 8px;
+          border-radius: 4px;
+          overflow: hidden;
+        }
+
+        .buy-section .price-cell {
+          text-align: right;
+        }
+
+        .sell-section .price-cell {
+          text-align: left;
+        }
+
+        .heatmap-bar {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          border-radius: 3px;
+          opacity: 0.12;
+          transition: width 0.3s ease;
+        }
+
+        .buy-heatmap {
+          right: 0;
+          background: linear-gradient(90deg, transparent, #37b66a);
+        }
+
+        .sell-heatmap {
+          left: 0;
+          background: linear-gradient(90deg, #f56c6c, transparent);
+        }
+
+        .price-value {
+          position: relative;
+          z-index: 2;
+        
+        }
+
+        .buy-price {
+          color: #37b66a;
+        }
+
+        .sell-price {
+          color: #f56c6c;
+        }
+
+        /* Latest Transactions */
+        .transactions-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          max-height: 400px;
+          overflow-y: auto;
+          padding: 8px 0;
+        }
+
+        .transaction-item {
           display: flex;
           justify-content: space-between;
           font-size: 12px;
-          color: #AAAAAA;
-          flex-wrap: wrap;
-        }
-        
-        .market-stats span {
-          margin-right: 10px;
-          margin-bottom: 5px;
-          display: flex;
+          padding: 10px 16px;
+          border-bottom: 1px solid #f0f0f0;
           align-items: center;
-          min-height: 16px;
         }
-        
-        /* Remove blue link styles */
-        .remove_blue {
-          text-decoration: none;
-          color: inherit;
-          display: block;
-        }
-        
-        .remove_blue:hover, .remove_blue:focus, .remove_blue:active {
-          text-decoration: none;
-          color: inherit;
-        }
-        
-        // /* Action Buttons */
-        // .action-buttons {
-        //   display: flex;
-        //   gap: 10px;
-        //   margin: 15px;
-        // }
-        
-        .action-button {
+
+        .transaction-time {
+          color: #6c757d;
           flex: 1;
-          padding: 13px;
-          border: none;
-          border-radius: 8px;
-          font-size: 16px;
-          font-weight: bold;
-          cursor: pointer;
+        }
+
+        .transaction-price {
+        
+          flex: 1;
           text-align: center;
-          text-decoration: none;
-          display: flex;
-          align-items: center;
-          justify-content: center;
         }
-        
-        .buy-button {
-          background-color: #00C076;
-          color: white;
+
+        .transaction-amount {
+          color: #6c757d;
+          flex: 1;
+          text-align: center;
         }
+
+        .transaction-type {
+          flex: 1;
+          text-align: right;
         
-        .sell-button {
-          background-color: #FF6838;
-          color: white;
+          padding: 4px 8px;
+          border-radius: 4px;
         }
-        
+
+        .transaction-type.buy {
+          color: #37b66a;
+          background: rgba(55, 182, 106, 0.08);
+        }
+
+        .transaction-type.sell {
+          color: #f56c6c;
+          background: rgba(245, 108, 108, 0.08);
+        }
+
         /* Loading placeholder animation */
         .loading-placeholder {
-          background: linear-gradient(90deg, #2A2A2A 25%, #333 50%, #2A2A2A 75%);
+          background: linear-gradient(90deg, #e9ecef 25%, #f8f9fa 50%, #e9ecef 75%);
           background-size: 200% 100%;
           animation: loading 1.5s infinite;
           border-radius: 4px;
           display: inline-block;
         }
-        
+
         @keyframes loading {
           0% {
             background-position: 200% 0;
@@ -484,68 +822,31 @@ function MarketDetail() {
             background-position: -200% 0;
           }
         }
-        
-        /* Recent Trades */
-        .recent-trades {
-          margin: 15px;
-          max-height: 300px;
-          overflow-y: auto;
-        }
-        
-        .trades-header {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 10px;
-          font-size: 12px;
-          color: #777;
-          position: sticky;
-          top: 0;
-          background-color: #000;
-          padding: 5px 0;
-          z-index: 10;
-        }
-        
-        .trade-row {
-          display: flex;
-          justify-content: space-between;
-          padding: 8px 0;
-          font-size: 13px;
-          border-bottom: 1px solid #2A2A2A;
-          align-items: center;
-          min-height: 32px;
-        }
-        
-        .trade-price {
-          flex: 1;
-        }
-        
-        .trade-amount {
-          flex: 1;
-          text-align: right;
-        }
-        
-        .trade-time {
-          flex: 1;
-          text-align: right;
-          color: #777;
-          font-size: 11px;
-        }
-        
-        .buy-trade .trade-price {
-          color: #00C076;
-        }
-        
-        .sell-trade .trade-price {
-          color: #FF6838;
-        }
-        
-        /* Section Titles */
-        .section-title {
-          font-size: 16px;
-          font-weight: bold;
-          margin: 20px 15px 15px;
-          padding-bottom: 10px;
-          border-bottom: 1px solid #2A2A2A;
+
+        /* Responsive adjustments */
+        @media (max-width: 380px) {
+          .market-detail-container {
+            padding: 0;
+          }
+
+          .header,
+          .price-section,
+          .tabs-section {
+            padding-left: 16px;
+            padding-right: 16px;
+          }
+
+          .price-main-row {
+            gap: 15px;
+          }
+
+     
+
+          .table-header,
+          .table-row {
+            padding-left: 12px;
+            padding-right: 12px;
+          }
         }
       `}</style>
     </div>

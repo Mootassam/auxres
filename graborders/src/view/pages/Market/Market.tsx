@@ -331,6 +331,7 @@ const Market: React.FC = () => {
 
        
 
+
         /* Header Styles */
         .header {
             background-color: #106cf5;
@@ -379,7 +380,7 @@ const Market: React.FC = () => {
         .table-header {
             display: flex;
 
-            font-weight: 600;
+          
             color: #6c757d;
 
             font-size: 12px;
@@ -404,7 +405,7 @@ const Market: React.FC = () => {
 
         .pair-col {
             flex: 2;
-            font-weight: 600;
+          
             display: flex;
             align-items: center;
         }
@@ -433,7 +434,7 @@ const Market: React.FC = () => {
         }
 
         .crypto-price {
-            font-weight: 600;
+          
             font-size: 16px;
         }
 
@@ -449,7 +450,7 @@ const Market: React.FC = () => {
             padding: 6px 10px;
             border-radius: 0px;
             font-size: 13px;
-            font-weight: 600;
+          
             display: inline-block;
             min-width: 70px;
             text-align: center;
@@ -461,7 +462,7 @@ const Market: React.FC = () => {
             padding: 6px 10px;
             border-radius: 0px;
             font-size: 13px;
-            font-weight: 600;
+          
             display: inline-block;
             min-width: 70px;
             text-align: center;

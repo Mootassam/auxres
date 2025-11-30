@@ -144,25 +144,82 @@ const FuturesChart: React.FC<FuturesChartProps> = ({ symbol = "BTCUSDT" }) => {
     const chart = init("futures-chart");
     chartRef.current = chart;
 
+    // Light theme styles
     chart.setStyles?.({
       candle: {
         type: "candle_solid",
         bar: {
-          upColor: "#0ECB81",
-          downColor: "#F6465D",
+          upColor: "#37b66a", // Green for up
+          downColor: "#f56c6c", // Red for down
           noChangeColor: "#999",
         },
         priceMark: {
           last: {
-            line: { color: "#888", style: "dashed" },
-            text: { color: "#fff", backgroundColor: "#888" },
+            line: { color: "#6c757d", style: "dashed" },
+            text: { color: "#333", backgroundColor: "#f8f9fa" },
           },
         },
+        tooltip: {
+          text: {
+            color: '#333',
+            size: 12
+          }
+        }
       },
       grid: {
-        horizontal: { color: "rgba(255,255,255,0.06)" },
-        vertical: { color: "rgba(255,255,255,0.03)" },
+        horizontal: { color: "rgba(0,0,0,0.06)" },
+        vertical: { color: "rgba(0,0,0,0.03)" },
       },
+      xAxis: {
+        axisLine: {
+          color: '#e9ecef'
+        },
+        tickLine: {
+          color: '#e9ecef'
+        },
+        tickText: {
+          color: '#6c757d'
+        }
+      },
+      yAxis: {
+        axisLine: {
+          color: '#e9ecef'
+        },
+        tickLine: {
+          color: '#e9ecef'
+        },
+        tickText: {
+          color: '#6c757d'
+        }
+      },
+      crosshair: {
+        horizontal: {
+          line: {
+            color: '#106cf5',
+            size: 1
+          },
+          text: {
+            color: '#333',
+            backgroundColor: '#f8f9fa'
+          }
+        },
+        vertical: {
+          line: {
+            color: '#106cf5',
+            size: 1
+          },
+          text: {
+            color: '#333',
+            backgroundColor: '#f8f9fa'
+          }
+        }
+      },
+      technicalIndicator: {
+        margin: {
+          top: 0.2,
+          bottom: 0.1
+        }
+      }
     });
 
     loadData(activeTf);
@@ -190,19 +247,37 @@ const FuturesChart: React.FC<FuturesChartProps> = ({ symbol = "BTCUSDT" }) => {
   useEffect(() => {
     if (!chartRef.current) return;
     if (chartType === "candle") {
-      chartRef.current.setStyles?.({ candle: { type: "candle_solid" } });
+      chartRef.current.setStyles?.({ 
+        candle: { 
+          type: "candle_solid",
+          bar: {
+            upColor: "#37b66a",
+            downColor: "#f56c6c",
+            noChangeColor: "#999",
+          }
+        } 
+      });
     } else if (chartType === "bar") {
-      chartRef.current.setStyles?.({ candle: { type: "candle_stroke" } });
+      chartRef.current.setStyles?.({ 
+        candle: { 
+          type: "candle_stroke",
+          bar: {
+            upColor: "#37b66a",
+            downColor: "#f56c6c",
+            noChangeColor: "#999",
+          }
+        } 
+      });
     } else if (chartType === "area") {
       chartRef.current.setStyles?.({
         candle: {
           type: "area",
           area: {
-            lineColor: "#0ECB81",
+            lineColor: "#37b66a",
             lineSize: 2,
             gradient: [
-              { offset: 0, color: "rgba(14,203,129,0.35)" },
-              { offset: 1, color: "rgba(14,203,129,0.04)" },
+              { offset: 0, color: "rgba(55,182,106,0.35)" },
+              { offset: 1, color: "rgba(55,182,106,0.04)" },
             ],
           },
         },
@@ -240,21 +315,31 @@ const FuturesChart: React.FC<FuturesChartProps> = ({ symbol = "BTCUSDT" }) => {
   };
 
   return (
-    <div style={{ width: "100%", height: "100%", background: "#0B0E11", color: "#fff", padding: 8 }}>
+    <div style={{ width: "100%", height: "100%", background: "#ffffff", color: "#333", }}>
       {/* toolbar */}
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 8, alignItems: "center" }}>
+      <div style={{ 
+        display: "flex", 
+        justifyContent: "space-between", 
+        gap: 12, 
+        marginBottom: 15, 
+        alignItems: "center",
+        padding: "10px 5px 0"
+      }}>
         <div style={{ display: "flex", gap: 6 }}>
           {TIMEFRAMES.map((tf) => (
             <button
               key={tf}
               onClick={() => setActiveTf(tf)}
               style={{
-                padding: "6px 10px",
-                background: activeTf === tf ? "#0ECB81" : "transparent",
-                color: activeTf === tf ? "#000" : "#fff",
+                padding: "6px 12px",
+                background: activeTf === tf ? "#106cf5" : "transparent",
+                color: activeTf === tf ? "#fff" : "#6c757d",
                 borderRadius: 6,
-                border: "1px solid rgba(255,255,255,0.06)",
+                border: activeTf === tf ? "1px solid #106cf5" : "1px solid #e9ecef",
                 cursor: "pointer",
+                fontSize: "12px",
+                fontWeight: "500",
+                transition: "all 0.2s ease"
               }}
             >
               {tf}
@@ -267,16 +352,18 @@ const FuturesChart: React.FC<FuturesChartProps> = ({ symbol = "BTCUSDT" }) => {
             value={chartType}
             onChange={(e) => setChartType(e.target.value as ChartType)}
             style={{
-              padding: "6px 10px",
+              padding: "6px 12px",
               borderRadius: 6,
-              background: "#0B0E11",
-              color: "#fff",
-              border: "1px solid rgba(255,255,255,0.06)",
+              background: "#ffffff",
+              color: "#333",
+              border: "1px solid #e9ecef",
+              fontSize: "12px",
+              cursor: "pointer"
             }}
           >
             {chartTypes.map((t) => (
               <option key={t} value={t}>
-                {t}
+                {t.charAt(0).toUpperCase() + t.slice(1)}
               </option>
             ))}
           </select>
@@ -284,21 +371,30 @@ const FuturesChart: React.FC<FuturesChartProps> = ({ symbol = "BTCUSDT" }) => {
       </div>
 
       {/* chart */}
-      <div id="futures-chart" style={{ width: "100%", height: '380px' }} />
+      <div id="futures-chart" style={{ width: "100%", height: '300px', borderRadius: "8px", overflow: "hidden" }} />
 
       {/* indicators */}
-      <div style={{ display: "flex", gap: 6 }}>
+      <div style={{ 
+        display: "flex", 
+        gap: 6, 
+        marginTop: 15,
+        padding: "0 5px",
+        flexWrap: "wrap"
+      }}>
         {INDICATORS.map((ind) => (
           <button
             key={ind}
             onClick={() => toggleIndicator(ind)}
             style={{
-              padding: "6px 10px",
+              padding: "6px 12px",
               borderRadius: 6,
-              background: activeIndicators[ind] ? "#0ECB81" : "transparent",
-              color: activeIndicators[ind] ? "#000" : "#fff",
-              border: "1px solid rgba(255,255,255,0.06)",
+              background: activeIndicators[ind] ? "#106cf5" : "transparent",
+              color: activeIndicators[ind] ? "#fff" : "#6c757d",
+              border: activeIndicators[ind] ? "1px solid #106cf5" : "1px solid #e9ecef",
               cursor: "pointer",
+              fontSize: "12px",
+              fontWeight: "500",
+              transition: "all 0.2s ease"
             }}
           >
             {ind}
