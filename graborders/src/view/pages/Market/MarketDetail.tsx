@@ -30,6 +30,13 @@ interface BinanceTicker {
   P: string; // Price change percent
 }
 
+// Interface for Binance order book data
+interface BinanceOrderBook {
+  lastUpdateId: number;
+  bids: [string, string][]; // [price, quantity]
+  asks: [string, string][];
+}
+
 function MarketDetail() {
   const history = useHistory();
   const { id } = useParams<{ id: string }>();
@@ -41,12 +48,14 @@ function MarketDetail() {
   const [volume, setVolume] = useState<string | null>(null);
   const [quoteVolume, setQuoteVolume] = useState<string | null>(null);
   const [recentTrades, setRecentTrades] = useState<BinanceTrade[]>([]);
+  const [orderBook, setOrderBook] = useState<BinanceOrderBook | null>(null);
   const [selectedCoin, setSelectedCoin] = useState(id || "BTCUSDT");
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'orderBook' | 'transactions'>('orderBook');
 
   const tradeWs = useRef<WebSocket | null>(null);
   const tickerWs = useRef<WebSocket | null>(null);
+  const depthWs = useRef<WebSocket | null>(null);
 
   // Format number with commas and fixed decimals
   const formatNumber = useCallback((num: string, decimals: number = 4) => {
@@ -75,9 +84,10 @@ function MarketDetail() {
     const fetchInitialData = async () => {
       try {
         setIsLoading(true);
-        const [tickerResponse, tradesResponse] = await Promise.all([
+        const [tickerResponse, tradesResponse, orderBookResponse] = await Promise.all([
           axios.get(`https://api.binance.com/api/v3/ticker/24hr?symbol=${selectedCoin}`),
-          axios.get(`https://api.binance.com/api/v3/trades?symbol=${selectedCoin}&limit=10`)
+          axios.get(`https://api.binance.com/api/v3/trades?symbol=${selectedCoin}&limit=20`),
+          axios.get(`https://api.binance.com/api/v3/depth?symbol=${selectedCoin}&limit=10`)
         ]);
         
         // Set initial data from REST API
@@ -90,7 +100,10 @@ function MarketDetail() {
         setQuoteVolume(tickerData.quoteVolume);
         
         // Set initial trades
-        setRecentTrades(tradesResponse.data.slice(0, 5));
+        setRecentTrades(tradesResponse.data.slice(0, 10));
+        
+        // Set initial order book
+        setOrderBook(orderBookResponse.data);
         
         setIsLoading(false);
       } catch (error) {
@@ -160,8 +173,39 @@ function MarketDetail() {
       };
     };
 
+    const connectDepthWebSocket = () => {
+      if (depthWs.current?.readyState === WebSocket.OPEN) {
+        depthWs.current.close();
+      }
+
+      depthWs.current = new WebSocket(
+        `wss://stream.binance.com:9443/ws/${selectedCoin.toLowerCase()}@depth`
+      );
+
+      depthWs.current.onmessage = (event: MessageEvent) => {
+        const depthData = JSON.parse(event.data);
+        setOrderBook(prev => {
+          if (!prev) return null;
+          return {
+            lastUpdateId: depthData.u,
+            bids: depthData.b && depthData.b.length > 0 ? depthData.b : prev.bids,
+            asks: depthData.a && depthData.a.length > 0 ? depthData.a : prev.asks
+          };
+        });
+      };
+
+      depthWs.current.onclose = () => {
+        setTimeout(() => {
+          if (selectedCoin) {
+            connectDepthWebSocket();
+          }
+        }, 2000);
+      };
+    };
+
     connectTickerWebSocket();
     connectTradeWebSocket();
+    connectDepthWebSocket();
 
     return () => {
       if (tickerWs.current?.readyState === WebSocket.OPEN) {
@@ -169,6 +213,9 @@ function MarketDetail() {
       }
       if (tradeWs.current?.readyState === WebSocket.OPEN) {
         tradeWs.current.close();
+      }
+      if (depthWs.current?.readyState === WebSocket.OPEN) {
+        depthWs.current.close();
       }
     };
   }, [selectedCoin]);
@@ -193,36 +240,39 @@ function MarketDetail() {
 
   // Memoized order book data with heat map intensities
   const orderBookData = useMemo(() => {
-    const basePrice = marketPrice ? Number(marketPrice) : 0.14858;
-    
-    const buySide = [
-      { amount: "45,283.90", price: (basePrice - 0.00003).toFixed(5), intensity: 85 },
-      { amount: "32,742.31", price: (basePrice - 0.00005).toFixed(5), intensity: 75 },
-      { amount: "67,328.67", price: (basePrice - 0.00008).toFixed(5), intensity: 90 },
-      { amount: "28,876.54", price: (basePrice - 0.00010).toFixed(5), intensity: 65 },
-      { amount: "53,234.56", price: (basePrice - 0.00013).toFixed(5), intensity: 80 },
-      { amount: "39,456.78", price: (basePrice - 0.00015).toFixed(5), intensity: 70 },
-      { amount: "61,890.12", price: (basePrice - 0.00018).toFixed(5), intensity: 85 },
-      { amount: "47,543.21", price: (basePrice - 0.00020).toFixed(5), intensity: 75 },
-      { amount: "72,987.65", price: (basePrice - 0.00022).toFixed(5), intensity: 95 },
-      { amount: "58,321.09", price: (basePrice - 0.00025).toFixed(5), intensity: 80 }
-    ];
+    if (!orderBook) return { buySide: [], sellSide: [] };
 
-    const sellSide = [
-      { amount: "38,654.32", price: (basePrice + 0.00002).toFixed(5), intensity: 80 },
-      { amount: "54,987.65", price: (basePrice + 0.00004).toFixed(5), intensity: 90 },
-      { amount: "42,432.10", price: (basePrice + 0.00007).toFixed(5), intensity: 75 },
-      { amount: "68,345.67", price: (basePrice + 0.00010).toFixed(5), intensity: 85 },
-      { amount: "49,876.54", price: (basePrice + 0.00012).toFixed(5), intensity: 70 },
-      { amount: "63,111.11", price: (basePrice + 0.00015).toFixed(5), intensity: 80 },
-      { amount: "57,333.33", price: (basePrice + 0.00018).toFixed(5), intensity: 75 },
-      { amount: "45,888.88", price: (basePrice + 0.00020).toFixed(5), intensity: 65 },
-      { amount: "71,555.55", price: (basePrice + 0.00022).toFixed(5), intensity: 85 },
-      { amount: "59,000.00", price: (basePrice + 0.00025).toFixed(5), intensity: 80 }
-    ];
+    const calculateIntensity = (orders: [string, string][], isBid: boolean) => {
+      if (orders.length === 0) return [];
+      
+      const quantities = orders.map(order => Number(order[1]));
+      const maxQuantity = Math.max(...quantities);
+      const minQuantity = Math.min(...quantities);
+      
+      return orders.map((order, index) => {
+        const quantity = Number(order[1]);
+        let intensity = 0;
+        
+        if (maxQuantity > minQuantity) {
+          intensity = ((quantity - minQuantity) / (maxQuantity - minQuantity)) * 100;
+        }
+        
+        // Ensure minimum intensity for visibility
+        intensity = Math.max(intensity, 20);
+        
+        return {
+          amount: formatVolume(order[1]),
+          price: formatNumber(order[0]),
+          intensity: Math.min(intensity, 95)
+        };
+      });
+    };
+
+    const buySide = calculateIntensity(orderBook.bids.slice(0, 10), true);
+    const sellSide = calculateIntensity(orderBook.asks.slice(0, 10), false);
 
     return { buySide, sellSide };
-  }, [marketPrice]);
+  }, [orderBook, formatNumber, formatVolume]);
 
   return (
     <div className="market-detail-container">
@@ -323,7 +373,7 @@ function MarketDetail() {
             className={`tab ${activeTab === 'transactions' ? 'active' : ''}`}
             onClick={() => setActiveTab('transactions')}
           >
-            Latest transaction
+            Last transaction
           </div>
         </div>
 
@@ -346,35 +396,64 @@ function MarketDetail() {
                 </div>
 
                 <div className="table-body">
-                  {orderBookData.buySide.map((buyOrder, index) => {
-                    const sellOrder = orderBookData.sellSide[index];
-                    return (
+                  {orderBookData.buySide.length > 0 ? (
+                    orderBookData.buySide.map((buyOrder, index) => {
+                      const sellOrder = orderBookData.sellSide[index] || { amount: '0', price: '0', intensity: 0 };
+                      return (
+                        <div key={index} className="table-row">
+                          <div className="buy-section">
+                            <div className="cell buy-cell">{index + 1}</div>
+                            <div className="cell quantity">{buyOrder.amount}</div>
+                            <div className="cell price-cell">
+                              <div 
+                                className="heatmap-bar buy-heatmap"
+                                style={{ width: `${buyOrder.intensity}%` }}
+                              ></div>
+                              <span className="price-value buy-price">{buyOrder.price}</span>
+                            </div>
+                          </div>
+                          <div className="sell-section">
+                            <div className="cell price-cell">
+                              <div 
+                                className="heatmap-bar sell-heatmap"
+                                style={{ width: `${sellOrder.intensity}%` }}
+                              ></div>
+                              <span className="price-value sell-price">{sellOrder.price}</span>
+                            </div>
+                            <div className="cell quantity">{sellOrder.amount}</div>
+                            <div className="cell sell-cell">{index + 1}</div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    Array.from({ length: 10 }).map((_, index) => (
                       <div key={index} className="table-row">
                         <div className="buy-section">
-                          <div className="cell buy-cell">1</div>
-                          <div className="cell quantity">{buyOrder.amount}</div>
+                          <div className="cell buy-cell">
+                            <LoadingPlaceholder width="20px" height="12px" />
+                          </div>
+                          <div className="cell quantity">
+                            <LoadingPlaceholder width="40px" height="12px" />
+                          </div>
                           <div className="cell price-cell">
-                            <div 
-                              className="heatmap-bar buy-heatmap"
-                              style={{ width: `${buyOrder.intensity}%` }}
-                            ></div>
-                            <span className="price-value buy-price">{buyOrder.price}</span>
+                            <LoadingPlaceholder width="50px" height="12px" />
                           </div>
                         </div>
                         <div className="sell-section">
                           <div className="cell price-cell">
-                            <div 
-                              className="heatmap-bar sell-heatmap"
-                              style={{ width: `${sellOrder.intensity}%` }}
-                            ></div>
-                            <span className="price-value sell-price">{sellOrder.price}</span>
+                            <LoadingPlaceholder width="50px" height="12px" />
                           </div>
-                          <div className="cell quantity">{sellOrder.amount}</div>
-                          <div className="cell sell-cell">1</div>
+                          <div className="cell quantity">
+                            <LoadingPlaceholder width="40px" height="12px" />
+                          </div>
+                          <div className="cell sell-cell">
+                            <LoadingPlaceholder width="20px" height="12px" />
+                          </div>
                         </div>
                       </div>
-                    );
-                  })}
+                    ))
+                  )}
                 </div>
               </div>
             </div>
@@ -382,38 +461,41 @@ function MarketDetail() {
 
           {/* Latest Transactions Content */}
           {activeTab === 'transactions' && (
-            <div className="transactions-list">
-              {recentTrades.length > 0 ? (
-                recentTrades.slice(0, 10).map((trade, index) => (
-                  <div key={`${trade.t}-${trade.T}-${index}`} className="transaction-item">
-                    <div className="transaction-time">
-                      {new Date(trade.T).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            <div className="transactions-container">
+              <div className="transactions-header">
+                <div className="header-item">Time</div>
+                <div className="header-item">Price</div>
+                <div className="header-item">Quantity</div>
+              </div>
+              <div className="transactions-list">
+                {recentTrades.length > 0 ? (
+                  recentTrades.slice(0, 10).map((trade, index) => (
+                    <div key={`${trade.t}-${trade.T}-${index}`} className="transaction-item">
+                      <div className="transaction-time">
+                        {new Date(trade.T).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                      </div>
+                      <div className={`transaction-price ${trade.m ? 'sell' : 'buy'}`}>
+                        {formatNumber(trade.p)}
+                      </div>
+                      <div className="transaction-amount">{Number(trade.q).toFixed(4)}</div>
                     </div>
-                    <div className="transaction-price">{formatNumber(trade.p)}</div>
-                    <div className="transaction-amount">{Number(trade.q).toFixed(4)}</div>
-                    <div className={`transaction-type ${trade.m ? 'sell' : 'buy'}`}>
-                      {trade.m ? 'Sell' : 'Buy'}
+                  ))
+                ) : (
+                  Array.from({ length: 10 }).map((_, index) => (
+                    <div key={index} className="transaction-item">
+                      <div className="transaction-time">
+                        <LoadingPlaceholder width="50px" height="14px" />
+                      </div>
+                      <div className="transaction-price">
+                        <LoadingPlaceholder width="60px" height="14px" />
+                      </div>
+                      <div className="transaction-amount">
+                        <LoadingPlaceholder width="50px" height="14px" />
+                      </div>
                     </div>
-                  </div>
-                ))
-              ) : (
-                Array.from({ length: 5 }).map((_, index) => (
-                  <div key={index} className="transaction-item">
-                    <div className="transaction-time">
-                      <LoadingPlaceholder width="50px" height="14px" />
-                    </div>
-                    <div className="transaction-price">
-                      <LoadingPlaceholder width="60px" height="14px" />
-                    </div>
-                    <div className="transaction-amount">
-                      <LoadingPlaceholder width="50px" height="14px" />
-                    </div>
-                    <div className="transaction-type">
-                      <LoadingPlaceholder width="30px" height="14px" />
-                    </div>
-                  </div>
-                ))
-              )}
+                  ))
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -603,7 +685,6 @@ function MarketDetail() {
           border-bottom: 1px solid #eef2f6;
           font-size: 12px !important;
           padding: 8px 5px;
-
           color: #6c757d;
         }
 
@@ -614,7 +695,6 @@ function MarketDetail() {
 
         .column-header {
           text-align: center;
-
         }
 
         .buy-section .column-header:first-child,
@@ -684,7 +764,6 @@ function MarketDetail() {
         .buy-cell, .sell-cell {
           flex: 0.8;
           font-size: 11px;
-        
           text-align: left;
           border-radius: 4px;
         }
@@ -751,23 +830,53 @@ function MarketDetail() {
           color: #f56c6c;
         }
 
+        /* Transactions Container */
+        .transactions-container {
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+        }
+
+        .transactions-header {
+          display: flex;
+          justify-content: space-between;
+          padding: 12px 16px;
+          background: #f8fbff;
+          border-bottom: 1px solid #eef2f6;
+          font-size: 12px;
+          color: #6c757d;
+          font-weight: 500;
+        }
+
+        .header-item {
+          flex: 1;
+          text-align: center;
+        }
+
+        .header-item:first-child {
+          text-align: left;
+        }
+
+        .header-item:last-child {
+          text-align: right;
+        }
+
         /* Latest Transactions */
         .transactions-list {
           display: flex;
           flex-direction: column;
-          gap: 8px;
+          flex: 1;
           max-height: 400px;
           overflow-y: auto;
-          padding: 8px 0;
         }
 
         .transaction-item {
           display: flex;
           justify-content: space-between;
+          align-items: center;
           font-size: 12px;
           padding: 10px 16px;
           border-bottom: 1px solid #f0f0f0;
-          align-items: center;
         }
 
         .transaction-time {
@@ -776,33 +885,23 @@ function MarketDetail() {
         }
 
         .transaction-price {
-        
           flex: 1;
           text-align: center;
+          font-weight: 500;
+        }
+
+        .transaction-price.buy {
+          color: #37b66a;
+        }
+
+        .transaction-price.sell {
+          color: #f56c6c;
         }
 
         .transaction-amount {
           color: #6c757d;
           flex: 1;
-          text-align: center;
-        }
-
-        .transaction-type {
-          flex: 1;
           text-align: right;
-        
-          padding: 4px 8px;
-          border-radius: 4px;
-        }
-
-        .transaction-type.buy {
-          color: #37b66a;
-          background: rgba(55, 182, 106, 0.08);
-        }
-
-        .transaction-type.sell {
-          color: #f56c6c;
-          background: rgba(245, 108, 108, 0.08);
         }
 
         /* Loading placeholder animation */
@@ -840,10 +939,14 @@ function MarketDetail() {
             gap: 15px;
           }
 
-     
-
           .table-header,
           .table-row {
+            padding-left: 12px;
+            padding-right: 12px;
+          }
+
+          .transactions-header,
+          .transaction-item {
             padding-left: 12px;
             padding-right: 12px;
           }
