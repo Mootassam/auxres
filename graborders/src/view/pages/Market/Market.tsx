@@ -221,7 +221,7 @@ const Market: React.FC = () => {
         style={{
           borderRadius: "21px 21px 0 0",
           backgroundColor: "white",
-          padding: "20px 16px 0"
+          padding: "20px 16px 100px"
         }}
       >
         <div className="table-header">
