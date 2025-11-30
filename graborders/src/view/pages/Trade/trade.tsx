@@ -7,7 +7,6 @@ import spotListActions from "src/modules/spot/list/spotListActions";
 import spotFormActions from "src/modules/spot/form/spotFormActions";
 import assetsActions from "src/modules/assets/list/assetsListActions";
 import assetsListSelectors from "src/modules/assets/list/assetsListSelectors";
-import spotService from "src/modules/spot/spotService";
 import { i18n } from "../../../i18n";
 
 // Utility: safe parseFloat that returns NaN if invalid
@@ -38,12 +37,14 @@ function Trade() {
   const [isLoading, setIsLoading] = useState(true);
   const [placing, setPlacing] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [activeOrdersTab, setActiveOrdersTab] = useState("Orders");
 
-  // Refs for websockets and throttling
+  // Refs for websockets and performance
   const tickerWs = useRef(null);
   const depthWs = useRef(null);
-  const lastTickerUpdate = useRef(0);
-  const lastDepthUpdate = useRef(0);
+  const currentCoinRef = useRef(selectedCoin);
+  const dataFetchController = useRef(null);
+  const isComponentMounted = useRef(true);
 
   // Memoized balances mapping
   const balances = useMemo(() => {
@@ -68,6 +69,16 @@ function Trade() {
     }
   }, [activeTab, baseSymbol, balances]);
 
+  // Format function
+  const formatNumber = useCallback((num, decimals = 2) => {
+    const n = Number(num);
+    if (!Number.isFinite(n)) return (0).toFixed(decimals);
+    return n.toLocaleString(undefined, {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    });
+  }, []);
+
   // Generate unique order number
   const generateOrderNumber = useCallback(() => {
     const t = Date.now().toString(36);
@@ -75,26 +86,60 @@ function Trade() {
     return `ORD-${t}-${r}`.toUpperCase();
   }, []);
 
+  // Cancel pending requests
+  const cancelPendingRequests = useCallback(() => {
+    if (dataFetchController.current) {
+      dataFetchController.current.abort();
+      dataFetchController.current = null;
+    }
+  }, []);
+
+  // Close WebSockets
+  const closeWebSockets = useCallback(() => {
+    [tickerWs, depthWs].forEach(wsRef => {
+      if (wsRef.current) {
+        try {
+          wsRef.current.onclose = null;
+          wsRef.current.close();
+        } catch (e) { }
+        wsRef.current = null;
+      }
+    });
+  }, []);
+
   // Fetch assets and spot list on mount
   useEffect(() => {
+    isComponentMounted.current = true;
+
     dispatch(assetsActions.doFetch());
     dispatch(spotListActions.doFetcPending());
-    const t = setTimeout(() => setIsLoading(false), 800);
-    return () => clearTimeout(t);
-  }, [dispatch]);
+
+    // Faster loading timeout
+    const t = setTimeout(() => {
+      if (isComponentMounted.current) {
+        setIsLoading(false);
+      }
+    }, 400);
+
+    return () => {
+      isComponentMounted.current = false;
+      clearTimeout(t);
+      cancelPendingRequests();
+      closeWebSockets();
+    };
+  }, [dispatch, cancelPendingRequests, closeWebSockets]);
 
   // Update price when market price changes or coin changes
   useEffect(() => {
     if (marketPrice && marketPrice !== "0") {
       setPrice(marketPrice);
 
-      // Also update amount in USDT if quantity exists
       if (quantity && !isNaN(Number(quantity))) {
         const calculatedUSDT = Number(quantity) * Number(marketPrice);
         setAmountInUSDT(calculatedUSDT.toFixed(2));
       }
     }
-  }, [marketPrice]);
+  }, [marketPrice, quantity]);
 
   // Sync quantity and amountInUSDT
   const syncQuantityFromUSDT = useCallback((usdtValue) => {
@@ -135,111 +180,77 @@ function Trade() {
     syncQuantityFromUSDT(value);
   }, [syncQuantityFromUSDT]);
 
-  // Format function
-  const formatNumber = useCallback((num, decimals = 2) => {
-    const n = Number(num);
-    if (!Number.isFinite(n)) return (0).toFixed(decimals);
-    return n.toLocaleString(undefined, {
-      minimumFractionDigits: decimals,
-      maximumFractionDigits: decimals,
-    });
-  }, []);
-
-  // Throttled ticker websocket
+  // Optimized WebSocket connection management
   useEffect(() => {
-    if (!selectedCoin) return;
+    currentCoinRef.current = selectedCoin;
 
-    // Cleanup previous
-    if (tickerWs.current) {
+    const setupWebSocket = (url, onMessage, type) => {
+      if (!isComponentMounted.current || currentCoinRef.current !== selectedCoin) return null;
+
       try {
-        tickerWs.current.close();
-      } catch (e) { }
-      tickerWs.current = null;
-    }
+        const ws = new WebSocket(url);
 
-    try {
-      const symbol = selectedCoin.toLowerCase();
-      const ws = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol}@ticker`);
-      tickerWs.current = ws;
+        ws.onopen = () => {
+          console.log(`${type} WebSocket connected for:`, selectedCoin);
+        };
 
-      ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          const now = performance.now();
-          // throttle to ~200ms
-          if (now - lastTickerUpdate.current > 180) {
-            lastTickerUpdate.current = now;
-            if (data.c !== undefined) {
-              setMarketPrice(data.c);
-            }
-            if (data.P !== undefined) setPriceChangePercent(data.P);
+        ws.onmessage = (event) => {
+          if (!isComponentMounted.current || currentCoinRef.current !== selectedCoin) return;
+
+          try {
+            const data = JSON.parse(event.data);
+            onMessage(data);
+          } catch (err) {
+            console.error(`Error parsing ${type} data:`, err);
           }
-        } catch (err) {
-          // ignore malformed messages
-        }
-      };
+        };
 
-      ws.onerror = (error) => {
-        console.error("Ticker WebSocket error:", error);
-      };
+        ws.onerror = (error) => {
+          console.error(`${type} WebSocket error:`, error);
+        };
 
-    } catch (err) {
-      console.error("Ticker WS init error", err);
-    }
+        ws.onclose = (event) => {
+          console.log(`${type} WebSocket closed for:`, selectedCoin);
+          if (isComponentMounted.current && currentCoinRef.current === selectedCoin && event.code !== 1000) {
+            setTimeout(() => {
+              if (isComponentMounted.current && currentCoinRef.current === selectedCoin) {
+                const newWs = setupWebSocket(url, onMessage, type);
+                if (type === 'ticker' && newWs) tickerWs.current = newWs;
+                else if (type === 'depth' && newWs) depthWs.current = newWs;
+              }
+            }, 1000);
+          }
+        };
 
-    return () => {
-      if (tickerWs.current) {
-        try {
-          tickerWs.current.close();
-        } catch (e) { }
-        tickerWs.current = null;
+        return ws;
+      } catch (err) {
+        console.error(`Error creating ${type} WebSocket:`, err);
+        return null;
       }
     };
-  }, [selectedCoin]);
 
-  // Throttled depth websocket
-  useEffect(() => {
-    if (!selectedCoin) return;
+    // Close existing connections
+    closeWebSockets();
 
-    if (depthWs.current) {
-      try {
-        depthWs.current.close();
-      } catch (e) { }
-      depthWs.current = null;
-    }
+    // Setup ticker WebSocket
+    const tickerUrl = `wss://stream.binance.com:9443/ws/${selectedCoin.toLowerCase()}@ticker`;
+    tickerWs.current = setupWebSocket(tickerUrl, (data) => {
+      if (data.c !== undefined) setMarketPrice(data.c);
+      if (data.P !== undefined) setPriceChangePercent(data.P);
+    }, 'ticker');
 
-    try {
-      const symbol = selectedCoin.toLowerCase();
-      const ws = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol}@depth20@100ms`);
-      depthWs.current = ws;
-
-      ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          const now = performance.now();
-          if (now - lastDepthUpdate.current > 180) {
-            lastDepthUpdate.current = now;
-            const asks = (data.asks || []).slice(0, 5).map((a) => ({ price: a[0], amount: a[1] }));
-            const bids = (data.bids || []).slice(0, 5).map((b) => ({ price: b[0], amount: b[1] }));
-            setOrderBook({ asks, bids });
-          }
-        } catch (err) {
-          // ignore
-        }
-      };
-    } catch (err) {
-      console.error("Depth WS init error", err);
-    }
+    // Setup depth WebSocket
+    const depthUrl = `wss://stream.binance.com:9443/ws/${selectedCoin.toLowerCase()}@depth20@100ms`;
+    depthWs.current = setupWebSocket(depthUrl, (data) => {
+      const asks = (data.asks || []).slice(0, 5).map((a) => ({ price: a[0], amount: a[1] }));
+      const bids = (data.bids || []).slice(0, 5).map((b) => ({ price: b[0], amount: b[1] }));
+      setOrderBook({ asks, bids });
+    }, 'depth');
 
     return () => {
-      if (depthWs.current) {
-        try {
-          depthWs.current.close();
-        } catch (e) { }
-        depthWs.current = null;
-      }
+      closeWebSockets();
     };
-  }, [selectedCoin]);
+  }, [selectedCoin, closeWebSockets]);
 
   // Calculate max amount for depth visualization
   const maxAmount = useMemo(() => {
@@ -255,23 +266,33 @@ function Trade() {
   const handleCloseCoinModal = useCallback(() => setIsCoinModalOpen(false), []);
 
   const handleSelectCoin = useCallback((coin) => {
-    if (!coin) return;
+    if (!coin || coin === selectedCoin) {
+      setIsCoinModalOpen(false);
+      return;
+    }
+
     setSelectedCoin(coin);
     setIsCoinModalOpen(false);
     setIsLoading(true);
+
     // Reset form fields when coin changes
     setQuantity("");
     setAmountInUSDT("");
-    // brief UX loading while updating streams
-    const t = setTimeout(() => setIsLoading(false), 600);
+
+    // Brief loading state
+    const t = setTimeout(() => {
+      if (isComponentMounted.current) {
+        setIsLoading(false);
+      }
+    }, 300);
+
     return () => clearTimeout(t);
-  }, []);
+  }, [selectedCoin]);
 
   const handlePriceChange = useCallback((e) => {
     const newPrice = e.target.value;
     setPrice(newPrice);
 
-    // Update USDT amount when price changes
     const qtyNum = safeParse(quantity);
     if (Number.isFinite(qtyNum)) {
       const calculatedUSDT = qtyNum * Number(newPrice);
@@ -282,13 +303,11 @@ function Trade() {
   // Percentage quick select handlers
   const handlePercentageSelect = useCallback((percentage) => {
     if (activeTab === "buy") {
-      // For BUY: Calculate based on USDT balance
       const availableUSDT = currentBalance;
       const maxSpend = availableUSDT * percentage;
       setAmountInUSDT(maxSpend.toFixed(2));
       syncQuantityFromUSDT(maxSpend);
     } else {
-      // For SELL: Calculate based on coin balance
       const availableCoin = currentBalance;
       const sellAmount = availableCoin * percentage;
       setQuantity(sellAmount.toFixed(8));
@@ -392,46 +411,40 @@ function Trade() {
   ]);
 
   const updateStatus = async (id, data) => {
-    data.status = "canceled"
-    dispatch(spotFormActions.doUpdate(id, data))
-  }
+    data.status = "canceled";
+    dispatch(spotFormActions.doUpdate(id, data));
+  };
 
   return (
     <div className="container">
       {/* Header */}
       <div className="trade-header">
-        <div className="trade-header-top">
-          <div className="trade-page-title">{i18n("pages.trade.title")}</div>
-        </div>
-
-        <div className="market-info">
-          {isLoading ? (
-            <div className="skeleton-market-name" />
-          ) : (
-            <div className="market-name">{selectedCoin.replace("USDT", "/USDT")}</div>
-          )}
-
-          <div className="coin-select-icon" onClick={handleOpenCoinModal} aria-hidden>
-            <i className="fas fa-chevron-down" />
+        <div className="nav-bar">
+          <div className="back-arrow">
+            <div className="trading-pair" onClick={handleOpenCoinModal}>
+              <i className="fas fa-chevron-down dropdown-arrow"></i>
+              {selectedCoin.replace("USDT", "")} / USDT
+            </div>
+            <div>   
+              <p style={{ fontSize: 10 }}>
+                Perpetual
+              </p>
+            </div>
           </div>
 
-          {isLoading ? (
-            <div className="skeleton-price-change" />
-          ) : (
-            <div
-              className="market-change"
-              style={{
-                color: String(priceChangePercent).startsWith("-") ? "#FF6838" : "#00C076",
-              }}
-            >
-              {String(priceChangePercent).startsWith("-") ? "" : "+"}
-              {priceChangePercent}%
-            </div>
-          )}
+          <div className="header-right">
+            <select className="trade-type-select">
+              <option value="trade">Trade</option>
+              <option value="perpetual">Perpetual</option>
+            </select>
+            <Link to={`market/detail/${selectedCoin}`} className="chart-icon">
+              <i className="fas fa-chart-line"></i>
+            </Link>
+          </div>
         </div>
       </div>
 
-      {/* Main */}
+      {/* Main Content */}
       <div className="main-content">
         <div className="trading-layout">
           {/* Trade Form */}
@@ -496,10 +509,6 @@ function Trade() {
                       inputMode="decimal"
                       aria-label="price"
                     />
-                    <div className="value-buttons">
-                      <button className="value-button" onClick={handleIncrementPrice} aria-label={i18n("pages.trade.increasePrice")}>+</button>
-                      <button className="value-button" onClick={handleDecrementPrice} aria-label={i18n("pages.trade.decreasePrice")}>-</button>
-                    </div>
                   </div>
                 )}
               </div>
@@ -615,81 +624,97 @@ function Trade() {
           </div>
         </div>
 
-        {/* Open Orders */}
-        <div className="open-orders">
-          <div className="open-orders-header">
-            <div className="open-orders-title">{i18n("pages.trade.openOrders.title")}</div>
-            <div className="orders-filter">
-              <Link to="/ordersPage" className="remove_blue" aria-label={i18n("pages.trade.openOrders.viewAll")}>
-                <i className="fas fa-list" />
-              </Link>
-            </div>
+        {/* Orders Tabs */}
+        <div className="orders-tabs">
+          <div className="orders-tabs-header">
+            {['Positions', 'Orders', 'History orders', 'Transaction history'].map(tab => (
+              <div
+                key={tab}
+                className={`orders-tab ${activeOrdersTab === tab ? 'active' : ''}`}
+                onClick={() => setActiveOrdersTab(tab)}
+              >
+                {tab}
+              </div>
+            ))}
           </div>
 
-          {listspot && listspot.length > 0 ? (
-            <div className="orders-list">
-              {listspot.map((order) => (
-                <div key={order.id ?? order.orderNo} className="order-item">
-                  <div className="order-main-info">
-                    <div className="order-pair-action">
-                      <span className="order-pair">{order.tradingPair}</span>
-                      <span className={`order-action ${String(order?.direction || "").toLowerCase()}`}>
-                        {order.direction}
-                      </span>
-                      <span className="order-type-badge">{order.orderType}</span>
-                    </div>
-                    <div className="order-date">
-                      {order.commissionTime ? new Date(order.commissionTime).toLocaleDateString() : ""}
-                      <span className="order-time">
-                        {order.commissionTime ? new Date(order.commissionTime).toLocaleTimeString() : ""}
-                      </span>
-                    </div>
-                  </div>
+          <div className="orders-tab-content">
+            {activeOrdersTab === 'Orders' && (
+              <>
+                {listspot && listspot.length > 0 ? (
+                  <div className="orders-list">
+                    {listspot.map((order) => (
+                      <div key={order.id ?? order.orderNo} className="order-item">
+                        <div className="order-main-info">
+                          <div className="order-pair-action">
+                            <span className="order-pair">{order.tradingPair}</span>
+                            <span className={`order-action ${String(order?.direction || "").toLowerCase()}`}>
+                              {order.direction}
+                            </span>
+                            <span className="order-type-badge">{order.orderType}</span>
+                          </div>
+                          <div className="order-date">
+                            {order.commissionTime ? new Date(order.commissionTime).toLocaleDateString() : ""}
+                            <span className="order-time">
+                              {order.commissionTime ? new Date(order.commissionTime).toLocaleTimeString() : ""}
+                            </span>
+                          </div>
+                        </div>
 
-                  <div className="order-details">
-                    <div className="order-detail">
-                      <span className="detail-label">{i18n("pages.trade.openOrders.status")}</span>
-                      <span className={`order-status ${String(order.status).toLowerCase()}`}>{order.status}</span>
-                    </div>
+                        <div className="order-details">
+                          <div className="order-detail">
+                            <span className="detail-label">{i18n("pages.trade.openOrders.status")}</span>
+                            <span className={`order-status ${String(order.status).toLowerCase()}`}>{order.status}</span>
+                          </div>
 
-                    <div className="order-detail">
-                      <span className="detail-label">{i18n("pages.trade.openOrders.price")}</span>
-                      <span className="order-price-value">{formatNumber(order.commissionPrice, 4)} USDT</span>
-                    </div>
+                          <div className="order-detail">
+                            <span className="detail-label">{i18n("pages.trade.openOrders.price")}</span>
+                            <span className="order-price-value">{formatNumber(order.commissionPrice, 4)} USDT</span>
+                          </div>
 
-                    <div className="order-detail">
-                      <span className="detail-label">{i18n("pages.trade.openOrders.amount")}</span>
-                      <span className="order-amount-value">{order.orderQuantity} {order?.tradingPair?.split("/")[0]}</span>
-                    </div>
+                          <div className="order-detail">
+                            <span className="detail-label">{i18n("pages.trade.openOrders.amount")}</span>
+                            <span className="order-amount-value">{order.orderQuantity} {order?.tradingPair?.split("/")[0]}</span>
+                          </div>
 
-                    <div className="order-detail">
-                      <span className="detail-label">{i18n("pages.trade.openOrders.total")}</span>
-                      <span className="order-total">{formatNumber(order.entrustedValue)} USDT</span>
-                    </div>
-                  </div>
+                          <div className="order-detail">
+                            <span className="detail-label">{i18n("pages.trade.openOrders.total")}</span>
+                            <span className="order-total">{formatNumber(order.entrustedValue)} USDT</span>
+                          </div>
+                        </div>
 
-                  <div className="order-actions">
-                    {String(order.status).toLowerCase() === "pending" ||
-                      String(order.status).toLowerCase() === "partially filled" ? (
-                      <button className="cancel-order-btn" onClick={() => updateStatus(order.id ,order) }>
-                        {i18n("pages.trade.openOrders.cancel")}
-                      </button>
-                    ) : (
-                      <div className="completed-indicator">
-                        <i className="fas fa-check-circle" />
+                        <div className="order-actions">
+                          {String(order.status).toLowerCase() === "pending" ||
+                            String(order.status).toLowerCase() === "partially filled" ? (
+                            <button className="cancel-order-btn" onClick={() => updateStatus(order.id, order)}>
+                              {i18n("pages.trade.openOrders.cancel")}
+                            </button>
+                          ) : (
+                            <div className="completed-indicator">
+                              <i className="fas fa-check-circle" />
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    )}
+                    ))}
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="empty-orders">
-              <div className="empty-icon"><i className="fas fa-clipboard-list" /></div>
-              <div className="empty-text">{i18n("pages.trade.openOrders.noOrders")}</div>
-              <div className="empty-subtext">{i18n("pages.trade.openOrders.noOrdersSubtext")}</div>
-            </div>
-          )}
+                ) : (
+                  <div className="empty-orders">
+                    <div className="empty-icon"><i className="fas fa-clipboard-list" /></div>
+                    <div className="empty-text">{i18n("pages.trade.openOrders.noOrders")}</div>
+                    <div className="empty-subtext">{i18n("pages.trade.openOrders.noOrdersSubtext")}</div>
+                  </div>
+                )}
+              </>
+            )}
+
+            {activeOrdersTab !== 'Orders' && (
+              <div className="empty-tab-content">
+                <div className="empty-icon"><i className="fas fa-clipboard-list" /></div>
+                <div className="empty-text">No {activeOrdersTab.toLowerCase()} available</div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -700,60 +725,97 @@ function Trade() {
         onSelectCoin={handleSelectCoin}
       />
 
-
-
       <style>{`
-        /* Trade Header Section */
+        /* Trade Header Section - Market Page Style */
         .container {
-          background-color: #000000;
+          background-color: rgb(16, 108, 245);
           color: #FFFFFF;
           min-height: 100vh;
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+          max-width: 400px;
+          margin: 0 auto;
         }
         
         .trade-header {
-          background-color: #000000;
-          padding: 10px 12px;
-          position: sticky;
+          padding: 15px 20px;
+          color: #fff;
           top: 0;
           z-index: 100;
-          border-bottom: 1px solid #2A2A2A;
         }
 
-        .trade-header-top {
+        .nav-bar {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 6px;
+          margin-bottom: 10px;
         }
 
-        .trade-page-title {
-          font-size: 16px;
-          font-weight: bold;
-        }
-
-        .settings-icon {
-          color: #AAAAAA;
+        .back-arrow {
           font-size: 18px;
+          font-weight: 300;
           cursor: pointer;
+          display: flex;
+          align-items: center;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .trading-pair {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 16px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-weight: 600;
+        }
+
+        .trading-pair:hover {
+          opacity: 0.8;
+        }
+
+        .dropdown-arrow {
+          font-size: 12px;
+          transition: transform 0.3s ease;
+          color: #fff;
+        }
+
+        .header-right {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .trade-type-select {
+          font-size: 12px;
+          padding: 8px;
+          background: transparent;
+          color: #fff;
+          border: 1px solid rgba(255,255,255,0.3);
+          border-radius: 4px;
+        }
+
+        .chart-icon {
+          color: #fff;
+          font-size: 16px;
+          text-decoration: none;
+          transition: opacity 0.2s ease;
+        }
+
+        .chart-icon:hover {
+          opacity: 0.8;
         }
 
         .market-info {
           display: flex;
           align-items: center;
+          justify-content: space-between;
         }
 
         .market-name {
-          font-weight: bold;
-          font-size: 14px;
-          margin-right: 8px;
-        }
-
-        .coin-select-icon {
-          color: #F3BA2F;
-          font-size: 14px;
-          cursor: pointer;
-          margin-right: 10px;
+          font-weight: 600;
+          font-size: 16px;
+          color: #1a1a1a;
         }
 
         .market-change {
@@ -763,36 +825,73 @@ function Trade() {
 
         /* Main Content */
         .main-content {
-          padding: 10px;
+          background: white;
+          border-radius: 40px 40px 0 0;
+          padding: 20px 16px 100px;
+          min-height: calc(100vh - 120px);
         }
 
         /* Trading Layout */
         .trading-layout {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 10px;
-          margin-bottom: 12px;
+          display: flex;
+          gap: 12px;
+          margin-bottom: 20px;
+          align-items: stretch;
         }
 
         .trade-form {
-          // background-color: #1A1A1A;
-          // border-radius: 6px;
-          // padding: 12px;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
         }
 
         .order-book {
-          // background-color: #1A1A1A;
-          // border-radius: 6px;
-          // padding: 12px;
-          overflow-y: auto;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
           position: relative;
+        }
+
+        /* Orders Tabs */
+        .orders-tabs {
+          margin-top: 20px;
+        }
+
+        .orders-tabs-header {
+          display: flex;
+          gap: 16px;
+          margin-bottom: 16px;
+          border-bottom: 1px solid #eef2f6;
+          padding-bottom: 8px;
+        }
+
+        .orders-tab {
+          font-size: 12px;
+          cursor: pointer;
+          color: #888f99;
+          transition: color 0.2s ease;
+          padding: 4px 0;
+        }
+
+        .orders-tab.active {
+          color: #000;
+          font-weight: 500;
+        }
+
+        .orders-tab-content {
+          min-height: 200px;
+        }
+
+        .empty-tab-content {
+          text-align: center;
+          padding: 40px 0;
         }
 
         /* Buy/Sell Tabs */
         .buy-sell-tabs {
           display: flex;
-          margin-bottom: 12px;
-          background-color: #2A2A2A;
+          margin-bottom: 16px;
+          background-color: #f8f9fa;
           border-radius: 4px;
           overflow: hidden;
         }
@@ -802,69 +901,72 @@ function Trade() {
           flex: 1;
           text-align: center;
           padding: 8px;
-          font-weight: bold;
           cursor: pointer;
           font-size: 12px;
+          transition: all 0.2s ease;
         }
 
         .buy-tab {
-          background-color: #2A2A2A;
-          color: #FFF;
+          background-color: #f8f9fa;
+          color: #6c757d;
         }
 
         .buy-tab.active {
-          background-color: #00C076;
-          color: #000;
+          background-color: #37b66a;
+          color: #ffffff;
         }
 
         .sell-tab {
-          background-color: #2A2A2A;
-          color: #FFF;
+          background-color: #f8f9fa;
+          color: #6c757d;
         }
 
         .sell-tab.active {
-          background-color: #FF6838;
-          color: #FFF;
+          background-color: #f56c6c;
+          color: #ffffff;
         }
 
         /* Order Type */
         .order-type {
-          margin-bottom: 12px;
+          margin-bottom: 16px;
         }
 
         .order-type-label {
           font-size: 12px;
-          color: #AAAAAA;
-          margin-bottom: 5px;
+          color: #6c757d;
+          margin-bottom: 6px;
+          font-weight: 500;
         }
 
         .order-type-select {
           width: 100%;
-          background-color: #2A2A2A;
-          color: #FFFFFF;
-          border: none;
-          border-radius: 4px;
+          background-color: #ffffff;
+          color: #333333;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
           padding: 8px;
           font-size: 12px;
         }
 
         /* Input Fields */
         .input-group {
-          margin-bottom: 12px;
+          margin-bottom: 16px;
         }
 
         .input-label {
           display: block;
           font-size: 12px;
-          color: #AAAAAA;
-          margin-bottom: 5px;
+          color: #6c757d;
+          margin-bottom: 6px;
+          font-weight: 500;
         }
 
         .input-with-buttons {
           display: flex;
           align-items: center;
-          background-color: #2A2A2A;
-          border-radius: 4px;
+          background-color: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
           padding: 4px;
         }
 
@@ -872,9 +974,9 @@ function Trade() {
           flex: 1;
           background: transparent;
           border: none;
-          color: #FFFFFF;
+          color: #333333;
           font-size: 12px;
-          padding: 6px;
+          padding: 8px;
           outline: none;
         }
 
@@ -883,129 +985,118 @@ function Trade() {
         }
 
         .value-button {
-          background-color: #1A1A1A;
-          color: #FFFFFF;
+          background-color: #f8f9fa;
+          color: #6c757d;
           border: none;
-          width: 22px;
-          height: 22px;
-          border-radius: 3px;
-          margin-left: 3px;
+          width: 26px;
+          height: 26px;
+          border-radius: 6px;
+          margin-left: 4px;
           cursor: pointer;
-          font-size: 10px;
-        }
-
-        .value-button:hover {
-          background-color: #2A2A2A;
-        }
-
-        .amount-display {
-          background-color: #2A2A2A;
-          border-radius: 4px;
-          padding: 8px;
-          margin-bottom: 12px;
           font-size: 12px;
-          text-align: center;
+          font-weight: 600;
         }
 
         .balance-info {
-          font-size: 11px;
-          color: #AAAAAA;
-          margin-bottom: 12px;
+          font-size: 13px;
+          color: #6c757d;
+          margin-bottom: 16px;
           text-align: center;
+          padding: 8px;
+          background-color: #f8fbff;
+          border-radius: 6px;
         }
 
         /* Action Button */
         .action-button {
           width: 100%;
-          padding: 12px;
+          padding: 8px;
           border: none;
-          border-radius: 4px;
-          font-size: 13px;
-          font-weight: bold;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 500;
           cursor: pointer;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          transition: background-color 0.2s;
+          margin-top: auto;
         }
 
         .buy-button {
-          background-color: #00C076;
+          background-color: #37b66a;
           color: white;
-        }
-
-        .buy-button:hover {
-          background-color: #00a766;
         }
 
         .sell-button {
-          background-color: #FF6838;
+          background-color: #f56c6c;
           color: white;
         }
 
-        .sell-button:hover {
-          background-color: #e04444;
+        .action-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
         }
 
         /* Order Book */
         .order-book-header {
           display: flex;
           justify-content: space-between;
-          margin-bottom: 8px;
-          font-size: 10px;
-          color: #AAAAAA;
-          padding: 0 5px;
+          margin-bottom: 10px;
+          font-size: 12px;
+          color: #6c757d;
+          padding: 0 8px;
+          font-weight: 500;
         }
 
         .order-book-row {
           display: flex;
           justify-content: space-between;
-          padding: 6px 5px;
-          font-size: 11px;
+          padding: 6px 8px;
+          font-size: 12px;
           cursor: pointer;
           transition: background-color 0.2s;
           position: relative;
           z-index: 1;
+          border-radius: 4px;
         }
 
         .depth-bar {
           position: absolute;
           top: 0;
           height: 100%;
-          opacity: 0.2;
+          opacity: 0.1;
           z-index: -1;
           transition: width 0.3s ease;
         }
 
         .ask-depth {
           right: 0;
-          background-color: #FF6838;
+          background-color: #f56c6c;
         }
 
         .bid-depth {
           left: 0;
-          background-color: #00C076;
+          background-color: #37b66a;
         }
 
         .order-book-row:hover {
-          background-color: rgba(42, 42, 42, 0.7);
-          border-radius: 3px;
+          background-color: #f8fbff;
         }
 
         .order-price {
           flex: 1;
+          font-weight: 500;
         }
 
         .order-amount {
           flex: 1;
           text-align: right;
+          color: #6c757d;
         }
 
         .ask-row .order-price {
-          color: #FF6838;
+          color: #f56c6c;
         }
 
         .bid-row .order-price {
-          color: #00C076;
+          color: #37b66a;
         }
 
         .current-price-row {
@@ -1013,61 +1104,22 @@ function Trade() {
           justify-content: center;
           margin: 8px 0;
           padding: 8px 0;
-          border-top: 1px solid #2A2A2A;
-          border-bottom: 1px solid #2A2A2A;
+          border-top: 1px solid #eef2f6;
+          border-bottom: 1px solid #eef2f6;
         }
 
         .current-price {
-          font-weight: bold;
-          color: #F3BA2F;
-          font-size: 13px;
+          font-weight: 600;
+          color: #106cf5;
+          font-size: 12px;
         }
 
-        /* Open Orders */
-        .open-orders {
-          padding: 12px;
-          background-color: #1A1A1A;
-          border-radius: 6px;
-        }
-
-        .open-orders-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 15px;
-        }
-
-        .open-orders-title {
-          font-size: 13px;
-          font-weight: bold;
-          color: #F3BA2F;
-        }
-
-        .orders-filter {
-          display: flex;
-          background-color: #2A2A2A;
-          border-radius: 4px;
-          padding: 2px;
-          font-size: 11px;
-        }
-
-        .orders-filter span {
-          padding: 4px 8px;
-          cursor: pointer;
-          border-radius: 3px;
-        }
-
-        .orders-filter span.active {
-          background-color: #F3BA2F;
-          color: #000;
-        }
-
+        /* Order Item Styles */
         .order-item {
-          background-color: #2A2A2A;
-          border-radius: 6px;
+          background-color: #f8fbff;
+          border-radius: 8px;
           padding: 12px;
           margin-bottom: 10px;
-          position: relative;
         }
 
         .order-main-info {
@@ -1084,42 +1136,42 @@ function Trade() {
         }
 
         .order-pair {
-          font-weight: bold;
-          font-size: 13px;
+          font-weight: 600;
+          font-size: 12px;
         }
 
         .order-action {
           font-size: 11px;
-          padding: 2px 6px;
+          padding: 3px 6px;
           border-radius: 3px;
-          font-weight: bold;
+          font-weight: 600;
         }
 
         .order-action.buy {
-          background-color: rgba(0, 192, 118, 0.2);
-          color: #00C076;
+          background-color: rgba(55, 182, 106, 0.1);
+          color: #37b66a;
         }
 
         .order-action.sell {
-          background-color: rgba(255, 104, 56, 0.2);
-          color: #FF6838;
+          background-color: rgba(245, 108, 108, 0.1);
+          color: #f56c6c;
         }
 
         .order-type-badge {
           font-size: 10px;
-          color: #AAAAAA;
-          background-color: #1A1A1A;
+          color: #6c757d;
+          background-color: #e9ecef;
           padding: 2px 5px;
           border-radius: 3px;
         }
 
         .order-date {
           font-size: 11px;
-          color: #AAAAAA;
+          color: #6c757d;
         }
 
         .order-time {
-          color: #777;
+          color: #8c98a4;
         }
 
         .order-details {
@@ -1137,38 +1189,29 @@ function Trade() {
 
         .detail-label {
           font-size: 11px;
-          color: #AAAAAA;
+          color: #6c757d;
         }
 
         .order-status {
           font-size: 11px;
-          font-weight: bold;
+          font-weight: 600;
         }
 
         .order-status.completed {
-          color: #00C076;
+          color: #37b66a;
         }
 
-          .order-status.cancelled {
-          color: #e01515ff;
+        .order-status.cancelled {
+          color: #f56c6c;
         }
+
         .order-status.pending {
-          color: #F3BA2F;
-        }
-
-        .order-status.partially-filled {
-          color: #FF6838;
-        }
-
-        .order-filled {
-          font-size: 11px;
-          font-weight: bold;
-          color: #F3BA2F;
+          color: #106cf5;
         }
 
         .order-price-value, .order-amount-value, .order-total {
           font-size: 11px;
-          font-weight: bold;
+          font-weight: 600;
         }
 
         .order-actions {
@@ -1177,86 +1220,56 @@ function Trade() {
         }
 
         .cancel-order-btn {
-          background-color: #FF6838;
+          background-color: #f56c6c;
           color: white;
           border: none;
           padding: 6px 12px;
           border-radius: 4px;
           font-size: 11px;
           cursor: pointer;
-          transition: background-color 0.2s;
-        }
-
-        .cancel-order-btn:hover {
-          background-color: #e04444;
         }
 
         .completed-indicator {
-          color: #00C076;
-          font-size: 14px;
+          color: #37b66a;
+          font-size: 12px;
         }
 
         .empty-orders {
           text-align: center;
-          padding: 40px 0;
+          padding: 30px 0;
         }
 
         .empty-icon {
           font-size: 32px;
-          color: #2A2A2A;
+          color: #e9ecef;
           margin-bottom: 10px;
         }
 
         .empty-text {
-          color: #AAAAAA;
-          font-size: 14px;
+          color: #6c757d;
+          font-size: 12px;
           margin-bottom: 5px;
         }
 
         .empty-subtext {
-          color: #777;
+          color: #8c98a4;
           font-size: 12px;
         }
 
-        /* Loading Overlay Styles */
-        .loading-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: rgba(0, 0, 0, 0.7);
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          z-index: 1000;
+        /* Error Message */
+        .error-message {
+          background-color: #fef2f2;
+          color: #dc2626;
+          padding: 10px;
+          border-radius: 6px;
+          margin-bottom: 12px;
+          font-size: 13px;
+          border: 1px solid #fecaca;
         }
-        
-        .loading-spinner {
-          width: 50px;
-          height: 50px;
-          border: 5px solid #2A2A2A;
-          border-top: 5px solid #F3BA2F;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
-          margin-bottom: 15px;
-        }
-        
-        .loading-text {
-          color: #FFFFFF;
-          font-size: 16px;
-          font-weight: 500;
-        }
-        
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-        
-        /* Skeleton Loading for Content */
+
+        /* Skeleton Loading Styles */
         .skeleton-loading {
-          background: linear-gradient(90deg, #2A2A2A 25%, #333 50%, #2A2A2A 75%);
+          background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
           background-size: 200% 100%;
           animation: loading 1.5s infinite;
           border-radius: 4px;
@@ -1267,43 +1280,42 @@ function Trade() {
           100% { background-position: -200% 0; }
         }
         
-        /* Skeleton elements for initial load */
+        /* Skeleton elements */
         .skeleton-market-name {
-          width: 100px;
+          width: 120px;
           height: 16px;
-          margin-right: 8px;
         }
         
         .skeleton-price-change {
-          width: 50px;
+          width: 60px;
           height: 16px;
         }
         
         .skeleton-tab {
           width: 100%;
-          height: 36px;
+          height: 44px;
         }
         
         .skeleton-input {
           width: 100%;
           height: 40px;
-          margin-bottom: 12px;
+          margin-bottom: 16px;
         }
         
         .skeleton-balance {
           width: 100%;
           height: 14px;
-          margin-bottom: 12px;
+          margin-bottom: 16px;
         }
         
         .skeleton-button {
           width: 100%;
-          height: 42px;
+          height: 48px;
         }
         
         .skeleton-order-book {
           height: 20px;
-          margin-bottom: 5px;
+          margin-bottom: 4px;
         }
         
         .skeleton-current-price {
@@ -1311,113 +1323,26 @@ function Trade() {
           margin: 8px 0;
         }
 
-        /* Coin Selection Modal */
-        .modal-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: rgba(0, 0, 0, 0.7);
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          z-index: 1000;
+        /* Responsive */
+        @media (max-width: 380px) {
+          .container {
+            padding: 0;
+          }
+
+          .trade-header,
+          .main-content {
+            padding-left: 16px;
+            padding-right: 16px;
+          }
+
+          .trading-layout {
+            gap: 10px;
+          }
         }
-        
-        .coin-modal {
-          background-color: #1A1A1A;
-          border-radius: 8px;
-          width: 320px;
-          max-width: 90%;
-          max-height: 80vh;
-          overflow: hidden;
-          display: flex;
-          flex-direction: column;
-        }
-        
-        .modal-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 16px;
-          border-bottom: 1px solid #2A2A2A;
-        }
-        
-        .modal-header h3 {
-          margin: 0;
-          font-size: 18px;
-          color: #F3BA2F;
-        }
-        
-        .close-button {
-          background: none;
-          border: none;
-          color: #AAAAAA;
-          font-size: 24px;
-          cursor: pointer;
-        }
-        
-        .search-container {
-          padding: 12px 16px;
-          border-bottom: 1px solid #2A2A2A;
-        }
-        
-        .coin-search {
-          width: 100%;
-          padding: 10px 12px;
-          background-color: #2A2A2A;
-          border: none;
-          border-radius: 4px;
-          color: #FFFFFF;
-          font-size: 14px;
-        }
-        
-        .coin-search:focus {
-          outline: 1px solid #F3BA2F;
-        }
-        
-        .modal-content {
-          flex: 1;
-          overflow-y: auto;
-        }
-        
-        .coin-list {
-          padding: 8px 0;
-        }
-        
-        .coin-item {
-          display: flex;
-          align-items: center;
-          padding: 12px 16px;
-          cursor: pointer;
-          transition: background-color 0.2s;
-        }
-        
-        .coin-item:hover {
-          background-color: #2A2A2A;
-        }
-        
-        .coin-icon {
-          font-size: 20px;
-          margin-right: 12px;
-          width: 30px;
-          text-align: center;
-        }
-        
-        .coin-info {
-          flex: 1;
-        }
-        
-        .coin-symbol {
-          font-weight: bold;
-          font-size: 14px;
-          margin-bottom: 2px;
-        }
-        
-        .coin-name {
-          color: #AAAAAA;
-          font-size: 12px;
+
+        .remove_blue {
+          text-decoration: none;
+          color: inherit;
         }
       `}</style>
     </div>
