@@ -8,6 +8,7 @@ import spotFormActions from "src/modules/spot/form/spotFormActions";
 import assetsActions from "src/modules/assets/list/assetsListActions";
 import assetsListSelectors from "src/modules/assets/list/assetsListSelectors";
 import { i18n } from "../../../i18n";
+import CoinSelectorSidebar from "src/view/shared/modals/CoinSelectorSidebar";
 
 // Utility: safe parseFloat that returns NaN if invalid
 const safeParse = (v) => {
@@ -425,7 +426,7 @@ function Trade() {
               <i className="fas fa-chevron-down dropdown-arrow"></i>
               {selectedCoin.replace("USDT", "")} / USDT
             </div>
-            <div>   
+            <div>
               <p style={{ fontSize: 10 }}>
                 Perpetual
               </p>
@@ -719,10 +720,12 @@ function Trade() {
       </div>
 
       {/* Coin Selection Modal */}
-      <CoinListModal
+      <CoinSelectorSidebar
         isOpen={isCoinModalOpen}
-        onClose={handleCloseCoinModal}
-        onSelectCoin={handleSelectCoin}
+        onClose={() => setIsCoinModalOpen(false)}
+        selectedCoin={selectedCoin}
+        onCoinSelect={handleSelectCoin}
+        title="Select Trading Pair"
       />
 
       <style>{`

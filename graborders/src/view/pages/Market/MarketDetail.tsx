@@ -2,7 +2,9 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { useHistory, useParams } from "react-router-dom";
 import axios from "axios";
 import FuturesChart from "../Futures/FuturesChart";
+
 import { i18n } from "../../../i18n";
+import CoinSelectorSidebar from "src/view/shared/modals/CoinSelectorSidebar";
 
 // Interface for Binance trade data
 interface BinanceTrade {
@@ -59,18 +61,16 @@ function MarketDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'orderBook' | 'transactions'>('orderBook');
   const [showCoinSelector, setShowCoinSelector] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
 
   const tradeWs = useRef<WebSocket | null>(null);
   const tickerWs = useRef<WebSocket | null>(null);
   const depthWs = useRef<WebSocket | null>(null);
-  const sidebarRef = useRef<HTMLDivElement>(null);
   const currentCoinRef = useRef<string>(selectedCoin);
   const reconnectTimeouts = useRef<{ [key: string]: NodeJS.Timeout }>({});
   const dataFetchController = useRef<AbortController | null>(null);
 
   // Available coins
-  const availableCoins: Coin[] = [
+  const availableCoins = [
     { symbol: "BTCUSDT", name: "BTC / USDT" },
     { symbol: "ETHUSDT", name: "ETH / USDT" },
     { symbol: "DOTUSDT", name: "DOT / USDT" },
@@ -87,14 +87,6 @@ function MarketDetail() {
     { symbol: "ZECUSDT", name: "ZEC / USDT" },
     { symbol: "DOGEUSDT", name: "DOGE / USDT" }
   ];
-
-  // Filter coins based on search
-  const filteredCoins = useMemo(() => {
-    return availableCoins.filter(coin => 
-      coin.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      coin.symbol.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [searchTerm]);
 
   // Format number with commas and fixed decimals
   const formatNumber = useCallback((num: string, decimals: number = 4) => {
@@ -162,23 +154,6 @@ function MarketDetail() {
     setRecentTrades([]);
     setOrderBook(null);
   }, []);
-
-  // Click outside handler
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
-        setShowCoinSelector(false);
-      }
-    };
-
-    if (showCoinSelector) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showCoinSelector]);
 
   // Update selected coin when URL param changes
   useEffect(() => {
@@ -386,13 +361,10 @@ function MarketDetail() {
     console.log("Selecting new coin:", coinSymbol);
     // Navigate to the new coin's detail page
     history.push(`/market/detail/${coinSymbol}`);
-    setShowCoinSelector(false);
-    setSearchTerm("");
   };
 
   const toggleCoinSelector = () => {
     setShowCoinSelector(!showCoinSelector);
-    setSearchTerm("");
   };
 
   // Get current coin name for display
@@ -484,61 +456,15 @@ function MarketDetail() {
         </div>
       </div>
 
-      {/* Coin Selector Sidebar */}
-      {showCoinSelector && (
-        <>
-          <div className="sidebar-overlay"></div>
-          <div className="coin-selector-sidebar" ref={sidebarRef}>
-            <div className="sidebar-header">
-              <div className="sidebar-title">Select Trading Pair</div>
-              <div className="close-sidebar" onClick={() => setShowCoinSelector(false)}>
-                <i className="fas fa-times"></i>
-              </div>
-            </div>
-            
-            <div className="search-container">
-              <i className="fas fa-search search-icon"></i>
-              <input
-                type="text"
-                placeholder="Search coins..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="search-input"
-                autoFocus
-              />
-              {searchTerm && (
-                <button 
-                  className="clear-search"
-                  onClick={() => setSearchTerm("")}
-                >
-                  <i className="fas fa-times"></i>
-                </button>
-              )}
-            </div>
-
-            <div className="coins-list">
-              {filteredCoins.map((coin) => (
-                <div
-                  key={coin.symbol}
-                  className={`coin-item ${selectedCoin === coin.symbol ? 'selected' : ''}`}
-                  onClick={() => handleCoinSelect(coin.symbol)}
-                >
-                  <div className="coin-name">{coin.name}</div>
-                  <div className="coin-symbol">{coin.symbol}</div>
-                </div>
-              ))}
-              
-              {filteredCoins.length === 0 && (
-                <div className="no-results">
-                  <i className="fas fa-search"></i>
-                  <div>No coins found</div>
-                  <div className="no-results-sub">Try different search terms</div>
-                </div>
-              )}
-            </div>
-          </div>
-        </>
-      )}
+      {/* Use the reusable CoinSelectorSidebar component */}
+      <CoinSelectorSidebar
+        isOpen={showCoinSelector}
+        onClose={() => setShowCoinSelector(false)}
+        selectedCoin={selectedCoin}
+        onCoinSelect={handleCoinSelect}
+        availableCoins={availableCoins}
+        title="Select Trading Pair"
+      />
 
       {/* Price Section */}
       <div className="price-section">
@@ -790,192 +716,6 @@ function MarketDetail() {
 
         .header-icon:hover {
           opacity: 0.8;
-        }
-
-        /* Coin Selector Sidebar */
-        .sidebar-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.5);
-          z-index: 1000;
-          animation: fadeIn 0.2s ease;
-        }
-
-        .coin-selector-sidebar {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 90%;
-          max-width: 250px;
-          height: 100%;
-          background: white;
-          z-index: 1001;
-          display: flex;
-          flex-direction: column;
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-          animation: slideFromLeft 0.2s ease;
-          overflow: hidden;
-        }
-
-        .sidebar-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 20px;
-          border-bottom: 1px solid #eef2f6;
-          background: white;
-        }
-
-        .sidebar-title {
-          font-size: 18px;
-          font-weight: 600;
-          color: #1a1a1a;
-        }
-
-        .close-sidebar {
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          background: #f8f9fa;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          color: #6c757d;
-        }
-
-        .close-sidebar:hover {
-          background: #e9ecef;
-        }
-
-        .search-container {
-          position: relative;
-          padding: 16px 20px;
-          border-bottom: 1px solid #eef2f6;
-        }
-
-        .search-icon {
-          position: absolute;
-          left: 36px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: #6c757d;
-          font-size: 14px;
-        }
-
-        .search-input {
-          width: 100%;
-          padding: 12px 40px 12px 40px;
-          border: 1px solid #e2e8f0;
-          border-radius: 12px;
-          font-size: 14px;
-          background: #f8f9fa;
-          transition: all 0.2s ease;
-        }
-
-        .search-input:focus {
-          outline: none;
-          border-color: #106cf5;
-          background: white;
-          box-shadow: 0 0 0 3px rgba(16, 108, 245, 0.1);
-        }
-
-        .clear-search {
-          position: absolute;
-          right: 36px;
-          top: 50%;
-          transform: translateY(-50%);
-          background: none;
-          border: none;
-          color: #6c757d;
-          cursor: pointer;
-          padding: 4px;
-          border-radius: 4px;
-          transition: all 0.2s ease;
-        }
-
-        .clear-search:hover {
-          background: #e9ecef;
-        }
-
-        .coins-list {
-          flex: 1;
-          overflow-y: auto;
-          padding: 8px 0;
-        }
-
-        .coin-item {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 16px 20px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          border-bottom: 1px solid #f8f9fa;
-        }
-
-        .coin-item:hover {
-          background: #f8fbff;
-        }
-
-        .coin-item.selected {
-          background: #106cf5;
-          color: white;
-        }
-
-        .coin-item.selected .coin-symbol {
-          color: rgba(255, 255, 255, 0.8);
-        }
-
-        .coin-name {
-          font-size: 14px;
-          font-weight: 500;
-        }
-
-        .coin-symbol {
-          font-size: 12px;
-          color: #6c757d;
-        }
-
-        .no-results {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 60px 20px;
-          color: #6c757d;
-          text-align: center;
-        }
-
-        .no-results i {
-          font-size: 48px;
-          margin-bottom: 16px;
-          opacity: 0.5;
-        }
-
-        .no-results-sub {
-          font-size: 12px;
-          margin-top: 8px;
-          opacity: 0.7;
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-
-        @keyframes slideFromLeft {
-          from {
-            transform: translateX(-100%);
-          }
-          to {
-            transform: translateX(0);
-          }
         }
 
         /* Price Section */
@@ -1375,10 +1115,6 @@ function MarketDetail() {
           .transaction-item {
             padding-left: 12px;
             padding-right: 12px;
-          }
-
-          .coin-selector-sidebar {
-            width: 85%;
           }
         }
       `}</style>
