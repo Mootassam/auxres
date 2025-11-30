@@ -1,6 +1,23 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 
 function Home() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const slides = [
+    './images/slides/1.png',
+    './images/slides/2.png',
+    './images/slides/3.png'
+  ];
+
+  // Auto slide functionality
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prevSlide) => (prevSlide + 1) % slides.length);
+    }, 3000); // Change slide every 3 seconds
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, [slides.length]);
+
   return (
     <>
       <div className="container">
@@ -9,7 +26,6 @@ function Home() {
           <div className="header">
             <div className="logo">
               <img src='./images/logo.png' style={{ height: '32px' }} />
-
             </div>
             <div className="header-icons">
               <div className="icon-circle">
@@ -27,10 +43,37 @@ function Home() {
           </div>
           <div className="slogan">Where Fortune Meets Precision</div>
         </div>
-        {/* Promo Banner */}
+
+        {/* Promo Banner - Auto Slider */}
         <div className="promo-banner">
-          <img src="./images/slides/1.png" alt="Promo" style={{ width: '100%' }} />
+          <div className="slider-container">
+            <div
+              className="slides-wrapper"
+              style={{
+                transform: `translateX(-${currentSlide * 100}%)`,
+                transition: 'transform 0.5s ease-in-out'
+              }}
+            >
+              {slides.map((slide, index) => (
+                <div key={index} className="slide">
+                  <img src={slide} alt={`Promo ${index + 1}`} className='promo__images' />
+                </div>
+              ))}
+            </div>
+
+            {/* Pagination Dots */}
+            <div className="pagination-dots">
+              {slides.map((_, index) => (
+                <div
+                  key={index}
+                  className={`dot ${index === currentSlide ? 'active' : ''}`}
+                  onClick={() => setCurrentSlide(index)}
+                />
+              ))}
+            </div>
+          </div>
         </div>
+
         {/* Announcement Card */}
         <div className="announcement-card">
           <div className="announcement-icon">
@@ -44,6 +87,7 @@ function Home() {
             </div>
           </div>
         </div>
+
         {/* QuickTrade Card */}
         <div className="feature-card">
           <div className="quick-trade-header">
@@ -60,6 +104,7 @@ function Home() {
             </div>
           </div>
         </div>
+
         {/* AI Trading Card */}
         <div className="ai-card">
           <div className="ai-title">AI Smart Trading</div>
@@ -72,13 +117,13 @@ function Home() {
           </div>
         </div>
 
-
         <div className="ai-card2">
           <div className="ai-title">Explore NFTs with AureX</div>
           <div className="ai-description">
             Step into the world of NFTs with AureX, your all-in-one digital asset trading wallet. Designed for both beginners and professional traders, AureX lets you explore, buy, sell,and
           </div>
         </div>
+
         {/* Stats Section */}
         <div className="stats-section">
           <div className="section-title">Our Impact</div>
@@ -101,6 +146,7 @@ function Home() {
             </div>
           </div>
         </div>
+
         {/* Services Section */}
         <div className="services-section">
           <div className="section-title">Our Services</div>
@@ -120,7 +166,6 @@ function Home() {
             <div className="service-item">
               <div className="service-icon">
                 <img src="./images/services/s2.png" alt="" className='service__image' />
-
               </div>
               <div className="service__description">
                 <div className="service-title">Liquidity mining</div>
@@ -131,7 +176,6 @@ function Home() {
             <div className="service-item">
               <div className="service-icon">
                 <img src="./images/services/s3.png" alt="" className='service__image' />
-
               </div>
               <div className="service__description">
                 <div className="service-title">24-hour service</div>
@@ -142,7 +186,6 @@ function Home() {
             <div className="service-item">
               <div className="service-icon">
                 <img src="./images/services/s4.png" alt="" className='service__image' />
-
               </div>
               <div className="service__description">
                 <div className="service-title">High contract</div>
@@ -153,7 +196,6 @@ function Home() {
             <div className="service-item">
               <div className="service-icon">
                 <img src="./images/services/s5.png" alt="" className='service__image' />
-
               </div>
               <div className="service__description">
                 <div className="service-title">Expert team</div>
@@ -164,19 +206,14 @@ function Home() {
             <div className="service-item">
               <div className="service-icon">
                 <img src="./images/services/s6.png" alt="" className='service__image' />
-
               </div>
               <div className="service__description">
                 <div className="service-title">Security protection</div>
                 <div className="service-desc">Powerful cloud data protect your security</div>
               </div>
             </div>
-
           </div>
-
-
         </div>
-
         <div className="demo-section">
           <div className="section-title">Fast swap
             Swap your coins without any worries</div>
@@ -207,8 +244,8 @@ function Home() {
 
 
         <div className="demo-section">
-          <div className="section-title">For advanced traders
-            Powerful tools for design</div>
+          <div className="section-title">Smart asset wallet management
+            Steady growth in revenue</div>
           <div className='section-subtitle'>Powerful analytical tools coupled with our security guarantee provide the ultimate trading experience. Take advantage of sophisticated charting capabilities, real-time order books and deep liquidity on hundreds of markets.</div>
           <div className="demo-photo">
 
@@ -221,9 +258,8 @@ function Home() {
         </div>
 
         <div className="demo-section">
-          <div className="section-title">For advanced traders
-            Powerful tools for design</div>
-          <div className='section-subtitle'>Powerful analytical tools coupled with our security guarantee provide the ultimate trading experience. Take advantage of sophisticated charting capabilities, real-time order books and deep liquidity on hundreds of markets.</div>
+          <div className="section-title">Liquidity mining, AI quantification</div>
+          <div className='section-subtitle'>More ways to manage your assets, including liquidity mining and AI quantification, give you more choices for managing your assets and keep your assets growing</div>
           <div className="demo-photo">
 
             <img src="./images/demo/phone4.png" alt="" className='image_demo' />
@@ -235,9 +271,11 @@ function Home() {
         </div>
 
         <div className="demo-section">
-          <div className="section-title">For advanced traders
-            Powerful tools for design</div>
-          <div className='section-subtitle'>Powerful analytical tools coupled with our security guarantee provide the ultimate trading experience. Take advantage of sophisticated charting capabilities, real-time order books and deep liquidity on hundreds of markets.</div>
+          <div className="section-title">Start trading cryptocurrency?
+            Open your cryptocurrency now</div>
+          <div className='section-subtitle'>Trade anytime and anywhere to meet the trading needs of various scenarios at any time
+
+          </div>
           <div className="demo-photo">
 
             <img src="./images/demo/phone5.png" alt="" className='image_demo' />
@@ -247,6 +285,7 @@ function Home() {
 
 
         </div>
+
         {/* News Section */}
         <div className="news-section">
           <div className="section-title">News from the circle</div>
@@ -270,7 +309,6 @@ function Home() {
             </div>
             <div>
               <img src="./images/news/bitcoin.jpg" alt="" style={{ width: "128px", height: "72px" }} />
-
             </div>
           </div>
           <div className="news-item">
@@ -281,15 +319,17 @@ function Home() {
                 mark Fed rate decision
               </div>
             </div>
-
             <img src="./images/news/trump.jpg" alt="" style={{ width: "128px", height: "72px" }} />
-
             <div></div>
           </div>
         </div>
+
         {/* Partners Section */}
         <div className="partners-section">
           <div className="partners-title">World Ecological Partner</div>
+          <p className='description__t'>
+            Build consensus and create a new future for the crypto ecosystem
+          </p>
           <div className="partners-grid">
             <div className="partner-item">Binance</div>
             <div className="partner-item">Coinbase</div>
@@ -299,589 +339,587 @@ function Home() {
             <div className="partner-item">Huobi</div>
           </div>
         </div>
-        {/* CTA Section */}
-
       </div>
+
       <style>{`
-   .demo-photo { 
-    display: flex;  
-
-    justify-content: center;
-    
-   }
-
-.image_demo { 
-
-width: 70%;}
-
-   .service__image { 
-   width: 50px;}
-   .service__description { 
-   
-   display: flex;
-   flex-direction: column;
-   }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 0;
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: 800;
-            color: #106cf5;
-            display: flex;
-            align-items: center;
-        }
-
-        .logo-icon {
-            margin-right: 8px;
-            font-size: 22px;
-        }
-
-        .header-icons {
-            display: flex;
-
-        }
-
-        .icon-circle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 18px;
-        }
-
-        /* Hero Section */
-        .hero-section {
-            text-align: center;
-            margin: 20px 0 30px;
-                background: linear-gradient(rgb(16, 108, 245), rgb(242, 244, 247));
-
-                padding: 0px 10px;
-        }
-
-        .crypto-illustration {
-            width: 100%;
-            max-width: 280px;
-            height: 200px;
-            margin: 0 auto 20px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 20px rgba(16, 108, 245, 0.15);
-        }
-
-        .coin {
-            position: absolute;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: white;
-            font-size: 24px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .bitcoin {
-            background: linear-gradient(135deg, #F7931A 0%, #F15A24 100%);
-            top: 30px;
-            left: 50px;
-            animation: float 4s ease-in-out infinite;
-        }
-
-        .ethereum {
-            background: linear-gradient(135deg, #627EEA 0%, #8A63D2 100%);
-            bottom: 40px;
-            right: 50px;
-            animation: float 4s ease-in-out infinite 1s;
-        }
-
-        .hand {
-            position: absolute;
-            bottom: 0;
-            width: 120px;
-            height: 100px;
-            background: #FFD7B5;
-            border-radius: 50% 50% 0 0;
-            z-index: 2;
-        }
-
-        .slogan {
-            color: #106cf5;
-            font-size: 18px;
-            font-weight: 600;
-            margin-top: 10px;
-        }
-
-        /* Promo Banner */
-        .promo-banner {
-            padding: 0px 20px 20px ;
-            color: white;
-
-        }
-
-             .promo-banner > img  { width: 100%;
-             height: 130px;} 
-         .promo-banner::before {
-            content: "";
-            position: absolute;
-            top: -50%;
-            right: -20%;
-            width: 150px;
-            height: 150px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-        }
-
-        .promo-banner::after {
-            content: "";
-            position: absolute;
-            bottom: -30%;
-            left: -10%;
-            width: 120px;
-            height: 120px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 50%;
-        }
-
-        .promo-text {
-            font-size: 16px;
-            font-weight: 500;
-            line-height: 1.4;
-            position: relative;
-            z-index: 2;
-        }
-
-        .pagination-dots {
-            display: flex;
-            justify-content: center;
-            margin-top: 12px;
-            gap: 6px;
-        }
-
-        .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.4);
-        }
-
-        .dot.active {
-            background: #106cf5;
-            width: 20px;
-            border-radius: 3px;
-        }
-
-        /* Announcement Card */
-        .announcement-card {
-            background : #f2f4f7;
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .announcement-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #f0f7ff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #106cf5;
-            margin-right: 12px;
-            font-size: 18px;
-        }
-
-        .announcement-content {
-            flex: 1;
-        }
-
-        .announcement-title {
-            font-weight: 600;
-            font-size: 15px;
-            margin-bottom: 4px;
-        }
-
-        .announcement-desc {
-            font-size: 13px;
-            color: #666;
-        }
-
-        /* Feature Cards */
-        .feature-card {
-            background : #f2f4f7;
-            border-radius: 16px;
-            padding: 10px 20px;
-            margin-bottom: 16px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .quick-trade-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .card-title {
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        .highlight {
-            color: #106cf5;
-        }
-
-        .card-subtitle {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 12px;
-        }
-
-        .arrow-button {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: #106cf5;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-        }
-
-        .ai-card {
-            background : #f2f4f7;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            background-image: url('./images/ai.png');
-            background-size: cover;
-            width: 100%;
-            background-position: center;  
-          background-repeat: no-repeat;
-
-          height: 470px;
-        }
 
 
-         .ai-card2 {
-            background : #f2f4f7;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            background-image: url('./images/ai2.png');
-            background-size: cover;
-            width: 100%;
-            background-position: center;  
-          background-repeat: no-repeat;
-
-          height: 470px;
-        }
-
-        .ai-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            color: #222;
-        }
-
-        .ai-description {
-            font-size: 14px;
-            color: #888f99;
-        }
-
-        /* Stats Section */
-        .stats-section {
-            background : #f2f4f7;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .section-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #222;
-        }
-
-        .section-subtitle {
-           font-size: 12px;
-    color: #888f99;
-    margin-top: 5px;
-    margin-bottom: 25px;
-        }
-            
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-
-        .stat-item {
-            text-align: center;
-            padding: 16px;
-            background: #f8f9fa;
-            border-radius: 12px;
-        }
-
-        .stat-value {
-            font-size: 20px;
-            font-weight: 700;
-            color: #106cf5;
-            margin-bottom: 4px;
-        }
-
-        .stat-label {
-            font-size: 14px;
-            color: #666;
-        }
-
-        /* Services Section */
-        .services-section {
-            padding: 20px;
-        }
-
-      demo-section {
-      padding: 0 20px;
-      margin-bottom: 10px;
+.promo__images{ 
+    height: 130px;
+    background-size: 100% 100%;
+}
+      .description__t {
+        font-size: 10px;
+        color: #888f99;
+        margin-top: 10px;
+        text-align: center;
+      }
+      
+      .demo-photo { 
+        display: flex;  
+        justify-content: center;
       }
 
-        .services-grid {
-            display: flex;
-            align-items: left;
-          flex-direction: column ;
-            gap: 16px;
-        }
+      .image_demo { 
+        width: 70%;
+      }
+      
+      .service__image { 
+        width: 50px;
+      }
+      
+      .service__description { 
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 0;
+      }
 
-        .service-item {
+      .logo {
+        font-size: 24px;
+        font-weight: 800;
+        color: #106cf5;
+        display: flex;
+        align-items: center;
+      }
+
+      .logo-icon {
+        margin-right: 8px;
+        font-size: 22px;
+      }
+
+      .header-icons {
+        display: flex;
+      }
+
+      .icon-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 18px;
+      }
+
+      /* Hero Section */
+      .hero-section {
+        text-align: center;
+        margin: 20px 0 30px;
+        background: linear-gradient(rgb(16, 108, 245), rgb(242, 244, 247));
+        padding: 0px 10px;
+      }
+
+      .crypto-illustration {
+        width: 100%;
+        max-width: 280px;
+        height: 200px;
+        margin: 0 auto 20px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 20px rgba(16, 108, 245, 0.15);
+      }
+
+      .coin {
+        position: absolute;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+        font-size: 24px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      .bitcoin {
+        background: linear-gradient(135deg, #F7931A 0%, #F15A24 100%);
+        top: 30px;
+        left: 50px;
+        animation: float 4s ease-in-out infinite;
+      }
+
+      .ethereum {
+        background: linear-gradient(135deg, #627EEA 0%, #8A63D2 100%);
+        bottom: 40px;
+        right: 50px;
+        animation: float 4s ease-in-out infinite 1s;
+      }
+
+      .hand {
+        position: absolute;
+        bottom: 0;
+        width: 120px;
+        height: 100px;
+        background: #FFD7B5;
+        border-radius: 50% 50% 0 0;
+        z-index: 2;
+      }
+
+      .slogan {
+        color: #106cf5;
+        font-size: 18px;
+        font-weight: 600;
+        margin-top: 10px;
+      }
+
+      /* Promo Banner - Auto Slider */
+      .promo-banner {
+        padding: 0px 0px 20px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .slider-container {
+        position: relative;
+        width: 100%;
+        height: 130px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .slides-wrapper {
+        display: flex;
+        width: 300%;
+        height: 100%;
+      }
+
+      .slide {
+        width: 100%;
+        height: 100%;
+        flex-shrink: 0;
+      }
+
+ 
+
+      .pagination-dots {
+        display: flex;
+        justify-content: center;
+        margin-top: 12px;
+        gap: 6px;
+      }
+
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .dot.active {
+        background: #106cf5;
+        width: 20px;
+        border-radius: 3px;
+      }
+
+      /* Announcement Card */
+      .announcement-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 16px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+
+      .announcement-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #f0f7ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #106cf5;
+        margin-right: 12px;
+        font-size: 18px;
+      }
+
+      .announcement-content {
+        flex: 1;
+      }
+
+      .announcement-title {
+        font-weight: 600;
+        font-size: 15px;
+        margin-bottom: 4px;
+      }
+
+      .announcement-desc {
+        font-size: 13px;
+        color: #666;
+      }
+
+      /* Feature Cards */
+      .feature-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 10px 20px;
+        margin-bottom: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+
+      .quick-trade-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .card-title {
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .highlight {
+        color: #106cf5;
+      }
+
+      .card-subtitle {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 12px;
+      }
+
+      .arrow-button {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #106cf5;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+      }
+
+      .ai-card {
+        background: #f2f4f7;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        background-image: url('./images/ai.png');
+        background-size: cover;
+        width: 100%;
+        background-position: center;  
+        background-repeat: no-repeat;
+        height: 470px;
+      }
+
+      .ai-card2 {
+        background: #f2f4f7;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        background-image: url('./images/ai2.png');
+        background-size: cover;
+        width: 100%;
+        background-position: center;  
+        background-repeat: no-repeat;
+        height: 470px;
+      }
+
+      .ai-title {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: #222;
+      }
+
+      .ai-description {
+        font-size: 14px;
+        color: #888f99;
+      }
+
+      /* Stats Section */
+      .stats-section {
+        background: #f2f4f7;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+
+      .section-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #222;
+      }
+
+      .section-subtitle {
+        font-size: 12px;
+        color: #888f99;
+        margin-top: 5px;
+        margin-bottom: 25px;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .stat-item {
+        text-align: center;
+        padding: 16px;
+        background: #f8f9fa;
+        border-radius: 12px;
+      }
+
+      .stat-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: #106cf5;
+        margin-bottom: 4px;
+      }
+
+      .stat-label {
+        font-size: 14px;
+        color: #666;
+      }
+
+      /* Services Section */
+      .services-section {
+        padding: 20px;
+      }
+
+      .demo-section {
+        padding: 0 20px;
+        margin-bottom: 10px;
+      }
+
+      .services-grid {
+        display: flex;
+        align-items: left;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .service-item {
         gap: 12px;
         display: flex;
-    align-items: center;
-    border-bottom: 1px solid #e7eaee;
-    padding-bottom: 15px;
-        }
+        align-items: center;
+        border-bottom: 1px solid #e7eaee;
+        padding-bottom: 15px;
+      }
 
-        .service-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #106cf5;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-        }
+      .service-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #106cf5;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+      }
 
-        .service-title {
-            font-size: 14px;
-            font-weight: 600;
-        }
+      .service-title {
+        font-size: 14px;
+        font-weight: 600;
+      }
 
-        .service-desc {
-            font-size: 10px;
-            color: #666;
-        }
+      .service-desc {
+        font-size: 10px;
+        color: #666;
+      }
 
-        /* News Section */
-        .news-section {
-            background : #f2f4f7;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
+      /* News Section */
+      .news-section {
+        background: #f2f4f7;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
 
-        .news-item {
-            padding: 12px 0;
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px solid #f1f3f4;
-        }
+      .news-item {
+        padding: 12px 0;
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid #f1f3f4;
+      }
 
-        .news-item:last-child {
-            border-bottom: none;
-        }
+      .news-item:last-child {
+        border-bottom: none;
+      }
 
-        .news-date {
-            font-size: 12px;
-            color: #106cf5;
-            margin-bottom: 4px;
-        }
+      .news-date {
+        font-size: 12px;
+        color: #106cf5;
+        margin-bottom: 4px;
+      }
 
-        .news-title {
-            font-size: 15px;
-            font-weight: 500;
-        }
+      .news-title {
+        font-size: 15px;
+        font-weight: 500;
+      }
 
-        /* Partners Section */
-        .partners-section {
-            background : #f2f4f7;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
+      /* Partners Section */
+      .partners-section {
+        background: #f2f4f7;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
 
-        .partners-title {
-            font-size: 16px;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 16px;
-            color: #222;
-        }
+      .partners-title {
+        font-size: 20px;
+        font-weight: 600;
+        text-align: center;
+        color: #106cf5;
+      }
 
-        .partners-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 12px;
-        }
+      .partners-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 12px;
+      }
 
-        .partner-item {
-            height: 60px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            color: #555;
-        }
+      .partner-item {
+        height: 60px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: #555;
+      }
 
-        /* CTA Section */
-        .cta-section {
-            background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
-            border-radius: 16px;
-            padding: 30px 20px;
-            margin-bottom: 20px;
-            color: white;
-            text-align: center;
-            box-shadow: 0 6px 15px rgba(16, 108, 245, 0.2);
-        }
+      /* CTA Section */
+      .cta-section {
+        background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
+        border-radius: 16px;
+        padding: 30px 20px;
+        margin-bottom: 20px;
+        color: white;
+        text-align: center;
+        box-shadow: 0 6px 15px rgba(16, 108, 245, 0.2);
+      }
 
-        .cta-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
+      .cta-title {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 12px;
+      }
 
-        .cta-subtitle {
-            font-size: 16px;
-            margin-bottom: 20px;
-            opacity: 0.9;
-        }
+      .cta-subtitle {
+        font-size: 16px;
+        margin-bottom: 20px;
+        opacity: 0.9;
+      }
 
-        .cta-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-        }
+      .cta-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+      }
 
-        .cta-button {
-            padding: 10px 20px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+      .cta-button {
+        padding: 10px 20px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
 
-        /* Navigation Bar */
-        .nav-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background : #f2f4f7;
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 0;
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-            z-index: 100;
-            max-width: 400px;
-            margin: 0 auto;
-        }
+      /* Navigation Bar */
+      .nav-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #f2f4f7;
+        display: flex;
+        justify-content: space-around;
+        padding: 12px 0;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+        z-index: 100;
+        max-width: 400px;
+        margin: 0 auto;
+      }
 
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #8e8e93;
-            font-size: 12px;
-            transition: color 0.2s;
-        }
+      .nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: #8e8e93;
+        font-size: 12px;
+        transition: color 0.2s;
+      }
 
-        .nav-item.active {
-            color: #106cf5;
-        }
+      .nav-item.active {
+        color: #106cf5;
+      }
 
-        .nav-icon {
-            font-size: 20px;
-            margin-bottom: 4px;
-        }
+      .nav-icon {
+        font-size: 20px;
+        margin-bottom: 4px;
+      }
 
-        /* Animations */
-        @keyframes float {
-            0% {
-                transform: translateY(0) rotate(0deg);
-            }
-            50% {
-                transform: translateY(-10px) rotate(5deg);
-            }
-            100% {
-                transform: translateY(0) rotate(0deg);
-            }
+      /* Animations */
+      @keyframes float {
+        0% {
+          transform: translateY(0) rotate(0deg);
         }
+        50% {
+          transform: translateY(-10px) rotate(5deg);
+        }
+        100% {
+          transform: translateY(0) rotate(0deg);
+        }
+      }
 
-        /* Responsive adjustments */
-        @media (max-width: 380px) {
-            .container {
-                padding: 0 12px;
-            }
-            
-            .crypto-illustration {
-                height: 180px;
-            }
-            
-            .coin {
-                width: 50px;
-                height: 50px;
-                font-size: 20px;
-            }
-            
-            .stats-grid, .services-grid {
-                grid-template-columns: 1fr;
-            }
+      /* Responsive adjustments */
+      @media (max-width: 380px) {
+        .container {
+          padding: 0 12px;
         }
+        
+        .crypto-illustration {
+          height: 180px;
+        }
+        
+        .coin {
+          width: 50px;
+          height: 50px;
+          font-size: 20px;
+        }
+        
+        .stats-grid, .services-grid {
+          grid-template-columns: 1fr;
+        }
+        
+        .slider-container {
+          height: 120px;
+        }
+      }
       `}</style>
-
-
-
     </>
-
   )
 }
 
