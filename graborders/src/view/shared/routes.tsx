@@ -94,6 +94,14 @@ const screenRoutes = [
   //   loader: () => import("src/view/pages/invitation/members"),
   //   permissionRequired: permissions.categoryRead,
   // },
+
+  {
+    path: "/support/details/:id",
+    loader: () => import("src/view/pages/Support/supportDetails"),
+    permissionRequired: permissions.categoryRead,
+    exact: true,
+  },
+
   {
     path: "/wallets/:id",
     loader: () => import("src/view/pages/wallet/assetsDetail"),
@@ -323,6 +331,7 @@ const navRoutes = [
     path: "/support",
     loader: () => import("src/view/pages/Support/Support"),
   },
+
 
 
 ].filter(Boolean);

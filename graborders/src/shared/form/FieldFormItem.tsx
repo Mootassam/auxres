@@ -86,12 +86,7 @@ export function FieldFormItem(props) {
 
         
 
-        {/* Eye icon for password fields */}
-        {inputType === "password" && (
-          <button className="toggle-password" type="button">
-            <i className="fas fa-eye" />
-          </button>
-        )}
+      
       </div>
       {endAdornment && (
         <div className="input-group-append">

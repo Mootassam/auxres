@@ -1,7 +1,6 @@
 import React, { useMemo, useEffect, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import SubHeader from "src/view/shared/Header/SubHeader";
 import authActions from "src/modules/auth/authActions";
 import authSelectors from "src/modules/auth/authSelectors";
 import kycSelectors from "src/modules/kyc/list/kycListSelectors";
@@ -41,27 +40,18 @@ const MENU_ITEMS = [
     requiresKyc: false,
   },
   {
-    path: "/terms-of-use",
+    path: "/support",
     icon: "fas fa-file-contract",
     name: i18n("pages.profile.menu.termsOfUse"),
   },
-  {
-    path: "/privacy-portal",
-    icon: "fas fa-user-shield",
-    name: i18n("pages.profile.menu.privacyPortal"),
-  },
+
   {
     icon: "fas fa-info-circle",
     path: "/about",
     name: i18n("pages.profile.menu.aboutUs"),
     requiresKyc: false,
   },
-  {
-    icon: "fas fa-file-contract",
-    path: "/approval",
-    name: i18n("pages.profile.menu.msbApproval"),
-    requiresKyc: false,
-  },
+
   {
     icon: "fas fa-headset",
     path: "/LiveChat",
@@ -84,6 +74,8 @@ const VERIFICATION_STATUS = {
 };
 
 function Profile() {
+  const history = useHistory();
+
   const dispatch = useDispatch();
   const currentUser = useSelector(authSelectors.selectCurrentUser);
   const selectRows = useSelector(kycSelectors.selectRows);
@@ -118,226 +110,485 @@ function Profile() {
     [currentUser?.kyc]
   );
 
+  const handleVerifyNow = () => {
+    console.log('Redirecting to verification process...');
+    // Add your verification redirection logic here
+    // Example: navigate('/verification');
+  };
+
+const handleBackClick = () => {
+  history.goBack();
+};
+
+  const getUserInitial = () => {
+    if (currentUser?.fullName) {
+      return currentUser.fullName.charAt(0).toUpperCase();
+    } else if (currentUser?.email) {
+      return currentUser.email.charAt(0).toUpperCase();
+    }
+    return "U";
+  };
+
+  const getVerificationText = () => {
+    switch (kycStatus) {
+      case VERIFICATION_STATUS.SUCCESS:
+        return "Verified";
+      case VERIFICATION_STATUS.PENDING:
+        return "Pending Review";
+      default:
+        return "Not Verified";
+    }
+  };
+
+  const getVerificationIcon = () => {
+    switch (kycStatus) {
+      case VERIFICATION_STATUS.SUCCESS:
+        return "fas fa-check-circle";
+      case VERIFICATION_STATUS.PENDING:
+        return "fas fa-clock";
+      default:
+        return "fas fa-exclamation-circle";
+    }
+  };
+
+  const getVerificationButtonText = () => {
+    switch (kycStatus) {
+      case VERIFICATION_STATUS.SUCCESS:
+        return "Verified";
+      case VERIFICATION_STATUS.PENDING:
+        return "Pending";
+      default:
+        return "Verify Now";
+    }
+  };
+
+  const isVerificationButtonDisabled = () => {
+    return kycStatus === VERIFICATION_STATUS.SUCCESS || kycStatus === VERIFICATION_STATUS.PENDING;
+  };
+
+  const shouldPulseBadge = () => {
+    return kycStatus === VERIFICATION_STATUS.UNVERIFIED;
+  };
+
   // Memoized render function for menu items
   const renderMenuItem = useCallback((item) => {
     const menuItemContent = (
-      <li
-        className={`profile-settings-item ${item.disabled ? "disabled" : ""}`}
-      >
-        <div className="profile-settings-info">
-          <div className="profile-settings-icon">
-            <i className={item.icon} />
-          </div>
-          <div className="profile-settings-name">{item.name}</div>
+      <li className={`menu-item ${item.disabled ? 'disabled' : ''}`}>
+        <div className={`icon-container ${
+          item.icon.includes('wallet') ? 'icon-green' :
+          item.icon.includes('lock') ? 'icon-blue' :
+          item.icon.includes('bell') ? 'icon-orange' :
+          item.icon.includes('gift') ? 'icon-green' :
+          item.icon.includes('language') ? 'icon-gray' :
+          item.icon.includes('file-contract') ? 'icon-blue' :
+          item.icon.includes('user-shield') ? 'icon-green' :
+          item.icon.includes('info-circle') ? 'icon-gray' :
+          item.icon.includes('headset') ? 'icon-blue' :
+          item.icon.includes('google-play') ? 'icon-green' : 'icon-gray'
+        }`}>
+          <i className={item.icon} />
         </div>
-        <div className="profile-settings-arrow">
-          <i className="fas fa-chevron-right" />
+        <div className="menu-text">{item.name}</div>
+        <div className="menu-action">
+          {!item.disabled && <i className="fas fa-chevron-right chevron" />}
         </div>
       </li>
     );
 
     return item.disabled ? (
-      <div key={item.name}>{menuItemContent}</div>
+      <div key={item.name} className="menu-link-wrapper">
+        {menuItemContent}
+      </div>
     ) : (
-      <Link to={item.path} className="remove_blue" key={item.name}>
+      <Link to={item.path} key={item.name} className="menu-link-wrapper">
         {menuItemContent}
       </Link>
     );
   }, []);
 
   return (
-    <div className="profile_container">
-      <SubHeader title={i18n("pages.profile.title")} />
+    <div className="profile-container">
+      {/* Header Section */}
+      <div className="header">
+        <div className="nav-bar">
+          <div className="back-arrow" onClick={handleBackClick}>
+            <i className="fas fa-arrow-left" />
+          </div>
+          <div className="page-title">Personal Center</div>
+        </div>
 
-      <div className="container-profile">
-        {/* Verification Status Section */}
-        {kycStatus === VERIFICATION_STATUS.PENDING ? (
-          <VerificationPending />
-        ) : kycStatus === VERIFICATION_STATUS.UNVERIFIED ? (
-          <VerificationAlert />
-        ) : null}
-
-        {/* Profile Header */}
-        <ProfileHeader currentUser={currentUser} kycStatus={kycStatus} />
-
-        {/* Account Info */}
-        <AccountInfo currentUser={currentUser} />
-
-        {/* Verification Details */}
-        {kycStatus === VERIFICATION_STATUS.PENDING ? (
-          <PendingVerifications />
-        ) : kycStatus === VERIFICATION_STATUS.SUCCESS ? (
-          <ApprovedVerifications />
-        ) : (
-          <AccountLimitations />
-        )}
-
-        {/* Settings Menu */}
-        <div className="profile-info-section">
-          <div className="profile-section-title">{i18n("pages.profile.settings")}</div>
-          <ul className="profile-settings-list">
-            {menuItems.map(renderMenuItem)}
-            <li className="profile-settings-item" onClick={handleSignout}>
-              <div className="profile-settings-info">
-                <div className="profile-settings-icon">
-                  <i className="fas fa-sign-out-alt" />
+        <div className="profile-section">
+          <div className="avatar-container">
+            <div className="avatar-ring">
+              <div className="avatar">
+                <div className="avatar-initial">{getUserInitial()}</div>
+                <div className="sunglasses">
+                  <i className="fas fa-sunglasses" />
                 </div>
-                <div className="profile-settings-name">{i18n("pages.profile.menu.logout")}</div>
               </div>
-              <div className="profile-settings-arrow">
-                <i className="fas fa-chevron-right" />
-              </div>
-            </li>
-          </ul>
+            </div>
+          </div>
+
+          <div className="username">{currentUser?.fullName || currentUser?.email || 'User'}</div>
+          <div className="user-id">ID: {currentUser?.id || 'N/A'}</div>
+
+          {/* Certification Status Section */}
+          <div className="certification-status">
+            <div className={`status-badge ${shouldPulseBadge() ? 'pulse' : ''}`}>
+              <i className={`${getVerificationIcon()} status-icon`} />
+              {getVerificationText()}
+            </div>
+            <button 
+              className="verify-button"
+              onClick={handleVerifyNow}
+              disabled={isVerificationButtonDisabled()}
+            >
+              {getVerificationButtonText()}
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Content Section */}
+      <div className="content-card">
+        <ul className="menu-list">
+          {menuItems.map(renderMenuItem)}
+          
+          {/* Logout button */}
+          <li className="menu-item logout-item" onClick={handleSignout}>
+            <div className="icon-container icon-gray">
+              <i className="fas fa-sign-out-alt" />
+            </div>
+            <div className="menu-text">Logout</div>
+            <div className="menu-action">
+              <i className="fas fa-chevron-right chevron" />
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <style>{`
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+          background-color: #f5f7fa;
+          color: #333;
+          line-height: 1.6;
+          overflow-x: hidden;
+        }
+
+        .profile-container {
+          max-width: 400px;
+          margin: 0 auto;
+          position: relative;
+          min-height: 100vh;
+          background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
+        }
+
+        /* Header Section */
+        .header {
+          background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
+          min-height: 280px;
+          position: relative;
+          padding: 20px;
+        }
+
+        .nav-bar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .back-arrow {
+          color: white;
+          font-size: 20px;
+          font-weight: 300;
+          cursor: pointer;
+          transition: opacity 0.3s ease;
+        }
+
+        .back-arrow:hover {
+          opacity: 0.8;
+        }
+
+        .page-title {
+          color: white;
+          font-size: 18px;
+          font-weight: 600;
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+        }
+
+        .profile-section {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          margin-top: 20px;
+        }
+
+        .avatar-container {
+          position: relative;
+          margin-bottom: 16px;
+        }
+
+        .avatar-ring {
+          width: 120px;
+          height: 120px;
+          border-radius: 50%;
+          border: 2px dashed rgba(255, 255, 255, 0.7);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          animation: rotate 15s linear infinite;
+        }
+
+        .avatar {
+          width: 100px;
+          height: 100px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-size: 40px;
+          position: relative;
+          overflow: hidden;
+          font-weight: bold;
+        }
+
+        .avatar-initial {
+          font-size: 32px;
+          font-weight: 700;
+        }
+
+        .sunglasses {
+          position: absolute;
+          top: 30px;
+          font-size: 30px;
+          color: #333;
+          transform: rotate(-10deg);
+        }
+
+        .username {
+          color: white;
+          font-size: 20px;
+          font-weight: 700;
+          margin-bottom: 6px;
+          max-width: 200px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .user-id {
+          color: rgba(255, 255, 255, 0.8);
+          font-size: 14px;
+          margin-bottom: 12px;
+        }
+
+        .certification-status {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 16px;
+        }
+
+        .status-badge {
+          border: 1px solid white;
+          border-radius: 16px;
+          padding: 6px 16px;
+          color: white;
+          font-size: 12px;
+          background: rgba(255, 255, 255, 0.1);
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          transition: all 0.3s ease;
+        }
+
+        .status-badge:hover {
+          background: rgba(255, 255, 255, 0.2);
+          transform: translateY(-1px);
+        }
+
+        .status-icon {
+          font-size: 10px;
+        }
+
+        .verify-button {
+          background: rgba(255, 255, 255, 0.9);
+          border: none;
+          border-radius: 16px;
+          padding: 6px 12px;
+          color: #106cf5;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .verify-button:hover:not(:disabled) {
+          background: white;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .verify-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          background: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Content Section */
+        .content-card {
+          background: white;
+          border-radius: 40px 40px 0 0;
+          padding: 30px 20px 100px;
+          box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .menu-list {
+          list-style: none;
+        }
+
+        .menu-link-wrapper {
+          text-decoration: none;
+          color: inherit;
+          display: block;
+        }
+
+        .menu-item {
+          display: flex;
+          align-items: center;
+          padding: 10px 0;
+          border-bottom: 1px solid #000;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+        }
+
+        .menu-item:hover {
+          background-color: rgba(16, 108, 245, 0.05);
+        }
+
+        .menu-item.disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        .menu-item.disabled:hover {
+          background-color: transparent;
+        }
+
+        .menu-item:last-child {
+          border-bottom: none;
+        }
+
+        .logout-item:hover {
+          background-color: rgba(245, 61, 61, 0.05);
+        }
+
+        .icon-container {
+          width: 40px;
+          height: 40px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-right: 16px;
+          font-size: 18px;
+        }
+
+        .icon-green {
+          background-color: #e7f7ef;
+          color: #37b66a;
+        }
+
+        .icon-gray {
+          background-color: #f5f5f5;
+          color: #666;
+        }
+
+        .icon-blue {
+          background-color: #e6f0ff;
+          color: #106cf5;
+        }
+
+        .icon-orange {
+          background-color: #fff2e6;
+          color: #ff7a00;
+        }
+
+        .menu-text {
+          flex: 1;
+          font-size: 16px;
+          font-weight: 500;
+        }
+
+        .menu-action {
+          display: flex;
+          align-items: center;
+          color: #999;
+        }
+
+        .chevron {
+          font-size: 14px;
+          color: #ccc;
+        }
+
+        /* Animations */
+        @keyframes rotate {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+
+        @keyframes pulse {
+          0% {
+            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+          }
+          70% {
+            box-shadow: 0 0 0 6px rgba(255, 255, 255, 0);
+          }
+          100% {
+            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+          }
+        }
+
+        .pulse {
+          animation: pulse 2s infinite;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 380px) {
+          .profile-container {
+            padding: 0;
+          }
+
+          .header {
+            padding: 16px;
+          }
+
+          .content-card {
+            padding: 25px 16px 100px;
+          }
+
+          .menu-item {
+            padding: 16px 0;
+          }
+        }
+      `}</style>
     </div>
   );
 }
-
-// Extracted components for better readability and reusability
-const VerificationPending = () => (
-  <div className="verification-status">
-    <div className="status-icon">
-      <i className="fas fa-clock"></i>
-    </div>
-    <div className="status-title">{i18n("pages.profile.verification.pending.title")}</div>
-    <div className="status-desc">
-      {i18n("pages.profile.verification.pending.description")}
-    </div>
-  </div>
-);
-
-const VerificationAlert = () => (
-  <div className="verification-alert">
-    <div className="alert-icon">
-      <i className="fas fa-exclamation-triangle" />
-    </div>
-    <div className="alert-title">{i18n("pages.profile.verification.alert.title")}</div>
-    <div className="alert-desc">
-      {i18n("pages.profile.verification.alert.description")}
-    </div>
-    <Link to="/proof" className="remove_blue">
-      <button className="verify-now-button">{i18n("pages.profile.verification.alert.verifyNow")}</button>
-    </Link>
-  </div>
-);
-
-const ProfileHeader = ({ currentUser, kycStatus }) => (
-  <div className="profile-profile-header">
-    <div className="profile-profile-avatar">
-      <i className="fas fa-user" />
-    </div>
-    <div className="profile-profile-info">
-      <div className="profile-profile-name">{currentUser?.email?.split('@')[0]}</div>
-      <div
-        className={
-          kycStatus === VERIFICATION_STATUS.SUCCESS
-            ? "profile-profile-status"
-            : "profile-not-status"
-        }
-      >
-        {kycStatus === VERIFICATION_STATUS.SUCCESS 
-          ? i18n("pages.profile.status.verified") 
-          : i18n("pages.profile.status.unverified")}
-      </div>
-    </div>
-  </div>
-);
-
-const AccountInfo = ({ currentUser }) => (
-  <div className="profile-info-section">
-    <div className="profile-section-title">{i18n("pages.profile.accountInfo.title")}</div>
-    <div className="profile-info-item">
-      <div className="profile-info-label">{i18n("pages.profile.accountInfo.email")}</div>
-      <div className="profile-info-value">{currentUser?.email}</div>
-    </div>
-    <div className="profile-info-item">
-      <div className="profile-info-label">{i18n("pages.profile.accountInfo.creditScore")}</div>
-      <div className="profile-info-value">{currentUser?.score}</div>
-    </div>
-    <div className="profile-info-item">
-      <div className="profile-info-label">{i18n("pages.profile.accountInfo.invitationCode")}</div>
-      <div className="profile-info-value">
-        <span className="profile-invite-code">
-          {currentUser?.kyc ? currentUser?.refcode : "******"}
-        </span>
-      </div>
-    </div>
-  </div>
-);
-
-const PendingVerifications = () => (
-  <div className="info-section">
-    <div className="profile-section-title">{i18n("pages.profile.pendingVerifications.title")}</div>
-
-    <div className="verification-item">
-      <div className="verification-icon">
-        <i className="fas fa-id-card"></i>
-      </div>
-      <div className="verification-info">
-        <div className="verification-name">{i18n("pages.profile.pendingVerifications.identity.title")}</div>
-        <div className="verification-desc">{i18n("pages.profile.pendingVerifications.identity.description")}</div>
-      </div>
-      <div className="verification-status-badge">{i18n("pages.profile.pendingVerifications.status.pending")}</div>
-    </div>
-
-    <div className="verification-item">
-      <div className="verification-icon">
-        <i className="fas fa-home"></i>
-      </div>
-      <div className="verification-info">
-        <div className="verification-name">{i18n("pages.profile.pendingVerifications.address.title")}</div>
-        <div className="verification-desc">{i18n("pages.profile.pendingVerifications.address.description")}</div>
-      </div>
-      <div className="verification-status-badge">{i18n("pages.profile.pendingVerifications.status.pending")}</div>
-    </div>
-  </div>
-);
-
-const ApprovedVerifications = () => (
-  <div className="profile-info-section">
-    <div className="profile-section-title">{i18n("pages.profile.approvedVerifications.title")}</div>
-    <div className="profile-verification-badge">
-      <div className="profile-badge-icon">
-        <i className="fas fa-id-card" />
-      </div>
-      <div className="profile-badge-info">
-        <div className="profile-badge-title">{i18n("pages.profile.approvedVerifications.identity.title")}</div>
-        <div className="profile-badge-desc">{i18n("pages.profile.approvedVerifications.status.completed")}</div>
-      </div>
-    </div>
-    <div className="profile-verification-badge">
-      <div className="profile-badge-icon">
-        <i className="fas fa-shield-alt" />
-      </div>
-      <div className="profile-badge-info">
-        <div className="profile-badge-title">{i18n("pages.profile.approvedVerifications.address.title")}</div>
-        <div className="profile-badge-desc">{i18n("pages.profile.approvedVerifications.status.completed")}</div>
-      </div>
-    </div>
-  </div>
-);
-
-const AccountLimitations = () => (
-  <div className="limitations-section">
-    <div className="limitations-title">{i18n("pages.profile.limitations.title")}</div>
-    <ul className="limitations-list">
-      {[
-        i18n("pages.profile.limitations.withdrawalLimit"),
-        i18n("pages.profile.limitations.stakingLimited"),
-        i18n("pages.profile.limitations.advancedTrading"),
-        i18n("pages.profile.limitations.fiatDeposits"),
-      ].map((text, index) => (
-        <li className="limitation-item" key={index}>
-          <div className="limitation-icon">
-            <i className="fas fa-ban" />
-          </div>
-          <div className="limitation-text">{text}</div>
-        </li>
-      ))}
-    </ul>
-  </div>
-);
 
 export default Profile;

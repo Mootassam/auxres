@@ -1,143 +1,195 @@
 import React from "react";
-import SubHeader from "src/view/shared/Header/SubHeader";
+import { Link } from "react-router-dom";
 
-function Support() {
+function HelpCenter() {
+  const faqItems = [
+    "About official accounts and demo accounts",
+    "What is transaction volume?",
+    "Why transfer funds?",
+    "What are Futures?",
+    "Why does the converted amount in assets change?",
+    "Why is real-name authentication required?",
+    "What are frozen assets?",
+    "What are the rules of futures trading?"
+  ];
+
   return (
-    <div className="container">
-      {/* Header Section */}
+    <div className="helpcenter-container">
+      {/* Header Section - Matching Profile Page */}
+      <div className="header">
+        <div className="nav-bar">
+          <Link to="/profile" className="back-arrow">
+            <i className="fas fa-arrow-left" />
+          </Link>
+          <div className="page-title">Help Center</div>
+        </div>
+      </div>
 
-      <SubHeader title="Support Center" />
+      {/* Content Card - Matching Profile Page */}
+      <div className="content-card">
+        <div className="helpcenter-content">
+          {faqItems.map((question, index) => (
+            <Link to={`/support/details/${index + 1}`} className=" remove_blue" key={index}>
+              <div key={index} className="faq-item">
+                <div className="faq-icon">
+                  <i className="fas fa-arrow-left" />
+                </div>
+                <div className="faq-text">{question}</div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
 
-   
-      {/* Support Options */}
-      <div className="support-options">
-        <div className="option-card">
-          <div className="option-icon">
-            <i className="fas fa-book" />
-          </div>
-          <div className="option-content">
-            <div className="option-title">Help Articles</div>
-            <div className="option-description">Step-by-step guides</div>
-          </div>
-        </div>
-        <div className="option-card">
-          <div className="option-icon">
-            <i className="fas fa-comments" />
-          </div>
-          <div className="option-content">
-            <div className="option-title">Live Chat</div>
-            <div className="option-description">24/7 support available</div>
-          </div>
-        </div>
-        <div className="option-card">
-          <div className="option-icon">
-            <i className="fas fa-envelope" />
-          </div>
-          <div className="option-content">
-            <div className="option-title">Email Support</div>
-            <div className="option-description">Response within 24 hours</div>
-          </div>
-        </div>
-      </div>
-      {/* FAQ Section */}
-      <div className="faq-section">
-        <div className="section-title">Frequently Asked Questions</div>
-        <div className="faq-item">
-          <div className="faq-question">
-            <div className="faq-question-text">
-              How do I deposit funds into my wallet?
-            </div>
-            <i className="fas fa-chevron-down faq-icon" />
-          </div>
-          <div className="faq-answer">
-            To deposit funds, go to the Deposit section, select your preferred
-            cryptocurrency, and send funds to your unique wallet address. Always
-            ensure you're using the correct network.
-          </div>
-        </div>
-        <div className="faq-item">
-          <div className="faq-question">
-            <div className="faq-question-text">
-              What are the withdrawal fees?
-            </div>
-            <i className="fas fa-chevron-down faq-icon" />
-          </div>
-          <div className="faq-answer">
-            Withdrawal fees vary by cryptocurrency and network conditions. You
-            can view the current fees in the withdrawal confirmation screen
-            before completing any transaction.
-          </div>
-        </div>
-        <div className="faq-item">
-          <div className="faq-question">
-            <div className="faq-question-text">
-              How long do transactions take?
-            </div>
-            <i className="fas fa-chevron-down faq-icon" />
-          </div>
-          <div className="faq-answer">
-            Transaction times vary by network congestion. Bitcoin transactions
-            typically take 10-30 minutes, while Ethereum transactions usually
-            complete in under 5 minutes.
-          </div>
-        </div>
-        <div className="faq-item">
-          <div className="faq-question">
-            <div className="faq-question-text">
-              Is my cryptocurrency insured?
-            </div>
-            <i className="fas fa-chevron-down faq-icon" />
-          </div>
-          <div className="faq-answer">
-            We maintain comprehensive insurance coverage for digital assets held
-            in our custody. However, transfers to external wallets are not
-            covered by our insurance policy.
-          </div>
-        </div>
-      </div>
-      {/* Contact Section */}
-      <div className="contact-section">
-        <div className="section-title">Contact Support</div>
-        <div className="contact-methods">
-          <div className="contact-method">
-            <div className="contact-icon">
-              <i className="fas fa-comment-dots" />
-            </div>
-            <div className="contact-title">Live Chat</div>
-          </div>
-          <div className="contact-method">
-            <div className="contact-icon">
-              <i className="fas fa-envelope" />
-            </div>
-            <div className="contact-title">Email Us</div>
-          </div>
-        </div>
-      </div>
-      {/* Community Section */}
-      <div className="community-section">
-        <div className="community-title">Community</div>
-        <div className="community-links">
-          <div className="community-link">
-            <i className="fab fa-twitter community-link-icon" />
-            <div className="community-link-text">Twitter</div>
-          </div>
-          <div className="community-link">
-            <i className="fab fa-telegram community-link-icon" />
-            <div className="community-link-text">Telegram</div>
-          </div>
-          <div className="community-link">
-            <i className="fab fa-discord community-link-icon" />
-            <div className="community-link-text">Discord</div>
-          </div>
-          <div className="community-link">
-            <i className="fab fa-reddit community-link-icon" />
-            <div className="community-link-text">Reddit</div>
-          </div>
-        </div>
-      </div>
-      {/* Bottom Navigation */}
+      <style>{`
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+          background-color: #f5f7fa;
+          color: #333;
+          line-height: 1.6;
+          overflow-x: hidden;
+        }
+
+        .helpcenter-container {
+          max-width: 400px;
+          margin: 0 auto;
+          position: relative;
+          min-height: 100vh;
+          background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
+        }
+
+        /* Header Section - Matching Profile Page */
+        .header {
+          background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
+          min-height: 60px;
+          position: relative;
+          padding: 20px;
+        }
+
+        .nav-bar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .back-arrow {
+          color: white;
+          font-size: 20px;
+          font-weight: 300;
+          text-decoration: none;
+          transition: opacity 0.3s ease;
+        }
+
+        .back-arrow:hover {
+          opacity: 0.8;
+        }
+
+        .page-title {
+          color: white;
+          font-size: 17px;
+          font-weight: 600;
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+        }
+
+        /* Content Card - Matching Profile Page */
+        .content-card {
+          background: white;
+          border-radius: 40px 40px 0 0;
+          padding: 20px;
+          box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
+          min-height: calc(100vh - 60px);
+        }
+
+        .helpcenter-content {
+          width: 100%;
+        }
+
+        .faq-item {
+          display: flex;
+          align-items: center;
+          padding: 12px 0;
+          border-bottom: 1px solid #f0f0f0;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+        }
+
+        .faq-item:hover {
+          background-color: rgba(16, 108, 245, 0.05);
+        }
+
+        .faq-icon {
+          width: 24px;
+          height: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-right: 12px;
+          color: #106cf5;
+          font-size: 12px;
+          flex-shrink: 0;
+        }
+
+        .faq-text {
+          flex: 1;
+          font-size: 14px;
+          font-weight: 500;
+          color: #222;
+          line-height: 1.4;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 380px) {
+          .helpcenter-container {
+            padding: 0;
+          }
+
+          .header {
+            padding: 16px;
+            min-height: 50px;
+          }
+
+          .content-card {
+            padding: 16px;
+            border-radius: 30px 30px 0 0;
+          }
+
+          .faq-item {
+            padding: 10px 0;
+          }
+
+          .faq-text {
+            font-size: 13px;
+          }
+
+          .faq-icon {
+            width: 20px;
+            height: 20px;
+            font-size: 10px;
+            margin-right: 10px;
+          }
+        }
+
+        @media (min-width: 768px) {
+          .content-card {
+            border-radius: 30px 30px 0 0;
+          }
+
+          .helpcenter-content {
+            max-width: 600px;
+            margin: 0 auto;
+          }
+        }
+      `}</style>
     </div>
   );
 }
 
-export default Support;
+export default HelpCenter;
