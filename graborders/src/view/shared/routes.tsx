@@ -27,19 +27,8 @@ const privateRoutes = [
     exact: true,
   },
 
-  {
-    path: "/support",
-    loader: () => import("src/view/pages/Support/Support"),
-    permissionRequired: permissions.categoryRead,
-    exact: true,
-  },
+ 
 
-  {
-    path: "/about",
-    loader: () => import("src/view/pages/About/About"),
-    permissionRequired: permissions.categoryRead,
-    exact: true,
-  },
 
   {
     path: '/approval',
@@ -89,11 +78,20 @@ const screenRoutes = [
     permissionRequired: permissions.categoryRead,
   },
 
-  // {
-  //   path: "/members",
-  //   loader: () => import("src/view/pages/invitation/members"),
-  //   permissionRequired: permissions.categoryRead,
-  // },
+  {
+    path: "/about",
+    loader: () => import("src/view/pages/About/About"),
+    permissionRequired: permissions.categoryRead,
+    exact: true,
+  },
+
+    {
+    path: "/support",
+    loader: () => import("src/view/pages/Support/Support"),
+    permissionRequired: permissions.categoryRead,
+        exact: true,
+  },
+
 
   {
     path: "/support/details/:id",
@@ -174,6 +172,13 @@ const screenRoutes = [
   {
     path: "/passwordtype",
     loader: () => import("src/view/pages/profile/typepassword"),
+    permissionRequired: permissions.categoryRead,
+    exact: true,
+  },
+
+  {
+    path: "/settings",
+    loader: () => import("src/view/pages/settings/Settings"),
     permissionRequired: permissions.categoryRead,
     exact: true,
   },
@@ -327,10 +332,7 @@ const navRoutes = [
     loader: () => import("src/view/pages/Home/Faq"),
   },
 
-  {
-    path: "/support",
-    loader: () => import("src/view/pages/Support/Support"),
-  },
+
 
 
 

@@ -752,17 +752,18 @@ const en = {
       },
       menu: {
         withdrawalAddress: "Withdrawal Address",
-        password: "Password",
+        password: "Security center",
         notifications: "Notifications",
         myInvitation: "My Invitation",
         language: "Language",
-        termsOfUse: "Terms of Use",
+        helpcenter: "Help Center",
         privacyPortal: "Privacy Portal",
-        aboutUs: "About Us",
+        aboutUs: "Platform Introduction",
         msbApproval: "MSB Approval",
-        customerSupport: "Customer Support",
+        customerSupport: "Online service",
         downloadApp: "Download App",
-        logout: "Logout"
+        logout: "Logout", 
+        preferences:" Preferences"
       }
     },
     notification: {

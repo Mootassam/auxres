@@ -1,5 +1,5 @@
-import React, { useMemo, useEffect, useCallback } from "react";
-import { Link, useHistory } from "react-router-dom";
+import React, { useMemo, useEffect, useCallback, useState } from "react";
+import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import authActions from "src/modules/auth/authActions";
 import authSelectors from "src/modules/auth/authSelectors";
@@ -10,54 +10,55 @@ import { i18n } from "../../../i18n";
 // Constants for menu items
 const MENU_ITEMS = [
   {
-    icon: "fas fa-wallet",
-    path: "/withdrawaddress",
-    name: i18n("pages.profile.menu.withdrawalAddress"),
-    requiresKyc: true,
+    icon: "fas fa-exchange-alt",
+    name: "Simulated trading",
+    type: "toggle",
   },
   {
-    icon: "fas fa-lock",
-    path: "/passwordtype",
-    name: i18n("pages.profile.menu.password"),
-    requiresKyc: false,
+    icon: "fas fa-cog",
+    path: "/settings",
+    name: "Preferences",
   },
-
+  {
+    icon: "fas fa-shield-alt",
+    path: "/passwordtype",
+    name: "Security center",
+  },
+  {
+    icon: "fas fa-file-alt",
+    path: "/account-change-records",
+    name: "Account change records",
+  },
   {
     icon: "fas fa-gift",
     path: "/invitation",
-    name: i18n("pages.profile.menu.myInvitation"),
+    name: "Invite friends",
     requiresKyc: true,
   },
   {
-    icon: "fas fa-language",
-    path: "/language",
-    name: i18n("pages.profile.menu.language"),
-    requiresKyc: false,
+    icon: "fas fa-comment-dots",
+    path: "/online-service",
+    name: "Online service",
   },
   {
-    path: "/support",
-    icon: "fas fa-file-contract",
-    name: i18n("pages.profile.menu.termsOfUse"),
-  },
-
-  {
-    icon: "fas fa-info-circle",
+    icon: "fas fa-building",
     path: "/about",
-    name: i18n("pages.profile.menu.aboutUs"),
-    requiresKyc: false,
-  },
-
-  {
-    icon: "fas fa-headset",
-    path: "/LiveChat",
-    name: i18n("pages.profile.menu.customerSupport"),
-    requiresKyc: false,
+    name: "Platform introduction",
   },
   {
-    icon: "fab fa-google-play",
-    path: "/playstore",
-    name: i18n("pages.profile.menu.downloadApp"),
-    requiresKyc: false,
+    icon: "fas fa-question-circle",
+    path: "/support",
+    name: "Help center",
+  },
+  {
+    icon: "fas fa-download",
+    path: "/download",
+    name: "Download",
+  },
+  {
+    icon: "fas fa-trash-alt",
+    name: "Clear cache",
+    type: "action",
   },
 ];
 
@@ -69,12 +70,11 @@ const VERIFICATION_STATUS = {
 };
 
 function Profile() {
-  const history = useHistory();
-
   const dispatch = useDispatch();
   const currentUser = useSelector(authSelectors.selectCurrentUser);
   const selectRows = useSelector(kycSelectors.selectRows);
   const loading = useSelector(kycSelectors.selectLoading);
+  const [simulatedTradingEnabled, setSimulatedTradingEnabled] = useState(false);
 
   const kycStatus = useMemo(() => {
     if (selectRows[0]?.status === VERIFICATION_STATUS.PENDING) {
@@ -96,6 +96,17 @@ function Profile() {
     dispatch(authActions.doSignout());
   }, [dispatch]);
 
+  const handleClearCache = useCallback(() => {
+    console.log('Clearing cache...');
+    // Add your cache clearing logic here
+    alert('Cache cleared successfully!');
+  }, []);
+
+  const toggleSimulatedTrading = useCallback(() => {
+    setSimulatedTradingEnabled(!simulatedTradingEnabled);
+    console.log(`Simulated trading ${!simulatedTradingEnabled ? 'enabled' : 'disabled'}`);
+  }, [simulatedTradingEnabled]);
+
   const menuItems = useMemo(
     () =>
       MENU_ITEMS.map((item) => ({
@@ -108,12 +119,7 @@ function Profile() {
   const handleVerifyNow = () => {
     console.log('Redirecting to verification process...');
     // Add your verification redirection logic here
-    // Example: navigate('/verification');
   };
-
-const handleBackClick = () => {
-  history.goBack();
-};
 
   const getUserInitial = () => {
     if (currentUser?.fullName) {
@@ -166,21 +172,51 @@ const handleBackClick = () => {
   };
 
   // Memoized render function for menu items
-  const renderMenuItem = useCallback((item) => {
+  const renderMenuItem = useCallback((item, index) => {
+    if (item.type === "toggle") {
+      return (
+        <li className="menu-item" key={index}>
+          <div className="icon-container icon-green">
+            <i className={item.icon} />
+          </div>
+          <div className="menu-text">{item.name}</div>
+          <div className="menu-action">
+            <label className="toggle-switch">
+              <input 
+                type="checkbox" 
+                checked={simulatedTradingEnabled}
+                onChange={toggleSimulatedTrading}
+              />
+              <span className="slider"></span>
+            </label>
+          </div>
+        </li>
+      );
+    }
+
+    if (item.type === "action") {
+      return (
+        <li className="menu-item" key={index} onClick={handleClearCache}>
+          <div className="icon-container icon-gray">
+            <i className={item.icon} />
+          </div>
+          <div className="menu-text">{item.name}</div>
+        </li>
+      );
+    }
+
     const menuItemContent = (
       <li className={`menu-item ${item.disabled ? 'disabled' : ''}`}>
-        <div className={`icon-container ${
-          item.icon.includes('wallet') ? 'icon-green' :
-          item.icon.includes('lock') ? 'icon-blue' :
-          item.icon.includes('bell') ? 'icon-orange' :
-          item.icon.includes('gift') ? 'icon-green' :
-          item.icon.includes('language') ? 'icon-gray' :
-          item.icon.includes('file-contract') ? 'icon-blue' :
-          item.icon.includes('user-shield') ? 'icon-green' :
-          item.icon.includes('info-circle') ? 'icon-gray' :
-          item.icon.includes('headset') ? 'icon-blue' :
-          item.icon.includes('google-play') ? 'icon-green' : 'icon-gray'
-        }`}>
+        <div className={`icon-container ${item.icon.includes('exchange-alt') ? 'icon-green' :
+            item.icon.includes('cog') ? 'icon-gray' :
+              item.icon.includes('shield-alt') ? 'icon-blue' :
+                item.icon.includes('file-alt') ? 'icon-green' :
+                  item.icon.includes('gift') ? 'icon-green' :
+                    item.icon.includes('comment-dots') ? 'icon-blue' :
+                      item.icon.includes('building') ? 'icon-green' :
+                        item.icon.includes('question-circle') ? 'icon-gray' :
+                          item.icon.includes('download') ? 'icon-green' : 'icon-gray'
+          }`}>
           <i className={item.icon} />
         </div>
         <div className="menu-text">{item.name}</div>
@@ -199,16 +235,16 @@ const handleBackClick = () => {
         {menuItemContent}
       </Link>
     );
-  }, []);
+  }, [simulatedTradingEnabled, toggleSimulatedTrading, handleClearCache]);
 
   return (
     <div className="profile-container">
       {/* Header Section */}
       <div className="header">
         <div className="nav-bar">
-          <div className="back-arrow" onClick={handleBackClick}>
+          <Link to="/" className="back-arrow">
             <i className="fas fa-arrow-left" />
-          </div>
+          </Link>
           <div className="page-title">Personal Center</div>
         </div>
 
@@ -233,7 +269,7 @@ const handleBackClick = () => {
               <i className={`${getVerificationIcon()} status-icon`} />
               {getVerificationText()}
             </div>
-            <button 
+            <button
               className="verify-button"
               onClick={handleVerifyNow}
               disabled={isVerificationButtonDisabled()}
@@ -247,19 +283,10 @@ const handleBackClick = () => {
       {/* Content Section */}
       <div className="content-card">
         <ul className="menu-list">
-          {menuItems.map(renderMenuItem)}
-          
-          {/* Logout button */}
-          <li className="menu-item logout-item" onClick={handleSignout}>
-            <div className="icon-container icon-gray">
-              <i className="fas fa-sign-out-alt" />
-            </div>
-            <div className="menu-text">Logout</div>
-            <div className="menu-action">
-              <i className="fas fa-chevron-right chevron" />
-            </div>
-          </li>
+          {menuItems.map((item, index) => renderMenuItem(item, index))}
         </ul>
+
+       
       </div>
 
       <style>{`
@@ -303,7 +330,7 @@ const handleBackClick = () => {
           color: white;
           font-size: 20px;
           font-weight: 300;
-          cursor: pointer;
+          text-decoration: none;
           transition: opacity 0.3s ease;
         }
 
@@ -462,8 +489,8 @@ const handleBackClick = () => {
         .menu-item {
           display: flex;
           align-items: center;
-          padding: 10px 0;
-          border-bottom: 1px solid #000;
+          padding: 14px 0;
+          border-bottom: 1px solid #e7eaee;
           cursor: pointer;
           transition: background-color 0.3s ease;
         }
@@ -485,38 +512,30 @@ const handleBackClick = () => {
           border-bottom: none;
         }
 
-        .logout-item:hover {
-          background-color: rgba(245, 61, 61, 0.05);
-        }
-
         .icon-container {
-          width: 40px;
-          height: 40px;
+          width: 28px;
+          height: 28px;
           border-radius: 12px;
           display: flex;
           align-items: center;
           justify-content: center;
           margin-right: 16px;
-          font-size: 18px;
+          font-size: 16px;
         }
 
         .icon-green {
-          background-color: #e7f7ef;
           color: #37b66a;
         }
 
         .icon-gray {
-          background-color: #f5f5f5;
           color: #666;
         }
 
         .icon-blue {
-          background-color: #e6f0ff;
           color: #106cf5;
         }
 
         .icon-orange {
-          background-color: #fff2e6;
           color: #ff7a00;
         }
 
@@ -535,6 +554,86 @@ const handleBackClick = () => {
         .chevron {
           font-size: 14px;
           color: #ccc;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+          position: relative;
+          display: inline-block;
+          width: 44px;
+          height: 24px;
+        }
+
+        .toggle-switch input {
+          opacity: 0;
+          width: 0;
+          height: 0;
+        }
+
+        .slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: #ccc;
+          transition: .4s;
+          border-radius: 24px;
+        }
+
+        .slider:before {
+          position: absolute;
+          content: "";
+          height: 18px;
+          width: 18px;
+          left: 3px;
+          bottom: 3px;
+          background-color: white;
+          transition: .4s;
+          border-radius: 50%;
+        }
+
+        input:checked + .slider {
+          background-color: #37b66a;
+        }
+
+        input:checked + .slider:before {
+          transform: translateX(20px);
+        }
+
+        /* Logout Section */
+        .logout-section {
+          margin-top: 30px;
+          padding-top: 20px;
+          border-top: 1px solid #e7eaee;
+        }
+
+        .logout-button {
+          width: 100%;
+          padding: 12px;
+          background: #f44336;
+          color: white;
+          border: none;
+          border-radius: 7px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+        }
+
+        .logout-button:hover {
+          background: #d32f2f;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(244, 67, 54, 0.2);
+        }
+
+        .logout-button:active {
+          transform: translateY(0);
         }
 
         /* Animations */
@@ -578,7 +677,12 @@ const handleBackClick = () => {
           }
 
           .menu-item {
-            padding: 16px 0;
+            padding: 12px 0;
+          }
+
+          .logout-button {
+            padding: 10px;
+            font-size: 13px;
           }
         }
       `}</style>

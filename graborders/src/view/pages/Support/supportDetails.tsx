@@ -3,7 +3,6 @@ import { Link, useParams,  } from "react-router-dom";
 
 function HelpCenterDetail() {
   const { id } = useParams();
-  console.log("🚀 ~ HelpCenterDetail ~ id:", id)
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
 

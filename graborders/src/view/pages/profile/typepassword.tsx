@@ -144,9 +144,8 @@ function TypePassword() {
           display: flex;
           align-items: center;
           padding: 12px;
-          /* background: #fff; */
           border: 1px solid #e7eaee;
-          border-radius: 16px;
+          border-radius: 7px;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           cursor: pointer;
         }
