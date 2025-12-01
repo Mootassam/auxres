@@ -2,7 +2,6 @@ import React, {
   useState,
   useEffect,
   useMemo,
-  useRef,
   useCallback,
 } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -11,155 +10,55 @@ import assetsActions from "src/modules/assets/list/assetsListActions";
 import assetsListSelectors from "src/modules/assets/list/assetsListSelectors";
 import { i18n } from "../../../i18n";
 
-interface BinanceTicker {
-  s: string;
-  c: string;
-  P: string;
-}
-
 function Wallet() {
   const dispatch = useDispatch();
   const location = useLocation();
   const listAssets = useSelector(assetsListSelectors.selectRows);
   const [activeItem, setActiveItem] = useState<string>(location.pathname);
-  const [marketData, setMarketData] = useState<{
-    [key: string]: BinanceTicker;
-  }>({});
-  const [isMarketDataLoading, setIsMarketDataLoading] = useState(true);
-  const ws = useRef<WebSocket | null>(null);
-  const symbolsWeCareAbout = useRef(new Set<string>());
-  const prevAssetsRef = useRef(listAssets);
-  const marketDataCache = useRef<{ [key: string]: BinanceTicker }>({});
+  const [activeTimeframe, setActiveTimeframe] = useState("7 days");
+  const [activeTab, setActiveTab] = useState("Exchange");
 
   const quickActions = [
     {
-      path: "/deposit",
-      icon: "fas fa-wallet",
-      name: i18n("pages.wallet.quickActions.deposit"),
-    },
-    {
       path: "/withdraw",
-      icon: "fas fa-money-bill-wave",
-      name: i18n("pages.wallet.quickActions.withdraw"),
+      icon: "fas fa-arrow-up",
+      name: "Withdraw",
     },
     {
-      path: "/history",
-      icon: "fas fa-history",
-      name: i18n("pages.wallet.quickActions.history"),
+      path: "/deposit",
+      icon: "fas fa-arrow-down",
+      name: "Deposit",
     },
     {
-      path: "/conversion",
-      icon: "fas fa-exchange-alt action-icon",
-      name: i18n("pages.wallet.quickActions.convert"),
+      path: "/transfer",
+      icon: "fas fa-exchange-alt",
+      name: "Transfer",
     },
     {
-      path: "/stacking",
-      icon: "fas fa-coins action-icon",
-      name: i18n("pages.wallet.quickActions.staking"),
+      path: "/swap",
+      icon: "fas fa-sync-alt",
+      name: "Swap",
     },
   ];
+
+  const bottomNavItems = [
+    { icon: "fas fa-home", label: "Home", path: "/" },
+    { icon: "fas fa-chart-line", label: "Quotes", path: "/quotes" },
+    { icon: "fas fa-exchange-alt", label: "Trade", path: "/trade" },
+    { icon: "fas fa-percentage", label: "Finance", path: "/finance" },
+    { icon: "fas fa-wallet", label: "Assets", path: "/assets", active: true },
+  ];
+
+  const accountTabs = ["Exchange", "Trade", "Perpetual", "Finance"];
 
   // Memoize the format function to prevent unnecessary re-renders
   const formatAmount = useCallback((amount: string) => {
     const num = parseFloat(amount);
-    if (isNaN(num)) return "0";
+    if (isNaN(num)) return "0.00";
 
-    if (num % 1 === 0) return num.toString();
+    if (num % 1 === 0) return num.toString() + ".00";
 
-    return num.toFixed(8).replace(/\.?0+$/, "");
-  }, []);
-
-  // Update symbols we care about only when assets actually change
-  useEffect(() => {
-    const assetsChanged = listAssets !== prevAssetsRef.current;
-    if (assetsChanged) {
-      symbolsWeCareAbout.current = new Set(
-        listAssets
-          .filter((asset) => asset.symbol !== "USDT")
-          .map((asset) => `${asset.symbol}USDT`)
-      );
-      prevAssetsRef.current = listAssets;
-    }
-  }, [listAssets]);
-
-  // Setup WebSocket with optimized data handling and proper cleanup
-  useEffect(() => {
-    let isMounted = true;
-    setIsMarketDataLoading(true);
-
-    // Use a single WebSocket connection with optimized data processing
-    ws.current = new WebSocket("wss://stream.binance.com:9443/ws/!ticker@arr");
-
-    // Throttle updates to prevent excessive re-renders
-    let lastUpdateTime = 0;
-    const updateThrottleMs = 100; // Update at most every 100ms
-
-    ws.current.onmessage = (event) => {
-      // Check if component is still mounted before processing
-      if (!isMounted) return;
-
-      const now = Date.now();
-      if (now - lastUpdateTime < updateThrottleMs) return;
-
-      try {
-        const data: BinanceTicker[] = JSON.parse(event.data);
-
-        // Process data only if we have relevant updates
-        const hasRelevantUpdate = data.some((ticker) =>
-          symbolsWeCareAbout.current.has(ticker.s)
-        );
-
-        if (hasRelevantUpdate) {
-          setMarketData((prevData) => {
-            // Double-check mounted status inside setState
-            if (!isMounted) return prevData;
-
-            const newData = { ...prevData };
-            let updated = false;
-
-            data.forEach((ticker) => {
-              if (symbolsWeCareAbout.current.has(ticker.s)) {
-                // Only update if the data has actually changed
-                if (
-                  JSON.stringify(newData[ticker.s]) !== JSON.stringify(ticker)
-                ) {
-                  newData[ticker.s] = ticker;
-                  marketDataCache.current[ticker.s] = ticker;
-                  updated = true;
-                }
-              }
-            });
-
-            return updated ? newData : prevData;
-          });
-
-          lastUpdateTime = now;
-          setIsMarketDataLoading(false);
-        }
-      } catch (error) {
-        console.error("Error processing WebSocket data:", error);
-      }
-    };
-
-    ws.current.onerror = (error) => {
-      if (!isMounted) return;
-      console.error("WebSocket error:", error);
-      setIsMarketDataLoading(false);
-    };
-
-    ws.current.onopen = () => {
-      if (!isMounted) return;
-    };
-
-    return () => {
-      isMounted = false;
-
-      if (ws.current) {
-        // Close the WebSocket connection properly
-        ws.current.close();
-        ws.current = null;
-      }
-    };
+    return num.toFixed(2);
   }, []);
 
   // Fetch assets only once on component mount with cleanup
@@ -188,544 +87,648 @@ function Wallet() {
     setActiveItem(location.pathname);
   }, [location.pathname]);
 
-  // Pre-calculate asset values to minimize computation during render
-  const { assetValues, totalValue, portfolioChange, isLoadingTotal } =
-    useMemo(() => {
-      if (isMarketDataLoading && Object.keys(marketData).length === 0) {
-        return {
-          assetValues: [],
-          totalValue: 0,
-          portfolioChange: 0,
-          isLoadingTotal: true,
-        };
-      }
+  // Calculate total portfolio value
+  const { totalValue, totalChange } = useMemo(() => {
+    let total = 0;
+    let change = 0;
 
-      let totalCurrentValue = 0;
-      let totalPreviousValue = 0;
+    listAssets.forEach((asset) => {
+      const amount = parseFloat(asset.amount || "0");
+      total += amount;
+    });
 
-      const calculatedAssetValues = listAssets.map((asset) => {
-        if (asset.symbol === "USDT") {
-          const value = parseFloat(asset.amount || "0");
-          totalCurrentValue += value;
-          totalPreviousValue += value; // USDT doesn't change in value
-          return {
-            value,
-            change: 0,
-            isPositive: true,
-            marketPrice: 1,
-          };
-        }
+    return {
+      totalValue: total,
+      totalChange: change,
+    };
+  }, [listAssets]);
 
-        const symbol = `${asset.symbol}USDT`;
-        const ticker = marketData[symbol] || marketDataCache.current[symbol];
-        const marketPrice = parseFloat(ticker?.c || "0");
-        const assetAmount = parseFloat(asset.amount || "0");
-        const value = assetAmount * marketPrice;
-
-        // Calculate the previous value based on the 24h change percentage
-        const change = ticker ? parseFloat(ticker.P) : 0;
-        const previousValue = value / (1 + change / 100);
-
-        totalCurrentValue += value;
-        totalPreviousValue += previousValue;
-
-        const isPositive = change >= 0;
-
-        return {
-          value,
-          change,
-          isPositive,
-          marketPrice,
-        };
-      });
-
-      // Calculate portfolio change percentage
-      const portfolioChangeValue =
-        totalPreviousValue > 0
-          ? ((totalCurrentValue - totalPreviousValue) / totalPreviousValue) *
-            100
-          : 0;
-
-      return {
-        assetValues: calculatedAssetValues,
-        totalValue: totalCurrentValue,
-        portfolioChange: portfolioChangeValue,
-        isLoadingTotal: false,
-      };
-    }, [listAssets, marketData, isMarketDataLoading]);
+  // Get asset icon class based on symbol
+  const getAssetIconClass = (symbol: string) => {
+    switch (symbol) {
+      case "ETH":
+        return "asset-icon eth-icon";
+      case "BTC":
+        return "asset-icon btc-icon";
+      case "USDC":
+        return "asset-icon usdc-icon";
+      default:
+        return "asset-icon";
+    }
+  };
 
   // Memoize the asset list rendering to prevent unnecessary re-renders
   const renderedAssets = useMemo(() => {
     if (listAssets.length === 0) {
-      return <div className="no-assets">{i18n("pages.wallet.noAssets")}</div>;
-    }
-
-    return listAssets.map((asset, index) => {
-      if (isMarketDataLoading) {
-        return (
-          <div className="wallet-asset-item-placeholder" key={asset.id}>
-            <div className="wallet-asset-info-placeholder">
-              <div className="wallet-asset-icon-placeholder shimmer"></div>
-              <div className="wallet-asset-details-placeholder">
-                <div
-                  className="placeholder-line shimmer"
-                  style={{ width: "80px", height: "16px", marginBottom: "8px" }}
-                ></div>
-                <div
-                  className="placeholder-line shimmer"
-                  style={{ width: "60px", height: "12px" }}
-                ></div>
-              </div>
+      return (
+        <div className="no-assets">
+          <div className="asset-card">
+            <div className="asset-header">
+              <div className="asset-icon"></div>
+              <div className="asset-name">No assets found</div>
             </div>
-            <div className="wallet-asset-value-placeholder">
-              <div
-                className="placeholder-line shimmer"
-                style={{ width: "70px", height: "16px", marginBottom: "8px" }}
-              ></div>
-              <div
-                className="placeholder-line shimmer"
-                style={{ width: "50px", height: "12px" }}
-              ></div>
+            <div className="asset-details">
+              <div className="asset-column">
+                <div className="asset-label">Available balance:</div>
+                <div className="asset-value">0.00</div>
+              </div>
+              <div className="asset-column">
+                <div className="asset-label">Frozen amount:</div>
+                <div className="asset-value">0.00</div>
+              </div>
+              <div className="asset-column">
+                <div className="asset-label">Valuation:</div>
+                <div className="asset-value">$0.00</div>
+              </div>
             </div>
           </div>
-        );
-      }
+        </div>
+      );
+    }
 
-      const { value, change, isPositive } = assetValues[index];
+    return listAssets.map((asset) => {
+      const assetAmount = parseFloat(asset.amount || "0");
 
       return (
-        <Link
-          to={`/wallets/${asset.id}`}
-          className="remove_blue"
-          key={asset.id}
-        >
-          <div className="wallet-asset-item" role="button">
-            <div className="wallet-asset-info">
-              <div className="wallet-asset-icon">
-                <img
-                  src={`https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/${asset.symbol}.png`}
-                  style={{ width: 35, height: 35 }}
-                  alt={asset.symbol}
-                />
+        <div className="asset-card" key={asset.id}>
+          <div className="asset-header">
+            <div className={getAssetIconClass(asset.symbol)}>
+              {asset.symbol}
+            </div>
+            <div className="asset-name">{asset.coinName}</div>
+          </div>
+          <div className="asset-details">
+            <div className="asset-column">
+              <div className="asset-label">Available balance:</div>
+              <div className="asset-value">{formatAmount(asset.amount)}</div>
+            </div>
+            <div className="asset-column">
+              <div className="asset-label">Frozen amount:</div>
+              <div className="asset-value">0.00</div>
+            </div>
+            <div className="asset-column">
+              <div className="asset-label">Valuation:</div>
+              <div className="asset-value">
+                ${formatAmount(asset.amount)}
               </div>
-              <div className="wallet-asset-details">
-                <div className="wallet-asset-name">{asset.coinName}</div>
-                <div className="wallet-asset-amount">
-                  {formatAmount(asset.amount)}&nbsp;{asset.symbol}
+            </div>
+          </div>
+        </div>
+      );
+    });
+  }, [listAssets, formatAmount]);
+
+  return (
+    <div className="container">
+      {/* Header Section */}
+      <div className="header">
+        <div className="nav-bar">
+          <div className="back-arrow">
+            <i className="fas fa-arrow-left"></i>
+          </div>
+          <div className="page-title">{i18n("pages.wallet.myAssets")}</div>
+          <div className="header-icon">
+            {/* Empty for alignment */}
+          </div>
+        </div>
+      </div>
+
+      {/* Content Wrapper */}
+      <div className="content-wrapper">
+        {/* Asset Valuation Section */}
+        <div className="valuation-section">
+          <div className="valuation-card">
+            <div className="valuation-header">
+              <div className="valuation-label">
+                <i className="fas fa-eye-slash"></i>
+                {i18n("pages.wallet.assetValuation")}
+              </div>
+              <select className="currency-selector">
+                <option>USD</option>
+                <option>EUR</option>
+                <option>CNY</option>
+              </select>
+            </div>
+            <div className="balance-amount">
+              {totalValue.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </div>
+            <div className="usd-equivalent">
+              ≈${totalValue.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </div>
+            <div className="earnings-today">
+              {i18n("pages.wallet.todaysEarnings")} 0.00
+            </div>
+          </div>
+        </div>
+
+        <div className="sectionn__assets">
+          {/* Earnings Trends Section */}
+          <div className="earnings-section">
+            <div className="earnings-header">
+              <div className="earnings-title">{i18n("pages.wallet.earningsTrends")}</div>
+              <div className="timeframe-selector">
+                <div
+                  className={`timeframe ${activeTimeframe === "7 days" ? "active" : ""}`}
+                  onClick={() => setActiveTimeframe("7 days")}
+                >
+                  7 days
+                </div>
+                <div
+                  className={`timeframe ${activeTimeframe === "30 days" ? "active" : ""}`}
+                  onClick={() => setActiveTimeframe("30 days")}
+                >
+                  30 days
                 </div>
               </div>
             </div>
-            <div className="wallet-asset-value">
-              <div className="wallet-value-amount">
-                $
-                {value.toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </div>
-              <div
-                className={`wallet-value-change ${
-                  isPositive ? "positive" : "negative"
-                }`}
-              >
-                {isPositive && asset.symbol !== "USDT" ? "+" : ""}
-                {asset.symbol !== "USDT" ? change.toFixed(2) : "0.00"}%
+            <div className="graph-container">
+              <div className="graph-line"></div>
+              <div className="graph-points">
+                <div className="graph-point" style={{ height: "10%" }}></div>
+                <div className="graph-point" style={{ height: "15%" }}></div>
+                <div className="graph-point" style={{ height: "8%" }}></div>
+                <div className="graph-point" style={{ height: "12%" }}></div>
+                <div className="graph-point" style={{ height: "6%" }}></div>
+                <div className="graph-point" style={{ height: "10%" }}></div>
+                <div className="graph-point" style={{ height: "5%" }}></div>
               </div>
             </div>
+            <div className="graph-dates">
+              <div>11-19</div>
+              <div>11-21</div>
+              <div>11-23</div>
+              <div>11-25</div>
+            </div>
+            <div className="expand-arrow">
+              <i className="fas fa-chevron-down"></i>
+            </div>
           </div>
-        </Link>
-      );
-    });
-  }, [listAssets, isMarketDataLoading, assetValues, formatAmount]);
 
-  return (
-    <div className="wallet-container">
-      {/* Header Section */}
-      <div className="wallet-header">
-        <div className="header-top">
-          <div className="search-icon">
-            <Link to="/profile">
-              <i className="fas fa-user-circle profile-icon" />
-            </Link>
-          </div>
-          <div>
-            <img src="/icons/asset.png" style={{ height: 33 }} />{" "}
-          </div>
-          <Link to="/notification" className="remove_blue" >
-            <div className="notification-profile">
-              <i className="fas fa-bell header-notification-icon profile-icon" />
+          {/* Action Buttons */}
+          <div className="actions-section">
+            <div className="actions-grid">
+              {quickActions.map((item) => (
+                <Link
+                  to={item.path}
+                  className="action-item remove_blue"
+                  role="button"
+                  aria-label={item.name}
+                  key={item.path}
+                >
+                  <div className="action-icon">
+                    <i className={item.icon} aria-hidden="true" />
+                  </div>
+                  <span className="action-label">{item.name}</span>
+                </Link>
+              ))}
             </div>
-          </Link>
-        </div>
-        <div className="wallet-total-balance">
-          <div className="wallet-balance-label">{i18n("pages.wallet.totalPortfolioValue")}</div>
-          {isLoadingTotal ? (
-            <div className="wallet-balance-amount-placeholder">
-              <div
-                className="placeholder-line shimmer"
-                style={{ width: "120px", height: "32px", margin: "0 auto 8px" }}
-              ></div>
-              <div
-                className="placeholder-line shimmer"
-                style={{ width: "80px", height: "14px", margin: "0 auto" }}
-              ></div>
+          </div>
+
+          {/* My Account Section */}
+          <div className="account-section">
+            <div className="section-title">{i18n("pages.wallet.myAccount")}</div>
+            <div className="account-tabs">
+              {accountTabs.map((tab) => (
+                <div
+                  key={tab}
+                  className={`account-tab ${activeTab === tab ? "active" : ""}`}
+                  onClick={() => setActiveTab(tab)}
+                >
+                  {tab}
+                </div>
+              ))}
             </div>
-          ) : (
-            <>
-              <div className="wallet-balance-amount">
-                $
-                {totalValue.toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </div>
-              <div
-                className={`wallet-balance-change ${
-                  portfolioChange >= 0 ? "positive" : "negative"
-                }`}
-              >
-                {portfolioChange >= 0 ? "+" : ""}
-                {portfolioChange.toFixed(2)}%
-              </div>
-            </>
-          )}
+            <div className="asset-list">
+              {renderedAssets}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Quick Action Buttons */}
-      <div className="quick-actions">
-        {quickActions.map((item) => (
-          <Link
-            to={item.path}
-            className="action-btn remove_blue"
-            role="button"
-            aria-label={`${item.name} cryptocurrency`}
-            key={item.path}
-          >
-            <div
-              className={`action-circle ${
-                activeItem === item.path ? "active" : ""
-              }`}
-            >
-              <i className={`${item.icon} action-icon`} aria-hidden="true" />
-            </div>
-            <span className="action-text">{item.name}</span>
-          </Link>
-        ))}
-      </div>
 
-      {/* Assets Section */}
-      <div className="wallet-assets-section">
-        <div className="wallet-section-header">
-          <div className="wallet-section-title">{i18n("pages.wallet.myAssets")}</div>
-          <div className="wallet-see-all" role="button">
-            {i18n("pages.wallet.manage")}
-          </div>
-        </div>
-        <div className="wallet-asset-list">{renderedAssets}</div>
-      </div>
-
-
-      {/* Styles remain the same */}
+      {/* Updated CSS Styles */}
       <style>{`
-        /* All the CSS styles from the original component */
-        @keyframes shimmer {
-          0% {
-            background-position: -468px 0;
-          }
-          100% {
-            background-position: 468px 0;
-          }
-        }
-        
-        .shimmer {
-          animation-duration: 1.5s;
-          animation-fill-mode: forwards;
-          animation-iteration-count: infinite;
-          animation-name: shimmer;
-          animation-timing-function: linear;
-          background: #2A2A2A;
-          background: linear-gradient(to right, #2A2A2A 8%, #333333 18%, #2A2A2A 33%);
-          background-size: 800px 104px;
-          position: relative;
-          border-radius: 4px;
-        }
-        
-        .wallet-balance-amount-placeholder {
-          text-align: center;
-        }
-        
-        .wallet-asset-item-placeholder {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 13px;
-          background-color: #1A1A1A;
-          border-radius: 12px;
-        }
-        
-        .wallet-asset-info-placeholder {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          flex: 1;
-        }
-        
-        .wallet-asset-icon-placeholder {
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          margin-right: 12px;
-        }
-        
-        .wallet-asset-details-placeholder {
-          flex: 1;
-        }
-        
-        .wallet-asset-value-placeholder {
-          text-align: right;
-        }
-        
-        .placeholder-line {
-          border-radius: 4px;
-          margin-bottom: 8px;
-        }
-        
-        .wallet-container {
+     .sectionn__assets{ 
+    background-color: #fff;
+    height: calc(100% - 184px);
+    border-radius: 21px 21px 0 0;
+    overflow-y: auto;
+
+     }
+
+        .container {
           max-width: 400px;
           margin: 0 auto;
-          padding-bottom: 70px;
-          background-color: #000000;
-          color: #FFFFFF;
-          min-height: 100vh;
+          height: 100dvh;
+          position: relative;
+          background-image: url('https://aurexes.com/app/static/img/background.ac97a8d5.png');
+          background-size: cover;
+          overflow-y: auto; 
+          backgrouund-repeat: no-repeat;
         }
 
-        .wallet-header {
-          background-color: #000000;
-          padding: 20px 15px 15px;
-          position: sticky;
+        /* Header Section */
+        .header {
+          // background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
+          padding: 15px 20px;
+          color: white;
           top: 0;
           z-index: 100;
         }
 
-        .header-top {
+        .nav-bar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .back-arrow {
+          font-size: 18px;
+          font-weight: 300;
+        }
+
+        .page-title {
+          font-size: 18px;
+          font-weight: 600;
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+        }
+
+        .header-icon {
+          font-size: 16px;
+          cursor: pointer;
+        }
+
+        /* Asset Valuation Section */
+        .valuation-section {
+          padding: 20px 20px 0 20px;
+          color: white;
+        }
+
+        .valuation-card {
+          background: rgba(255, 255, 255, 0.15);
+          backdrop-filter: blur(10px);
+          border-radius: 16px 16px 0 0;
+          padding: 20px;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          color: white;
+        }
+
+        .valuation-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-bottom: 20px;
         }
 
-        .search-icon, .header-notification-icon {
-          color: #FFFFFF;
-          font-size: 20px;
-          cursor: pointer;
-        }
-
-        .notification-profile {
+        .valuation-label {
           display: flex;
-          gap: 15px;
           align-items: center;
-        }
-
-        .profile-icon {
-          color: #FFFFFF;
-          font-size: 24px;
-        }
-
-        .wallet-total-balance {
-          background: linear-gradient(135deg, #2A2A2A 0%, #1A1A1A 100%);
-          border-radius: 16px;
-          padding: 20px;
-          margin-bottom: 20px;
-          text-align: center;
-        }
-
-        .wallet-balance-label {
-          color: #AAAAAA;
+          gap: 8px;
           font-size: 14px;
-          margin-bottom: 8px;
+
+          color: white;
         }
 
-        .wallet-balance-amount {
-          font-size: 32px;
-          font-weight: bold;
-          margin-bottom: 8px;
-        }
-
-        .wallet-balance-change {
-          font-size: 14px;
-        }
-
-        .wallet-balance-change.positive {
-          color: #00C076;
-        }
-
-        .wallet-balance-change.negative {
-          color: #FF6838;
-        }
-
-        .quick-actions {
-          display: flex;
-          justify-content: space-around;
-          padding: 15px 0;
-          background-color: #000000;
-          border-bottom: 1px solid #2A2A2A;
-        }
-
-        .action-btn {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          text-decoration: none;
-          color: #CCCCCC;
-        }
-
-        .action-circle {
-          width: 50px;
-          height: 50px;
-          border-radius: 50%;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          background-color: #2A2A2A;
-          margin-bottom: 8px;
-          transition: background-color 0.2s ease;
-        }
-
-        .action-circle.active, .action-circle:hover {
-          background-color: #F3BA2F;
-          color: #000000;
-        }
-
-        .action-icon {
-          font-size: 20px;
-        }
-
-        .action-text {
+        .currency-selector {
+          background: rgba(255, 255, 255, 0.2);
+          border: none;
+          border-radius: 6px;
+          padding: 4px 8px;
+          color: white;
           font-size: 12px;
         }
 
-        .remove_blue {
-          color: inherit;
+        .balance-amount {
+          font-size: 32px;
+          font-weight: 700;
+          margin-bottom: 8px;
+          color: white;
         }
 
-        .wallet-assets-section {
-          padding: 0 15px;
+        .usd-equivalent {
+          font-size: 16px;
         }
 
-        .wallet-section-header {
+        .earnings-today {
+          font-size: 14px;
+          opacity: 0.9;
+        }
+
+        /* Earnings Trends Section */
+        .earnings-section {
+          background: #f2f4f7;
+          margin: 20px;
+          border-radius: 16px;
+          padding: 20px;
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .earnings-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-bottom: 15px;
-          margin-top: 20px;
         }
 
-        .wallet-section-title {
-          font-weight: bold;
+        .earnings-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: #333;
+        }
+
+        .timeframe-selector {
+          display: flex;
+          gap: 8px;
+        }
+
+        .timeframe {
+          padding: 6px 12px;
+          border-radius: 16px;
+          font-size: 12px;
+          cursor: pointer;
+          color: #666;
+          background: #f8f9fa;
+          transition: all 0.3s ease;
+        }
+
+        .timeframe.active {
+          background: #106cf5;
+          color: white;
+        }
+
+        .graph-container {
+          height: 80px;
+          background: #f8f9fa;
+          border-radius: 8px;
+          margin-bottom: 15px;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .graph-line {
+          position: absolute;
+          bottom: 40px;
+          left: 0;
+          right: 0;
+          height: 1px;
+          background: #e0e0e0;
+        }
+
+        .graph-points {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
+          height: 100%;
+          padding: 0 10px;
+        }
+
+        .graph-point {
+          width: 4px;
+          height: 4px;
+          border-radius: 50%;
+          background: #106cf5;
+          position: relative;
+        }
+
+        .graph-point::after {
+          content: '';
+          position: absolute;
+          top: -2px;
+          left: -2px;
+          right: -2px;
+          bottom: -2px;
+          background: rgba(16, 108, 245, 0.2);
+          border-radius: 50%;
+        }
+
+        .graph-dates {
+          display: flex;
+          justify-content: space-between;
+          font-size: 10px;
+          color: #999;
+          margin-top: 8px;
+        }
+
+        .expand-arrow {
+          text-align: center;
+          color: #999;
+          font-size: 12px;
+        }
+
+        /* Action Buttons */
+        .actions-section {
+          padding: 0 20px 20px;
+        }
+
+        .actions-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 15px;
+        }
+
+        .action-item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 8px 0 ;
+          background: #f2f4f7;
+          border-radius: 12px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          text-decoration: none;
+          color: inherit;
+        }
+
+        .action-item:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-icon {
+          width: 40px;
+          height: 40px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #106cf5;
           font-size: 18px;
         }
 
-        .wallet-see-all {
-          color: #CCCCCC;
-          font-size: 14px;
-          cursor: pointer;
+        .action-label {
+          font-size: 12px;
+          color: #333;
+          font-weight: 500;
         }
 
-        .wallet-asset-list {
+        /* My Account Section */
+        .account-section {
+          padding: 0 20px 20px;
+        }
+
+        .section-title {
+          font-size: 16px;
+          font-weight: 600;
+          margin-bottom: 15px;
+          color: #333;
+        }
+
+        .account-tabs {
           display: flex;
-          flex-direction: column;
-          gap: 12px;
+          background: #f8f9fa;
+          border-radius: 12px;
+          padding: 4px;
+          margin-bottom: 20px;
         }
 
-        .wallet-asset-item {
+        .account-tab {
+          flex: 1;
+          padding: 10px;
+          text-align: center;
+          font-size: 14px;
+          font-weight: 500;
+          color: #666;
+          cursor: pointer;
+          border-radius: 8px;
+          transition: all 0.3s ease;
+        }
+
+        .account-tab.active {
+          background: white;
+          color: #106cf5;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Asset Cards */
+        .asset-card {
+          background: #f2f4f7;
+          border-radius: 12px;
+          padding: 16px;
+          margin-bottom: 12px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .asset-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 12px;
+        }
+
+        .asset-icon {
+          width: 21px;
+          height: 21x;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #26a17b 0%, #1e8a63 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-weight: bold;
+          font-size: 12px;
+        }
+
+        .eth-icon {
+          background: linear-gradient(135deg, #627eea 0%, #4c68c7 100%);
+        }
+
+        .btc-icon {
+          background: linear-gradient(135deg, #f7931a 0%, #e07e00 100%);
+        }
+
+        .usdc-icon {
+          background: linear-gradient(135deg, #2775ca 0%, #1e63b3 100%);
+        }
+
+        .asset-name {
+          font-size: 14px;
+          font-weight: 600;
+          color: #333;
+          flex: 1;
+        }
+
+        /* Updated Asset Details Layout */
+        .asset-details {
           display: flex;
           justify-content: space-between;
-          align-items: center;
-          padding: 15px;
-          background-color: #1A1A1A;
-          border-radius: 12px;
-          cursor: pointer;
-          transition: background-color 0.2s ease;
+          align-items: flex-start;
+          font-size: 12px;
         }
 
-        .wallet-asset-item:hover {
-          background-color: #2A2A2A;
-        }
-
-        .wallet-asset-info {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-
-        .wallet-asset-icon {
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          overflow: hidden;
-          background-color: #2A2A2A;
-        }
-
-        .wallet-asset-details {
+        .asset-column {
           display: flex;
           flex-direction: column;
+          align-items: flex-start;
         }
 
-        .wallet-asset-name {
-          font-weight: bold;
-          margin-bottom: 4px;
+        .asset-label {
+          color: #666;
+          white-space: nowrap;
         }
 
-        .wallet-asset-amount {
-          color: #AAAAAA;
+        .asset-value {
+          color: #333;
+          font-weight: 500;
+          white-space: nowrap;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background: white;
+          border-top: 1px solid #e9ecef;
+          display: flex;
+          justify-content: space-around;
+          padding: 10px 0;
+          max-width: 400px;
+          margin: 0 auto;
+        }
+
+        .nav-item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 4px;
           font-size: 12px;
+          color: #666;
+          cursor: pointer;
+          text-decoration: none;
         }
 
-        .wallet-asset-value {
-          text-align: right;
+        .nav-item.active {
+          color: #106cf5;
         }
 
-        .wallet-value-amount {
-          font-weight: bold;
-          margin-bottom: 4px;
+        .nav-icon {
+          font-size: 18px;
         }
 
-        .wallet-value-change {
-          font-size: 12px;
+        /* Content wrapper for scrolling */
+        .content-wrapper {
+          padding-bottom: 70px;
         }
 
-        .wallet-value-change.positive {
-          color: #00C076;
-        }
-
-        .wallet-value-change.negative {
-          color: #FF6838;
+        .remove_blue {
+          color: inherit;
+          text-decoration: none;
         }
 
         .no-assets {
           text-align: center;
-          padding: 20px;
-          color: #AAAAAA;
+          color: #666;
         }
 
-        @media (max-width: 480px) {
-          .wallet-container {
-            padding-bottom: 80px;
-          }
-          
-          .action-circle {
-            width: 45px;
-            height: 45px;
-          }
-          
-          .action-text {
-            font-size: 11px;
-          }
-        }
       `}</style>
     </div>
   );

@@ -1054,6 +1054,11 @@ const en = {
       myAssets: "My Assets",
       manage: "Manage",
       noAssets: "No assets found",
+      earningsTrends:" Earnings Trends",
+      todaysEarnings :" Today's Earnings",
+      assetDistribution: "Asset Distribution",
+      myAccount:" My Account",
+      assetValuation:" Asset Valuation",
       quickActions: {
         deposit: "Deposit",
         withdraw: "Withdraw",
