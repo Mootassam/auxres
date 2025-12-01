@@ -21,12 +21,7 @@ const MENU_ITEMS = [
     name: i18n("pages.profile.menu.password"),
     requiresKyc: false,
   },
-  {
-    icon: "fas fa-bell",
-    path: "/notification",
-    name: i18n("pages.profile.menu.notifications"),
-    requiresKyc: false,
-  },
+
   {
     icon: "fas fa-gift",
     path: "/invitation",
@@ -527,7 +522,7 @@ const handleBackClick = () => {
 
         .menu-text {
           flex: 1;
-          font-size: 16px;
+          font-size: 14px;
           font-weight: 500;
         }
 
