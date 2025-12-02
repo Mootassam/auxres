@@ -1,6 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import SubHeader from "src/view/shared/Header/SubHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm, FormProvider, useWatch } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -23,6 +22,15 @@ const withdrawRules = {
   SOL: { min: 0.01, fee: 0.0005, decimals: 6 },
   XRP: { min: 1, fee: 0.1, decimals: 6 },
 };
+
+const networkOptions = [
+  { value: "ethereum", label: "Ethereum (ERC20)" },
+  { value: "bsc", label: "Binance Smart Chain (BEP20)" },
+  { value: "tron", label: "Tron (TRC20)" },
+  { value: "polygon", label: "Polygon" },
+  { value: "solana", label: "Solana" },
+  { value: "bitcoin", label: "Bitcoin" }
+];
 
 const schema = yup.object().shape({
   orderNo: yupFormSchemas.string(i18n("entities.withdraw.fields.orderNo")),
@@ -65,6 +73,7 @@ function Withdraw() {
   const [amount, setAmount] = useState("");
   const [address, setAddress] = useState("");
   const [selected, setSelected] = useState("");
+  const [selectedNetwork, setSelectedNetwork] = useState("ethereum");
   const [item, setItem] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -93,16 +102,6 @@ function Withdraw() {
       form.setValue("currency", "");
     }
   }, [selected, assets, currentUser]);
-
-  // Do we have any wallet addresses at all?
-  const hasAnyWallet = useMemo(() => {
-    return (
-      currentUser?.wallet &&
-      Object.values(currentUser.wallet).some((val) => 
-        val?.address?.trim() !== ""
-      )
-    );
-  }, [currentUser]);
 
   const initialValues = {
     orderNo: "",
@@ -240,9 +239,6 @@ function Withdraw() {
       // Dispatch create action
       await dispatch(actions.doCreate(values));
 
-      // Don't reset form here - wait for success modal close
-      // The form reset will happen in handleCloseModal
-
     } catch (error) {
       console.error("Withdrawal submission error:", error);
       setIsSubmitting(false);
@@ -263,41 +259,28 @@ function Withdraw() {
   const { errors } = form.formState;
 
   return (
-    <div className="withdrawContainer">
-      <SubHeader title={i18n("pages.withdraw.title")} />
-      <div className="container">
-        {!hasAnyWallet ? (
-          <div className="noWalletSection">
-            <div className="noWalletCard">
-              <div className="noWalletIcon">
-                <i className="fas fa-wallet"></i>
-              </div>
-              <h3>{i18n("pages.withdraw.noWallet.title")}</h3>
-              <p>
-                {i18n("pages.withdraw.noWallet.description")}
-              </p>
-              <Link to="/withdrawaddress" className="addWalletBtn">
-                <i className="fas fa-plus" />
-                {i18n("pages.withdraw.noWallet.addButton")}
-              </Link>
-              <div className="securityNotice">
-                <div className="securityHeader">
-                  <i className="fas fa-shield-alt securityIcon" />
-                  <div className="securityTitle">{i18n("pages.withdraw.security.title")}</div>
-                </div>
-                <div className="securityText">
-                  {i18n("pages.withdraw.security.description")}
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <>
-            <div className="currencySection">
-              <div className="sectionHeading">{i18n("pages.withdraw.selectCurrency")}</div>
-              <div className="currencyDropdownContainer">
+    <div className="withdraw-container">
+      {/* Header Section - Matching HelpCenter */}
+      <div className="header">
+        <div className="nav-bar">
+          <Link to="/profile" className="back-arrow">
+            <i className="fas fa-arrow-left" />
+          </Link>
+          <div className="page-title">Withdraw</div>
+        </div>
+      </div>
+
+      {/* Content Card - Matching HelpCenter */}
+      <div className="content-card">
+        <div className="withdraw-content">
+          
+          {/* Select currency section */}
+          <div className="form-section">
+            <div className="input-field">
+              <label className="input-label">Select currency</label>
+              <div className="input-wrapper">
                 <select
-                  className="currencyDropdown"
+                  className="currency-select"
                   value={selected}
                   onChange={(e) => {
                     const val = e.target.value;
@@ -308,448 +291,479 @@ function Withdraw() {
                     form.setValue("withdrawPassword", "");
                   }}
                 >
-                  <option value="">{i18n("pages.withdraw.selectPlaceholder")}</option>
-                  {currencyOptions.map((currency) => {
-                    const hasWallet = currentUser?.wallet?.[currency.id]?.address;
-                    return (
-                      <option key={currency.id} value={currency.id} disabled={!hasWallet}>
-                        {currency.name} {!hasWallet && i18n("pages.withdraw.noWalletAddress")}
-                      </option>
-                    );
-                  })}
+                  <option value="">Select currency</option>
+                  {currencyOptions.map((currency) => (
+                    <option key={currency.id} value={currency.id}>
+                      {currency.name} ({currency.id})
+                    </option>
+                  ))}
                 </select>
                 {selected && (
-                  <div className="currencyDropdownIcon" style={{ color: selectedCurrencyData?.color }}>
+                  <div className="currency-select-icon" style={{ color: selectedCurrencyData?.color }}>
                     <i className={selectedCurrencyData?.icon} />
                   </div>
                 )}
               </div>
-              {!selected && <div className="dropdownHint">{i18n("pages.withdraw.selectHint")}</div>}
             </div>
 
-            {selectModal && (
-              <SuccessModalComponent 
-                isOpen={selectModal}
-                onClose={handleCloseModal}
-                type='withdraw'
-                amount={amount}
-                coinType={selected} 
-              />
-            )}
+            {/* Withdraw network */}
+            <div className="input-field">
+              <label className="input-label">Withdraw network</label>
+              <div className="input-wrapper">
+                <select
+                  className="network-select"
+                  value={selectedNetwork}
+                  onChange={(e) => setSelectedNetwork(e.target.value)}
+                >
+                  {networkOptions.map((network) => (
+                    <option key={network.value} value={network.value}>
+                      {network.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
 
-            {selected && (
-              <FormProvider {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)}>
-                  <div className="formSection">
-                    <div className="inputField">
-                      <label className="inputLabel">{i18n("pages.withdraw.withdrawalAddress")}</label>
-                      <div className="inputWrapper">
-                        <input
-                          type="text"
-                          className="textField"
-                          value={address}
-                          disabled
-                          readOnly
-                          aria-readonly
-                        />
-                        <div className="networkInfo" id="networkDetails">
-                          {i18n("pages.withdraw.networkInfo", selectedCurrencyData?.name, selected)}
-                        </div>
-                      </div>
-                      {!address && (
-                        <div className="fieldError" role="alert" style={{ color: "#d9534f", marginTop: 6 }}>
-                          {i18n("pages.withdraw.errors.noWalletAddress", selected)}
-                        </div>
-                      )}
-                    </div>
+            {/* Withdraw address */}
+            <div className="input-field">
+              <label className="input-label">Withdraw address</label>
+              <div className="input-wrapper">
+                <input
+                  type="text"
+                  className="address-field"
+                  placeholder="Your wallet address will appear here"
+                />
+              </div>
+              {!address && selected && (
+                <div className="field-hint">
+                  Please add a wallet address for {selected} to withdraw
+                </div>
+              )}
+            </div>
 
-                    <div className="inputField">
-                      <label className="inputLabel">{i18n("pages.withdraw.withdrawalAmount")}</label>
-                      <div className="inputWrapper">
-                        <FieldFormItem
-                          name="withdrawAmount"
-                          type="number"
-                          className="amountField"
-                          placeholder="0.0"
-                          step="any"
-                          min="0"
-                          disabled={isSubmitting}
-                        />
-                        <div className="balanceText">
-                          {i18n("pages.withdraw.available")}:{" "}
-                          <span id="availableBalance">
-                            {formatNumber(availableBalance, decimals)} {selected}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="fieldError" role="alert" style={{ color: "#d9534f", marginTop: 6 }}>
-                        {errors.withdrawAmount?.message && <div>{errors.withdrawAmount?.message}</div>}
-                        {!errors.withdrawAmount?.message && validationState.reason === "enterAmount" && (
-                          <div>{i18n("pages.withdraw.validation.enterAmount")}</div>
-                        )}
-                        {!errors.withdrawAmount?.message && validationState.reason === "belowMin" && (
-                          <div>
-                            {i18n("pages.withdraw.errors.minimumWithdraw", selected, formatNumber(min, decimals), selected)}
-                          </div>
-                        )}
-                        {!errors.withdrawAmount?.message && validationState.reason === "insufficientBalance" && (
-                          <div>{i18n("pages.withdraw.validation.insufficientBalance")}</div>
-                        )}
-                        {!errors.withdrawAmount?.message && validationState.reason === "insufficientForFee" && (
-                          <div>{i18n("pages.withdraw.errors.insufficientForFee", formatNumber(fee, decimals), selected)}</div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="inputField">
-                      <label className="inputLabel">{i18n("pages.withdraw.withdrawalPassword")}</label>
-                      <div className="inputWrapper">
-                        <FieldFormItem
-                          name="withdrawPassword"
-                          type="password"
-                          className="textField"
-                          placeholder={i18n("pages.withdraw.passwordPlaceholder")}
-                          disabled={isSubmitting}
-                        />
-                      </div>
-                      <div className="fieldError" role="alert" style={{ color: "#d9534f", marginTop: 6 }}>
-                        {errors.withdrawPassword?.message && <div>{errors.withdrawPassword?.message}</div>}
-                        {!errors.withdrawPassword?.message && validationState.reason === "enterPassword" && (
-                          <div>{i18n("pages.withdraw.validation.enterPassword")}</div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="feeContainer">
-                      <div className="feeRow">
-                        <div className="feeLabel">{i18n("pages.withdraw.amountWithdrawal")}</div>
-                        <div className="feeValue">{isAmountNumber ? formatNumber(parsedAmount, decimals) : "-"} {selected}</div>
-                      </div>
-
-                      <div className="feeRow">
-                        <div className="feeLabel">{i18n("pages.withdraw.minimumWithdrawal")}</div>
-                        <div className="feeValue">{formatNumber(min, decimals)} {selected}</div>
-                      </div>
-                      <div className="feeRow">
-                        <div className="feeLabel">{i18n("pages.withdraw.networkFee")}</div>
-                        <div className="feeValue">{formatNumber(fee, decimals)} {selected}</div>
-                      </div>
-                      <div className="feeRow receiveAmount">
-                        <div className="feeLabel">{i18n("pages.withdraw.youWillReceive")}</div>
-                        <div className="feeValue">{formatNumber(receiveAmount, decimals)} {selected}</div>
-                      </div>
-                    </div>
-
-                    <div className="securityNotice">
-                      <div className="securityHeader">
-                        <i className="fas fa-shield-alt securityIcon" />
-                        <div className="securityTitle">{i18n("pages.withdraw.securityVerification")}</div>
-                      </div>
-                      <div className="securityText">
-                        {i18n("pages.withdraw.securityMessage")}
-                      </div>
-                    </div>
-
-                    <button
-                      type="submit"
-                      className="withdrawBtn"
-                      disabled={validationState.disabled || isSubmitting}
-                      aria-disabled={validationState.disabled || isSubmitting}
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <i className="fas fa-spinner fa-spin" style={{ marginRight: '8px' }}></i>
-                          {i18n("pages.withdraw.processing")}
-                        </>
-                      ) : (
-                        validationState.label
-                      )}
-                    </button>
-
+            <FormProvider {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)}>
+                {/* Amount section */}
+                <div className="input-field">
+                  <label className="input-label">Amount of coins withdrawn</label>
+                  <div className="input-wrapper">
+                    <FieldFormItem
+                      name="withdrawAmount"
+                      type="number"
+                      className="amount-field"
+                      placeholder="0.0"
+                      step="any"
+                      min="0"
+                      disabled={isSubmitting || !selected}
+                    />
                   </div>
-                </form>
-              </FormProvider>
-            )}
-          </>
-        )}
+                  <div className="balance-text">
+                    Available: <span className="balance-amount">{formatNumber(availableBalance, decimals)} {selected}</span>
+                  </div>
+                  
+                  <div className="field-error">
+                    {errors.withdrawAmount?.message && <div>{errors.withdrawAmount?.message}</div>}
+                    {!errors.withdrawAmount?.message && validationState.reason === "belowMin" && (
+                      <div>Minimum withdrawal: {formatNumber(min, decimals)} {selected}</div>
+                    )}
+                    {!errors.withdrawAmount?.message && validationState.reason === "insufficientBalance" && (
+                      <div>Insufficient balance</div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Handling fee section */}
+                <div className="fee-section">
+                  <div className="fee-row">
+                    <div className="fee-label">Handling fee:</div>
+                    <div className="fee-value">{formatNumber(fee, decimals)} {selected}</div>
+                  </div>
+                  <div className="fee-row">
+                    <div className="fee-label">You will receive:</div>
+                    <div className="fee-value receive-amount">{formatNumber(receiveAmount, decimals)} {selected}</div>
+                  </div>
+                </div>
+
+                {/* Important notice section */}
+                <div className="notice-section">
+                  <div className="notice-title">Important notice</div>
+                  <div className="notice-content">
+                    <div className="notice-item">1. In order to prevent arbitrage, you can apply for currency withdraw when the transaction volume reaches the quota.</div>
+                    <div className="notice-item">2. After submitting the withdraw application, the money will arrive within 24 hours. If the money does not arrive after the expected withdraw time, please consult the online customer service.</div>
+                    <div className="notice-item">3. After submitting the withdraw application, the funds are frozen because the withdraw is in progress and the funds are temporarily held by the system. This does not mean that you have lost the asset or that there is an abnormality with the asset.</div>
+                  </div>
+                </div>
+
+                {/* Withdrawal password */}
+                <div className="input-field">
+                  <label className="input-label">Withdrawal Password</label>
+                  <div className="input-wrapper">
+                    <FieldFormItem
+                      name="withdrawPassword"
+                      type="password"
+                      className="password-field"
+                      placeholder="Enter your withdrawal password"
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                  <div className="field-error">
+                    {errors.withdrawPassword?.message && <div>{errors.withdrawPassword?.message}</div>}
+                  </div>
+                </div>
+
+                {/* Submit button */}
+                <button
+                  type="submit"
+                  className="withdraw-button"
+                  disabled={validationState.disabled || isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <i className="fas fa-spinner fa-spin" style={{ marginRight: '8px' }}></i>
+                      Processing...
+                    </>
+                  ) : (
+                    validationState.label
+                  )}
+                </button>
+              </form>
+            </FormProvider>
+          </div>
+        </div>
       </div>
 
+      {selectModal && (
+        <SuccessModalComponent 
+          isOpen={selectModal}
+          onClose={handleCloseModal}
+          type='withdraw'
+          amount={amount}
+          coinType={selected} 
+        />
+      )}
 
       <style>{`
-        .withdrawContainer {
-          padding-bottom: 30px;
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
-        
-        .container {
-          padding: 0 15px;
+
+        body {
+          background-color: #f5f7fa;
+          color: #333;
+          line-height: 1.6;
+          overflow-x: hidden;
         }
-        
-        .noWalletCard {
-          background: #2A2A2A;
-          border-radius: 16px;
-          padding: 30px;
-          text-align: center;
-          border: 1px solid #333333;
-        }
-        
-        .noWalletIcon {
-          font-size: 48px;
-          color: #F3BA2F;
-          margin-bottom: 16px;
-        }
-        
-        .noWalletCard h3 {
-          font-size: 20px;
-          margin-bottom: 12px;
-          color: #FFFFFF;
-        }
-        
-        .noWalletCard p {
-          color: #AAAAAA;
-          margin-bottom: 24px;
-          line-height: 1.5;
-        }
-        
-        .addWalletBtn {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          background: #F3BA2F;
-          color: #000000;
-          border: none;
-          border-radius: 12px;
-          padding: 14px 24px;
-          font-weight: 600;
-          cursor: pointer;
-          text-decoration: none;
-          transition: all 0.3s ease;
-          margin-bottom: 24px;
-        }
-        
-        .addWalletBtn:hover {
-          background: #e6ab0a;
-          text-decoration: none;
-          color: #000000;
-        }
-        
-        /* Currency Dropdown Styles */
-        .currencySection {
-          margin-bottom: 20px;
-        }
-        
-        .sectionHeading {
-          font-weight: bold;
-          margin-bottom: 12px;
-          font-size: 16px;
-        }
-        
-        .currencyDropdownContainer {
+
+        .withdraw-container {
+          max-width: 400px;
+          margin: 0 auto;
           position: relative;
-          width: 100%;
+          min-height: 100vh;
+          background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
         }
-        
-        .currencyDropdown {
-          width: 100%;
-          background-color: #2A2A2A;
-          border: 2px solid #2A2A2A;
-          border-radius: 12px;
-          padding: 12px 45px 12px 15px;
-          color: white;
-          font-size: 16px;
-          appearance: none;
-          -webkit-appearance: none;
-          -moz-appearance: none;
-          cursor: pointer;
+
+        /* Header Section - Matching HelpCenter */
+        .header {
+          background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
+          min-height: 60px;
+          position: relative;
+          padding: 20px;
         }
-        
-        .currencyDropdown:focus {
-          outline: none;
-          border-color: #F3BA2F;
-        }
-        
-        .currencyDropdownIcon {
-          position: absolute;
-          right: 15px;
-          top: 50%;
-          transform: translateY(-50%);
-          font-size: 24px;
-          pointer-events: none;
-        }
-        
-        .dropdownHint {
-          color: #FF6838;
-          font-size: 14px;
-          margin-top: 8px;
-        }
-        
-        /* Form Styles */
-        .formSection {
-          margin-top: 20px;
-        }
-        
-        .inputField {
-          margin-bottom: 20px;
-        }
-        
-        .inputLabel {
-          display: block;
-          margin-bottom: 8px;
-          font-weight: 500;
-          color: #FFFFFF;
-        }
-        
-        .inputWrapper {
-          background-color: #2A2A2A;
-          border-radius: 12px;
-          padding: 15px;
-        }
-        
-        .textField {
-          width: 100%;
-          background: transparent;
-          border: none;
-          color: #FFFFFF;
-          font-size: 16px;
-          outline: none;
-        }
-        
-        .networkInfo {
-          color: #AAAAAA;
-          font-size: 14px;
-          margin-top: 8px;
-        }
-        
-        .amountField {
-          width: 100%;
-          background: transparent;
-          border: none;
-          color: #FFFFFF;
-          font-size: 20px;
-          font-weight: bold;
-          outline: none;
-          margin-bottom: 8px;
-        }
-        
-        .balanceText {
-          color: #AAAAAA;
-          font-size: 14px;
-        }
-        
-        .feeContainer {
-          background-color: #2A2A2A;
-          border-radius: 12px;
-          padding: 15px;
-          margin-bottom: 20px;
-        }
-        
-        .feeRow {
+
+        .nav-bar {
           display: flex;
           justify-content: space-between;
-          margin-bottom: 12px;
-          font-size: 14px;
-        }
-        
-        .feeLabel {
-          color: #AAAAAA;
-        }
-        
-        .feeValue {
-          color: #FFFFFF;
-          font-weight: 500;
-        }
-        
-        .receiveAmount {
-          border-top: 1px solid #333333;
-          padding-top: 12px;
-          margin-top: 12px;
-          font-weight: bold;
-        }
-        
-        .securityNotice {
-          background-color: rgba(255, 104, 56, 0.1);
-          border: 1px solid #FF6838;
-          border-radius: 12px;
-          padding: 15px;
-          margin-bottom: 25px;
-        }
-        
-        .securityHeader {
-          display: flex;
           align-items: center;
-          margin-bottom: 10px;
         }
-        
-        .securityIcon {
-          color: #FF6838;
-          margin-right: 10px;
-          font-size: 18px;
+
+        .back-arrow {
+          color: white;
+          font-size: 20px;
+          font-weight: 300;
+          text-decoration: none;
+          transition: opacity 0.3s ease;
         }
-        
-        .securityTitle {
-          color: #FF6838;
-          font-weight: bold;
-          font-size: 16px;
+
+        .back-arrow:hover {
+          opacity: 0.8;
         }
-        
-        .securityText {
-          color: #FF6838;
-          font-size: 14px;
-          line-height: 1.5;
-        }
-        
-        .withdrawBtn {
-          background-color: #F3BA2F;
-          color: #000000;
-          border: none;
-          border-radius: 12px;
-          padding: 16px;
-          font-size: 16px;
-          font-weight: bold;
-          width: 100%;
-          cursor: pointer;
-          transition: background-color 0.3s ease;
-        }
-        
-        .withdrawBtn:hover {
-          background-color: #e6ab0a;
-        }
-        
-        .withdrawBtn:disabled {
-          background-color: #2A2A2A;
-          color: #777777;
-          cursor: not-allowed;
-        }
-        
-        /* Toast Notification */
-        .toastMsg {
-          position: fixed;
-          bottom: 80px;
+
+        .page-title {
+          color: white;
+          font-size: 17px;
+          font-weight: 600;
+          position: absolute;
           left: 50%;
           transform: translateX(-50%);
-          background-color: #00C076;
-          color: white;
-          padding: 12px 20px;
+        }
+
+        /* Content Card - Matching HelpCenter */
+        .content-card {
+          background: #f2f4f7;
+          border-radius: 40px 40px 0 0;
+          padding: 20px;
+          box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
+          min-height: calc(100vh - 60px);
+        }
+
+        .withdraw-content {
+          width: 100%;
+        }
+
+        /* Form Sections */
+        .form-section {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .input-field {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .input-label {
+          font-size: 12px;
+          font-weight: 600;
+          color: #222;
+          margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+          position: relative;
+        }
+
+        .currency-select, .network-select {
+          width: 100%;
+          padding: 12px;
+          border: 1px solid #e0e0e0;
           border-radius: 8px;
+          font-size: 12px;
+          background-color: white;
+          color: #333;
+          appearance: none;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .currency-select:focus, .network-select:focus {
+          outline: none;
+          border-color: #106cf5;
+          box-shadow: 0 0 0 3px rgba(16, 108, 245, 0.1);
+        }
+
+        .currency-select-icon {
+          position: absolute;
+          right: 16px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 20px;
+          pointer-events: none;
+        }
+
+        .address-field, .amount-field, .password-field {
+          width: 100%;
+          padding: 12px;
+          border: 1px solid #e0e0e0;
+          border-radius: 8px;
+          font-size: 12px;
+          background-color: white;
+          color: #333;
+          transition: all 0.3s ease;
+        }
+
+        .address-field:disabled {
+          background-color: #f8f9fa;
+          color: #666;
+          cursor: not-allowed;
+        }
+
+        .amount-field:focus, .password-field:focus {
+          outline: none;
+          border-color: #106cf5;
+          box-shadow: 0 0 0 3px rgba(16, 108, 245, 0.1);
+        }
+
+        .balance-text {
           font-size: 14px;
-          opacity: 0;
-          transition: opacity 0.3s ease;
-          z-index: 1000;
+          color: #666;
+          margin-top: 8px;
         }
-        
-        .toastMsg.visible {
-          opacity: 1;
+
+        .balance-amount {
+          font-weight: 600;
+          color: #106cf5;
         }
-        
-        @media (max-width: 350px) {
-          .currencyDropdown {
-            padding: 10px 40px 10px 12px;
+
+        /* Fee Section */
+        .fee-section {
+          background: white;
+          border-radius: 8px;
+          padding: 16px;
+          margin: 10px 0;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .fee-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 8px 0;
+          border-bottom: 1px solid #f0f0f0;
+        }
+
+        .fee-row:last-child {
+          border-bottom: none;
+        }
+
+        .fee-label {
+          font-size: 14px;
+          color: #666;
+        }
+
+        .fee-value {
+          font-size: 15px;
+          font-weight: 600;
+          color: #222;
+        }
+
+        .receive-amount {
+          color: #106cf5;
+          font-size: 16px;
+        }
+
+        /* Notice Section */
+        .notice-section {
+          background: white;
+          border-radius: 8px;
+          padding: 16px;
+          margin: 10px 0;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .notice-title {
+          font-size: 14px;
+          font-weight: 600;
+          color: #222;
+          margin-bottom: 12px;
+        }
+
+        .notice-content {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .notice-item {
+          font-size: 10px;
+          color: #666;
+          line-height: 1.4;
+        }
+
+        /* Field Error */
+        .field-error {
+          font-size: 12px;
+          color: #e53935;
+          margin-top: 6px;
+          min-height: 20px;
+        }
+
+        .field-hint {
+          font-size: 12px;
+          color: #ff9800;
+          margin-top: 6px;
+        }
+
+        /* Withdraw Button */
+        .withdraw-button {
+          width: 100%;
+          padding: 16px;
+          background: #106cf5;
+          color: white;
+          border: none;
+          border-radius: 8px;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          margin-top: 20px;
+        }
+
+        .withdraw-button:hover:not(:disabled) {
+          background: #0a4fc4;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 15px rgba(16, 108, 245, 0.3);
+        }
+
+        .withdraw-button:disabled {
+          background: #ccc;
+          cursor: not-allowed;
+          transform: none;
+          box-shadow: none;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 380px) {
+          .withdraw-container {
+            padding: 0;
+          }
+
+          .header {
+            padding: 16px;
+            min-height: 50px;
+          }
+
+          .content-card {
+            padding: 16px;
+            border-radius: 30px 30px 0 0;
+          }
+
+          .currency-select, .network-select, .address-field, .amount-field, .password-field {
+            padding: 12px ;
             font-size: 14px;
           }
-          
-          .currencyDropdownIcon {
-            font-size: 20px;
-            right: 12px;
+
+          .input-label {
+            font-size: 13px;
+          }
+
+          .balance-text {
+            font-size: 13px;
+          }
+
+          .fee-section, .notice-section {
+            padding: 12px;
+          }
+
+          .fee-label, .fee-value {
+            font-size: 13px;
+          }
+
+          .notice-title {
+            font-size: 13px;
+          }
+
+          .notice-item {
+            font-size: 10px;
+          }
+
+          .withdraw-button {
+            padding: 12px;
+            font-size: 15px;
+          }
+        }
+
+        @media (min-width: 768px) {
+          .content-card {
+            border-radius: 30px 30px 0 0;
+          }
+
+          .withdraw-content {
+            max-width: 600px;
+            margin: 0 auto;
           }
         }
       `}</style>
