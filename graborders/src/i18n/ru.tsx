@@ -268,7 +268,7 @@ components: {
 },
     proof: {
       title: "Верификация личности",
-      instructions: "Подтвердите свою личность для доступа ко всем функциям AureX Exchange",
+      instructions: "Подтвердите свою личность для доступа ко всем функциям AureX",
       sections: {
         documentInfo: "Информация о документе",
         documentUpload: "Загрузка документа"
@@ -637,7 +637,7 @@ components: {
         }
       },
       footer: {
-        copyright: "© 2025 AureX Exchange. Все права защищены.",
+        copyright: "© 2025 AureX. Все права защищены.",
         lastUpdated: "Последнее обновление: 6 мая 2025 г."
       }
     },
@@ -963,7 +963,7 @@ components: {
         },
         accountActivated: {
           title: "KYC Верификация",
-          message: "Здравствуйте {0}, ваши KYC документы были проверены, теперь вы можете пользоваться неограниченными функциями на AureX Exchange"
+          message: "Здравствуйте {0}, ваши KYC документы были проверены, теперь вы можете пользоваться неограниченными функциями на AureX"
         },
         custom: {
           title: "Уведомление",
@@ -1409,7 +1409,7 @@ components: {
         joinDiscussions: "Присоединяйтесь к обсуждениям"
       },
       footer: {
-        copyright: "© 2025 AureX Exchange. Все права защищены.",
+        copyright: "© 2025 AureX. Все права защищены.",
         needHelp: "Нужна дополнительная помощь? Свяжитесь с support@AureX-exchange.com"
       }
     },

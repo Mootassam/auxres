@@ -27,8 +27,6 @@ const privateRoutes = [
     exact: true,
   },
 
- 
-
 
   {
     path: '/approval',
@@ -85,14 +83,17 @@ const screenRoutes = [
     exact: true,
   },
 
-    {
+  {
     path: "/support",
     loader: () => import("src/view/pages/Support/Support"),
     permissionRequired: permissions.categoryRead,
-        exact: true,
+    exact: true,
   },
 
-
+  {
+    path: "/download",
+    loader: () => import("src/view/pages/Playsotre/Playstore"),
+  },
   {
     path: "/support/details/:id",
     loader: () => import("src/view/pages/Support/supportDetails"),
@@ -124,7 +125,6 @@ const screenRoutes = [
     permissionRequired: permissions.categoryRead,
     exact: true,
   },
-
 
   {
     path: "/history",
@@ -312,10 +312,7 @@ const navRoutes = [
     path: "/language",
     loader: () => import("src/view/pages/Language/Language"),
   },
-  {
-    path: "/Playstore",
-    loader: () => import("src/view/pages/Playsotre/Playstore"),
-  },
+
   {
     path: "/market",
     loader: () => import("src/view/pages/Market/Market"),

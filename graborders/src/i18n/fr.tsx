@@ -50,7 +50,7 @@ pages: {
 },
     proof: {
         title: "Vérification d'Identité",
-        instructions: "Vérifiez votre identité pour accéder à toutes les fonctionnalités de votre AureX Exchange",
+        instructions: "Vérifiez votre identité pour accéder à toutes les fonctionnalités de votre AureX",
         sections: {
             documentInfo: "Informations du Document",
             documentUpload: "Téléchargement du Document"
@@ -419,7 +419,7 @@ pages: {
             }
         },
         footer: {
-            copyright: "© 2025 AureX Exchange. Tous droits réservés.",
+            copyright: "© 2025 AureX. Tous droits réservés.",
             lastUpdated: "Dernière mise à jour : 6 mai 2025"
         }
     },
@@ -745,7 +745,7 @@ pages: {
             },
             accountActivated: {
                 title: "Vérification KYC",
-                message: "Bonjour {0}, vos documents KYC ont été vérifiés, vous pouvez maintenant profiter de toutes les fonctionnalités sur AureX Exchange"
+                message: "Bonjour {0}, vos documents KYC ont été vérifiés, vous pouvez maintenant profiter de toutes les fonctionnalités sur AureX"
             },
             custom: {
                 title: "Notification",
@@ -1191,7 +1191,7 @@ pages: {
             joinDiscussions: "Rejoignez les discussions"
         },
         footer: {
-            copyright: "© 2025 AureX Exchange. Tous droits réservés.",
+            copyright: "© 2025 AureX. Tous droits réservés.",
             needHelp: "Besoin de plus d'aide ? Contactez support@AureX-exchange.com"
         }
     },

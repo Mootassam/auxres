@@ -277,7 +277,7 @@ pages: {
 },
     proof: {
         title: "Kimlik Doğrulama",
-        instructions: "AureX Exchange'in tüm özelliklerine erişmek için kimliğinizi doğrulayın",
+        instructions: "AureX'in tüm özelliklerine erişmek için kimliğinizi doğrulayın",
         sections: {
             documentInfo: "Belge Bilgileri",
             documentUpload: "Belge Yükleme"
@@ -646,7 +646,7 @@ pages: {
             }
         },
         footer: {
-            copyright: "© 2025 AureX Exchange. Tüm hakları saklıdır.",
+            copyright: "© 2025 AureX. Tüm hakları saklıdır.",
             lastUpdated: "Son güncelleme: 6 Mayıs 2025"
         }
     },
@@ -972,7 +972,7 @@ pages: {
             },
             accountActivated: {
                 title: "KYC Doğrulama",
-                message: "Merhaba {0}, KYC belgeleriniz doğrulandı, artık AureX Exchange'de sınırsız özelliklerin keyfini çıkarabilirsiniz"
+                message: "Merhaba {0}, KYC belgeleriniz doğrulandı, artık AureX'de sınırsız özelliklerin keyfini çıkarabilirsiniz"
             },
             custom: {
                 title: "Bildirim",
@@ -1418,7 +1418,7 @@ pages: {
             joinDiscussions: "Tartışmalara katılın"
         },
         footer: {
-            copyright: "© 2025 AureX Exchange. Tüm hakları saklıdır.",
+            copyright: "© 2025 AureX. Tüm hakları saklıdır.",
             needHelp: "Daha fazla yardıma mı ihtiyacınız var? support@AureX-exchange.com adresinden iletişime geçin"
         }
     },

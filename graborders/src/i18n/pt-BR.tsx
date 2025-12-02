@@ -273,7 +273,7 @@ pages: {
 },
     proof: {
         title: "Verificación de Identidad",
-        instructions: "Verifica tu identidad para acceder a todas las funciones de tu AureX Exchange",
+        instructions: "Verifica tu identidad para acceder a todas las funciones de tu AureX",
         sections: {
             documentInfo: "Información del Documento",
             documentUpload: "Carga de Documento"
@@ -642,7 +642,7 @@ pages: {
             }
         },
         footer: {
-            copyright: "© 2025 AureX Exchange. Todos los derechos reservados.",
+            copyright: "© 2025 AureX. Todos los derechos reservados.",
             lastUpdated: "Última actualización: 6 de mayo de 2025"
         }
     },
@@ -968,7 +968,7 @@ pages: {
             },
             accountActivated: {
                 title: "Verificación KYC",
-                message: "Hola {0} tus documentos KYC han sido verificados, ahora puedes disfrutar de funciones ilimitadas en AureX Exchange"
+                message: "Hola {0} tus documentos KYC han sido verificados, ahora puedes disfrutar de funciones ilimitadas en AureX"
             },
             custom: {
                 title: "Notificación",
@@ -1414,7 +1414,7 @@ pages: {
             joinDiscussions: "Únete a discusiones"
         },
         footer: {
-            copyright: "© 2025 AureX Exchange. Todos los derechos reservados.",
+            copyright: "© 2025 AureX. Todos los derechos reservados.",
             needHelp: "¿Necesitas más ayuda? Contacta a support@AureX-exchange.com"
         }
     },

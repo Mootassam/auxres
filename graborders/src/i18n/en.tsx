@@ -44,7 +44,7 @@ const en = {
   },
 
   app: {
-    title: "AureX Exchange",
+    title: "AureX",
   },
 
   api: {
@@ -101,7 +101,7 @@ const en = {
     },
     proof: {
       title: "Identity Verification",
-      instructions: "Verify your identity to access all features of your AureX Exchange",
+      instructions: "Verify your identity to access all features of your AureX",
       sections: {
         documentInfo: "Document Information",
         documentUpload: "Document Upload"
@@ -477,7 +477,7 @@ const en = {
         }
       },
       footer: {
-        copyright: "© 2025 AureX Exchange. All rights reserved.",
+        copyright: "© 2025 AureX. All rights reserved.",
         lastUpdated: "Last updated: 6 May 2025"
       }
     },
@@ -806,7 +806,7 @@ const en = {
         },
         accountActivated: {
           title: "KYC Verification",
-          message: "Hello {0} your KYC documents have been verified you can now enjoy unlimited features on AureX Exchange"
+          message: "Hello {0} your KYC documents have been verified you can now enjoy unlimited features on AureX"
         },
         custom: {
           title: "Notification",
@@ -1264,7 +1264,7 @@ const en = {
         joinDiscussions: "Join discussions"
       },
       footer: {
-        copyright: "© 2025 AureX Exchange. All rights reserved.",
+        copyright: "© 2025 AureX. All rights reserved.",
         needHelp: "Need more help? Contact support@AureX-exchange.com"
       }
     },

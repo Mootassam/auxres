@@ -118,6 +118,7 @@ function Profile() {
 
   const handleVerifyNow = () => {
     console.log('Redirecting to verification process...');
+
     // Add your verification redirection logic here
   };
 
