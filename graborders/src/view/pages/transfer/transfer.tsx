@@ -1,5 +1,5 @@
 import React from 'react'
-
+import {Link} from "react-router-dom";
 function transfer() {
     return (
         <>
@@ -7,9 +7,11 @@ function transfer() {
                 {/* Header Section */}
                 <div className="header">
                     <div className="nav-bar">
-                        <div className="back-arrow">
-                            <i className="fas fa-arrow-left" />
-                        </div>
+                        <Link to="/wallets" className="back-arrow remove_blue">
+                            <div className="back-arrow">
+                                <i className="fas fa-arrow-left" />
+                            </div>
+                        </Link>
                         <div className="page-title">Transfer</div>
                         <div className="header-icon">
                             <i className="fas fa-receipt" />
@@ -17,6 +19,7 @@ function transfer() {
                     </div>
                 </div>
                 {/* Content Section */}
+
                 <div className="content-card">
                     {/* Currency Selector */}
                     <div className="currency-selector">

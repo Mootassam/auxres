@@ -649,72 +649,44 @@ class WalletRepository {
     return output;
   }
 
-  static async createDefaultAssets(
-    newUser,
-    tenantId,
-    options: IRepositoryOptions
-  ) {
-    const defaultWallets = [
-      {
-        user: newUser.id,
-        symbol: "BTC",
-        coinName: "Bitcoin",
-        amount: 0,
-        status: "available",
-        tenant: tenantId,
-        createdBy: newUser,
-        updatedBy: newUser,
-      },
-      {
-        user: newUser.id,
-        symbol: "ETH",
-        coinName: "Ethereum",
-        amount: 0,
-        status: "available",
-        tenant: tenantId,
-        createdBy: newUser,
-        updatedBy: newUser,
-      },
-      {
-        user: newUser.id,
-        symbol: "USDT",
-        coinName: "Tether",
-        amount: 0,
-        status: "available",
-        tenant: tenantId,
-        createdBy: newUser,
-        updatedBy: newUser,
-      },
-      {
-        user: newUser.id,
-        symbol: "SOL",
-        coinName: "Solana",
-        amount: 0,
-        status: "available",
-        tenant: tenantId,
-        createdBy: newUser,
-        updatedBy: newUser,
-      },
-      {
-        user: newUser.id,
-        symbol: "XRP",
-        coinName: "Ripple",
-        amount: 0,
-        status: "available",
-        tenant: tenantId,
-        createdBy: newUser,
-        updatedBy: newUser,
-      },
-    ];
+static async createDefaultAssets(
+  newUser,
+  tenantId,
+  options: IRepositoryOptions
+) {
+  const cryptocurrencies = [
+    { symbol: 'USDT', name: 'Tether' },
+    { symbol: 'ETH', name: 'Ethereum' },
+    { symbol: 'BTC', name: 'Bitcoin' },
+    { symbol: 'USDC', name: 'USD Coin' },
+    { symbol: 'DAI', name: 'DAI' },
+    { symbol: 'SHIB', name: 'Shiba Inu' },
+    { symbol: 'XRP', name: 'Ripple' },
+    { symbol: 'TRX', name: 'TRON' },
+    { symbol: 'SOL', name: 'Solana' },
+    { symbol: 'BNB', name: 'Binance Coin' },
+    { symbol: 'DOGE', name: 'Dogecoin' }
+  ];
 
-    const createdWallets: any[] = [];
-    for (const WalletData of defaultWallets) {
-      const asset = await this.createMobile(WalletData, options);
-      createdWallets.push(asset);
-    }
+  const defaultWallets = cryptocurrencies.map(crypto => ({
+    user: newUser.id,
+    symbol: crypto.symbol,
+    coinName: crypto.name,
+    amount: 0,
+    status: "available",
+    tenant: tenantId,
+    createdBy: newUser,
+    updatedBy: newUser,
+  }));
 
-    return createdWallets;
+  const createdWallets: any[] = [];
+  for (const walletData of defaultWallets) {
+    const asset = await this.createMobile(walletData, options);
+    createdWallets.push(asset);
   }
+
+  return createdWallets;
+}
 }
 
 export default WalletRepository;

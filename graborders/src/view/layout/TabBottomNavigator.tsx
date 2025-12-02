@@ -14,6 +14,7 @@ function TabBottomNavigator() {
 
   const isActive = (pathname: string) => location.pathname === pathname;
 
+
   const tabs: TabItem[] = [
     {
       icon: "./icons/home.png",
@@ -30,11 +31,7 @@ function TabBottomNavigator() {
       path: "/trade",
       name: i18n("components.bottomNav.trade"),
     },
-    {
-      icon: "./icons/finance.png",
-      path: "/futures",
-      name: i18n("components.bottomNav.futures"),
-    },
+
     {
       icon: "./icons/assets.png",
       path: "/wallets",
@@ -45,7 +42,7 @@ function TabBottomNavigator() {
   return (
     <div className="bottom-nav">
       {tabs.map((item, index) => (
-        <Link key={index} to={item.path} className={`nav-item remove_blue ${isActive(item.path) ? 'active' : ''}`}>
+        <Link key={index} to={item.path} className={`nav-item ${isActive(item.path) ? 'active' : ''}`}>
           <img src={item.icon} style={
             {height: 23}
           } />

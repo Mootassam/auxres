@@ -549,7 +549,6 @@ const Market: React.FC = () => {
 
         .crypto-price {
           font-size: 16px;
-          font-weight: 500;
         }
 
         .usd-price {
