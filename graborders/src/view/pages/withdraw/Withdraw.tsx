@@ -263,7 +263,7 @@ function Withdraw() {
       {/* Header Section - Matching HelpCenter */}
       <div className="header">
         <div className="nav-bar">
-          <Link to="/profile" className="back-arrow">
+          <Link to="/assets" className="back-arrow">
             <i className="fas fa-arrow-left" />
           </Link>
           <div className="page-title">Withdraw</div>

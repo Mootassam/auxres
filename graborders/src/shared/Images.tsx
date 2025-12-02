@@ -1,3 +1,4 @@
+
 import imagesdata from "src/shared/data/images";
 
 export default class Images {

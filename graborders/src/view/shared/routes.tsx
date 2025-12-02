@@ -116,6 +116,7 @@ const screenRoutes = [
   {
     path: "/swap",
     loader: () => import("src/view/pages/swap/swap"),
+
     permissionRequired: permissions.categoryRead,
   },
   {
@@ -132,6 +133,13 @@ const screenRoutes = [
 
   {
     path: "/deposit",
+    loader: () => import("src/view/pages/deposit/depositPage"),
+    permissionRequired: permissions.categoryRead,
+    exact: true,
+  },
+
+  {
+    path: "/deposit/wallet/:id",
     loader: () => import("src/view/pages/deposit/deposit"),
     permissionRequired: permissions.categoryRead,
     exact: true,
