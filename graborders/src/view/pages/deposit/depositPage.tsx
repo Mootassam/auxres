@@ -333,7 +333,6 @@ function DepositPage() {
                 .otc-name {
                     flex: 1;
                     font-size: 13px;
-                    font-weight: 500;
                     color: #222;
                 }
 
