@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect, useCallback, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import authActions from "src/modules/auth/authActions";
 import authSelectors from "src/modules/auth/authSelectors";
@@ -71,6 +71,7 @@ const VERIFICATION_STATUS = {
 
 function Profile() {
   const dispatch = useDispatch();
+  const history = useHistory(); // Add useHistory hook
   const currentUser = useSelector(authSelectors.selectCurrentUser);
   const selectRows = useSelector(kycSelectors.selectRows);
   const loading = useSelector(kycSelectors.selectLoading);
@@ -116,11 +117,22 @@ function Profile() {
     [currentUser?.kyc]
   );
 
-  const handleVerifyNow = () => {
-    console.log('Redirecting to verification process...');
-
-    // Add your verification redirection logic here
-  };
+  const handleVerifyNow = useCallback(() => {
+    console.log('KYC Status:', kycStatus);
+    
+    // Only redirect to /proof if user is unverified
+    if (kycStatus === VERIFICATION_STATUS.UNVERIFIED) {
+      console.log('Redirecting to proof page...');
+      history.push('/proof'); // Redirect to proof page
+    } else if (kycStatus === VERIFICATION_STATUS.PENDING) {
+      console.log('Verification is pending review...');
+      // You might want to show a message here
+      alert('Your verification is pending review. Please wait for approval.');
+    } else {
+      console.log('User is already verified');
+      // No action needed for verified users
+    }
+  }, [kycStatus, history]);
 
   const getUserInitial = () => {
     if (currentUser?.fullName) {
@@ -286,11 +298,73 @@ function Profile() {
         <ul className="menu-list">
           {menuItems.map((item, index) => renderMenuItem(item, index))}
         </ul>
-
-       
       </div>
 
+      {/* Add necessary styles - make sure these are included */}
       <style>{`
+        .profile-container {
+          max-width: 400px;
+          margin: 0 auto;
+          position: relative;
+          min-height: 100vh;
+          background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
+        }
+
+        .header {
+          background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
+          min-height: 60px;
+          position: relative;
+          padding: 20px;
+        }
+
+        .nav-bar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .back-arrow {
+          color: white;
+          font-size: 20px;
+          font-weight: 300;
+          text-decoration: none;
+          transition: opacity 0.3s ease;
+        }
+
+        .page-title {
+          color: white;
+          font-size: 17px;
+          font-weight: 600;
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+        }
+
+        .verify-button {
+          background: #106cf5;
+          color: white;
+          border: none;
+          border-radius: 20px;
+          padding: 8px 16px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .verify-button:hover:not(:disabled) {
+          background: #0a4fc4;
+          transform: translateY(-2px);
+        }
+
+        .verify-button:disabled {
+          background: #ccc;
+          cursor: not-allowed;
+        }
+
+
+
+
         * {
           margin: 0;
           padding: 0;
