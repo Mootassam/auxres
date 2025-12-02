@@ -112,6 +112,17 @@ const screenRoutes = [
     loader: () => import("src/view/pages/conversion/Conversion"),
     permissionRequired: permissions.categoryRead,
   },
+
+  {
+    path: "/swap",
+    loader: () => import("src/view/pages/swap/swap"),
+    permissionRequired: permissions.categoryRead,
+  },
+  {
+    path: "/transfer",
+    loader: () => import("src/view/pages/transfer/transfer"),
+    permissionRequired: permissions.categoryRead,
+  },
   {
     path: "/ordersPage",
     loader: () => import("src/view/pages/Order/OrdersPage"),

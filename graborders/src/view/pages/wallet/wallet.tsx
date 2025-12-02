@@ -184,7 +184,6 @@ function Wallet() {
       <div className="header">
         <div className="nav-bar">
           <div className="back-arrow">
-            <i className="fas fa-arrow-left"></i>
           </div>
           <div className="page-title">{i18n("pages.wallet.myAssets")}</div>
           <div className="header-icon">

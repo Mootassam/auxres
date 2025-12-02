@@ -100,21 +100,23 @@ function Home() {
           </div>
 
           {/* QuickTrade Card */}
-          <div className="feature-card">
-            <div className="quick-trade-header">
-              <div>
-                <div className="card-title">
-                  <span className="highlight">Quick</span>Trade
+          <Link to="/trade" className="remove_blue">
+            <div className="feature-card">
+              <div className="quick-trade-header">
+                <div>
+                  <div className="card-title">
+                    <span className="highlight">Quick</span>Trade
+                  </div>
+                  <div className="card-subtitle">
+                    Fast transactions and simple operation
+                  </div>
                 </div>
-                <div className="card-subtitle">
-                  Fast transactions and simple operation
+                <div className="arrow-button">
+                  <i className="fas fa-arrow-right" />
                 </div>
-              </div>
-              <div className="arrow-button">
-                <i className="fas fa-arrow-right" />
               </div>
             </div>
-          </div>
+          </Link>
 
           {/* AI Trading Card */}
           <div className="ai-card">
@@ -923,8 +925,6 @@ function Home() {
             .stats-grid, .services-grid {
                 grid-template-columns: 1fr;
             }
-            
-       
             
             .promo__images {
                 object-fit: contain;
