@@ -153,7 +153,20 @@ function Wallet() {
         <div className="asset-card" key={asset.id}>
           <div className="asset-header">
             <div className={getAssetIconClass(asset.symbol)}>
-              {asset.symbol}
+
+              <img
+                src={`https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/${asset.symbol}.png`}
+                alt={asset.symbol}
+                style={
+                  { width: '100%' }
+                }
+                onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                  const img = e.currentTarget;
+                  img.onerror = null;
+                  img.style.display = 'none';
+                  if (img.parentElement) img.parentElement.innerHTML = asset.symbol;
+                }}
+              />
             </div>
             <div className="asset-name">{asset.coinName}</div>
           </div>
