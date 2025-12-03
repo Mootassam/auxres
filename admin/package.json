@@ -64,6 +64,7 @@
         "start:localhost": "cross-env REACT_APP_ENVIRONMENT=localhost react-scripts start",
         "start:staging": "cross-env REACT_APP_ENVIRONMENT=staging react-scripts start",
         "start:production": "cross-env REACT_APP_ENVIRONMENT=production react-scripts start",
+        "build:production": "cross-env REACT_APP_ENVIRONMENT=production npm run build",
         "build:staging": "cross-env REACT_APP_ENVIRONMENT=staging react-scripts build"
     },
     "eslintConfig": {
