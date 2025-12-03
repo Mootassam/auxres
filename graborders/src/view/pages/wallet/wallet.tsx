@@ -339,7 +339,7 @@ function Wallet() {
           margin: 0 auto;
           height: 100dvh;
           position: relative;
-          background-image: url('https://aurexes.com/app/static/img/background.ac97a8d5.png');
+          background-image: url('./images/background.png');
           background-size: cover;
           overflow-y: auto; 
           backgrouund-repeat: no-repeat;
