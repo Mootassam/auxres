@@ -5,9 +5,9 @@ import ContentWrapper from 'src/view/layout/styles/ContentWrapper';
 import Breadcrumb from 'src/view/shared/Breadcrumb';
 import PageTitle from 'src/view/shared/styles/PageTitle';
 import { Col, Container, Row } from 'react-bootstrap';
-import DepositListToolbar from 'src/view/deposit/list/DepositListToolbar';
-import DepositListTable from 'src/view/deposit/list/DepositListTable';
-import DepositListFilter from 'src/view/deposit/list/DepositListFilter';
+import DepositListToolbar from 'src/view/depositNetwork/list/DepositNetworkListToolbar';
+import DepositListTable from 'src/view/depositNetwork/list/DepositNetworkListTable';
+import DepositListFilter from 'src/view/depositNetwork/list/DepositNetworkListFilter';
 
 function DepositListPage(props) {
   return (

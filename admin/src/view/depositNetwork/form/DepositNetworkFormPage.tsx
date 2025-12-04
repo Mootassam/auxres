@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouteMatch } from 'react-router-dom';
 import { i18n } from 'src/i18n';
-import actions from 'src/modules/deposit/form/depositFormActions';
-import selectors from 'src/modules/deposit/form/depositFormSelectors';
+import actions from 'src/modules/depositNetwork/form/depositNetworkFormActions';
+import selectors from 'src/modules/depositNetwork/form/depositNetworkFormSelectors';
 import { getHistory } from 'src/modules/store';
-import DepositForm from 'src/view/deposit/form/DepositForm';
+import DepositForm from 'src/view/depositNetwork/form/DepositNetworkForm';
 import ContentWrapper from 'src/view/layout/styles/ContentWrapper';
 import Breadcrumb from 'src/view/shared/Breadcrumb';
 import Spinner from 'src/view/shared/Spinner';
@@ -47,7 +47,7 @@ function DepositFormPage(props) {
       {/* <Breadcrumb
         items={[
           [i18n('dashboard.menu'), '/'],
-          [i18n('entities.Deposit.menu'), '/Deposit'],
+          [i18n('entities.Deposit.menu'), '/DepositNetwork'],
           [title],
         ]}
       /> */}
@@ -64,7 +64,7 @@ function DepositFormPage(props) {
             record={record}
             isEditing={isEditing}
             onSubmit={doSubmit}
-            onCancel={() => getHistory().push('/Deposit')}
+            onCancel={() => getHistory().push('/DepositNetwork')}
           />
         )}
       </ContentWrapper>

@@ -1,6 +1,6 @@
 import { i18n } from 'src/i18n';
-import actions from 'src/modules/deposit/list/depositListActions';
-import selectors from 'src/modules/deposit/list/depositListSelectors';
+import actions from 'src/modules/depositNetwork/list/depositNetworkListActions';
+import selectors from 'src/modules/depositNetwork/list/depositNetworkListSelectors';
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useForm, FormProvider } from 'react-hook-form';

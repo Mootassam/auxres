@@ -69,6 +69,15 @@ export default [
     className: 'menu-li side-menue sub-item',
     permissionRequired: permissions.categoryRead,
   },
+    {
+    id: 'recharge-orders',
+    path: '/depositNetwork',
+    exact: true,
+    icon: 'fas fa-credit-card',
+    label: i18n('dashboard.rechargeOrders'),
+    className: 'menu-li side-menue sub-item',
+    permissionRequired: permissions.categoryRead,
+  },
   {
     id: 'withdrawal-management',
     path: '/withdraw',

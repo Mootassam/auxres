@@ -1,10 +1,10 @@
 import { i18n } from 'src/i18n';
 import auditLogSelectors from 'src/modules/auditLog/auditLogSelectors';
-import couponsSelectors from 'src/modules/deposit/depositSelectors';
-import destroyActions from 'src/modules/deposit/destroy/depositDestroyActions';
-import destroySelectors from 'src/modules/deposit/destroy/depositDestroySelectors';
-import actions from 'src/modules/deposit/list/depositListActions';
-import selectors from 'src/modules/deposit/list/depositListSelectors';
+import couponsSelectors from 'src/modules/depositNetwork/depositNetworkSelectors';
+import destroyActions from 'src/modules/depositNetwork/destroy/depositNetworkDestroyActions';
+import destroySelectors from 'src/modules/depositNetwork/destroy/depositNetworkDestroySelectors';
+import actions from 'src/modules/depositNetwork/list/depositNetworkListActions';
+import selectors from 'src/modules/depositNetwork/list/depositNetworkListSelectors';
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
