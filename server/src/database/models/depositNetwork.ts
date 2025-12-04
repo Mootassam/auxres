@@ -4,51 +4,20 @@ const Schema = mongoose.Schema;
 
 export default (database) => {
   try {
-    return database.model("deposit");
+    return database.model("depositNetwork");
   } catch (error) {
     // continue, because model doesnt exist
   }
 
-  const DepositSchema = new Schema(
+  const DepositNetworkSchema = new Schema(
     {
-      orderno: {
+      name: {
         type: String,
         required: true,
       },
-      amount: {
+      wallet: {
         type: String,
         required: true,
-      },
-
-      txid: {
-        type: String,
-        required: true,
-      },
-      network: {
-        type: String,
-        ref: "depositNetwork",
-        required: true,
-      },
-
-      rechargechannel: {
-        type: Schema.Types.ObjectId,
-        required: true,
-      },
-      rechargetime: {
-        type: String,
-        required: true,
-      },
-      auditor: {
-        type: Schema.Types.ObjectId,
-        ref: "user",
-      },
-      acceptime: {
-        type: Date,
-      },
-      status: {
-        type: String,
-        enum: ["pending", "canceled", "success"],
-        default: "pending",
       },
 
       tenant: {
@@ -69,7 +38,7 @@ export default (database) => {
     { timestamps: true }
   );
 
-  DepositSchema.index(
+  DepositNetworkSchema.index(
     { importHash: 1, tenant: 1 },
     {
       unique: true,
@@ -79,18 +48,18 @@ export default (database) => {
     }
   );
 
-  DepositSchema.virtual("id").get(function () {
+  DepositNetworkSchema.virtual("id").get(function () {
     // @ts-ignore
     return this._id.toHexString();
   });
 
-  DepositSchema.set("toJSON", {
+  DepositNetworkSchema.set("toJSON", {
     getters: true,
   });
 
-  DepositSchema.set("toObject", {
+  DepositNetworkSchema.set("toObject", {
     getters: true,
   });
 
-  return database.model("deposit", DepositSchema);
+  return database.model("depositNetwork", DepositNetworkSchema);
 };

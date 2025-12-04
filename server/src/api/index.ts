@@ -97,6 +97,7 @@ require("./stackingPlan").default(routes, io);
 require("./spot").default(routes, io);
 require("./futures").default(routes, io);
 require("./userMessage").default(routes, io);
+require("./depositNetwork").default(routes, io);
 
 require("./product").default(routes);
 require("./company").default(routes);

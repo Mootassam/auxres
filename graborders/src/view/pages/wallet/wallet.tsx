@@ -10,6 +10,7 @@ import assetsActions from "src/modules/assets/list/assetsListActions";
 import assetsListSelectors from "src/modules/assets/list/assetsListSelectors";
 import { i18n } from "../../../i18n";
 
+
 function Wallet() {
   const dispatch = useDispatch();
   const location = useLocation();
