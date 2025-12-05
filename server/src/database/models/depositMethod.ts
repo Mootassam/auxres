@@ -9,7 +9,7 @@ export default (database) => {
     // continue, because model doesnt exist
   }
 
- const DepositMethodSchema = new Schema(
+  const DepositMethodSchema = new Schema(
     {
       symbol: {
         type: String,
@@ -23,11 +23,13 @@ export default (database) => {
         required: true, // e.g. Bitcoin, Ethereum
         trim: true,
       },
-      address: {
-        type: String,
-        required: true, // deposit address
-        trim: true,
+
+      network: {
+        type: Schema.Types.ObjectId,
+        ref: "depositNetwork",
+        required: true, // e.g. Bitcoin, Ethereum, Tron network
       },
+      
       tenant: {
         type: Schema.Types.ObjectId,
         ref: "tenant",
@@ -66,7 +68,7 @@ export default (database) => {
   });
 
   DepositMethodSchema.set("toObject", {
-  
+
     getters: true,
   });
 

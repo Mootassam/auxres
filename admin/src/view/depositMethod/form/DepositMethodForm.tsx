@@ -9,11 +9,10 @@ import SelectFormItem from 'src/view/shared/form/items/SelectFormItem';
 import ButtonIcon from 'src/view/shared/ButtonIcon';
 import { i18n } from 'src/i18n';
 import yupFormSchemas from 'src/modules/shared/yup/yupFormSchemas';
+import DepositNetworkAutocompleteFormItem from 'src/view/depositNetwork/autocomplete/DepositNetworkAutocompleteFormItem';
 
 const schema = yup.object().shape({
-  symbol: yupFormSchemas.string(i18n('entities.depositMethod.fields.symbol'), {  }),
-  name: yupFormSchemas.string(i18n('entities.depositMethod.fields.name'), {  }),
-  address: yupFormSchemas.string(i18n('entities.depositMethod.fields.address'), {  }),
+
 });
 
 function DepositMethodForm(props) {
@@ -21,11 +20,12 @@ function DepositMethodForm(props) {
     const record = props.record || {};
 
     console.log(record);
-    
+
     return {
       symbol: record.symbol || '',
       name: record.name || '',
       address: record.address || '',
+      network: record.network || [],
     };
   });
 
@@ -40,6 +40,8 @@ function DepositMethodForm(props) {
   };
 
   const onReset = () => form.reset(initialValues);
+
+
 
   return (
     <FormWrapper>
@@ -62,13 +64,16 @@ function DepositMethodForm(props) {
               />
             </div>
 
-            <div className="col-lg-12 col-md-12 col-12">
-              <InputFormItem
-                name="address"
-                label={i18n('entities.depositMethod.fields.address')}
+
+
+            <div className="col-lg-6 col-md-8 col-12">
+              <DepositNetworkAutocompleteFormItem
+                name="network"
+                label={i18n('entities.depositMethod.fields.symbol')}
                 required
               />
             </div>
+            
           </div>
 
           <div className="form-buttons mt-3">

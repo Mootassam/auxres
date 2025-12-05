@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import CouponsService from 'src/modules/kyc/kycService';
-import CouponsFormModal from 'src/view/kyc/form/KycFormModal';
+import CouponsService from 'src/modules/depositNetwork/depositNetworkService';
+import CouponsFormModal from 'src/view/depositNetwork/form/DepositNetworkFormModal';
 import AutocompleteInMemoryFormItem from 'src/view/shared/form/items/AutocompleteInMemoryFormItem';
 import { useFormContext } from 'react-hook-form';
 import { useSelector } from 'react-redux';
-import selectors from 'src/modules/kyc/kycSelectors';
+import selectors from 'src/modules/depositNetwork/depositNetworkSelectors';
 
-function VipAutocompleteFormItem(props) {
+function DepositNetworkAutocompleteFormItem(props) {
   const { setValue, getValues } = useFormContext();
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -97,4 +97,4 @@ function VipAutocompleteFormItem(props) {
   );
 }
 
-export default VipAutocompleteFormItem;
+export default DepositNetworkAutocompleteFormItem;

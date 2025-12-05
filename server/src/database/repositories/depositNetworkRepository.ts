@@ -12,6 +12,7 @@ import { sendNotification } from "../../services/notificationServices";
 class DepositRepository {
   static async create(data, options: IRepositoryOptions) {
     const currentTenant = MongooseRepository.getCurrentTenant(options);
+
     const currentUser = MongooseRepository.getCurrentUser(options);
 
     const [record] = await DepositNetwork(options.database).create(
@@ -26,10 +27,14 @@ class DepositRepository {
       options
     );
 
+    await this._createAuditLog(
+      AuditLogRepository.CREATE,
+      record.id,
+      data,
+      options
+    );
 
-
-    // 4️⃣ Return the updated wallet
-    return record;
+    return this.findById(record.id, options);
   }
 
   static async update(id, data, io, options: IRepositoryOptions) {
@@ -78,7 +83,7 @@ class DepositRepository {
     );
 
     // ✅ Update the related transaction using referenceId + referenceModel
-  
+
 
     const value = this.findById(id, options)
     return value
@@ -184,6 +189,10 @@ class DepositRepository {
   }
 
   static async findAllAutocomplete(search, limit, options: IRepositoryOptions) {
+
+
+
+    
     const currentTenant = MongooseRepository.getCurrentTenant(options);
 
     let criteriaAnd: Array<any> = [
@@ -220,7 +229,7 @@ class DepositRepository {
 
     return records.map((record) => ({
       id: record.id,
-      label: record.title,
+      label: record.name,
     }));
   }
 

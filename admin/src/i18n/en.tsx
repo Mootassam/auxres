@@ -57,23 +57,29 @@ const en = {
       title: 'Company Section',
       menu: 'company',
     },
-  depositNetwork: {
-    title: 'Deposit Networks',
-    menu: 'depositNetworks',
-    fields: {
-      name: 'Network Name',
-      wallet: 'Wallet Address',
+    depositNetwork: {
+      title: 'Deposit Networks',
+      menu: 'depositNetworks',
+      new: {
+        title: 'Add New Deposit Method',
+      },
+      edit: {
+        title: 'Edit Deposit Method',
+      },
+      fields: {
+        name: 'Network Name',
+        wallet: 'Wallet Address',
+      },
+      placeholders: {
+        name: 'Enter network name (e.g., Ethereum ERC20)',
+        wallet: 'Enter the deposit wallet address',
+      },
+      hints: {
+        name: 'The name of the cryptocurrency network',
+        wallet: 'The wallet address for deposits on this network',
+      },
+      enumerators: {},
     },
-    placeholders: {
-      name: 'Enter network name (e.g., Ethereum ERC20)',
-      wallet: 'Enter the deposit wallet address',
-    },
-    hints: {
-      name: 'The name of the cryptocurrency network',
-      wallet: 'The wallet address for deposits on this network',
-    },
-    enumerators: {},
-  },
 
     record: {
       menu: 'Records',
@@ -272,6 +278,7 @@ const en = {
         address: 'Deposit Address',
         createdBy: 'Created By',
         updatedBy: 'Updated By',
+        depositNetwork: 'Network Name',
         importHash: 'Import Hash',
       },
 
@@ -506,7 +513,7 @@ const en = {
         contractDuration: 'Contract Duration',
         status: 'Futures Status',
         direction: 'Direction',
-        futuresCoin:"Pair Name",
+        futuresCoin: "Pair Name",
         openPositionPrice: 'Open Position Price',
         openPositionTime: 'Open Position Time',
         closePositionPrice: 'Close Position Price',
@@ -3471,7 +3478,7 @@ const en = {
     kyc: 'KYC',
     moneyManagement: 'Money Management',
     rechargeOrders: 'Deposit Orders',
-    depositNetwork:" Deposit Network",
+    depositNetwork: " Deposit Network",
     withdrawalManagement: 'Withdrawal Management',
     balanceEditor: 'Balance Editor',
     transactionManagement: 'Transaction Management',

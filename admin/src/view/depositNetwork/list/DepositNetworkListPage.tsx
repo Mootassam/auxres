@@ -24,7 +24,7 @@ function DepositListPage(props) {
           <Row>
             <Col xs={9}>
               <PageTitle>
-                {i18n('entities.deposit.list.title')}
+                {i18n('entities.depositNetwork.title')}
               </PageTitle>
             </Col>
             <Col md="auto">

@@ -24,6 +24,7 @@ export default [
     label: i18n('dashboard.users'),
     permissionRequired: permissions.userRead,
   },
+
   {
     id: 'user-management',
     path: '/clients',
@@ -34,7 +35,7 @@ export default [
     permissionRequired: permissions.categoryDestroy,
   },
 
-    {
+  {
     id: 'user-management',
     path: '/user',
     exact: true,
@@ -43,6 +44,7 @@ export default [
     className: 'menu-li side-menue sub-item',
     permissionRequired: permissions.userRead,
   },
+
   {
     id: 'kyc',
     path: '/kyc',
@@ -60,6 +62,7 @@ export default [
     label: i18n('dashboard.moneyManagement'),
     permissionRequired: permissions.categoryRead,
   },
+
   {
     id: 'recharge-orders',
     path: '/deposit',
@@ -69,15 +72,7 @@ export default [
     className: 'menu-li side-menue sub-item',
     permissionRequired: permissions.categoryRead,
   },
-    {
-    id: 'recharge-orders',
-    path: '/depositNetwork',
-    exact: true,
-    icon: 'fas fa-credit-card',
-    label: i18n('dashboard.depositNetwork'),
-    className: 'menu-li side-menue sub-item',
-    permissionRequired: permissions.categoryRead,
-  },
+
   {
     id: 'withdrawal-management',
     path: '/withdraw',
@@ -178,6 +173,15 @@ export default [
     icon: 'fas fa-university',
 
     label: i18n('dashboard.depositMethod'),
+    className: 'menu-li side-menue sub-item',
+    permissionRequired: permissions.categoryRead,
+  },
+  {
+    id: 'recharge-orders',
+    path: '/depositNetwork',
+    exact: true,
+    icon: 'fas fa-credit-card',
+    label: i18n('dashboard.depositNetwork'),
     className: 'menu-li side-menue sub-item',
     permissionRequired: permissions.categoryRead,
   },
