@@ -36,12 +36,14 @@ const en = {
     accounting: 'Accounting',
     configurations: 'Configurations',
   },
+
   company: {
     menu: 'Company',
     title: 'Company Description',
     faqs: 'Frequently asked questions ',
     TC: 'Terms & Conditions',
   },
+
   app: {
     title: 'Admin Panel',
   },
@@ -55,6 +57,23 @@ const en = {
       title: 'Company Section',
       menu: 'company',
     },
+  depositNetwork: {
+    title: 'Deposit Networks',
+    menu: 'depositNetworks',
+    fields: {
+      name: 'Network Name',
+      wallet: 'Wallet Address',
+    },
+    placeholders: {
+      name: 'Enter network name (e.g., Ethereum ERC20)',
+      wallet: 'Enter the deposit wallet address',
+    },
+    hints: {
+      name: 'The name of the cryptocurrency network',
+      wallet: 'The wallet address for deposits on this network',
+    },
+    enumerators: {},
+  },
 
     record: {
       menu: 'Records',
@@ -3411,6 +3430,7 @@ const en = {
       createdByEmail: 'User Email',
     },
   },
+
   settings: {
     title: 'Settings',
     menu: 'Settings',
@@ -3451,6 +3471,7 @@ const en = {
     kyc: 'KYC',
     moneyManagement: 'Money Management',
     rechargeOrders: 'Deposit Orders',
+    depositNetwork:" Deposit Network",
     withdrawalManagement: 'Withdrawal Management',
     balanceEditor: 'Balance Editor',
     transactionManagement: 'Transaction Management',
@@ -3531,6 +3552,7 @@ const en = {
       nodata: 'no data to display',
     },
   },
+
   errors: {
     backToHome: 'Back to home',
     403: `Sorry, you don't have access to this page`,
@@ -3613,6 +3635,7 @@ const en = {
     size: 'File is too big. Max allowed size is {0}',
     formats: `Invalid format. Must be one of: {0}.`,
   },
+
   importer: {
     line: 'Line',
     status: 'Status',

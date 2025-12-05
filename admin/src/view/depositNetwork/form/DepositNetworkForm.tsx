@@ -7,59 +7,24 @@ import FormWrapper from 'src/view/shared/styles/FormWrapper';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import InputFormItem from 'src/view/shared/form/items/InputFormItem';
-import UserAutocompleteFormItem from 'src/view/user/autocomplete/UserAutocompleteFormItem';
-import transactionEnumerators from 'src/modules/transaction/transactionEnumerators';
-import SelectFormItem from 'src/view/shared/form/items/SelectFormItem';
 
 const schema = yup.object().shape({
-  orderno: yupFormSchemas.string(
-    i18n('entities.deposit.fields.orderno'),
-    { required: true },
+  name: yupFormSchemas.string(
+    i18n('entities.depositNetwork.fields.name'),
+    { required: true, min: 1, max: 255 },
   ),
-  amount: yupFormSchemas.decimal(
-    i18n('entities.deposit.fields.amount'),
-    { required: true },
-  ),
-  txid: yupFormSchemas.string(
-    i18n('entities.deposit.fields.txid'),
-    { required: true },
-  ),
-  rechargechannel: yupFormSchemas.string(
-    i18n('entities.deposit.fields.rechargechannel'),
-    { required: true },
-  ),
-  rechargetime: yupFormSchemas.datetime(
-    i18n('entities.deposit.fields.rechargetime'),
-    { required: true },
-  ),
-  auditor: yupFormSchemas.relationToOne(
-    i18n('entities.deposit.fields.auditor'),
-    {},
-  ),
-  acceptime: yupFormSchemas.datetime(
-    i18n('entities.deposit.fields.acceptime'),
-    {},
-  ),
-  status: yupFormSchemas.enumerator(
-    i18n('entities.deposit.fields.status'),
-    {
-      options: transactionEnumerators.status,
-    },
+  wallet: yupFormSchemas.string(
+    i18n('entities.depositNetwork.fields.wallet'),
+    { required: true, min: 1, max: 255 },
   ),
 });
 
-function DepositForm(props) {
+function DepositNetworkForm(props) {
   const [initialValues] = useState(() => {
     const record = props.record || {};
     return {
-      orderno: record.orderno || '',
-      amount: record.amount,
-      txid: record.txid || '',
-      rechargechannel: record.rechargechannel || '',
-      rechargetime: record.rechargetime,
-      auditor: record.auditor || null,
-      acceptime: record.acceptime,
-      status: record.status || 'pending',
+      name: record.name || '',
+      wallet: record.wallet || '',
     };
   });
 
@@ -84,77 +49,23 @@ function DepositForm(props) {
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="row">
-
             <div className="col-lg-6 col-md-8 col-12">
               <InputFormItem
-                name="orderno"
-                label={i18n('entities.deposit.fields.orderno')}
+                name="name"
+                label={i18n('entities.depositNetwork.fields.name')}
                 required={true}
-              />
-            </div>
-
-            <div className="col-lg-6 col-md-8 col-12">
-              <InputFormItem
-                name="amount"
-                label={i18n('entities.deposit.fields.amount')}
-                required={true}
-                type="number"
+                placeholder={i18n('entities.depositNetwork.fields.name')}
+                hint={i18n('entities.depositNetwork.fields.name')}
               />
             </div>
 
             <div className="col-lg-6 col-md-8 col-12">
               <InputFormItem
-                name="txid"
-                label={i18n('entities.deposit.fields.txid')}
+                name="wallet"
+                label={i18n('entities.depositNetwork.fields.wallet')}
                 required={true}
-              />
-            </div>
-
-            <div className="col-lg-6 col-md-8 col-12">
-              <InputFormItem
-                name="rechargechannel"
-                label={i18n('entities.deposit.fields.rechargechannel')}
-                required={true}
-              />
-            </div>
-
-            <div className="col-lg-6 col-md-8 col-12">
-              <InputFormItem
-                name="rechargetime"
-                label={i18n('entities.deposit.fields.rechargetime')}
-                required={true}
-                type="datetime-local"
-              />
-            </div>
-
-            <div className="col-lg-6 col-md-8 col-12">
-              <UserAutocompleteFormItem
-                name="auditor"
-                label={i18n('entities.deposit.fields.auditor')}
-              />
-            </div>
-
-            <div className="col-lg-6 col-md-8 col-12">
-              <InputFormItem
-                name="acceptime"
-                label={i18n('entities.deposit.fields.acceptime')}
-                type="datetime-local"
-              />
-            </div>
-
-            <div className="col-lg-6 col-md-8 col-12">
-              <SelectFormItem
-                name="status"
-                label={i18n('entities.deposit.fields.status')}
-                options={transactionEnumerators.status.map(
-                  (value) => ({
-                    value,
-                    label: i18n(
-                      `entities.transaction.enumerators.status.${value}`,
-                    ),
-                  }),
-                )}
-                required={true}
+                placeholder={i18n('entities.depositNetwork.fields.wallet')}
+                hint={i18n('entities.depositNetwork.fields.wallet')}
               />
             </div>
           </div>
@@ -201,4 +112,4 @@ function DepositForm(props) {
   );
 }
 
-export default DepositForm;
+export default DepositNetworkForm;
