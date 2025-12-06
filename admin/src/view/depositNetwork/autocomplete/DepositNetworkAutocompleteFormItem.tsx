@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import CouponsService from 'src/modules/depositNetwork/depositNetworkService';
 import CouponsFormModal from 'src/view/depositNetwork/form/DepositNetworkFormModal';
@@ -70,6 +71,8 @@ function DepositNetworkAutocompleteFormItem(props) {
       if (!originalValue) {
         return null;
       }
+
+
       return {
         id: originalValue.value,
         label: originalValue.label,

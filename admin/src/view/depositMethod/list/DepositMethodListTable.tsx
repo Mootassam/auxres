@@ -96,7 +96,7 @@ function DepositMethodListTable() {
                   </span>
                 )}
               </th>
-                  
+
               <th className="actions-header">Actions</th>
             </tr>
           </thead>
@@ -140,7 +140,7 @@ function DepositMethodListTable() {
                   </td>
                   <td className="table-cell">{row.symbol}</td>
                   <td className="table-cell">{row.name}</td>
-                  <td className="table-cell">{row?.network?.name}</td>
+                  <td className="table-cell">{row?.network?.map((item) => <div style={{ display: 'flex' }}>{item?.name}</div>)}</td>
                   <td className="actions-cell">
                     <div className="actions-container">
                       {hasPermissionToEdit && (

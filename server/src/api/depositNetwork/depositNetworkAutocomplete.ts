@@ -9,11 +9,9 @@ export default async (req, res, next) => {
     new PermissionChecker(req).validateHas(
       Permissions.values.categoryRead,
     );
-
     const payload = await new DepositNetworkServices(
       req,
     ).findAllAutocomplete(req.query.query, req.query.limit);
-
     await ApiResponseHandler.success(req, res, payload);
   } catch (error) {
     await ApiResponseHandler.error(req, res, error);

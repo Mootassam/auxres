@@ -57,9 +57,11 @@ const en = {
       title: 'Company Section',
       menu: 'company',
     },
+
     depositNetwork: {
       title: 'Deposit Networks',
       menu: 'depositNetworks',
+
       new: {
         title: 'Add New Deposit Method',
       },
@@ -69,6 +71,7 @@ const en = {
       fields: {
         name: 'Network Name',
         wallet: 'Wallet Address',
+        network: 'Deposit Network',
       },
       placeholders: {
         name: 'Enter network name (e.g., Ethereum ERC20)',
@@ -280,6 +283,7 @@ const en = {
         updatedBy: 'Updated By',
         depositNetwork: 'Network Name',
         importHash: 'Import Hash',
+        network: 'Deposit Network',
       },
 
       new: {

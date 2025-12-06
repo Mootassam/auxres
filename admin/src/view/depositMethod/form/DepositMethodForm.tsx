@@ -12,7 +12,19 @@ import yupFormSchemas from 'src/modules/shared/yup/yupFormSchemas';
 import DepositNetworkAutocompleteFormItem from 'src/view/depositNetwork/autocomplete/DepositNetworkAutocompleteFormItem';
 
 const schema = yup.object().shape({
+  symbol: yupFormSchemas.string(
+    i18n('entities.depositMethod.fields.symbol'),
+    { required: true },
+  ),
+  name: yupFormSchemas.string(
+    i18n('entities.depositMethod.fields.name'),
+    { required: true },
+  ),
 
+  network: yupFormSchemas.relationToMany(
+    i18n('entities.depositMethod.fields.network'),
+    { required: true },
+  ),
 });
 
 function DepositMethodForm(props) {
@@ -64,16 +76,15 @@ function DepositMethodForm(props) {
               />
             </div>
 
-
-
             <div className="col-lg-6 col-md-8 col-12">
               <DepositNetworkAutocompleteFormItem
                 name="network"
-                label={i18n('entities.depositMethod.fields.symbol')}
+                label={i18n('entities.depositMethod.fields.network')}
                 required
+                mode="multiple"
               />
             </div>
-            
+
           </div>
 
           <div className="form-buttons mt-3">

@@ -24,12 +24,15 @@ export default (database) => {
         trim: true,
       },
 
-      network: {
-        type: Schema.Types.ObjectId,
-        ref: "depositNetwork",
-        required: true, // e.g. Bitcoin, Ethereum, Tron network
-      },
-      
+      network: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: "depositNetwork",
+          required: true,
+        }
+      ],
+
+
       tenant: {
         type: Schema.Types.ObjectId,
         ref: "tenant",

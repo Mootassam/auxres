@@ -19,7 +19,6 @@ class depositMethodRepository {
       [
         {
           ...data,
-          network: data.network.id,
           tenant: currentTenant.id,
           createdBy: currentUser.id,
           updatedBy: currentUser.id,
