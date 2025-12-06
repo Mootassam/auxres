@@ -1,20 +1,15 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect } from "react";
 
+import { Link } from 'react-router-dom'
+import method from 'src/modules/depositMethod/list/depositMethodListActions'
+import selectors from 'src/modules/depositMethod/list/depositMethodSelectors';
+
+import { useDispatch, useSelector } from "react-redux";
 function DepositPage() {
-    const cryptocurrencies = [
-        { symbol: 'USDT', name: 'Tether' },
-        { symbol: 'ETH', name: 'Ethereum' },
-        { symbol: 'BTC', name: 'Bitcoin' },
-        { symbol: 'USDC', name: 'USD Coin' },
-        { symbol: 'DAI', name: 'DAI' },
-        { symbol: 'SHIB', name: 'Shiba Inu' },
-        { symbol: 'XRP', name: 'Ripple' },
-        { symbol: 'TRX', name: 'TRON' },
-        { symbol: 'SOL', name: 'Solana' },
-        { symbol: 'BNB', name: 'Binance Coin' },
-        { symbol: 'DOGE', name: 'Dogecoin' }
-    ]
+    const dispatch = useDispatch();
+    const listMethod = useSelector(selectors.selectRows);
+    const loading = useSelector(selectors.selectLoading);
+
 
     const offsiteExchanges = [
         { name: 'Gemini', icon: 'fas fa-gem', src: './images/market/gemini.jpg' },
@@ -23,6 +18,10 @@ function DepositPage() {
         { name: 'Shakepay', icon: 'fas fa-handshake', src: './images/market/shakepay.jpg' }
     ]
 
+
+    useEffect(() => {
+        dispatch(method.doFetch());
+    }, [dispatch]);
     return (
         <div className="deposit-container">
             {/* Header Section - Matching HelpCenter */}
@@ -43,7 +42,7 @@ function DepositPage() {
 
                     {/* Cryptocurrency Grid */}
                     <div className="crypto-grid">
-                        {cryptocurrencies.map((crypto) => (
+                        {listMethod?.map((crypto) => (
                             <Link
                                 key={crypto.symbol}
                                 to={`/deposit/wallet/${crypto.symbol}`}

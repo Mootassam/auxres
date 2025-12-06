@@ -10,7 +10,6 @@ import depositMethod from "../models/depositMethod";
 
 class depositMethodRepository {
   static async create(data, options: IRepositoryOptions) {
-    console.log("🚀 ~ depositMethodRepository ~ create ~ data:", data)
 
     const currentTenant = MongooseRepository.getCurrentTenant(options);
     const currentUser = MongooseRepository.getCurrentUser(options);

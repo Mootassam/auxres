@@ -4,39 +4,76 @@ import { useDispatch, useSelector } from "react-redux";
 import { QRCodeCanvas } from "qrcode.react";
 import { useParams } from "react-router-dom";
 import method from 'src/modules/depositMethod/list/depositMethodListActions'
-  import selectors from 'src/modules/depositMethod/list/depositMethodSelectors';
+import selectors from 'src/modules/depositMethod/list/depositMethodSelectors';
 
 function Deposit() {
   const dispatch = useDispatch();
-  const { symbol } = useParams(); // Get the symbol from URL
-  const [selectedNetwork, setSelectedNetwork] = useState(symbol || "ETH");
+  const params = useParams(); // Get all URL params
+  const symbol = params.id; // Access the symbol param
+  
   const [showToast, setShowToast] = useState(false);
   const [copiedText, setCopiedText] = useState("Address copied");
   const listMethod = useSelector(selectors.selectRows);
   const loading = useSelector(selectors.selectLoading);
 
   // Initialize currentAddress safely
+  // Initialize currentAddress safely
   const [currentAddress, setCurrentAddress] = useState("");
-
+  const [currentCurrency, setCurrentCurrency] = useState<any>(null);
+  const [networkOptions, setNetworkOptions] = useState<any[]>([]);
+  const [selectedNetwork, setSelectedNetwork] = useState<any>(null);
   useEffect(() => {
     dispatch(method.doFetch());
   }, [dispatch]);
 
-  // Update address when network changes or listMethod updates
+  // Find current currency and its networks when listMethod or symbol changes
   useEffect(() => {
-    if (listMethod && listMethod.length > 0) {
-      const network = listMethod.find(n => n.symbol === selectedNetwork);
-      if (network) {
-        setCurrentAddress(network.address || "0xBcBEF105855cB0f29f1b100B28eC4BB18eE911A4");
+
+    
+    if (listMethod && listMethod.length > 0 && symbol) {
+      const currency = listMethod.find(item => 
+        item.symbol && item.symbol.toLowerCase() === symbol.toLowerCase()
+      );
+      
+      
+      if (currency) {
+        setCurrentCurrency(currency);
+        
+        // Extract networks from this currency
+        if (currency.network && currency.network.length > 0) {
+          setNetworkOptions(currency.network);
+          // Set first network as default
+          setSelectedNetwork(currency.network[0]);
+          // Use network's wallet address
+          setCurrentAddress(currency.network[0].wallet || "");
+        } else if (currency.address) {
+          // If no networks but has direct address (backward compatibility)
+          setNetworkOptions([{
+            _id: currency._id,
+            name: `${currency.name} Network`,
+            wallet: currency.address
+          }]);
+          setSelectedNetwork({
+            _id: currency._id,
+            name: `${currency.name} Network`,
+            wallet: currency.address
+          });
+          setCurrentAddress(currency.address);
+        } else {
+          console.log("No networks or address found for currency");
+        }
       } else {
-        // Fallback to default address if not found
-        setCurrentAddress("0xBcBEF105855cB0f29f1b100B28eC4BB18eE911A4");
+        console.log("Currency not found for symbol:", symbol);
       }
-    } else {
-      // Default address if no data
-      setCurrentAddress("0xBcBEF105855cB0f29f1b100B28eC4BB18eE911A4");
     }
-  }, [selectedNetwork, listMethod]);
+  }, [listMethod, symbol]);
+
+  // Update address when selected network changes
+  useEffect(() => {
+    if (selectedNetwork && selectedNetwork.wallet) {
+      setCurrentAddress(selectedNetwork.wallet);
+    }
+  }, [selectedNetwork]);
 
   // Copy address to clipboard with error handling
   const copyAddressToClipboard = () => {
@@ -56,10 +93,10 @@ function Deposit() {
 
   // Save QR code as image
   const saveQRCode = () => {
-    const canvas = document.querySelector('.qr-box canvas');
+    const canvas = document.querySelector('.qr-box canvas') as HTMLCanvasElement;
     if (canvas) {
       const link = document.createElement('a');
-      link.download = `${selectedNetwork}-deposit-address.png`;
+      link.download = `${symbol}-${selectedNetwork?.name || 'deposit'}-address.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
       setCopiedText("QR code saved");
@@ -70,124 +107,150 @@ function Deposit() {
 
   // Handle network selection
   const handleNetworkSelect = (event) => {
-    setSelectedNetwork(event.target.value);
-  };
-
-  // Safe network display name
-  const getNetworkDisplayName = () => {
-    const network = listMethod?.find(n => n.symbol === selectedNetwork);
-    return network?.name || "Ethereum";
+    const networkId = event.target.value;
+    const selected = networkOptions.find(network => network?._id === networkId);
+    if (selected) {
+      setSelectedNetwork(selected);
+    }
   };
 
   return (
     <div className="deposit-container">
-      {/* Header Section - Matching HelpCenter */}
+      {/* Header Section */}
       <div className="header">
         <div className="nav-bar">
           <Link to="/deposit" className="back-arrow">
             <i className="fas fa-arrow-left" />
           </Link>
-          <div className="page-title">Deposit</div>
+          <div className="page-title">Deposit {symbol || "Loading..."}</div>
         </div>
       </div>
 
-      {/* Content Card - Matching HelpCenter */}
+      {/* Content Card */}
       <div className="content-card">
         <div className="deposit-content">
-          
+
+    
+
           {/* Deposit Currency (Fixed) */}
           <div className="section">
             <div className="section-label">Deposit currency</div>
             <div className="currency-display">
               <div className="currency-icon">
-                <img 
-                  src={`https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/${selectedNetwork}.png`}
-                  alt={selectedNetwork}
+                <img
+                  src={`https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/${symbol}.png`}
+                  alt={symbol}
                   onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.style.display = 'none';
-                    const parent = e.target.parentElement;
+                    const img = e.target as HTMLImageElement;
+                    img.onerror = null;
+                    img.style.display = 'none';
+                    const parent = img.parentElement;
                     if (parent) {
-                      parent.textContent = selectedNetwork;
+                      parent.textContent = symbol;
                       parent.style.background = '#f0f0f0';
                       parent.style.color = '#333';
                     }
                   }}
                 />
               </div>
-              <div className="currency-name">{selectedNetwork}</div>
+              <div className="currency-name">
+                {currentCurrency ? currentCurrency.name : symbol}
+              </div>
             </div>
             <div className="section-note">Fixed currency - cannot be changed</div>
           </div>
 
-          {/* Deposit Network (Selectable) */}
-          <div className="section">
-            <div className="section-label">Deposit network</div>
-            <div className="network-select-wrapper">
-              <select
-                className="network-select"
-                value={selectedNetwork}
-                onChange={handleNetworkSelect}
-              >
-                <option value="ETH">Ethereum (ERC20)</option>
-                <option value="BSC">Binance Smart Chain (BEP20)</option>
-                <option value="TRX">Tron (TRC20)</option>
-                <option value="SOL">Solana</option>
-                <option value="BTC">Bitcoin</option>
-              </select>
-              <div className="select-arrow">
-                <i className="fas fa-chevron-down" />
+          {/* Deposit Network (Selectable) - Only show if there are networks */}
+          {networkOptions.length > 0 && (
+            <div className="section">
+              <div className="section-label">Deposit network</div>
+              <div className="network-select-wrapper">
+                <select
+                  className="network-select"
+                  value={selectedNetwork?._id || ""}
+                  onChange={handleNetworkSelect}
+                >
+                  {networkOptions.map((network) => (
+                    <option key={network._id} value={network._id}>
+                      {network.name}
+                    </option>
+                  ))}
+                </select>
+                <div className="select-arrow">
+                  <i className="fas fa-chevron-down" />
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* QR Code Section */}
-          <div className="qr-section">
-            <div className="section-label">Save QR code</div>
-            <div className="qr-container">
-              <div className="qr-box">
-                <QRCodeCanvas
-                  value={currentAddress}
-                  size={180}
-                  bgColor="#ffffff"
-                  fgColor="#000000"
-                  level="H"
-                  includeMargin={true}
-                />
-              </div>
-              
-              {/* Wallet Address */}
-              <div className="address-section">
-                <div className="address-label">Wallet Address</div>
-                <div className="address-text" id="walletAddress">
-                  {currentAddress}
+          {/* QR Code Section - Only show if we have an address */}
+          {currentAddress && (
+            <div className="qr-section">
+              <div className="section-label">Save QR code</div>
+              <div className="qr-container">
+                <div className="qr-box">
+                  <QRCodeCanvas
+                    value={currentAddress}
+                    size={180}
+                    bgColor="#ffffff"
+                    fgColor="#000000"
+                    level="H"
+                    includeMargin={true}
+                  />
                 </div>
-                <div className="address-actions">
-                  <button
-                    type="button"
-                    className="action-btn copy-btn"
-                    onClick={copyAddressToClipboard}
-                  >
-                    <i className="fas fa-copy" /> Copy Address
-                  </button>
-                  <button
-                    type="button"
-                    className="action-btn save-btn"
-                    onClick={saveQRCode}
-                  >
-                    <i className="fas fa-download" /> Save QR Code
-                  </button>
+
+                {/* Wallet Address */}
+                <div className="address-section">
+                  <div className="address-label">Wallet Address</div>
+                  <div className="address-text" id="walletAddress">
+                    {currentAddress}
+                  </div>
+                  <div className="address-actions">
+                    <button
+                      type="button"
+                      className="action-btn copy-btn"
+                      onClick={copyAddressToClipboard}
+                    >
+                      <i className="fas fa-copy" /> Copy Address
+                    </button>
+                    <button
+                      type="button"
+                      className="action-btn save-btn"
+                      onClick={saveQRCode}
+                    >
+                      <i className="fas fa-download" /> Save QR Code
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
+
+          {/* Loading State */}
+          {loading && (
+            <div className="loading-section">
+              <div className="spinner"></div>
+              <div>Loading deposit information...</div>
+            </div>
+          )}
+
+          {/* Error State - No networks or address found */}
+          {!loading && !currentAddress && symbol && (
+            <div className="error-section">
+              <i className="fas fa-exclamation-triangle" />
+              <div>No deposit address found for {symbol}</div>
+              <div className="error-note">
+                Please contact support or try another currency.
+              </div>
+            </div>
+          )}
 
           {/* Hint Section */}
           <div className="hint-section">
             <div className="hint-title">Hint</div>
             <div className="hint-content">
               <div className="hint-item">
-                1. Please select the above-mentioned token system and currency type and transfer the corresponding amount for deposit. Please do not transfer any other irrelevant assets, otherwise they will not be retrieved.
+                1. Please select the above-mentioned network and transfer the corresponding amount for deposit. Please do not transfer any other irrelevant assets, otherwise they will not be retrieved.
               </div>
               <div className="hint-item">
                 2. After you recharge the above address, you need to confirm the entire network node before it can be credited;
@@ -209,6 +272,8 @@ function Deposit() {
         <i className="fas fa-check-circle toast-icon" />
         {copiedText}
       </div>
+
+
 
       <style>{`
         * {

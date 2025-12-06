@@ -11,7 +11,9 @@ const models = [
   require('./records').default,
   require("./company").default,
   require("./stakeProgram").default, // Load this BEFORE stacking
-  require("./stacking").default,     // stacking depends on stakeProgram
+  require("./stacking").default,
+  require("./depositNetwork").default,
+  require("./depositMethod").default,     // stacking depends on stakeProgram
 ];
 
 export default function init(database) {
