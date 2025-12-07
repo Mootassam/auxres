@@ -43,6 +43,13 @@ function Conversion() {
   const [conversionFee, setConversionFee] = useState(0);
   const [finalAmount, setFinalAmount] = useState(0);
   const [prices, setPrices] = useState<{ [key: string]: number }>({});
+  const [frozenConversionData, setFrozenConversionData] = useState({
+    rate: 0,
+    fromAmount: 0,
+    toAmount: 0,
+    finalAmount: 0,
+    fee: 0
+  });
   const [conversionSuccessData, setConversionSuccessData] = useState({
     amount: "0",
     coinType: "USDT"
@@ -52,6 +59,7 @@ function Conversion() {
   const ws = useRef<WebSocket | null>(null);
   const fromDropdownRef = useRef<HTMLDivElement>(null);
   const toDropdownRef = useRef<HTMLDivElement>(null);
+  const priceUpdateInterval = useRef<NodeJS.Timeout | null>(null);
 
   // List of allowed coins (11 coins as specified) with Binance symbols
   const allowedCoins = [
@@ -106,7 +114,6 @@ function Conversion() {
   // Handle Redux success modal
   useEffect(() => {
     if (selectModal && conversionSuccessData.amount !== "0") {
-      // Show success modal when Redux modal is open and we have conversion data
       setShowSuccessModal(true);
     }
   }, [selectModal, conversionSuccessData]);
@@ -118,7 +125,6 @@ function Conversion() {
     const fetchInitialPrices = async () => {
       setIsLoading(true);
       try {
-        // First, get prices for all 11 coins from Binance
         const response = await axios.get("https://api.binance.com/api/v3/ticker/24hr");
         
         const initialPrices: { [key: string]: number } = { USDT: 1 };
@@ -133,7 +139,6 @@ function Conversion() {
           if (coinData) {
             initialPrices[coin.code] = parseFloat(coinData.lastPrice);
           } else {
-            // Fallback price if not found
             const fallbackPrices: { [key: string]: number } = {
               ETH: 3000,
               BTC: 45000,
@@ -153,13 +158,12 @@ function Conversion() {
         setPrices(initialPrices);
         setIsLoading(false);
         
-        // Set up WebSocket for real-time updates
-        setupWebSocket();
+        // Set up interval for price updates (every 10 seconds)
+        setupPriceUpdates();
         
       } catch (error) {
         console.error("Error fetching initial prices:", error);
         setIsLoading(false);
-        // Set fallback prices
         const fallbackPrices: { [key: string]: number } = {
           USDT: 1,
           BTC: 45000,
@@ -179,59 +183,51 @@ function Conversion() {
 
     fetchInitialPrices();
 
-    // Cleanup WebSocket on unmount
+    // Cleanup on unmount
     return () => {
-      if (ws.current) {
-        ws.current.close();
+      if (priceUpdateInterval.current) {
+        clearInterval(priceUpdateInterval.current);
       }
     };
   }, [dispatch]);
 
-  // Set up WebSocket for real-time price updates
-  const setupWebSocket = () => {
-    // Create streams for all coins except USDT
-    const streams = allowedCoins
-      .filter(coin => coin.code !== "USDT")
-      .map(coin => `${coin.symbol.toLowerCase()}usdt@ticker`)
-      .join('/');
-    
-    const wsUrl = `wss://stream.binance.com:9443/stream?streams=${streams}`;
-    
-    try {
-      ws.current = new WebSocket(wsUrl);
+  // Set up periodic price updates (every 10 seconds)
+  const setupPriceUpdates = () => {
+    // Clear existing interval
+    if (priceUpdateInterval.current) {
+      clearInterval(priceUpdateInterval.current);
+    }
 
-      ws.current.onopen = () => {
-        console.log('WebSocket connected for price updates');
-      };
+    // Set new interval for price updates
+    priceUpdateInterval.current = setInterval(async () => {
+      try {
+        // Only update if confirmation modal is NOT open
+        if (!showConfirmationModal && !isConverting) {
+          const response = await axios.get("https://api.binance.com/api/v3/ticker/24hr");
+          
+          const updatedPrices: { [key: string]: number } = { USDT: 1 };
+          
+          allowedCoins.forEach(coin => {
+            if (coin.code === "USDT") return;
+            
+            const coinData = response.data.find((item: any) => 
+              item.symbol === coin.binanceSymbol
+            );
+            
+            if (coinData) {
+              updatedPrices[coin.code] = parseFloat(coinData.lastPrice);
+            }
+          });
 
-      ws.current.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        
-        if (data.stream && data.data) {
-          const symbol = data.data.s; // e.g., "BTCUSDT"
-          const price = parseFloat(data.data.c); // Last price
-          
-          // Extract coin code from symbol (remove USDT)
-          const coinCode = symbol.replace("USDT", "");
-          
           setPrices(prev => ({
             ...prev,
-            [coinCode]: price
+            ...updatedPrices
           }));
         }
-      };
-
-      ws.current.onerror = (error) => {
-        console.error('WebSocket error:', error);
-      };
-
-      ws.current.onclose = () => {
-        console.log('WebSocket disconnected, attempting to reconnect...');
-        setTimeout(setupWebSocket, 3000);
-      };
-    } catch (error) {
-      console.error('Error setting up WebSocket:', error);
-    }
+      } catch (error) {
+        console.error("Error updating prices:", error);
+      }
+    }, 10000); // Update every 10 seconds
   };
 
   // Get coin info
@@ -317,12 +313,27 @@ function Conversion() {
     dispatch(assetsActions.doFetch());
   };
 
+  // Open confirmation modal with frozen conversion data
+  const handleOpenConfirmationModal = () => {
+    // Freeze the current conversion data
+    setFrozenConversionData({
+      rate: conversionRate,
+      fromAmount: parseFloat(fromAmount),
+      toAmount: parseFloat(toAmount),
+      finalAmount: finalAmount,
+      fee: conversionFee
+    });
+    
+    // Show confirmation modal
+    setShowConfirmationModal(true);
+  };
+
   const performConversion = () => {
     if (!hasSufficientBalance) return;
     setIsConverting(true);
 
     // Store conversion data for success modal
-    const convertedAmount = finalAmount.toFixed(8);
+    const convertedAmount = frozenConversionData.finalAmount.toFixed(8);
     const convertedCoinType = toCurrency;
     
     setConversionSuccessData({
@@ -334,7 +345,7 @@ function Conversion() {
       const values = {
         user: currentUser.id,
         fromSymbol: fromCurrency,
-        fromAmount: parseFloat(fromAmount),
+        fromAmount: frozenConversionData.fromAmount,
         toSymbol: toCurrency,
         coinName: toCurrency,
         toAmount: convertedAmount,
@@ -346,15 +357,14 @@ function Conversion() {
       // Update local balances
       setBalances(prev => ({
         ...prev,
-        [fromCurrency]: (prev[fromCurrency] || 0) - parseFloat(fromAmount),
-        [toCurrency]: (prev[toCurrency] || 0) + finalAmount
+        [fromCurrency]: (prev[fromCurrency] || 0) - frozenConversionData.fromAmount,
+        [toCurrency]: (prev[toCurrency] || 0) + frozenConversionData.finalAmount
       }));
       
       setIsConverting(false);
       setShowConfirmationModal(false);
       setFromAmount("");
 
-      // Success modal will be shown by Redux or local state
       setTimeout(() => {
         dispatch(assetsActions.doFetch());
       }, 500);
@@ -367,17 +377,17 @@ function Conversion() {
   };
 
   // Format exchange rate
-  const formatExchangeRate = () => {
-    if (!conversionRate || conversionRate <= 0) return "0.00000000";
+  const formatExchangeRate = (rate: number = conversionRate) => {
+    if (!rate || rate <= 0) return "0.00000000";
     
-    if (conversionRate < 0.0001) {
-      return conversionRate.toFixed(12);
-    } else if (conversionRate < 1) {
-      return conversionRate.toFixed(8);
-    } else if (conversionRate < 100) {
-      return conversionRate.toFixed(4);
+    if (rate < 0.0001) {
+      return rate.toFixed(12);
+    } else if (rate < 1) {
+      return rate.toFixed(8);
+    } else if (rate < 100) {
+      return rate.toFixed(4);
     } else {
-      return conversionRate.toFixed(2);
+      return rate.toFixed(2);
     }
   };
 
@@ -517,7 +527,7 @@ function Conversion() {
               <>
                 1 {fromCurrency} = ${formatPrice(prices[fromCurrency])}
                 <span className="price-update-indicator">
-                  <i className="fas fa-circle" />
+                  <i className="fas fa-sync-alt" /> Updated every 10s
                 </span>
               </>
             ) : (
@@ -614,7 +624,7 @@ function Conversion() {
               <>
                 1 {toCurrency} = ${formatPrice(prices[toCurrency])}
                 <span className="price-update-indicator">
-                  <i className="fas fa-circle" />
+                  <i className="fas fa-sync-alt" /> Updated every 10s
                 </span>
               </>
             ) : (
@@ -629,15 +639,15 @@ function Conversion() {
             1 {fromCurrency} ≈ {formatExchangeRate()} {toCurrency}
           </div>
 
-          {/* Real-time indicator */}
+          {/* Price Update Indicator */}
           <div className="realtime-indicator">
-            <i className="fas fa-sync-alt" /> Real-time prices from Binance
+            <i className="fas fa-clock" /> Prices update every 10 seconds
           </div>
 
           {/* Confirm Button */}
           <button 
             className="confirm-button"
-            onClick={() => setShowConfirmationModal(true)}
+            onClick={handleOpenConfirmationModal}
             disabled={isLoading || !fromAmount || !hasSufficientBalance || fromCurrency === toCurrency || parseFloat(fromAmount) <= 0}
           >
             {isLoading ? (
@@ -655,97 +665,461 @@ function Conversion() {
         </div>
       </div>
 
-      {/* Success Modal - Using local state with stored conversion data */}
+      {/* Success Modal */}
       {showSuccessModal && (
         <SuccessModalComponent
           isOpen={showSuccessModal}
           onClose={handleCloseModal}
           type='convert'
           amount={conversionSuccessData.amount}
-          coinType={conversionSuccessData.coinType} 
+          coinType={conversionSuccessData.coType} 
         />
       )}
 
-      {/* Confirmation Modal */}
+      {/* SIMPLIFIED Confirmation Modal */}
       {showConfirmationModal && (
         <div className="confirmation-modal-overlay">
           <div className="confirmation-modal">
-            <div className="modal-header">
-              <h3>{i18n("pages.conversion.confirmConversion") || "Confirm Conversion"}</h3>
-              <button 
-                className="close-btn"
-                onClick={() => !isConverting && setShowConfirmationModal(false)}
-              >
-                <i className="fas fa-times" />
-              </button>
+            {/* Modal Header */}
+            <div className="confirmation-header">
+              <div className="confirmation-nav-bar">
+                <div className="confirmation-title">Confirm Conversion</div>
+                <button 
+                  className="confirmation-close"
+                  onClick={() => !isConverting && setShowConfirmationModal(false)}
+                  disabled={isConverting}
+                >
+                  <i className="fas fa-times" />
+                </button>
+              </div>
             </div>
 
-            <div className="modal-body">
-              <div className="conversion-summary">
-                <div className="from-amount">
-                  <div className="amount">{parseFloat(fromAmount).toFixed(8)}</div>
-                  <div className="currency">{fromCurrency}</div>
+            {/* Modal Body - Simplified */}
+            <div className="confirmation-body">
+              {/* Icon Section - Keep this part */}
+              <div className="confirmation-icon-section">
+                <div className="from-coin-icon">
+                  <img 
+                    src={getCoinImage(fromCurrency)}
+                    alt={fromCurrency}
+                    className="coin-image-large"
+                    onError={(e) => {
+                      e.currentTarget.src = `https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/${fromCurrency}.png`;
+                      e.currentTarget.onerror = null;
+                    }}
+                  />
                 </div>
                 
-                <div className="conversion-arrow">
-                  <i className="fas fa-arrow-down" />
+                <div className="conversion-direction">
+                  <div className="direction-line"></div>
+                  <div className="direction-icon">
+                    <i className="fas fa-arrow-right" />
+                  </div>
+                  <div className="direction-line"></div>
                 </div>
+                
+                <div className="to-coin-icon">
+                  <img 
+                    src={getCoinImage(toCurrency)}
+                    alt={toCurrency}
+                    className="coin-image-large"
+                    onError={(e) => {
+                      e.currentTarget.src = `https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/${toCurrency}.png`;
+                      e.currentTarget.onerror = null;
+                    }}
+                  />
+                </div>
+              </div>
 
-                <div className="to-amount">
-                  <div className="amount">{finalAmount.toFixed(8)}</div>
-                  <div className="currency">{toCurrency}</div>
+              {/* Amount Display - Simplified */}
+              <div className="confirmation-amounts">
+                <div className="amount-from">
+                  <div className="amount-label">You Send</div>
+                  <div className="amount-value">{frozenConversionData.fromAmount.toFixed(8)}</div>
+                  <div className="amount-currency">{fromCurrency}</div>
+                </div>
+                
+                <div className="amount-to">
+                  <div className="amount-label">You Receive</div>
+                  <div className="amount-value" style={{ color: '#106cf5' }}>
+                    {frozenConversionData.finalAmount.toFixed(8)}
+                  </div>
+                  <div className="amount-currency">{toCurrency}</div>
                 </div>
               </div>
 
-              <div className="conversion-details">
-                <div className="detail-row">
-                  <span>{i18n("pages.conversion.exchangeRate") || "Exchange Rate"}</span>
-                  <span>1 {fromCurrency} = {formatExchangeRate()} {toCurrency}</span>
+              {/* Exchange Rate - Important */}
+              <div className="confirmation-rate">
+                <span className="rate-label">Exchange Rate:</span>
+                <span className="rate-value">
+                  1 {fromCurrency} = {formatExchangeRate(frozenConversionData.rate)} {toCurrency}
+                </span>
+              </div>
+
+              {/* Fee Information - Important */}
+              <div className="confirmation-fee">
+                <div className="fee-item">
+                  <span className="fee-label">Network Fee:</span>
+                  <span className="fee-value">{frozenConversionData.fee.toFixed(8)} {fromCurrency}</span>
                 </div>
-                <div className="detail-row">
-                  <span>{i18n("pages.conversion.networkFee") || "Network Fee"}</span>
-                  <span>{conversionFee.toFixed(8)} {fromCurrency}</span>
-                </div>
-                <div className="detail-row">
-                  <span>{i18n("pages.conversion.currentPrice") || "Current Price"}</span>
-                  <span>1 {fromCurrency} = ${prices[fromCurrency] ? formatPrice(prices[fromCurrency]) : '0.00'}</span>
+                <div className="fee-item">
+                  <span className="fee-label">Total Cost:</span>
+                  <span className="fee-value">
+                    {(frozenConversionData.fromAmount + frozenConversionData.fee).toFixed(8)} {fromCurrency}
+                  </span>
                 </div>
               </div>
-            </div>
 
-            <div className="modal-footer">
-              <button
-                className="confirm-btn"
-                onClick={performConversion}
-                disabled={isConverting}
-              >
-                {isConverting ? (
-                  <>
-                    <i className="fas fa-spinner fa-spin" />
-                    {i18n("pages.conversion.processingConversion") || "Processing Conversion"}
-                  </>
-                ) : (
-                  <>
-                    <i className="fas fa-check-circle" />
-                    {i18n("pages.conversion.confirmConversion") || "Confirm Conversion"}
-                  </>
-                )}
-              </button>
-              
-              <button
-                className="cancel-btn"
-                onClick={() => setShowConfirmationModal(false)}
-                disabled={isConverting}
-              >
-                {i18n("pages.conversion.cancel") || "Cancel"}
-              </button>
+              {/* Action Buttons */}
+              <div className="confirmation-actions">
+                <button
+                  className="confirm-action-btn"
+                  onClick={performConversion}
+                  disabled={isConverting}
+                >
+                  {isConverting ? (
+                    <>
+                      <i className="fas fa-spinner fa-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <i className="fas fa-exchange-alt" />
+                      Confirm Conversion
+                    </>
+                  )}
+                </button>
+                
+                <button
+                  className="cancel-action-btn"
+                  onClick={() => setShowConfirmationModal(false)}
+                  disabled={isConverting}
+                >
+                  <i className="fas fa-times" />
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* CSS Styles (keep all your existing styles) */}
       <style>{`
+        /* Confirmation Modal - Simplified Styles */
+        .confirmation-modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.8);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 2000;
+          padding: 16px;
+        }
+
+        .confirmation-modal {
+          background: white;
+          border-radius: 20px;
+          width: 100%;
+          max-width: 380px;
+          overflow: hidden;
+          animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        /* Header */
+        .confirmation-header {
+          background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
+          padding: 16px 20px;
+        }
+
+        .confirmation-nav-bar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .confirmation-title {
+          color: white;
+          font-size: 16px;
+          font-weight: 600;
+        }
+
+        .confirmation-close {
+          background: rgba(255, 255, 255, 0.2);
+          border: none;
+          color: white;
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          font-size: 14px;
+          transition: background 0.2s;
+        }
+
+        .confirmation-close:hover:not(:disabled) {
+          background: rgba(255, 255, 255, 0.3);
+        }
+
+        .confirmation-close:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        /* Body */
+        .confirmation-body {
+          padding: 20px;
+        }
+
+        /* Icon Section */
+        .confirmation-icon-section {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 15px;
+          margin-bottom: 20px;
+        }
+
+        .from-coin-icon, .to-coin-icon {
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          overflow: hidden;
+          border: 2px solid #f0f2f5;
+        }
+
+        .coin-image-large {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .conversion-direction {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .direction-line {
+          width: 15px;
+          height: 2px;
+          background: #e7eaee;
+        }
+
+        .direction-icon {
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          background: #106cf5;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-size: 12px;
+        }
+
+        /* Amounts */
+        .confirmation-amounts {
+          margin: 20px 0;
+        }
+
+        .amount-from, .amount-to {
+          margin: 15px 0;
+          text-align: center;
+        }
+
+        .amount-label {
+          font-size: 12px;
+          color: #888f99;
+          margin-bottom: 4px;
+        }
+
+        .amount-value {
+          font-size: 24px;
+          font-weight: 700;
+          color: #222;
+          line-height: 1.2;
+        }
+
+        .amount-currency {
+          font-size: 14px;
+          color: #555;
+          margin-top: 4px;
+        }
+
+        /* Rate */
+        .confirmation-rate {
+          background: #f8f9fa;
+          border-radius: 10px;
+          padding: 12px 16px;
+          margin: 15px 0;
+          text-align: center;
+          border: 1px solid #e7eaee;
+        }
+
+        .rate-label {
+          font-size: 12px;
+          color: #888f99;
+          margin-right: 8px;
+        }
+
+        .rate-value {
+          font-size: 14px;
+          font-weight: 600;
+          color: #106cf5;
+        }
+
+        /* Fee */
+        .confirmation-fee {
+          background: #f8f9fa;
+          border-radius: 10px;
+          padding: 16px;
+          margin: 15px 0;
+          border: 1px solid #e7eaee;
+        }
+
+        .fee-item {
+          display: flex;
+          justify-content: space-between;
+          padding: 8px 0;
+          border-bottom: 1px solid #e7eaee;
+        }
+
+        .fee-item:last-child {
+          border-bottom: none;
+        }
+
+        .fee-label {
+          font-size: 13px;
+          color: #555;
+        }
+
+        .fee-value {
+          font-size: 14px;
+          font-weight: 600;
+          color: #222;
+        }
+
+        /* Actions */
+        .confirmation-actions {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          margin: 20px 0 10px;
+        }
+
+        .confirm-action-btn {
+          background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
+          border: none;
+          border-radius: 12px;
+          padding: 16px;
+          color: white;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+        }
+
+        .confirm-action-btn:hover:not(:disabled) {
+          opacity: 0.9;
+        }
+
+        .confirm-action-btn:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+        }
+
+        .cancel-action-btn {
+          background: transparent;
+          border: 1px solid #e7eaee;
+          border-radius: 12px;
+          padding: 16px;
+          color: #888f99;
+          font-size: 16px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+        }
+
+        .cancel-action-btn:hover:not(:disabled) {
+          background: #f8f9fa;
+          color: #222;
+        }
+
+        .cancel-action-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        /* Price Update Indicator */
+        .price-update-indicator {
+          color: #888f99;
+          font-size: 10px;
+          margin-left: 8px;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+        }
+
+        .price-update-indicator i {
+          font-size: 8px;
+        }
+
+        /* Responsive */
+        @media (max-width: 380px) {
+          .confirmation-modal {
+            max-width: 100%;
+            border-radius: 16px;
+          }
+
+          .confirmation-header {
+            padding: 14px 16px;
+          }
+
+          .confirmation-body {
+            padding: 16px;
+          }
+
+          .from-coin-icon, .to-coin-icon {
+            width: 50px;
+            height: 50px;
+          }
+
+          .amount-value {
+            font-size: 22px;
+          }
+
+          .confirmation-rate,
+          .confirmation-fee {
+            padding: 12px;
+          }
+        }
+
+             
         /* Add these new styles to your existing CSS */
         
         .price-display {
@@ -876,7 +1250,6 @@ function Conversion() {
         .swap-card {
           background: white;
           border-radius: 16px;
-          padding: 20px;
           margin-top: 10px;
         }
 
@@ -1418,6 +1791,9 @@ function Conversion() {
             min-width: 70px;
           }
         }
+
+
+        /* Your existing styles for other components... */
       `}</style>
     </div>
   );
