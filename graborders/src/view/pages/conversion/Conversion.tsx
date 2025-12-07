@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
 import assetsListSelectors from "src/modules/assets/list/assetsListSelectors";
 import assetsFormAction from "src/modules/assets/form/assetsFormActions";
 import authSelectors from "src/modules/auth/authSelectors";
@@ -14,6 +15,16 @@ import assetsActions from "src/modules/assets/list/assetsListActions";
 import selector from "src/modules/assets/form/assetsFormSelectors";
 import SuccessModalComponent from "src/view/shared/modals/sucessModal";
 import { i18n } from "../../../i18n";
+
+// Interface for Binance ticker data
+interface BinanceTicker {
+  s: string; // Symbol
+  c: string; // Last price
+  P: string; // Price change percent
+  v: string; // Volume
+  p: string; // Price change
+  q: string; // Quote volume (USDT volume)
+}
 
 function Conversion() {
   const dispatch = useDispatch();
@@ -23,32 +34,38 @@ function Conversion() {
   const [fromAmount, setFromAmount] = useState("");
   const [toAmount, setToAmount] = useState("0.0");
   const [conversionRate, setConversionRate] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-  const selectModal = useSelector(selector.selectModal);
-  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-  const [conversionFee, setConversionFee] = useState(0);
-  const [finalAmount, setFinalAmount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
   const [isConverting, setIsConverting] = useState(false);
   const [showFromDropdown, setShowFromDropdown] = useState(false);
   const [showToDropdown, setShowToDropdown] = useState(false);
-  const assetsBalance = useSelector(assetsListSelectors.selectRows);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [conversionFee, setConversionFee] = useState(0);
+  const [finalAmount, setFinalAmount] = useState(0);
   const [prices, setPrices] = useState<{ [key: string]: number }>({});
+  const [conversionSuccessData, setConversionSuccessData] = useState({
+    amount: "0",
+    coinType: "USDT"
+  });
+  const selectModal = useSelector(selector.selectModal);
+  const assetsBalance = useSelector(assetsListSelectors.selectRows);
+  const ws = useRef<WebSocket | null>(null);
   const fromDropdownRef = useRef<HTMLDivElement>(null);
   const toDropdownRef = useRef<HTMLDivElement>(null);
 
-  // List of allowed coins (11 coins as specified)
+  // List of allowed coins (11 coins as specified) with Binance symbols
   const allowedCoins = [
-    { code: "USDT", name: "Tether USD", color: "#26A17B", image: "https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/USDT.png" },
-    { code: "ETH", name: "Ethereum", color: "#627EEA", image: "https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/ETH.png" },
-    { code: "BTC", name: "Bitcoin", color: "#F7931A", image: "https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/BTC.png" },
-    { code: "USDC", name: "USD Coin", color: "#2775CA", image: "https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/USDC.png" },
-    { code: "DAI", name: "Dai", color: "#F4B731", image: "https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/DAI.png" },
-    { code: "SHIB", name: "Shiba Inu", color: "#FFC107", image: "https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/SHIB.png" },
-    { code: "XRP", name: "Ripple", color: "#23292F", image: "https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/XRP.png" },
-    { code: "TRX", name: "TRON", color: "#FF001A", image: "https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/TRX.png" },
-    { code: "SOL", name: "Solana", color: "#00FFA3", image: "https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/SOL.png" },
-    { code: "BNB", name: "Binance Coin", color: "#F0B90B", image: "https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/BNB.png" },
-    { code: "DOGE", name: "Dogecoin", color: "#C2A633", image: "https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/DOGE.png" }
+    { code: "USDT", name: "Tether USD", color: "#26A17B", symbol: "USDT", binanceSymbol: "USDTUSDT" },
+    { code: "ETH", name: "Ethereum", color: "#627EEA", symbol: "ETH", binanceSymbol: "ETHUSDT" },
+    { code: "BTC", name: "Bitcoin", color: "#F7931A", symbol: "BTC", binanceSymbol: "BTCUSDT" },
+    { code: "USDC", name: "USD Coin", color: "#2775CA", symbol: "USDC", binanceSymbol: "USDCUSDT" },
+    { code: "DAI", name: "Dai", color: "#F4B731", symbol: "DAI", binanceSymbol: "DAIUSDT" },
+    { code: "SHIB", name: "Shiba Inu", color: "#FFC107", symbol: "SHIB", binanceSymbol: "SHIBUSDT" },
+    { code: "XRP", name: "Ripple", color: "#23292F", symbol: "XRP", binanceSymbol: "XRPUSDT" },
+    { code: "TRX", name: "TRON", color: "#FF001A", symbol: "TRX", binanceSymbol: "TRXUSDT" },
+    { code: "SOL", name: "Solana", color: "#00FFA3", symbol: "SOL", binanceSymbol: "SOLUSDT" },
+    { code: "BNB", name: "Binance Coin", color: "#F0B90B", symbol: "BNB", binanceSymbol: "BNBUSDT" },
+    { code: "DOGE", name: "Dogecoin", color: "#C2A633", symbol: "DOGE", binanceSymbol: "DOGEUSDT" }
   ];
 
   // Initialize balances from assets
@@ -86,14 +103,64 @@ function Conversion() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Fetch assets and prices
+  // Handle Redux success modal
+  useEffect(() => {
+    if (selectModal && conversionSuccessData.amount !== "0") {
+      // Show success modal when Redux modal is open and we have conversion data
+      setShowSuccessModal(true);
+    }
+  }, [selectModal, conversionSuccessData]);
+
+  // Fetch assets and initial prices from Binance
   useEffect(() => {
     dispatch(assetsActions.doFetch());
-
-    const fetchPrices = async () => {
+    
+    const fetchInitialPrices = async () => {
       setIsLoading(true);
       try {
-        const mockPrices: { [key: string]: number } = {
+        // First, get prices for all 11 coins from Binance
+        const response = await axios.get("https://api.binance.com/api/v3/ticker/24hr");
+        
+        const initialPrices: { [key: string]: number } = { USDT: 1 };
+        
+        allowedCoins.forEach(coin => {
+          if (coin.code === "USDT") return;
+          
+          const coinData = response.data.find((item: any) => 
+            item.symbol === coin.binanceSymbol
+          );
+          
+          if (coinData) {
+            initialPrices[coin.code] = parseFloat(coinData.lastPrice);
+          } else {
+            // Fallback price if not found
+            const fallbackPrices: { [key: string]: number } = {
+              ETH: 3000,
+              BTC: 45000,
+              USDC: 1,
+              DAI: 1,
+              SHIB: 0.00002,
+              XRP: 0.6,
+              TRX: 0.1,
+              SOL: 100,
+              BNB: 350,
+              DOGE: 0.08
+            };
+            initialPrices[coin.code] = fallbackPrices[coin.code] || 1;
+          }
+        });
+
+        setPrices(initialPrices);
+        setIsLoading(false);
+        
+        // Set up WebSocket for real-time updates
+        setupWebSocket();
+        
+      } catch (error) {
+        console.error("Error fetching initial prices:", error);
+        setIsLoading(false);
+        // Set fallback prices
+        const fallbackPrices: { [key: string]: number } = {
           USDT: 1,
           BTC: 45000,
           ETH: 3000,
@@ -106,16 +173,66 @@ function Conversion() {
           BNB: 350,
           DOGE: 0.08
         };
-        setPrices(mockPrices);
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error fetching prices:", error);
-        setIsLoading(false);
+        setPrices(fallbackPrices);
       }
     };
 
-    fetchPrices();
+    fetchInitialPrices();
+
+    // Cleanup WebSocket on unmount
+    return () => {
+      if (ws.current) {
+        ws.current.close();
+      }
+    };
   }, [dispatch]);
+
+  // Set up WebSocket for real-time price updates
+  const setupWebSocket = () => {
+    // Create streams for all coins except USDT
+    const streams = allowedCoins
+      .filter(coin => coin.code !== "USDT")
+      .map(coin => `${coin.symbol.toLowerCase()}usdt@ticker`)
+      .join('/');
+    
+    const wsUrl = `wss://stream.binance.com:9443/stream?streams=${streams}`;
+    
+    try {
+      ws.current = new WebSocket(wsUrl);
+
+      ws.current.onopen = () => {
+        console.log('WebSocket connected for price updates');
+      };
+
+      ws.current.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        
+        if (data.stream && data.data) {
+          const symbol = data.data.s; // e.g., "BTCUSDT"
+          const price = parseFloat(data.data.c); // Last price
+          
+          // Extract coin code from symbol (remove USDT)
+          const coinCode = symbol.replace("USDT", "");
+          
+          setPrices(prev => ({
+            ...prev,
+            [coinCode]: price
+          }));
+        }
+      };
+
+      ws.current.onerror = (error) => {
+        console.error('WebSocket error:', error);
+      };
+
+      ws.current.onclose = () => {
+        console.log('WebSocket disconnected, attempting to reconnect...');
+        setTimeout(setupWebSocket, 3000);
+      };
+    } catch (error) {
+      console.error('Error setting up WebSocket:', error);
+    }
+  };
 
   // Get coin info
   const getCoinInfo = (code: string) => {
@@ -126,20 +243,25 @@ function Conversion() {
   const calculateConversion = useCallback(() => {
     const fromPrice = prices[fromCurrency] || 1;
     const toPrice = prices[toCurrency] || 1;
-
-    if (fromPrice && toPrice) {
+    
+    if (fromPrice && toPrice && fromPrice > 0 && toPrice > 0) {
       const rate = fromPrice / toPrice;
       setConversionRate(rate);
-
+      
       if (fromAmount) {
         const amount = parseFloat(fromAmount);
-        const result = amount * rate;
-        setToAmount(result.toFixed(8));
-
-        // Calculate fee (0.1%)
-        const fee = amount * 0.001;
-        setConversionFee(fee);
-        setFinalAmount(result * 0.999); // After fee
+        if (!isNaN(amount) && amount > 0) {
+          const result = amount * rate;
+          setToAmount(result.toFixed(8));
+          
+          // Calculate fee (0.1%)
+          const fee = amount * 0.001;
+          setConversionFee(fee);
+          setFinalAmount(result * 0.999); // After fee
+        } else {
+          setToAmount("0.0");
+          setFinalAmount(0);
+        }
       } else {
         setToAmount("0.0");
         setFinalAmount(0);
@@ -190,12 +312,23 @@ function Conversion() {
     setToAmount("0.0");
     setFinalAmount(0);
     setConversionFee(0);
+    setShowSuccessModal(false);
+    setConversionSuccessData({ amount: "0", coinType: "USDT" });
     dispatch(assetsActions.doFetch());
   };
 
   const performConversion = () => {
     if (!hasSufficientBalance) return;
     setIsConverting(true);
+
+    // Store conversion data for success modal
+    const convertedAmount = finalAmount.toFixed(8);
+    const convertedCoinType = toCurrency;
+    
+    setConversionSuccessData({
+      amount: convertedAmount,
+      coinType: convertedCoinType
+    });
 
     setTimeout(() => {
       const values = {
@@ -204,23 +337,24 @@ function Conversion() {
         fromAmount: parseFloat(fromAmount),
         toSymbol: toCurrency,
         coinName: toCurrency,
-        toAmount: finalAmount.toFixed(8),
+        toAmount: convertedAmount,
         status: "available",
       };
-
+      
       dispatch(assetsFormAction.doCreate(values));
-
+      
       // Update local balances
       setBalances(prev => ({
         ...prev,
         [fromCurrency]: (prev[fromCurrency] || 0) - parseFloat(fromAmount),
         [toCurrency]: (prev[toCurrency] || 0) + finalAmount
       }));
-
+      
       setIsConverting(false);
       setShowConfirmationModal(false);
       setFromAmount("");
 
+      // Success modal will be shown by Redux or local state
       setTimeout(() => {
         dispatch(assetsActions.doFetch());
       }, 500);
@@ -234,12 +368,16 @@ function Conversion() {
 
   // Format exchange rate
   const formatExchangeRate = () => {
+    if (!conversionRate || conversionRate <= 0) return "0.00000000";
+    
     if (conversionRate < 0.0001) {
       return conversionRate.toFixed(12);
     } else if (conversionRate < 1) {
       return conversionRate.toFixed(8);
-    } else {
+    } else if (conversionRate < 100) {
       return conversionRate.toFixed(4);
+    } else {
+      return conversionRate.toFixed(2);
     }
   };
 
@@ -256,8 +394,20 @@ function Conversion() {
 
   // Get current coin image
   const getCoinImage = (code: string) => {
-    const coin = getCoinInfo(code);
-    return coin?.image || `https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/${code}.png`;
+    return `https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/${code}.png`;
+  };
+
+  // Format price for display
+  const formatPrice = (price: number) => {
+    if (price >= 1000) {
+      return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    } else if (price >= 1) {
+      return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+    } else if (price >= 0.01) {
+      return price.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 6 });
+    } else {
+      return price.toLocaleString('en-US', { minimumFractionDigits: 8, maximumFractionDigits: 12 });
+    }
   };
 
   return (
@@ -265,17 +415,15 @@ function Conversion() {
       {/* Header Section - Matching Swap Page */}
       <div className="header">
         <div className="nav-bar">
-          <Link to="/wallets" className="back-arrow remove_blue">
+          <Link to="/profile" className="back-arrow remove_blue">
             <div className="back-arrow">
               <i className="fas fa-arrow-left" />
             </div>
           </Link>
           <div className="page-title">{i18n("pages.conversion.title") || "Conversion"}</div>
-          <Link to="/history" style={{ textDecoration: 'none' }} className="remove_blue">
-            <div className="header-icon">
-              <i className="fas fa-receipt" />
-            </div>
-          </Link>
+          <div className="header-icon">
+            <i className="fas fa-receipt" />
+          </div>
         </div>
       </div>
 
@@ -295,7 +443,7 @@ function Conversion() {
             <div className="token-selector" onClick={() => setShowFromDropdown(!showFromDropdown)}>
               <div className="token-info">
                 <div className="token-icon">
-                  <img
+                  <img 
                     src={getCoinImage(fromCurrency)}
                     alt={fromCurrency}
                     className="coin-image"
@@ -324,8 +472,8 @@ function Conversion() {
                       onClick={() => selectFromCoin(coin.code)}
                     >
                       <div className="item-icon">
-                        <img
-                          src={coin.image}
+                        <img 
+                          src={getCoinImage(coin.code)}
                           alt={coin.code}
                           className="coin-image"
                           onError={(e) => {
@@ -338,8 +486,8 @@ function Conversion() {
                         <div className="item-code">{coin.code}</div>
                         <div className="item-name">{coin.name}</div>
                       </div>
-                      <div className="item-balance">
-                        {getBalance(coin.code)}
+                      <div className="item-price">
+                        ${prices[coin.code] ? formatPrice(prices[coin.code]) : '0.00'}
                       </div>
                     </div>
                   ))}
@@ -363,6 +511,22 @@ function Conversion() {
             </div>
           </div>
 
+          {/* Price Display */}
+          <div className="price-display">
+            {prices[fromCurrency] ? (
+              <>
+                1 {fromCurrency} = ${formatPrice(prices[fromCurrency])}
+                <span className="price-update-indicator">
+                  <i className="fas fa-circle" />
+                </span>
+              </>
+            ) : (
+              <div className="price-loading">
+                <i className="fas fa-spinner fa-spin" /> Loading price...
+              </div>
+            )}
+          </div>
+
           {/* Swap Direction Button */}
           <div className="swap-direction">
             <div className="swap-button" onClick={switchCurrencies}>
@@ -383,7 +547,7 @@ function Conversion() {
             <div className="token-selector" onClick={() => setShowToDropdown(!showToDropdown)}>
               <div className="token-info">
                 <div className="token-icon">
-                  <img
+                  <img 
                     src={getCoinImage(toCurrency)}
                     alt={toCurrency}
                     className="coin-image"
@@ -412,8 +576,8 @@ function Conversion() {
                       onClick={() => selectToCoin(coin.code)}
                     >
                       <div className="item-icon">
-                        <img
-                          src={coin.image}
+                        <img 
+                          src={getCoinImage(coin.code)}
                           alt={coin.code}
                           className="coin-image"
                           onError={(e) => {
@@ -426,8 +590,8 @@ function Conversion() {
                         <div className="item-code">{coin.code}</div>
                         <div className="item-name">{coin.name}</div>
                       </div>
-                      <div className="item-balance">
-                        {getBalance(coin.code)}
+                      <div className="item-price">
+                        ${prices[coin.code] ? formatPrice(prices[coin.code]) : '0.00'}
                       </div>
                     </div>
                   ))}
@@ -444,32 +608,63 @@ function Conversion() {
             readOnly
           />
 
+          {/* Price Display */}
+          <div className="price-display">
+            {prices[toCurrency] ? (
+              <>
+                1 {toCurrency} = ${formatPrice(prices[toCurrency])}
+                <span className="price-update-indicator">
+                  <i className="fas fa-circle" />
+                </span>
+              </>
+            ) : (
+              <div className="price-loading">
+                <i className="fas fa-spinner fa-spin" /> Loading price...
+              </div>
+            )}
+          </div>
+
           {/* Exchange Rate */}
           <div className="exchange-rate">
             1 {fromCurrency} ≈ {formatExchangeRate()} {toCurrency}
           </div>
 
+          {/* Real-time indicator */}
+          <div className="realtime-indicator">
+            <i className="fas fa-sync-alt" /> Real-time prices from Binance
+          </div>
+
           {/* Confirm Button */}
-          <button
+          <button 
             className="confirm-button"
             onClick={() => setShowConfirmationModal(true)}
-            disabled={!fromAmount || !hasSufficientBalance || fromCurrency === toCurrency || parseFloat(fromAmount) <= 0}
+            disabled={isLoading || !fromAmount || !hasSufficientBalance || fromCurrency === toCurrency || parseFloat(fromAmount) <= 0}
           >
-            {i18n("pages.conversion.confirmConversion") || "Confirm exchange"}
+            {isLoading ? (
+              <>
+                <i className="fas fa-spinner fa-spin" /> Loading prices...
+              </>
+            ) : fromCurrency === toCurrency ? (
+              i18n("pages.conversion.selectDifferentCurrencies") || "Select different currencies"
+            ) : !hasSufficientBalance ? (
+              i18n("pages.conversion.insufficientBalance") || "Insufficient balance"
+            ) : (
+              i18n("pages.conversion.confirmExchange") || "Confirm exchange"
+            )}
           </button>
         </div>
       </div>
 
-      {/* Success Modal */}
-      {selectModal &&
+      {/* Success Modal - Using local state with stored conversion data */}
+      {showSuccessModal && (
         <SuccessModalComponent
-          isOpen={selectModal}
+          isOpen={showSuccessModal}
           onClose={handleCloseModal}
           type='convert'
-          amount={Number(finalAmount).toFixed(8)}
-          coinType={toCurrency}
+          amount={conversionSuccessData.amount}
+          coinType={conversionSuccessData.coinType} 
         />
-      }
+      )}
 
       {/* Confirmation Modal */}
       {showConfirmationModal && (
@@ -477,7 +672,7 @@ function Conversion() {
           <div className="confirmation-modal">
             <div className="modal-header">
               <h3>{i18n("pages.conversion.confirmConversion") || "Confirm Conversion"}</h3>
-              <button
+              <button 
                 className="close-btn"
                 onClick={() => !isConverting && setShowConfirmationModal(false)}
               >
@@ -491,7 +686,7 @@ function Conversion() {
                   <div className="amount">{parseFloat(fromAmount).toFixed(8)}</div>
                   <div className="currency">{fromCurrency}</div>
                 </div>
-
+                
                 <div className="conversion-arrow">
                   <i className="fas fa-arrow-down" />
                 </div>
@@ -512,8 +707,8 @@ function Conversion() {
                   <span>{conversionFee.toFixed(8)} {fromCurrency}</span>
                 </div>
                 <div className="detail-row">
-                  <span>{i18n("pages.conversion.estimatedArrival") || "Estimated Arrival"}</span>
-                  <span>{i18n("pages.conversion.arrivalTime") || "Instant"}</span>
+                  <span>{i18n("pages.conversion.currentPrice") || "Current Price"}</span>
+                  <span>1 {fromCurrency} = ${prices[fromCurrency] ? formatPrice(prices[fromCurrency]) : '0.00'}</span>
                 </div>
               </div>
             </div>
@@ -536,7 +731,7 @@ function Conversion() {
                   </>
                 )}
               </button>
-
+              
               <button
                 className="cancel-btn"
                 onClick={() => setShowConfirmationModal(false)}
@@ -549,7 +744,66 @@ function Conversion() {
         </div>
       )}
 
+      {/* CSS Styles (keep all your existing styles) */}
       <style>{`
+        /* Add these new styles to your existing CSS */
+        
+        .price-display {
+          font-size: 12px;
+          color: #888f99;
+          text-align: center;
+          margin: 10px 0 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+        }
+        
+        .price-update-indicator {
+          color: #2ff378;
+          font-size: 8px;
+          animation: pricePulse 2s infinite;
+        }
+        
+        @keyframes pricePulse {
+          0%, 100% { opacity: 0.5; }
+          50% { opacity: 1; }
+        }
+        
+        .price-loading {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: #106cf5;
+        }
+        
+        .realtime-indicator {
+          text-align: center;
+          color: #888f99;
+          font-size: 11px;
+          margin: 15px 0 25px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+        }
+        
+        .realtime-indicator i {
+          color: #106cf5;
+          font-size: 10px;
+        }
+        
+        .item-price {
+          font-size: 12px;
+          font-weight: 600;
+          color: #106cf5;
+          margin-left: 10px;
+          text-align: right;
+          min-width: 80px;
+        }
+        
+        /* Existing styles remain the same, just adding the new ones above */
+        
         * {
           margin: 0;
           padding: 0;
@@ -649,6 +903,7 @@ function Conversion() {
         .custom-select-wrapper {
           position: relative;
           margin-bottom: 12px;
+          z-index: 2;
         }
 
         /* Token Selector */
@@ -810,7 +1065,7 @@ function Conversion() {
         /* Input Field */
         .input-group {
           position: relative;
-          margin-bottom: 20px;
+          margin-bottom: 10px;
         }
 
         .input-field {
@@ -879,7 +1134,7 @@ function Conversion() {
         .swap-direction {
           display: flex;
           justify-content: center;
-          margin: 10px 0;
+          margin: 20px 0;
         }
 
         .swap-button {
@@ -931,7 +1186,8 @@ function Conversion() {
 
         .confirm-button:hover:not(:disabled) {
           opacity: 0.9;
-          transform: translateY(-1px);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(16, 108, 245, 0.3);
         }
 
         .confirm-button:disabled {
@@ -1157,8 +1413,9 @@ function Conversion() {
             padding: 10px 16px;
           }
 
-          .item-balance {
-            font-size: 12px;
+          .item-price {
+            font-size: 11px;
+            min-width: 70px;
           }
         }
       `}</style>

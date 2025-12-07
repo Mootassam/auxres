@@ -897,6 +897,7 @@ const en = {
       selectCurrency: "Select Currency",
       searchCurrencies: "Search currencies...",
       confirmConversion: "Confirm Conversion",
+      confirmExchange: "Confirm Exchange",
       conversionDetails: "Conversion Details",
       exchangeRate: "Exchange Rate",
       networkFee: "Network Fee",

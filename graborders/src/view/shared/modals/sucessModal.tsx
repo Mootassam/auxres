@@ -31,7 +31,6 @@ const SuccessModalComponent: React.FC<SuccessModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
-      createConfettiEffect();
     } else {
       document.body.style.overflow = 'unset';
     }
@@ -45,51 +44,30 @@ const SuccessModalComponent: React.FC<SuccessModalProps> = ({
     const config = {
       deposit: {
         title: 'Deposit Successful!',
-        message: 'Your funds have been successfully deposited to your wallet.'
+        message: 'Your funds have been successfully deposited to your wallet.',
+        icon: 'fa-arrow-down',
+        color: '#106cf5'
       },
       convert: {
         title: 'Conversion Successful!',
-        message: 'Your currency conversion has been completed successfully.'
+        message: 'Your currency conversion has been completed successfully.',
+        icon: 'fa-exchange-alt',
+        color: '#106cf5'
       },
       staking: {
         title: 'Staking Successful!',
-        message: 'Your funds are now staked and earning rewards!'
+        message: 'Your funds are now staked and earning rewards!',
+        icon: 'fa-coins',
+        color: '#F3BA2F'
       },
       withdraw: {
         title: 'Withdrawal Submitted!',
-        message: 'Your withdrawal request has been received and is under review. We will process it within 24 hours.'
+        message: 'Your withdrawal request has been received and is under review.',
+        icon: 'fa-arrow-up',
+        color: '#FF6838'
       }
     };
     return config[modalType as keyof typeof config] || config.deposit;
-  };
-
-  const createConfettiEffect = () => {
-    const colors = ['#F3BA2F', '#00C076', '#627EEA', '#FFFFFF'];
-    const modalContainer = document.querySelector('.success-modal-overlay');
-
-    if (!modalContainer) return;
-
-    // Clear existing confetti
-    const existingConfetti = modalContainer.querySelectorAll('.success-confetti');
-    existingConfetti.forEach(confetti => confetti.remove());
-
-    for (let i = 0; i < 30; i++) {
-      const confetti = document.createElement('div');
-      confetti.className = 'success-confetti';
-      confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-      confetti.style.left = Math.random() * 100 + 'vw';
-      confetti.style.top = '-10px';
-      confetti.style.animation = `successConfettiFall ${Math.random() * 3 + 2}s linear forwards`;
-      confetti.style.animationDelay = Math.random() * 1 + 's';
-
-      modalContainer.appendChild(confetti);
-
-      setTimeout(() => {
-        if (confetti.parentNode) {
-          confetti.remove();
-        }
-      }, 5000);
-    }
   };
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -100,155 +78,178 @@ const SuccessModalComponent: React.FC<SuccessModalProps> = ({
 
   if (!isOpen) return null;
 
-  const { title, message } = getTypeConfig(type);
+  const { title, message, icon, color } = getTypeConfig(type);
 
   return (
     <>
       <style>{`
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
         .success-modal-overlay {
           position: fixed;
           top: 0;
           left: 0;
           right: 0;
           bottom: 0;
-          background-color: rgba(0, 0, 0, 0.8);
+          background-color: rgba(0, 0, 0, 0.7);
           display: flex;
           justify-content: center;
           align-items: center;
           z-index: 10000;
+          padding: 20px;
         }
 
         .success-modal-container {
-          background-color: #1A1A1A;
-          width: 90%;
-          max-width: 350px;
-          border-radius: 16px;
-          padding: 30px 25px;
-          text-align: center;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-          border: 1px solid #2A2A2A;
-          animation: successModalAppear 0.4s ease-out;
+          background: white;
+          width: 100%;
+          max-width: 400px;
+          border-radius: 20px;
+          overflow: hidden;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+          animation: modalSlideIn 0.3s ease;
         }
 
-        @keyframes successModalAppear {
-          0% {
+        @keyframes modalSlideIn {
+          from {
             opacity: 0;
-            transform: translateY(20px) scale(0.95);
+            transform: translateY(20px);
           }
-          100% {
+          to {
             opacity: 1;
-            transform: translateY(0) scale(1);
+            transform: translateY(0);
           }
         }
 
-        .success-modal-icon {
+        .modal-header {
+          background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
+          padding: 20px;
+          position: relative;
+          text-align: center;
+        }
+
+        .page-title {
+          color: white;
+          font-size: 18px;
+          font-weight: 600;
+        }
+
+        .success-content {
+          padding: 40px 20px 30px;
+          text-align: center;
+        }
+
+        .success-icon {
           width: 80px;
           height: 80px;
           border-radius: 50%;
-          background: linear-gradient(135deg, #00C076 0%, #00A567 100%);
+          background: ${color};
           display: flex;
           justify-content: center;
           align-items: center;
-          margin: 0 auto 20px;
-          animation: successIconScale 0.5s ease-out 0.2s both;
-        }
-
-        @keyframes successIconScale {
-          0% {
-            transform: scale(0);
-          }
-          70% {
-            transform: scale(1.1);
-          }
-          100% {
-            transform: scale(1);
-          }
-        }
-
-        .success-modal-icon i {
-          font-size: 36px;
-          color: #FFFFFF;
-        }
-
-        .success-modal-title {
-          font-weight: bold;
-          font-size: 22px;
-          margin-bottom: 10px;
-          color: #FFFFFF;
-        }
-
-        .success-modal-amount {
+          margin: 0 auto 25px;
+          color: white;
           font-size: 32px;
-          font-weight: bold;
+        }
+
+        .success-title {
+          font-size: 22px;
+          font-weight: 600;
+          color: #222;
+          margin-bottom: 10px;
+        }
+
+        .success-amount {
+          font-size: 28px;
+          font-weight: 700;
           margin: 15px 0;
-          color: #F3BA2F;
+          color: #106cf5;
         }
 
-        .success-modal-message {
-          color: #AAAAAA;
-          font-size: 16px;
-          margin-bottom: 25px;
-          line-height: 1.5;
+        .success-message {
+          color: #888f99;
+          font-size: 14px;
+          line-height: 1.6;
+          margin-bottom: 30px;
+          max-width: 300px;
+          margin-left: auto;
+          margin-right: auto;
         }
 
-        .success-modal-button {
-          background-color: #F3BA2F;
-          color: #000000;
-          padding: 16px;
-          border-radius: 12px;
-          font-weight: bold;
-          cursor: pointer;
-          transition: background-color 0.2s ease;
-          width: 100%;
+        .success-button {
+          background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
           border: none;
+          border-radius: 12px;
+          padding: 16px 20px;
+          color: white;
           font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          width: 100%;
+          margin-top: 10px;
         }
 
-        .success-modal-button:hover {
-          background-color: #E0A91C;
+        .success-button:hover {
+          opacity: 0.9;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(16, 108, 245, 0.3);
         }
 
-        .success-confetti {
-          position: absolute;
-          width: 10px;
-          height: 10px;
-          background-color: #F3BA2F;
-          border-radius: 50%;
-          opacity: 0;
-          pointer-events: none;
-        }
-
-        @keyframes successConfettiFall {
-          0% {
-            transform: translateY(-100px) rotate(0deg);
-            opacity: 1;
+        @media (max-width: 380px) {
+          .success-modal-overlay {
+            padding: 16px;
           }
-          100% {
-            transform: translateY(500px) rotate(360deg);
-            opacity: 0;
+
+          .success-content {
+            padding: 30px 16px 25px;
+          }
+
+          .success-icon {
+            width: 70px;
+            height: 70px;
+            font-size: 28px;
+          }
+
+          .success-title {
+            font-size: 20px;
+          }
+
+          .success-amount {
+            font-size: 24px;
           }
         }
       `}</style>
 
       <div className="success-modal-overlay" onClick={handleOverlayClick}>
         <div className="success-modal-container">
-          <div className="success-modal-icon">
-            <i className="fas fa-check"></i>
+          <div className="modal-header">
+            <div className="page-title">Success</div>
           </div>
 
-          <div className="success-modal-title">{title}</div>
+          <div className="success-content">
+            <div className="success-icon">
+              <i className={`fas ${icon}`}></i>
+            </div>
 
-          <div className="success-modal-amount">
-            {amount} {coinType}
+            <div className="success-title">{title}</div>
+
+            <div className="success-amount">
+              {amount} {coinType}
+            </div>
+
+            <div className="success-message">
+              {message}
+            </div>
+
+            <button className="success-button" onClick={onClose}>
+              Done
+            </button>
           </div>
-
-          <div className="success-modal-message">
-            {message}
-          </div>
-
-          <button className="success-modal-button" onClick={onClose}>
-            Done
-          </button>
         </div>
       </div>
     </>
