@@ -7,7 +7,7 @@ import { i18n } from '../../../i18n';
 
 const prefix = 'ASSETS_FORM';
 
-const vipFormActions = {
+const assetsFormActions = {
   INIT_STARTED: `${prefix}_INIT_STARTED`,
   INIT_SUCCESS: `${prefix}_INIT_SUCCESS`,
   INIT_ERROR: `${prefix}_INIT_ERROR`,
@@ -17,8 +17,13 @@ const vipFormActions = {
   CREATE_ERROR: `${prefix}_CREATE_ERROR`,
 
 
+  TRANSFER_STARTED: `${prefix}_TRANSFER_STARTED`,
+  TRANSFER_SUCCESS: `${prefix}_TRANSFER_SUCCESS`,
+  TRANSFER_ERROR: `${prefix}_TRANSFER_ERROR`,
 
-   CLEAR_SUCCESS: `${prefix}_CLEAR_SUCCESS`,
+
+
+  CLEAR_SUCCESS: `${prefix}_CLEAR_SUCCESS`,
 
 
 
@@ -29,7 +34,7 @@ const vipFormActions = {
   doInit: (id) => async (dispatch) => {
     try {
       dispatch({
-        type: vipFormActions.INIT_STARTED,
+        type: assetsFormActions.INIT_STARTED,
       });
 
       let record = {};
@@ -41,14 +46,14 @@ const vipFormActions = {
       }
 
       dispatch({
-        type: vipFormActions.INIT_SUCCESS,
+        type: assetsFormActions.INIT_SUCCESS,
         payload: record,
       });
     } catch (error) {
       Errors.handle(error);
 
       dispatch({
-        type: vipFormActions.INIT_ERROR,
+        type: assetsFormActions.INIT_ERROR,
       });
 
       getHistory().push('/conversion');
@@ -58,13 +63,13 @@ const vipFormActions = {
   doCreate: (values) => async (dispatch) => {
     try {
       dispatch({
-        type: vipFormActions.CREATE_STARTED,
+        type: assetsFormActions.CREATE_STARTED,
       });
 
       await vipService.create(values);
 
       dispatch({
-        type: vipFormActions.CREATE_SUCCESS,
+        type: assetsFormActions.CREATE_SUCCESS,
       });
 
       getHistory().push('/conversion');
@@ -72,33 +77,54 @@ const vipFormActions = {
       Errors.handle(error);
 
       dispatch({
-        type: vipFormActions.CREATE_ERROR,
+        type: assetsFormActions.CREATE_ERROR,
+      });
+    }
+  },
+
+  doTransfer: (values) => async (dispatch) => {
+    try {
+      dispatch({
+        type: assetsFormActions.TRANSFER_STARTED,
+      });
+
+      await vipService.create(values);
+
+      dispatch({
+        type: assetsFormActions.TRANSFER_SUCCESS,
+      });
+
+    } catch (error) {
+      Errors.handle(error);
+
+      dispatch({
+        type: assetsFormActions.TRANSFER_ERROR,
       });
     }
   },
 
 
-    doClose: () => async (dispatch) => {
-      try {
-        dispatch({
-          type: vipFormActions.CLEAR_SUCCESS,
-        });
-  
-      } catch (error) {
-        Errors.handle(error);
-      }
-    },
-  
+  doClose: () => async (dispatch) => {
+    try {
+      dispatch({
+        type: assetsFormActions.CLEAR_SUCCESS,
+      });
+
+    } catch (error) {
+      Errors.handle(error);
+    }
+  },
+
   doUpdate: (id, values) => async (dispatch, getState) => {
     try {
       dispatch({
-        type: vipFormActions.UPDATE_STARTED,
+        type: assetsFormActions.UPDATE_STARTED,
       });
 
       await vipService.update(id, values);
 
       dispatch({
-        type: vipFormActions.UPDATE_SUCCESS,
+        type: assetsFormActions.UPDATE_SUCCESS,
       });
 
       Message.success(
@@ -110,10 +136,10 @@ const vipFormActions = {
       Errors.handle(error);
 
       dispatch({
-        type: vipFormActions.UPDATE_ERROR,
+        type: assetsFormActions.UPDATE_ERROR,
       });
     }
   },
 };
 
-export default vipFormActions;
+export default assetsFormActions;

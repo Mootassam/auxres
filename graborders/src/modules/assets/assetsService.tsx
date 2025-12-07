@@ -47,6 +47,20 @@ export default class depositService {
     return response.data;
   }
 
+  static async transfer(data) {
+    const body = {
+      data,
+    };
+
+    const tenantId = AuthCurrentTenant.get();
+    const response = await authAxios.post(
+      `/tenant/${tenantId}/asset/transfer`,
+      body,
+    );
+
+    return response.data;
+  }
+
   static async import(values, importHash) {
     const body = {
       data: values,
@@ -77,7 +91,7 @@ export default class depositService {
     const params = {
       filter,
       orderBy,
-      limit:50,
+      limit: 50,
       offset,
     };
 

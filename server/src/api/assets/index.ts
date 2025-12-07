@@ -11,6 +11,11 @@ export default (app) => {
     `/tenant/:tenantId/assets/import`,
     require('./AssetsImport').default,
   );
+
+  app.post(
+    `/tenant/:tenantId/assets/transfer`,
+    require('./AssetsTransfer').default,
+  );
   app.delete(
     `/tenant/:tenantId/assets`,
     require('./AssetsDestroy').default,
@@ -24,7 +29,7 @@ export default (app) => {
     require('./AssetsList').default,
   );
 
-    app.get(
+  app.get(
     `/tenant/:tenantId/assetsmobile`,
     require('./AssetsListMobile').default,
   );

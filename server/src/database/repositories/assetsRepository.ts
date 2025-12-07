@@ -552,11 +552,11 @@ class WalletRepository {
 
     if (filter) {
 
-         criteriaAnd.push({
+      criteriaAnd.push({
         accountType: String(filter.toLowerCase()),
       });
 
-   
+
 
       if (filter.id) {
         criteriaAnd.push({
@@ -597,6 +597,8 @@ class WalletRepository {
 
     return { rows, count };
   }
+
+
   static async findAllAutocomplete(search, limit, options: IRepositoryOptions) {
     const currentTenant = MongooseRepository.getCurrentTenant(options);
 
@@ -662,6 +664,8 @@ class WalletRepository {
     return output;
   }
 
+
+
   static async createDefaultAssets(
     newUser,
     tenantId,
@@ -711,6 +715,71 @@ class WalletRepository {
 
     return createdWallets;
   }
+
+
+
+
+  static async transferBetweenAccounts(data, options: IRepositoryOptions) {
+    const currentTenant = MongooseRepository.getCurrentTenant(options);
+    const currentUser = MongooseRepository.getCurrentUser(options);
+
+    // Deduct from source wallet
+    const sourceWallet = await Wallet(options.database).findOneAndUpdate(
+      {
+        user: data.user,
+        symbol: data.symbol,
+        accountType: data.fromAccount,
+        amount: { $gte: data.amount }, // ensure enough balance
+      },
+      {
+        $inc: { amount: -data.amount },
+        $set: { updatedBy: currentUser.id },
+      },
+      { new: true }
+    );
+    if (!sourceWallet) {
+      throw new Error("Insufficient balance in source wallet");
+    }
+
+
+    // Add to target wallet
+    const targetWallet = await Wallet(options.database).findOneAndUpdate(
+      {
+        user: data.user,
+        symbol: data.symbol,
+        accountType: data.toAccount,
+      },
+      {
+        $inc: { amount: data.amount },
+        $setOnInsert: {
+          coinName: data.symbol,
+          status: "available",
+          createdBy: currentUser.id,
+        },
+      },
+      {
+        upsert: true,
+        new: true,
+      }
+    );
+
+    // Log the transfer
+    const Transfer = options.database.model("Transfer");
+    await Transfer.create({
+      fromAccount: data.fromAccount,
+      toAccount: data.toAccount,
+      amount: data.amount,
+      status: "completed",
+      user: data.user,
+      createdBy: currentUser.id,
+      updatedBy: currentUser.id,
+    });
+    return {
+      sourceWallet,
+      targetWallet,
+    };
+  }
+
 
 }
 

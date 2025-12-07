@@ -37,6 +37,31 @@ export default class AssetsServices {
     }
   }
 
+  async transferBetweenAccounts(data) {
+    const session = await MongooseRepository.createSession(
+      this.options.database,
+    );  
+
+    try {
+      const record = await AssetRepository.transferBetweenAccounts(data, {
+        ...this.options,
+        session,
+      });     
+      await MongooseRepository.commitTransaction(session);
+
+      return record;
+    } catch (error) {
+      await MongooseRepository.abortTransaction(session);   
+      MongooseRepository.handleUniqueFieldError(
+        error,
+        this.options.language,
+        'vip',
+      );
+
+      throw error;
+    }   
+  }
+
   async update(id, data) {
     const session = await MongooseRepository.createSession(
       this.options.database,
