@@ -888,6 +888,7 @@ const en = {
       youReceive: "You receive",
       balance: "Balance",
       max: "MAX",
+      enterAmount: "Enter amount",
       insufficientBalance: "Insufficient balance",
       estimatedConversion: "Estimated conversion",
       selectDifferentCurrencies: "Select different currencies",

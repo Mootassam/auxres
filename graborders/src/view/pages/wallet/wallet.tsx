@@ -36,7 +36,7 @@ function Wallet() {
       name: "Transfer",
     },
     {
-      path: "/swap",
+      path: "/conversion",
       icon: "fas fa-sync-alt",
       name: "Swap",
     },

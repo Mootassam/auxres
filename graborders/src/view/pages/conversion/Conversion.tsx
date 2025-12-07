@@ -89,7 +89,7 @@ function Conversion() {
   // Fetch assets and prices
   useEffect(() => {
     dispatch(assetsActions.doFetch());
-    
+
     const fetchPrices = async () => {
       setIsLoading(true);
       try {
@@ -126,16 +126,16 @@ function Conversion() {
   const calculateConversion = useCallback(() => {
     const fromPrice = prices[fromCurrency] || 1;
     const toPrice = prices[toCurrency] || 1;
-    
+
     if (fromPrice && toPrice) {
       const rate = fromPrice / toPrice;
       setConversionRate(rate);
-      
+
       if (fromAmount) {
         const amount = parseFloat(fromAmount);
         const result = amount * rate;
         setToAmount(result.toFixed(8));
-        
+
         // Calculate fee (0.1%)
         const fee = amount * 0.001;
         setConversionFee(fee);
@@ -207,16 +207,16 @@ function Conversion() {
         toAmount: finalAmount.toFixed(8),
         status: "available",
       };
-      
+
       dispatch(assetsFormAction.doCreate(values));
-      
+
       // Update local balances
       setBalances(prev => ({
         ...prev,
         [fromCurrency]: (prev[fromCurrency] || 0) - parseFloat(fromAmount),
         [toCurrency]: (prev[toCurrency] || 0) + finalAmount
       }));
-      
+
       setIsConverting(false);
       setShowConfirmationModal(false);
       setFromAmount("");
@@ -265,15 +265,17 @@ function Conversion() {
       {/* Header Section - Matching Swap Page */}
       <div className="header">
         <div className="nav-bar">
-          <Link to="/profile" className="back-arrow remove_blue">
+          <Link to="/wallets" className="back-arrow remove_blue">
             <div className="back-arrow">
               <i className="fas fa-arrow-left" />
             </div>
           </Link>
           <div className="page-title">{i18n("pages.conversion.title") || "Conversion"}</div>
-          <div className="header-icon">
-            <i className="fas fa-receipt" />
-          </div>
+          <Link to="/history" style={{ textDecoration: 'none' }} className="remove_blue">
+            <div className="header-icon">
+              <i className="fas fa-receipt" />
+            </div>
+          </Link>
         </div>
       </div>
 
@@ -293,7 +295,7 @@ function Conversion() {
             <div className="token-selector" onClick={() => setShowFromDropdown(!showFromDropdown)}>
               <div className="token-info">
                 <div className="token-icon">
-                  <img 
+                  <img
                     src={getCoinImage(fromCurrency)}
                     alt={fromCurrency}
                     className="coin-image"
@@ -322,7 +324,7 @@ function Conversion() {
                       onClick={() => selectFromCoin(coin.code)}
                     >
                       <div className="item-icon">
-                        <img 
+                        <img
                           src={coin.image}
                           alt={coin.code}
                           className="coin-image"
@@ -381,7 +383,7 @@ function Conversion() {
             <div className="token-selector" onClick={() => setShowToDropdown(!showToDropdown)}>
               <div className="token-info">
                 <div className="token-icon">
-                  <img 
+                  <img
                     src={getCoinImage(toCurrency)}
                     alt={toCurrency}
                     className="coin-image"
@@ -410,7 +412,7 @@ function Conversion() {
                       onClick={() => selectToCoin(coin.code)}
                     >
                       <div className="item-icon">
-                        <img 
+                        <img
                           src={coin.image}
                           alt={coin.code}
                           className="coin-image"
@@ -448,24 +450,24 @@ function Conversion() {
           </div>
 
           {/* Confirm Button */}
-          <button 
+          <button
             className="confirm-button"
             onClick={() => setShowConfirmationModal(true)}
             disabled={!fromAmount || !hasSufficientBalance || fromCurrency === toCurrency || parseFloat(fromAmount) <= 0}
           >
-            {i18n("pages.conversion.confirmExchange") || "Confirm exchange"}
+            {i18n("pages.conversion.confirmConversion") || "Confirm exchange"}
           </button>
         </div>
       </div>
 
       {/* Success Modal */}
-      {selectModal && 
+      {selectModal &&
         <SuccessModalComponent
           isOpen={selectModal}
           onClose={handleCloseModal}
           type='convert'
           amount={Number(finalAmount).toFixed(8)}
-          coinType={toCurrency} 
+          coinType={toCurrency}
         />
       }
 
@@ -475,7 +477,7 @@ function Conversion() {
           <div className="confirmation-modal">
             <div className="modal-header">
               <h3>{i18n("pages.conversion.confirmConversion") || "Confirm Conversion"}</h3>
-              <button 
+              <button
                 className="close-btn"
                 onClick={() => !isConverting && setShowConfirmationModal(false)}
               >
@@ -489,7 +491,7 @@ function Conversion() {
                   <div className="amount">{parseFloat(fromAmount).toFixed(8)}</div>
                   <div className="currency">{fromCurrency}</div>
                 </div>
-                
+
                 <div className="conversion-arrow">
                   <i className="fas fa-arrow-down" />
                 </div>
@@ -534,7 +536,7 @@ function Conversion() {
                   </>
                 )}
               </button>
-              
+
               <button
                 className="cancel-btn"
                 onClick={() => setShowConfirmationModal(false)}
