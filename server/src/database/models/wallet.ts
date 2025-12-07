@@ -21,6 +21,12 @@ export default (database) => {
         type: String,
         required: true,
       },
+      accountType: {
+        type: String,
+        enum: ["exchange", "trade", "perpetual"],
+        required: true,
+        default: "exchange",
+      },
 
       coinName: {
         type: String,
@@ -61,7 +67,7 @@ export default (database) => {
   );
 
   WalletSchema.index(
-    { importHash: 1, tenant: 1 },
+    { user: 1, symbol: 1, accountType: 1, tenant: 1 },
     {
       unique: true,
       partialFilterExpression: {

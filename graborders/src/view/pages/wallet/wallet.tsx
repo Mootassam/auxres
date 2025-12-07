@@ -1,3 +1,4 @@
+
 import React, {
   useState,
   useEffect,
@@ -87,6 +88,14 @@ function Wallet() {
   useEffect(() => {
     setActiveItem(location.pathname);
   }, [location.pathname]);
+
+
+  const filteredAssets = (activeTab) => {
+    setActiveTab(activeTab);
+    dispatch(assetsActions.doFetch(activeTab));
+  }
+
+
 
   // Calculate total portfolio value
   const { totalValue, totalChange } = useMemo(() => {
@@ -311,7 +320,7 @@ function Wallet() {
                 <div
                   key={tab}
                   className={`account-tab ${activeTab === tab ? "active" : ""}`}
-                  onClick={() => setActiveTab(tab)}
+                  onClick={() => filteredAssets(tab)}
                 >
                   {tab}
                 </div>

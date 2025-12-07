@@ -241,10 +241,10 @@ class WalletRepository {
 
 
   static async processStacking(data, options) {
-  console.log("🚀 ~ WalletRepository ~ processStacking ~ options:", options)
-  console.log("🚀 ~ WalletRepository ~ processStacking ~ data:", data)
+    console.log("🚀 ~ WalletRepository ~ processStacking ~ options:", options)
+    console.log("🚀 ~ WalletRepository ~ processStacking ~ data:", data)
 
-    
+
   }
 
   static async processDeposit(userId, data, options) {
@@ -486,6 +486,8 @@ class WalletRepository {
       tenant: currentTenant.id,
     });
 
+
+
     if (filter) {
       if (filter.id) {
         criteriaAnd.push({
@@ -531,6 +533,7 @@ class WalletRepository {
     { filter, limit = 0, offset = 0, orderBy = "" },
     options: IRepositoryOptions
   ) {
+    console.log("🚀 ~ WalletRepository ~ findAndCountAllMobile ~ filter:", filter)
     const currentTenant = MongooseRepository.getCurrentTenant(options);
     const currentUser = MongooseRepository.getCurrentUser(options);
 
@@ -544,7 +547,17 @@ class WalletRepository {
       user: currentUser.id,
     });
 
+
+
+
     if (filter) {
+
+         criteriaAnd.push({
+        accountType: String(filter.toLowerCase()),
+      });
+
+   
+
       if (filter.id) {
         criteriaAnd.push({
           ["_id"]: MongooseQueryUtils.uuid(filter.id),
@@ -649,44 +662,56 @@ class WalletRepository {
     return output;
   }
 
-static async createDefaultAssets(
-  newUser,
-  tenantId,
-  options: IRepositoryOptions
-) {
-  const cryptocurrencies = [
-    { symbol: 'USDT', name: 'Tether' },
-    { symbol: 'ETH', name: 'Ethereum' },
-    { symbol: 'BTC', name: 'Bitcoin' },
-    { symbol: 'USDC', name: 'USD Coin' },
-    { symbol: 'DAI', name: 'DAI' },
-    { symbol: 'SHIB', name: 'Shiba Inu' },
-    { symbol: 'XRP', name: 'Ripple' },
-    { symbol: 'TRX', name: 'TRON' },
-    { symbol: 'SOL', name: 'Solana' },
-    { symbol: 'BNB', name: 'Binance Coin' },
-    { symbol: 'DOGE', name: 'Dogecoin' }
-  ];
+  static async createDefaultAssets(
+    newUser,
+    tenantId,
+    options: IRepositoryOptions
+  ) {
+    const cryptocurrencies = [
+      { symbol: 'USDT', name: 'Tether' },
+      { symbol: 'ETH', name: 'Ethereum' },
+      { symbol: 'BTC', name: 'Bitcoin' },
+      { symbol: 'USDC', name: 'USD Coin' },
+      { symbol: 'DAI', name: 'DAI' },
+      { symbol: 'SHIB', name: 'Shiba Inu' },
+      { symbol: 'XRP', name: 'Ripple' },
+      { symbol: 'TRX', name: 'TRON' },
+      { symbol: 'SOL', name: 'Solana' },
+      { symbol: 'BNB', name: 'Binance Coin' },
+      { symbol: 'DOGE', name: 'Dogecoin' }
+    ];
 
-  const defaultWallets = cryptocurrencies.map(crypto => ({
-    user: newUser.id,
-    symbol: crypto.symbol,
-    coinName: crypto.name,
-    amount: 0,
-    status: "available",
-    tenant: tenantId,
-    createdBy: newUser,
-    updatedBy: newUser,
-  }));
+    const accountTypes = ["exchange", "trade", "perpetual"];
 
-  const createdWallets: any[] = [];
-  for (const walletData of defaultWallets) {
-    const asset = await this.createMobile(walletData, options);
-    createdWallets.push(asset);
+    const walletsToCreate: any[] = [];
+
+    // Generate all combinations
+    for (const crypto of cryptocurrencies) {
+      for (const type of accountTypes) {
+        walletsToCreate.push({
+          user: newUser.id,
+          symbol: crypto.symbol,
+          coinName: crypto.name,
+          amount: 0,
+          accountType: type,        // 👈 IMPORTANT
+          status: "available",
+          tenant: tenantId,
+          createdBy: newUser,
+          updatedBy: newUser,
+        });
+      }
+    }
+
+    // Create all wallets
+    const createdWallets: any[] = [];
+    for (const walletData of walletsToCreate) {
+      const wallet = await this.createMobile(walletData, options);
+      createdWallets.push(wallet);
+    }
+
+    return createdWallets;
   }
 
-  return createdWallets;
-}
 }
 
 export default WalletRepository;
