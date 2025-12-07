@@ -113,7 +113,7 @@ function Trade() {
     isComponentMounted.current = true;
 
     dispatch(assetsActions.doFetch());
-    dispatch(spotListActions.doFetcPending());
+    dispatch(spotListActions.doFetchPending());
 
     // Faster loading timeout
     const t = setTimeout(() => {
@@ -141,6 +141,9 @@ function Trade() {
       }
     }
   }, [marketPrice, quantity]);
+
+
+
 
   // Sync quantity and amountInUSDT
   const syncQuantityFromUSDT = useCallback((usdtValue) => {
@@ -790,9 +793,9 @@ function Trade() {
         }
 
         .trade-type-select {
-          font-size: 12px;
-          padding: 8px;
-          background: transparent;
+          font-size: 10px;
+          padding: 5px;
+          background: rgba(255, 255, 255, 0.2);
           color: #fff;
           border: 1px solid rgba(255,255,255,0.3);
           border-radius: 4px;

@@ -80,7 +80,7 @@ const spotListActions = {
       );
     },
 
-  doFetcPending:
+  doFetchPending:
     (filter?, rawFilter?, keepPagination = false) =>
       async (dispatch, getState) => {
         try {
