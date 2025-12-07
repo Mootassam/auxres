@@ -54,7 +54,7 @@ export default class depositService {
 
     const tenantId = AuthCurrentTenant.get();
     const response = await authAxios.post(
-      `/tenant/${tenantId}/asset/transfer`,
+      `/tenant/${tenantId}/assets/transfer`,
       body,
     );
 

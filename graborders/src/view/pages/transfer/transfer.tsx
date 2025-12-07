@@ -51,7 +51,6 @@ function Transfer() {
     ];
 
     const doTransfer = (values) => {
-        console.log("Transfer values:", values);
         dispatch(actions.doTransfer(values));
     };
 
@@ -177,12 +176,10 @@ function Transfer() {
 
         const transferData = {
             symbol: selectedCurrency,
-            coinName: coinInfo ? coinInfo.name : selectedCurrency,
             fromAccount: fromAccount,
             toAccount: toAccount,
             amount: transferAmount,
             status: "completed",
-            user: "currentUserId" // You'll need to get this from your auth
         };
 
         console.log("Transfer data:", transferData);
@@ -267,7 +264,7 @@ function Transfer() {
 
                                 </span>
                             </div>
-                            <div className="currency-name" style={{paddingLeft:10}}>
+                            <div className="currency-name" style={{ paddingLeft: 10 }}>
                                 {selectedCurrency}
                             </div>
                             <i className="fas fa-chevron-down selector-arrow" />
@@ -428,12 +425,12 @@ function Transfer() {
                                 >
                                     <div
                                         className="currency-icon"
-                                
+
                                     >
-                                            <img src={`https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/${coin.code}.png`} style={{
-                                    width
-                                        : '100%'
-                                }} />
+                                        <img src={`https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/${coin.code}.png`} style={{
+                                            width
+                                                : '100%'
+                                        }} />
                                     </div>
                                     <div className="currency-name">
                                         <div className="item-code">{coin.code}</div>

@@ -35,9 +35,10 @@ export default (database) => {
       },
 
       amount: {
-        type: Number,
+        type: String,
         required: true,
         min: 0,
+        default: 0,
       },
 
       status: {

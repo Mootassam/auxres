@@ -7,7 +7,7 @@ import AssetsServices from '../../services/assetsServices';
 export default async (req, res, next) => {
   try {
     // new PermissionChecker(req).validateHas(Permissions.values.categoryRead);  
-    const payload = await new AssetsServices(req).transferBetweenAccounts(req.query);
+    const payload = await new AssetsServices(req).transferBetweenAccounts(req.body.data);
     await ApiResponseHandler.success(req, res, payload);
   } catch (error) {
     await ApiResponseHandler.error(req, res, error);

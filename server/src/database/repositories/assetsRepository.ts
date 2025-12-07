@@ -11,6 +11,7 @@ import { sendNotification } from "../../services/notificationServices";
 import axios from "axios";
 import User from "../models/user";
 import UserRepository from "./userRepository";
+import Transfer from "../models/Transfer";
 class WalletRepository {
   static async create(data, options: IRepositoryOptions) {
     const currentTenant = MongooseRepository.getCurrentTenant(options);
@@ -720,15 +721,17 @@ class WalletRepository {
 
 
   static async transferBetweenAccounts(data, options: IRepositoryOptions) {
+    console.log("🚀 ~ WalletRepository ~ transferBetweenAccounts ~ data:", data)
     const currentTenant = MongooseRepository.getCurrentTenant(options);
     const currentUser = MongooseRepository.getCurrentUser(options);
 
     // Deduct from source wallet
     const sourceWallet = await Wallet(options.database).findOneAndUpdate(
       {
-        user: data.user,
+        user: currentUser.id,
         symbol: data.symbol,
         accountType: data.fromAccount,
+        tenant: currentTenant.id,
         amount: { $gte: data.amount }, // ensure enough balance
       },
       {
@@ -745,8 +748,9 @@ class WalletRepository {
     // Add to target wallet
     const targetWallet = await Wallet(options.database).findOneAndUpdate(
       {
-        user: data.user,
+        user: currentUser.id,
         symbol: data.symbol,
+        tenant: currentTenant.id,
         accountType: data.toAccount,
       },
       {
@@ -764,16 +768,19 @@ class WalletRepository {
     );
 
     // Log the transfer
-    const Transfer = options.database.model("Transfer");
-    await Transfer.create({
+
+    await Transfer(options.database).create({
       fromAccount: data.fromAccount,
       toAccount: data.toAccount,
+      symbol: data.symbol,
       amount: data.amount,
       status: "completed",
-      user: data.user,
+      user: currentUser.id,
+      tenant: currentTenant.id,
       createdBy: currentUser.id,
       updatedBy: currentUser.id,
     });
+
     return {
       sourceWallet,
       targetWallet,

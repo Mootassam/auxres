@@ -4,6 +4,7 @@ import Errors from 'src/modules/shared/error/errors';
 import Message from 'src/view/shared/message';
 import { getHistory } from 'src/modules/store';
 import { i18n } from '../../../i18n';
+import assetsListActions from '../list/assetsListActions';
 
 const prefix = 'ASSETS_FORM';
 
@@ -88,11 +89,16 @@ const assetsFormActions = {
         type: assetsFormActions.TRANSFER_STARTED,
       });
 
-      await vipService.create(values);
+      await vipService.transfer(values);
 
       dispatch({
         type: assetsFormActions.TRANSFER_SUCCESS,
       });
+      dispatch(assetsListActions.doFetch());
+
+      Message.success(
+        i18n('pages.transfer.success'),
+      );
 
     } catch (error) {
       Errors.handle(error);

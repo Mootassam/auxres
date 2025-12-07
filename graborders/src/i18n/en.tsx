@@ -53,13 +53,13 @@ const en = {
 
 
 
-    stake: {
-      enterAmount: "Enter an amount",
-      insufficientBalance: "Insufficient balance",
-      minAmount: "Min: {{min}}",
-      maxAmount: "Max: {{max}}",
-      confirmStake: "Confirm Stake"
-    },
+  stake: {
+    enterAmount: "Enter an amount",
+    insufficientBalance: "Insufficient balance",
+    minAmount: "Min: {{min}}",
+    maxAmount: "Max: {{max}}",
+    confirmStake: "Confirm Stake"
+  },
 
   pages: {
 
@@ -762,8 +762,8 @@ const en = {
         msbApproval: "MSB Approval",
         customerSupport: "Online service",
         downloadApp: "Download App",
-        logout: "Logout", 
-        preferences:" Preferences"
+        logout: "Logout",
+        preferences: " Preferences"
       }
     },
     notification: {
@@ -1057,11 +1057,11 @@ const en = {
       myAssets: "My Assets",
       manage: "Manage",
       noAssets: "No assets found",
-      earningsTrends:" Earnings Trends",
-      todaysEarnings :" Today's Earnings",
+      earningsTrends: " Earnings Trends",
+      todaysEarnings: " Today's Earnings",
       assetDistribution: "Asset Distribution",
-      myAccount:" My Account",
-      assetValuation:" Asset Valuation",
+      myAccount: " My Account",
+      assetValuation: " Asset Valuation",
       quickActions: {
         deposit: "Deposit",
         withdraw: "Withdraw",
@@ -1069,6 +1069,12 @@ const en = {
         convert: "Convert",
         staking: "Staking"
       }
+    },
+
+    transfer: {
+      success: " Transfer Successful ",
+
+
     },
 
     trade: {
