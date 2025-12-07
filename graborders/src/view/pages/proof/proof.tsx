@@ -447,12 +447,12 @@ function Proof() {
         /* Submit Button */
         .submit-button {
           width: 100%;
-          padding: 14px;
+          padding: 12px;
           background: #106cf5;
           color: white;
           border: none;
           border-radius: 8px;
-          font-size: 15px;
+          font-size: 14px;
           font-weight: 600;
           cursor: pointer;
           transition: all 0.3s ease;

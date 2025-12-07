@@ -135,7 +135,7 @@ const en = {
         text: "Your information is encrypted and secure. We use bank-level protection and manually verify each document for your safety."
       },
       buttons: {
-        validateDocuments: "VALIDATE DOCUMENTS"
+        validateDocuments: "Validate Documents"
       },
       footer: {
         copyright: "© 2025 CryptoWallet. All rights reserved.",

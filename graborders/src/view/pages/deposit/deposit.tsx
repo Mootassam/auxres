@@ -525,7 +525,6 @@ function Deposit() {
         }
 
         .header {
-          background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
           min-height: 60px;
           position: relative;
           padding: 15px 20px;
@@ -802,12 +801,12 @@ function Deposit() {
 
         .submit-btn {
           width: 100%;
-          padding: 16px;
+          padding: 12px;
           background: #106cf5;
           color: white;
           border: none;
-          border-radius: 12px;
-          font-size: 16px;
+          border-radius: 8px;
+          font-size: 14px;
           font-weight: 600;
           cursor: pointer;
           transition: all 0.3s ease;

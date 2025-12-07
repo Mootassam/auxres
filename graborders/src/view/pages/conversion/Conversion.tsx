@@ -121,21 +121,21 @@ function Conversion() {
   // Fetch assets and initial prices from Binance
   useEffect(() => {
     dispatch(assetsActions.doFetch());
-    
+
     const fetchInitialPrices = async () => {
       setIsLoading(true);
       try {
         const response = await axios.get("https://api.binance.com/api/v3/ticker/24hr");
-        
+
         const initialPrices: { [key: string]: number } = { USDT: 1 };
-        
+
         allowedCoins.forEach(coin => {
           if (coin.code === "USDT") return;
-          
-          const coinData = response.data.find((item: any) => 
+
+          const coinData = response.data.find((item: any) =>
             item.symbol === coin.binanceSymbol
           );
-          
+
           if (coinData) {
             initialPrices[coin.code] = parseFloat(coinData.lastPrice);
           } else {
@@ -157,10 +157,10 @@ function Conversion() {
 
         setPrices(initialPrices);
         setIsLoading(false);
-        
+
         // Set up interval for price updates (every 10 seconds)
         setupPriceUpdates();
-        
+
       } catch (error) {
         console.error("Error fetching initial prices:", error);
         setIsLoading(false);
@@ -204,16 +204,16 @@ function Conversion() {
         // Only update if confirmation modal is NOT open
         if (!showConfirmationModal && !isConverting) {
           const response = await axios.get("https://api.binance.com/api/v3/ticker/24hr");
-          
+
           const updatedPrices: { [key: string]: number } = { USDT: 1 };
-          
+
           allowedCoins.forEach(coin => {
             if (coin.code === "USDT") return;
-            
-            const coinData = response.data.find((item: any) => 
+
+            const coinData = response.data.find((item: any) =>
               item.symbol === coin.binanceSymbol
             );
-            
+
             if (coinData) {
               updatedPrices[coin.code] = parseFloat(coinData.lastPrice);
             }
@@ -239,17 +239,17 @@ function Conversion() {
   const calculateConversion = useCallback(() => {
     const fromPrice = prices[fromCurrency] || 1;
     const toPrice = prices[toCurrency] || 1;
-    
+
     if (fromPrice && toPrice && fromPrice > 0 && toPrice > 0) {
       const rate = fromPrice / toPrice;
       setConversionRate(rate);
-      
+
       if (fromAmount) {
         const amount = parseFloat(fromAmount);
         if (!isNaN(amount) && amount > 0) {
           const result = amount * rate;
           setToAmount(result.toFixed(8));
-          
+
           // Calculate fee (0.1%)
           const fee = amount * 0.001;
           setConversionFee(fee);
@@ -323,7 +323,7 @@ function Conversion() {
       finalAmount: finalAmount,
       fee: conversionFee
     });
-    
+
     // Show confirmation modal
     setShowConfirmationModal(true);
   };
@@ -335,7 +335,7 @@ function Conversion() {
     // Store conversion data for success modal
     const convertedAmount = frozenConversionData.finalAmount.toFixed(8);
     const convertedCoinType = toCurrency;
-    
+
     setConversionSuccessData({
       amount: convertedAmount,
       coinType: convertedCoinType
@@ -351,16 +351,16 @@ function Conversion() {
         toAmount: convertedAmount,
         status: "available",
       };
-      
+
       dispatch(assetsFormAction.doCreate(values));
-      
+
       // Update local balances
       setBalances(prev => ({
         ...prev,
         [fromCurrency]: (prev[fromCurrency] || 0) - frozenConversionData.fromAmount,
         [toCurrency]: (prev[toCurrency] || 0) + frozenConversionData.finalAmount
       }));
-      
+
       setIsConverting(false);
       setShowConfirmationModal(false);
       setFromAmount("");
@@ -379,7 +379,7 @@ function Conversion() {
   // Format exchange rate
   const formatExchangeRate = (rate: number = conversionRate) => {
     if (!rate || rate <= 0) return "0.00000000";
-    
+
     if (rate < 0.0001) {
       return rate.toFixed(12);
     } else if (rate < 1) {
@@ -431,9 +431,11 @@ function Conversion() {
             </div>
           </Link>
           <div className="page-title">{i18n("pages.conversion.title") || "Conversion"}</div>
-          <div className="header-icon">
-            <i className="fas fa-receipt" />
-          </div>
+          <Link to="/history"  className="header-icon-link remove_blue">
+            <div className="header-icon">
+              <i className="fas fa-receipt" />
+            </div>
+          </Link>
         </div>
       </div>
 
@@ -453,7 +455,7 @@ function Conversion() {
             <div className="token-selector" onClick={() => setShowFromDropdown(!showFromDropdown)}>
               <div className="token-info">
                 <div className="token-icon">
-                  <img 
+                  <img
                     src={getCoinImage(fromCurrency)}
                     alt={fromCurrency}
                     className="coin-image"
@@ -482,7 +484,7 @@ function Conversion() {
                       onClick={() => selectFromCoin(coin.code)}
                     >
                       <div className="item-icon">
-                        <img 
+                        <img
                           src={getCoinImage(coin.code)}
                           alt={coin.code}
                           className="coin-image"
@@ -557,7 +559,7 @@ function Conversion() {
             <div className="token-selector" onClick={() => setShowToDropdown(!showToDropdown)}>
               <div className="token-info">
                 <div className="token-icon">
-                  <img 
+                  <img
                     src={getCoinImage(toCurrency)}
                     alt={toCurrency}
                     className="coin-image"
@@ -586,7 +588,7 @@ function Conversion() {
                       onClick={() => selectToCoin(coin.code)}
                     >
                       <div className="item-icon">
-                        <img 
+                        <img
                           src={getCoinImage(coin.code)}
                           alt={coin.code}
                           className="coin-image"
@@ -645,7 +647,7 @@ function Conversion() {
           </div>
 
           {/* Confirm Button */}
-          <button 
+          <button
             className="confirm-button"
             onClick={handleOpenConfirmationModal}
             disabled={isLoading || !fromAmount || !hasSufficientBalance || fromCurrency === toCurrency || parseFloat(fromAmount) <= 0}
@@ -672,7 +674,7 @@ function Conversion() {
           onClose={handleCloseModal}
           type='convert'
           amount={conversionSuccessData.amount}
-          coinType={conversionSuccessData.coType} 
+          coinType={conversionSuccessData.coType}
         />
       )}
 
@@ -684,7 +686,7 @@ function Conversion() {
             <div className="confirmation-header">
               <div className="confirmation-nav-bar">
                 <div className="confirmation-title">Confirm Conversion</div>
-                <button 
+                <button
                   className="confirmation-close"
                   onClick={() => !isConverting && setShowConfirmationModal(false)}
                   disabled={isConverting}
@@ -699,7 +701,7 @@ function Conversion() {
               {/* Icon Section - Keep this part */}
               <div className="confirmation-icon-section">
                 <div className="from-coin-icon">
-                  <img 
+                  <img
                     src={getCoinImage(fromCurrency)}
                     alt={fromCurrency}
                     className="coin-image-large"
@@ -709,7 +711,7 @@ function Conversion() {
                     }}
                   />
                 </div>
-                
+
                 <div className="conversion-direction">
                   <div className="direction-line"></div>
                   <div className="direction-icon">
@@ -717,9 +719,9 @@ function Conversion() {
                   </div>
                   <div className="direction-line"></div>
                 </div>
-                
+
                 <div className="to-coin-icon">
-                  <img 
+                  <img
                     src={getCoinImage(toCurrency)}
                     alt={toCurrency}
                     className="coin-image-large"
@@ -738,7 +740,7 @@ function Conversion() {
                   <div className="amount-value">{frozenConversionData.fromAmount.toFixed(8)}</div>
                   <div className="amount-currency">{fromCurrency}</div>
                 </div>
-                
+
                 <div className="amount-to">
                   <div className="amount-label">You Receive</div>
                   <div className="amount-value" style={{ color: '#106cf5' }}>
@@ -789,7 +791,7 @@ function Conversion() {
                     </>
                   )}
                 </button>
-                
+
                 <button
                   className="cancel-action-btn"
                   onClick={() => setShowConfirmationModal(false)}
@@ -1534,6 +1536,7 @@ function Conversion() {
           font-size: 16px;
         }
 
+
         /* Exchange Rate */
         .exchange-rate {
           text-align: center;
@@ -1546,10 +1549,10 @@ function Conversion() {
         .confirm-button {
           background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
           border: none;
-          border-radius: 12px;
-          padding: 16px 20px;
+          border-radius: 8px;
+          padding: 12px;
           color: white;
-          font-size: 16px;
+          font-size: 14px;
           font-weight: 600;
           cursor: pointer;
           transition: all 0.3s ease;

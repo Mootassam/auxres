@@ -7,9 +7,7 @@ function Error404Page() {
       {/* Header Section - Matching Other Pages */}
       <div className="header">
         <div className="nav-bar">
-          <Link to="/" className="back-arrow">
-            <i className="fas fa-arrow-left" />
-          </Link>
+  
           <div className="page-title">404 Error</div>
         </div>
       </div>
