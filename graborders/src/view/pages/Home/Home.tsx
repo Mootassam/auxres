@@ -29,9 +29,11 @@ function Home() {
               <img src='./images/logo.png' style={{ height: '32px' }} alt="Logo" />
             </div>
             <div className="header-icons">
-              <div className="icon-circle">
-                <i className="far fa-envelope" />
-              </div>
+              <Link to="/notification" className="icon-circle">
+                <div className="icon-circle">
+                  <i className="far fa-envelope" />
+                </div>
+              </Link>
               <Link to="/profile" className="icon-circle">
                 <i className="far fa-user" />
               </Link>

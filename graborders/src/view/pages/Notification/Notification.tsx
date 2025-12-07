@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 import SubHeader from "src/view/shared/Header/SubHeader";
 import { useDispatch, useSelector } from "react-redux";
 import notificationFormActions from "src/modules/notification/form/notificationFormActions";
@@ -7,6 +7,7 @@ import notificationListActions from "src/modules/notification/list/notificationL
 import notificationListSelectors from "src/modules/notification/list/notificationListSelectors";
 import Dates from "src/view/shared/utils/Dates";
 import { i18n } from "../../../i18n";
+import LoadingModal from "src/shared/LoadingModal";
 
 const typeConfig = {
   deposit: {
@@ -99,131 +100,347 @@ function Notification() {
   ];
 
   return (
-    <div className="container">
-      <SubHeader title={i18n("pages.notification.title")} />
-
-      {/* Filter Tabs */}
-      <div className="filter-tabs">
-        {filterTabs.map((tab) => (
-          <button
-            key={tab.key}
-            className={`filter-tab ${activeFilter === tab.key ? "active" : ""}`}
-            onClick={() => handleFilterChange(tab.key)}
-          >
-            {tab.label}
-          </button>
-        ))}
+    <div className="notification-container">
+      {/* Header Section - Matching About Page */}
+      <div className="header">
+        <div className="nav-bar">
+          <Link to="/" className="back-arrow">
+            <i className="fas fa-arrow-left" />
+          </Link>
+          <div className="page-title">Notifications</div>
+        </div>
       </div>
 
-      {/* Notification Content */}
-      <div className="notification-container">
-        {loadingNotification ? (
-          <div className="loading-state">
-            <div className="binance-spinner"></div>
-            <span>{i18n("pages.notification.loading")}</span>
-          </div>
-        ) : allNotification?.length > 0 ? (
-          <div className="notification-list">
-            {allNotification.map((item) => {
-              const config = typeConfig[item.type] || typeConfig.custom;
-              return (
-                <div
-                  key={item.id}
-                  className={`notification-item ${item.status === "unread" ? "unread" : ""
-                    }`}
-                  onClick={() => handleNotificationClick(item)}
-                >
-                  <div className="notification-icon">
-                    <i className={config.icon} />
-                  </div>
-                  <div className="notification-content">
-                    <div className="notification-title">{config.title}</div>
-                    <div className="notification-message">
-                      {config.getMessage(item)}
-                    </div>
-                    <div className="notification-time">
-                      {Dates.Monthago(item.createdAt)}
-                    </div>
-                  </div>
-                  {item.status === "unread" && (
-                    <div className="unread-indicator" />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="empty-notification-state">
-            <div className="empty-icon">
-              <i className="fas fa-bell-slash" />
+      {/* Content Card - Matching About Page */}
+      <div className="content-card">
+        {/* Filter Tabs */}
+        <div className="filter-tabs">
+          {filterTabs.map((tab) => (
+            <button
+              key={tab.key}
+              className={`filter-tab ${activeFilter === tab.key ? "active" : ""}`}
+              onClick={() => handleFilterChange(tab.key)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Notification Content */}
+        <div className="notification-content">
+          {loadingNotification ? (
+            <div className="loading-container">
+              <LoadingModal />
             </div>
-            <div className="empty-title">{i18n("pages.notification.emptyState.title")}</div>
-            <div className="empty-message">
-              {activeFilter === "all"
-                ? i18n("pages.notification.emptyState.noNotifications")
-                : i18n("pages.notification.emptyState.noFilteredNotifications", activeFilter)}
+          ) : allNotification?.length > 0 ? (
+            <div className="notification-list">
+              {allNotification.map((item) => {
+                const config = typeConfig[item.type] || typeConfig.custom;
+                return (
+                  <div
+                    key={item.id}
+                    className={`notification-item ${item.status === "unread" ? "unread" : ""
+                      }`}
+                    onClick={() => handleNotificationClick(item)}
+                  >
+                    <div className="notification-icon">
+                      <i className={config.icon} />
+                    </div>
+                    <div className="notification-details">
+                      <div className="notification-title">{config.title}</div>
+                      <div className="notification-message">
+                        {config.getMessage(item)}
+                      </div>
+                      <div className="notification-time">
+                        {Dates.Monthago(item.createdAt)}
+                      </div>
+                    </div>
+                    {item.status === "unread" && (
+                      <div className="unread-indicator" />
+                    )}
+                  </div>
+                );
+              })}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="empty-state">
+              <div className="empty-icon">
+                <i className="fas fa-bell-slash" />
+              </div>
+              <div className="empty-title">{i18n("pages.notification.emptyState.title")}</div>
+              <div className="empty-message">
+                {activeFilter === "all"
+                  ? i18n("pages.notification.emptyState.noNotifications")
+                  : i18n("pages.notification.emptyState.noFilteredNotifications", activeFilter)}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       <style>{`
-        .loading-state {
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+          background-color: #f5f7fa;
+          color: #333;
+          line-height: 1.6;
+          overflow-x: hidden;
+        }
+
+        .notification-container {
+          max-width: 400px;
+          margin: 0 auto;
+          position: relative;
+          min-height: 100vh;
+          background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
+        }
+
+        /* Header Section - Matching About Page */
+        .header {
+          min-height: 60px;
+          position: relative;
+          padding: 20px;
+        }
+
+        .nav-bar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .back-arrow {
+          color: white;
+          font-size: 20px;
+          font-weight: 300;
+          text-decoration: none;
+          transition: opacity 0.3s ease;
+        }
+
+        .back-arrow:hover {
+          opacity: 0.8;
+        }
+
+        .page-title {
+          color: white;
+          font-size: 17px;
+          font-weight: 600;
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+        }
+
+        /* Content Card - Matching About Page */
+        .content-card {
+          background: white;
+          border-radius: 40px 40px 0 0;
+          padding: 25px 20px 100px;
+          box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
+          min-height: calc(100vh - 60px);
+        }
+
+        /* Filter Tabs */
+        .filter-tabs {
+          display: flex;
+          background: #f8f9fa;
+          border-radius: 12px;
+          padding: 4px;
+          margin-bottom: 25px;
+        }
+
+        .filter-tab {
+          flex: 1;
+          padding: 10px 16px;
+          border: none;
+          background: transparent;
+          font-size: 13px;
+          font-weight: 500;
+          color: #666;
+          cursor: pointer;
+          border-radius: 8px;
+          transition: all 0.3s ease;
+        }
+
+        .filter-tab:hover {
+          background: rgba(16, 108, 245, 0.1);
+        }
+
+        .filter-tab.active {
+          background: white;
+          color: #106cf5;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+          font-weight: 600;
+        }
+
+        /* Notification Content */
+        .notification-content {
+          width: 100%;
+        }
+
+        .loading-container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 200px;
+        }
+
+        /* Notification List */
+        .notification-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .notification-item {
+          display: flex;
+          align-items: flex-start;
+          padding: 16px;
+          background: white;
+          border-radius: 12px;
+          border: 1px solid #e7eaee;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          position: relative;
+        }
+
+        .notification-item:hover {
+          border-color: #106cf5;
+          box-shadow: 0 4px 12px rgba(16, 108, 245, 0.1);
+          transform: translateY(-2px);
+        }
+
+        .notification-item.unread {
+          background: #f8fbff;
+          border-color: #d1e3ff;
+        }
+
+        .notification-icon {
+          width: 40px;
+          height: 40px;
+          background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
+          border-radius: 10px;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 12px;
-          padding: 40px;
-          color: #666;
+          margin-right: 12px;
+          flex-shrink: 0;
+        }
+
+        .notification-icon i {
+          font-size: 18px;
+          color: white;
+        }
+
+        .notification-details {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .notification-title {
           font-size: 14px;
+          font-weight: 600;
+          color: #222;
+          margin-bottom: 4px;
+          line-height: 1.4;
         }
-        
-        .binance-spinner {
-          width: 20px;
-          height: 20px;
-          border: 2px solid #f0b90b;
-          border-top: 2px solid transparent;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
+
+        .notification-message {
+          font-size: 13px;
+          color: #555;
+          margin-bottom: 8px;
+          line-height: 1.5;
+          word-break: break-word;
         }
-        
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+
+        .notification-time {
+          font-size: 12px;
+          color: #888f99;
+          font-weight: 500;
         }
-        
+
         .unread-indicator {
           width: 8px;
           height: 8px;
+          background: #106cf5;
           border-radius: 50%;
           margin-left: 10px;
+          flex-shrink: 0;
+          margin-top: 4px;
         }
-        
-        .empty-notification-state {
+
+        /* Empty State */
+        .empty-state {
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          padding: 60px 30px;
+          padding: 60px 20px;
           text-align: center;
-          color: #666;
         }
-        
+
         .empty-icon {
-          font-size: 48px;
+          font-size: 64px;
           margin-bottom: 20px;
-          color: #ddd;
+          color: #e7eaee;
         }
-        
+
         .empty-title {
           font-size: 18px;
           font-weight: 600;
+          color: #222;
           margin-bottom: 10px;
         }
-        
+
         .empty-message {
           font-size: 14px;
-          line-height: 1.4;
+          color: #888f99;
+          line-height: 1.5;
+          max-width: 250px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 380px) {
+          .notification-container {
+            padding: 0;
+          }
+
+          .header {
+            padding: 16px;
+            min-height: 50px;
+          }
+
+          .content-card {
+            padding: 20px 16px 100px;
+          }
+
+          .notification-item {
+            padding: 14px;
+          }
+
+          .notification-icon {
+            width: 36px;
+            height: 36px;
+          }
+
+          .notification-icon i {
+            font-size: 16px;
+          }
+        }
+
+        @media (min-width: 768px) {
+          .content-card {
+            border-radius: 30px 30px 0 0;
+          }
+
+          .notification-list {
+            max-width: 600px;
+            margin: 0 auto;
+          }
         }
       `}</style>
     </div>
