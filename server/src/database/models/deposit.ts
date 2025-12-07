@@ -30,8 +30,8 @@ export default (database) => {
         required: true,
       },
 
-      rechargechannel: {
-        type: Schema.Types.ObjectId,
+    rechargechannel: {
+        type: String,
         required: true,
       },
       rechargetime: {

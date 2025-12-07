@@ -10,16 +10,14 @@ import ButtonIcon from 'src/view/shared/ButtonIcon';
 import { i18n } from 'src/i18n';
 import yupFormSchemas from 'src/modules/shared/yup/yupFormSchemas';
 import DepositNetworkAutocompleteFormItem from 'src/view/depositNetwork/autocomplete/DepositNetworkAutocompleteFormItem';
+import depositMethodEnumerators from 'src/modules/depositMethod/depositMethodEnumerators';
 
 const schema = yup.object().shape({
   symbol: yupFormSchemas.string(
     i18n('entities.depositMethod.fields.symbol'),
     { required: true },
   ),
-  name: yupFormSchemas.string(
-    i18n('entities.depositMethod.fields.name'),
-    { required: true },
-  ),
+
 
   network: yupFormSchemas.relationToMany(
     i18n('entities.depositMethod.fields.network'),
@@ -61,20 +59,22 @@ function DepositMethodForm(props) {
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="row">
             <div className="col-lg-6 col-md-8 col-12">
-              <InputFormItem
+
+
+              <SelectFormItem
                 name="symbol"
                 label={i18n('entities.depositMethod.fields.symbol')}
+                options={depositMethodEnumerators.coins.map(
+                  (value) => ({
+                    value,
+                    label: i18n(`entities.depositMethod.enumerators.coins.${value}`),
+                  }),
+                )}
                 required
+
               />
             </div>
 
-            <div className="col-lg-6 col-md-8 col-12">
-              <InputFormItem
-                name="name"
-                label={i18n('entities.depositMethod.fields.name')}
-                required
-              />
-            </div>
 
             <div className="col-lg-6 col-md-8 col-12">
               <DepositNetworkAutocompleteFormItem

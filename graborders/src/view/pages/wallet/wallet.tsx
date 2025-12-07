@@ -50,7 +50,7 @@ function Wallet() {
     { icon: "fas fa-wallet", label: "Assets", path: "/assets", active: true },
   ];
 
-  const accountTabs = ["Exchange", "Trade", "Perpetual", "Finance"];
+  const accountTabs = ["Exchange", "Trade", "Perpetual"];
 
   // Memoize the format function to prevent unnecessary re-renders
   const formatAmount = useCallback((amount: string) => {

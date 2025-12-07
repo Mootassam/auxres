@@ -1,174 +1,328 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useMemo, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { QRCodeCanvas } from "qrcode.react";
-import { useParams } from "react-router-dom";
-import method from 'src/modules/depositMethod/list/depositMethodListActions'
-import selectors from 'src/modules/depositMethod/list/depositMethodSelectors';
+import { useForm, FormProvider } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
+import method from "src/modules/depositMethod/list/depositMethodListActions";
+import selectors from "src/modules/depositMethod/list/depositMethodSelectors";
+import depositActions from "src/modules/deposit/form/depositFormActions";
+import FieldFormItem from "src/shared/form/FieldFormItem";
+
+interface CurrencyType {
+  _id?: string;
+  name?: string;
+  symbol?: string;
+  network?: any[];
+  address?: string;
+  minDeposit?: number;
+  minimumAmount?: number;
+  [key: string]: any;
+}
 
 function Deposit() {
   const dispatch = useDispatch();
-  const params = useParams(); // Get all URL params
-  const symbol = params.id; // Access the symbol param
-  
-  const [showToast, setShowToast] = useState(false);
-  const [copiedText, setCopiedText] = useState("Address copied");
+  const params = useParams();
+  const symbol = (params?.id || "").toString();
+
   const listMethod = useSelector(selectors.selectRows);
   const loading = useSelector(selectors.selectLoading);
 
-  // Initialize currentAddress safely
-  // Initialize currentAddress safely
+  const [showToast, setShowToast] = useState(false);
+  const [copiedText, setCopiedText] = useState("Address copied");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
   const [currentAddress, setCurrentAddress] = useState("");
-  const [currentCurrency, setCurrentCurrency] = useState<any>(null);
-  const [networkOptions, setNetworkOptions] = useState<any[]>([]);
-  const [selectedNetwork, setSelectedNetwork] = useState<any>(null);
+  const [currentCurrency, setCurrentCurrency] = useState<CurrencyType | null>(null);
+  const [networkOptions, setNetworkOptions] = useState<Array<{ _id: string; name: string; wallet: string; raw: any }>>([]);
+  const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null); // will store network._id (string)
+  const [minDepositAmount, setMinDepositAmount] = useState(0);
+  const [submittedAmount, setSubmittedAmount] = useState("");
+
+  // Known minimums by symbol (fallbacks)
+  const MIN_DEPOSIT_AMOUNTS = {
+    USDT: 10,
+    BTC: 0.001,
+    ETH: 0.01,
+    SOL: 0.1,
+    BNB: 0.01,
+    XRP: 10,
+    ADA: 10,
+    DOGE: 50,
+    LTC: 0.1,
+    TRX: 10,
+  };
+
+  // Dynamic validation schema based on minDepositAmount
+  const schema = useMemo(() => {
+    return yup.object().shape({
+      amount: yup
+        .number()
+        .typeError("Amount must be a number")
+        .positive("Amount must be positive")
+        .required("Amount is required")
+        .min(minDepositAmount || 0, `Minimum deposit is ${minDepositAmount}`),
+      txid: yup.string().required("Transaction ID is required"),
+    });
+  }, [minDepositAmount]);
+
+  const formMethods = useForm({
+    resolver: yupResolver(schema),
+    mode: "onChange",
+    defaultValues: {
+      amount: "",
+      txid: "",
+    },
+  });
+
+  // Fetch deposit methods on mount
   useEffect(() => {
     dispatch(method.doFetch());
   }, [dispatch]);
 
-  // Find current currency and its networks when listMethod or symbol changes
+  // When listMethod or symbol changes, find currency and setup network options
   useEffect(() => {
-
-    
-    if (listMethod && listMethod.length > 0 && symbol) {
-      const currency = listMethod.find(item => 
-        item.symbol && item.symbol.toLowerCase() === symbol.toLowerCase()
-      );
-      
-      
-      if (currency) {
-        setCurrentCurrency(currency);
-        
-        // Extract networks from this currency
-        if (currency.network && currency.network.length > 0) {
-          setNetworkOptions(currency.network);
-          // Set first network as default
-          setSelectedNetwork(currency.network[0]);
-          // Use network's wallet address
-          setCurrentAddress(currency.network[0].wallet || "");
-        } else if (currency.address) {
-          // If no networks but has direct address (backward compatibility)
-          setNetworkOptions([{
-            _id: currency._id,
-            name: `${currency.name} Network`,
-            wallet: currency.address
-          }]);
-          setSelectedNetwork({
-            _id: currency._id,
-            name: `${currency.name} Network`,
-            wallet: currency.address
-          });
-          setCurrentAddress(currency.address);
-        } else {
-          console.log("No networks or address found for currency");
-        }
-      } else {
-        console.log("Currency not found for symbol:", symbol);
+    if (!listMethod || !symbol) {
+      // set fallback min if symbol present but no list yet
+      if (symbol) {
+        setMinDepositAmount(MIN_DEPOSIT_AMOUNTS[symbol.toUpperCase()] || 0);
       }
+      return;
     }
-  }, [listMethod, symbol]);
 
-  // Update address when selected network changes
+    // Find currency by symbol (case-insensitive)
+    const currency = listMethod.find((item) => {
+      if (!item || !item.symbol) return false;
+      return item.symbol.toString().toLowerCase() === symbol.toString().toLowerCase();
+    });
+
+    if (!currency) {
+      // No matching currency found
+      setCurrentCurrency(null);
+      setNetworkOptions([]);
+      setSelectedNetwork(null);
+      setCurrentAddress("");
+      setMinDepositAmount(MIN_DEPOSIT_AMOUNTS[symbol.toUpperCase()] || 0);
+      return;
+    }
+
+    setCurrentCurrency(currency);
+
+    // Determine minimum amount: prefer known map, then currency fields, then 0
+    const minAmount =
+      (MIN_DEPOSIT_AMOUNTS[symbol.toUpperCase()] ?? currency?.minDeposit ?? currency?.minimumAmount ?? 0);
+    setMinDepositAmount(Number(minAmount) || 0);
+
+    // Normalize networks
+    if (Array.isArray(currency.network) && currency.network.length > 0) {
+      const normalized = currency.network.map((n, idx) => ({
+        _id: n._id ?? `${currency._id ?? symbol}-network-${idx}`,
+        name: n.name ?? n.network ?? `${currency.name ?? symbol} Network`,
+        wallet: n.wallet ?? n.address ?? n.depositAddress ?? "",
+        raw: n,
+      }));
+      setNetworkOptions(normalized);
+
+      // default to first network's id (or keep the current selectedNetwork if it exists in normalized)
+      const defaultNet = normalized.find(n => n._id === selectedNetwork) || normalized[0];
+      setSelectedNetwork(defaultNet._id);
+      setCurrentAddress(defaultNet.wallet || "");
+    } else if (currency.address) {
+      // Currency has a direct address (no separate networks)
+      const single = {
+        _id: currency._id ?? `${symbol}-single`,
+        name: `${currency.name ?? symbol} Network`,
+        wallet: currency.address,
+        raw: null,
+      };
+      setNetworkOptions([single]);
+      setSelectedNetwork(single._id);
+      setCurrentAddress(single.wallet || "");
+    } else {
+      // No networks and no direct address
+      setNetworkOptions([]);
+      setSelectedNetwork(null);
+      setCurrentAddress("");
+    }
+  }, [listMethod, symbol]); // intentionally not including selectedNetwork here
+
+  // Update currentAddress when selectedNetwork changes (selectedNetwork holds ID)
   useEffect(() => {
-    if (selectedNetwork && selectedNetwork.wallet) {
-      setCurrentAddress(selectedNetwork.wallet);
+    if (!selectedNetwork) {
+      return;
     }
-  }, [selectedNetwork]);
+    const found = networkOptions.find((n) => n._id === selectedNetwork);
+    if (found) {
+      setCurrentAddress(found.wallet || "");
+    }
+  }, [selectedNetwork, networkOptions]);
 
-  // Copy address to clipboard with error handling
-  const copyAddressToClipboard = () => {
+  // Copy address to clipboard with feedback
+  const copyAddressToClipboard = async () => {
     if (!currentAddress) {
       console.error("No address to copy");
       return;
     }
-
-    navigator.clipboard.writeText(currentAddress).then(() => {
+    try {
+      await navigator.clipboard.writeText(currentAddress);
       setCopiedText("Address copied");
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3000);
-    }).catch(err => {
+    } catch (err) {
       console.error("Failed to copy address: ", err);
-    });
+      setCopiedText("Failed to copy address");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    }
   };
 
-  // Save QR code as image
+  // Save QR code as PNG
   const saveQRCode = () => {
-    const canvas = document.querySelector('.qr-box canvas') as HTMLCanvasElement;
-    if (canvas) {
-      const link = document.createElement('a');
-      link.download = `${symbol}-${selectedNetwork?.name || 'deposit'}-address.png`;
-      link.href = canvas.toDataURL('image/png');
+    const canvas = document.querySelector(".qr-box canvas");
+    if (!(canvas instanceof HTMLCanvasElement)) {
+      console.error("QR canvas not found");
+      setCopiedText("Unable to save QR");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+      return;
+    }
+    try {
+      const link = document.createElement("a");
+      const networkNameSafe = (networkOptions.find(n => n._id === selectedNetwork)?.name || "deposit").replace(/\s+/g, "-");
+      link.download = `${symbol}-${networkNameSafe}-address.png`;
+      link.href = canvas.toDataURL("image/png");
       link.click();
       setCopiedText("QR code saved");
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3000);
+    } catch (err) {
+      console.error("Failed to save QR code", err);
+      setCopiedText("Unable to save QR");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
     }
   };
 
-  // Handle network selection
+  // Handle network selection change (store network._id)
   const handleNetworkSelect = (event) => {
     const networkId = event.target.value;
-    const selected = networkOptions.find(network => network?._id === networkId);
-    if (selected) {
-      setSelectedNetwork(selected);
+    setSelectedNetwork(networkId);
+    // clear amount to avoid mismatched validation if min changes
+    formMethods.setValue("amount", "");
+    formMethods.clearErrors("amount");
+  };
+
+  // Handle form submit
+  const onSubmit = async (data) => {
+    if (!selectedNetwork || !currentCurrency || !currentAddress) {
+      console.error("Missing required information");
+      return;
     }
+
+    setIsSubmitting(true);
+    try {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const day = String(now.getDate()).padStart(2, "0");
+      const randomDigits = Math.floor(Math.random() * 10000000).toString().padStart(7, "0");
+      const orderno = `RE${year}${month}${day}${randomDigits}`;
+      const depositData = {
+        orderno,
+        amount: data.amount,
+        txid: data.txid,
+        rechargechannel: symbol,     // your requested behavior
+        status: "pending",
+        network: selectedNetwork,
+        rechargetime: now.toISOString()// <-- network ID
+      };
+
+      setSubmittedAmount(data.amount);
+
+      // dispatch deposit action (assumes this returns a promise)
+      await dispatch(depositActions.doCreate(depositData));
+
+      setShowSuccessModal(true);
+      formMethods.reset();
+    } catch (error) {
+      console.error("Deposit submission error:", error);
+      // optionally set a toast/error state here
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowSuccessModal(false);
+    setSubmittedAmount("");
   };
 
   return (
     <div className="deposit-container">
-      {/* Header Section */}
+      {/* Header */}
       <div className="header">
         <div className="nav-bar">
-          <Link to="/deposit" className="back-arrow">
+          <Link to="/deposit" className="back-arrow" aria-label="Back to deposits">
             <i className="fas fa-arrow-left" />
           </Link>
-          <div className="page-title">Deposit {symbol || "Loading..."}</div>
+          <div className="page-title">Deposit {symbol || "..."}</div>
+
+          
         </div>
       </div>
 
-      {/* Content Card */}
+      {/* Content */}
       <div className="content-card">
         <div className="deposit-content">
-
-    
-
-          {/* Deposit Currency (Fixed) */}
+          {/* Currency display */}
           <div className="section">
             <div className="section-label">Deposit currency</div>
             <div className="currency-display">
-              <div className="currency-icon">
+              <div className="currency-icon" aria-hidden>
                 <img
                   src={`https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/${symbol}.png`}
                   alt={symbol}
                   onError={(e) => {
-                    const img = e.target as HTMLImageElement;
-                    img.onerror = null;
-                    img.style.display = 'none';
-                    const parent = img.parentElement;
-                    if (parent) {
-                      parent.textContent = symbol;
-                      parent.style.background = '#f0f0f0';
-                      parent.style.color = '#333';
+                    const img = e.target;
+                    if (img && img instanceof HTMLImageElement) {
+                      img.onerror = null;
+                      img.style.display = "none";
+                      const parent = img.parentElement;
+                      if (parent) {
+                        parent.textContent = (symbol && symbol.charAt(0)) || "C";
+                        parent.style.background = "#f0f0f0";
+                        parent.style.color = "#333";
+                        parent.style.fontSize = "12px";
+                        parent.style.fontWeight = "bold";
+                        parent.style.display = "inline-flex";
+                        parent.style.alignItems = "center";
+                        parent.style.justifyContent = "center";
+                        parent.style.width = "36px";
+                        parent.style.height = "36px";
+                        parent.style.borderRadius = "6px";
+                      }
                     }
                   }}
                 />
               </div>
-              <div className="currency-name">
-                {currentCurrency ? currentCurrency.name : symbol}
-              </div>
+              <div className="currency-name">{currentCurrency?.name || symbol}</div>
             </div>
             <div className="section-note">Fixed currency - cannot be changed</div>
           </div>
 
-          {/* Deposit Network (Selectable) - Only show if there are networks */}
+          {/* Network select */}
           {networkOptions.length > 0 && (
             <div className="section">
               <div className="section-label">Deposit network</div>
               <div className="network-select-wrapper">
                 <select
                   className="network-select"
-                  value={selectedNetwork?._id || ""}
+                  value={selectedNetwork || ""}
                   onChange={handleNetworkSelect}
+                  aria-label="Select deposit network"
                 >
                   {networkOptions.map((network) => (
                     <option key={network._id} value={network._id}>
@@ -183,12 +337,12 @@ function Deposit() {
             </div>
           )}
 
-          {/* QR Code Section - Only show if we have an address */}
+          {/* QR code & address */}
           {currentAddress && (
             <div className="qr-section">
               <div className="section-label">Save QR code</div>
               <div className="qr-container">
-                <div className="qr-box">
+                <div className="qr-box" aria-hidden>
                   <QRCodeCanvas
                     value={currentAddress}
                     size={180}
@@ -199,7 +353,6 @@ function Deposit() {
                   />
                 </div>
 
-                {/* Wallet Address */}
                 <div className="address-section">
                   <div className="address-label">Wallet Address</div>
                   <div className="address-text" id="walletAddress">
@@ -210,6 +363,7 @@ function Deposit() {
                       type="button"
                       className="action-btn copy-btn"
                       onClick={copyAddressToClipboard}
+                      aria-label="Copy address"
                     >
                       <i className="fas fa-copy" /> Copy Address
                     </button>
@@ -217,6 +371,7 @@ function Deposit() {
                       type="button"
                       className="action-btn save-btn"
                       onClick={saveQRCode}
+                      aria-label="Save QR code"
                     >
                       <i className="fas fa-download" /> Save QR Code
                     </button>
@@ -226,52 +381,123 @@ function Deposit() {
             </div>
           )}
 
-          {/* Loading State */}
+          {/* Deposit form */}
+          {currentAddress && (
+            <FormProvider {...formMethods}>
+              <form onSubmit={formMethods.handleSubmit(onSubmit)} className="deposit-form">
+                <div className="section">
+
+                  <div className="form-group">
+                    <FieldFormItem
+                      name="amount"
+                      label={`Amount (${symbol})`}
+                      placeholder={`Minimum: ${minDepositAmount} ${symbol}`}
+                      className="form-input"
+                    />
+
+
+                    <div className="min-amount-note">
+                      Minimum deposit: {minDepositAmount} {symbol}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="section">
+                  <div className="form-group">
+                    <FieldFormItem
+                      name="txid"
+                      label="Transaction ID"
+                      placeholder="Enter your transaction ID"
+                      className="form-input"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-actions">
+                  <button
+                    type="submit"
+                    className="submit-btn"
+                    disabled={!formMethods.formState.isValid || isSubmitting}
+                    aria-disabled={!formMethods.formState.isValid || isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <i className="fas fa-spinner fa-spin" /> Processing...
+                      </>
+                    ) : (
+                      "Confirm Deposit"
+                    )}
+                  </button>
+                </div>
+              </form>
+            </FormProvider>
+          )}
+
+          {/* Loading */}
           {loading && (
-            <div className="loading-section">
-              <div className="spinner"></div>
+            <div className="loading-section" role="status" aria-live="polite">
+              <div className="spinner" />
               <div>Loading deposit information...</div>
             </div>
           )}
 
-          {/* Error State - No networks or address found */}
+          {/* No address found */}
           {!loading && !currentAddress && symbol && (
-            <div className="error-section">
+            <div className="error-section" role="alert">
               <i className="fas fa-exclamation-triangle" />
               <div>No deposit address found for {symbol}</div>
-              <div className="error-note">
-                Please contact support or try another currency.
-              </div>
+              <div className="error-note">Please contact support or try another currency.</div>
             </div>
           )}
 
           {/* Hint Section */}
           <div className="hint-section">
-            <div className="hint-title">Hint</div>
+            <div className="hint-title">Important Notes</div>
             <div className="hint-content">
               <div className="hint-item">
-                1. Please select the above-mentioned network and transfer the corresponding amount for deposit. Please do not transfer any other irrelevant assets, otherwise they will not be retrieved.
+                1. Send only {symbol} to this deposit address. Sending other currencies may result in permanent loss.
               </div>
-              <div className="hint-item">
-                2. After you recharge the above address, you need to confirm the entire network node before it can be credited;
-              </div>
-              <div className="hint-item">
-                3. Please make sure that your computer and browser are safe to prevent information from being tampered with or leaked;
-              </div>
-              <div className="hint-item">
-                4. The above deposit address is the official payment address of the platform, please look for the official deposit address of the platform, and the loss of funds caused by incorrect charging shall be borne by yourself;
-              </div>
+              <div className="hint-item">2. Ensure you are using the correct network ({networkOptions.find(n => n._id === selectedNetwork)?.name}).</div>
+              <div className="hint-item">3. Minimum deposit amount: {minDepositAmount} {symbol}</div>
+              <div className="hint-item">4. Transactions typically require 1-3 network confirmations before being credited to your account.</div>
+              <div className="hint-item">5. Always double-check the address before sending funds.</div>
             </div>
           </div>
-
         </div>
       </div>
 
-      {/* Toast Notification */}
-      <div className={`toast ${showToast ? 'visible' : ''}`}>
+      {/* Toast */}
+      <div className={`toast ${showToast ? "visible" : ""}`} role="status" aria-live="polite">
         <i className="fas fa-check-circle toast-icon" />
         {copiedText}
       </div>
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="modal-overlay" role="dialog" aria-modal="true">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Deposit Submitted Successfully</h3>
+              <button className="modal-close" onClick={handleCloseModal} aria-label="Close">
+                <i className="fas fa-times" />
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="success-icon"><i className="fas fa-check-circle" /></div>
+              <div className="success-message">
+                Your deposit of {submittedAmount} {symbol} has been submitted for processing.
+              </div>
+              <div className="success-details">
+                <p>Please wait for network confirmations. This usually takes 5-30 minutes.</p>
+                <p>You can track the status in your transaction history.</p>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="modal-btn" onClick={handleCloseModal}>OK</button>
+            </div>
+          </div>
+        </div>
+      )}
 
 
 
@@ -298,12 +524,11 @@ function Deposit() {
           background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
         }
 
-        /* Header Section - Matching HelpCenter */
         .header {
           background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
           min-height: 60px;
           position: relative;
-          padding: 20px;
+          padding: 15px 20px;
         }
 
         .nav-bar {
@@ -333,7 +558,6 @@ function Deposit() {
           transform: translateX(-50%);
         }
 
-        /* Content Card - Matching HelpCenter */
         .content-card {
           background: #f2f4f7;
           border-radius: 40px 40px 0 0;
@@ -346,7 +570,6 @@ function Deposit() {
           width: 100%;
         }
 
-        /* Section Styles */
         .section {
           margin-bottom: 14px;
         }
@@ -358,7 +581,6 @@ function Deposit() {
           margin-bottom: 8px;
         }
 
-        /* Currency Display */
         .currency-display {
           display: flex;
           align-items: center;
@@ -387,12 +609,6 @@ function Deposit() {
           object-fit: contain;
         }
 
-        .currency-icon:not(:has(img)) {
-          font-weight: 600;
-          color: #333;
-          font-size: 14px;
-        }
-
         .currency-name {
           font-size: 13px;
           font-weight: 600;
@@ -405,7 +621,6 @@ function Deposit() {
           font-style: italic;
         }
 
-        /* Network Select */
         .network-select-wrapper {
           position: relative;
         }
@@ -438,7 +653,6 @@ function Deposit() {
           pointer-events: none;
         }
 
-        /* QR Section */
         .qr-container {
           background: white;
           border-radius: 16px;
@@ -522,7 +736,254 @@ function Deposit() {
           transform: translateY(-2px);
         }
 
-        /* Hint Section */
+        .deposit-form {
+          margin-top: 20px;
+        }
+
+        .form-group {
+          margin-bottom: 16px;
+        }
+
+        .amount-input-wrapper {
+          position: relative;
+          display: flex;
+          align-items: center;
+        }
+
+        .amount-input {
+          width: 100%;
+          padding: 14px 16px;
+          padding-right: 60px;
+          border: 1px solid #e0e0e0;
+          border-radius: 12px;
+          font-size: 14px;
+          background-color: white;
+          color: #333;
+          transition: all 0.3s ease;
+        }
+
+        .amount-input:focus {
+          outline: none;
+          border-color: #106cf5;
+          box-shadow: 0 0 0 3px rgba(16, 108, 245, 0.1);
+        }
+
+        .amount-suffix {
+          position: absolute;
+          right: 16px;
+          color: #666;
+          font-weight: 600;
+          pointer-events: none;
+        }
+
+
+        .form-input:focus {
+          outline: none;
+          border-color: #106cf5;
+          box-shadow: 0 0 0 3px rgba(16, 108, 245, 0.1);
+        }
+
+        .error-message {
+          color: #ff4757;
+          font-size: 12px;
+          margin-top: 4px;
+        }
+
+        .min-amount-note {
+          font-size: 12px;
+          color: #666;
+          margin-top: 8px;
+          font-style: italic;
+        }
+
+        .form-actions {
+          margin-top: 24px;
+        }
+
+        .submit-btn {
+          width: 100%;
+          padding: 16px;
+          background: #106cf5;
+          color: white;
+          border: none;
+          border-radius: 12px;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+          background: #0a4fc4;
+          transform: translateY(-2px);
+        }
+
+        .submit-btn:disabled {
+          background: #ccc;
+          cursor: not-allowed;
+        }
+
+        .fa-spin {
+          animation: fa-spin 1s infinite linear;
+        }
+
+        @keyframes fa-spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+          background: white;
+          border-radius: 20px;
+          width: 90%;
+          max-width: 400px;
+          overflow: hidden;
+          animation: slideUp 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+          from { transform: translateY(20px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+          padding: 20px;
+          border-bottom: 1px solid #e0e0e0;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .modal-header h3 {
+          margin: 0;
+          font-size: 18px;
+          color: #222;
+        }
+
+        .modal-close {
+          background: none;
+          border: none;
+          color: #666;
+          cursor: pointer;
+          font-size: 18px;
+          transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+          color: #ff4757;
+        }
+
+        .modal-body {
+          padding: 30px 20px;
+          text-align: center;
+        }
+
+        .success-icon {
+          font-size: 60px;
+          color: #4CAF50;
+          margin-bottom: 20px;
+        }
+
+        .success-message {
+          font-size: 16px;
+          color: #222;
+          margin-bottom: 15px;
+          font-weight: 600;
+        }
+
+        .success-details {
+          font-size: 14px;
+          color: #666;
+          line-height: 1.5;
+        }
+
+        .success-details p {
+          margin: 10px 0;
+        }
+
+        .modal-footer {
+          padding: 20px;
+          border-top: 1px solid #e0e0e0;
+        }
+
+        .modal-btn {
+          width: 100%;
+          padding: 14px;
+          background: #106cf5;
+          color: white;
+          border: none;
+          border-radius: 12px;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background 0.3s ease;
+        }
+
+        .modal-btn:hover {
+          background: #0a4fc4;
+        }
+
+        .loading-section {
+          text-align: center;
+          padding: 40px 0;
+          color: #666;
+        }
+
+        .spinner {
+          border: 3px solid #f3f3f3;
+          border-top: 3px solid #106cf5;
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          animation: spin 1s linear infinite;
+          margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+        .error-section {
+          text-align: center;
+          padding: 40px 20px;
+          color: #ff4757;
+        }
+
+        .error-section i {
+          font-size: 40px;
+          margin-bottom: 20px;
+        }
+
+        .error-note {
+          margin-top: 10px;
+          font-size: 14px;
+          color: #666;
+        }
+
         .hint-section {
           margin-top: 24px;
           background: white;
@@ -560,7 +1021,6 @@ function Deposit() {
           font-weight: bold;
         }
 
-        /* Toast Notification */
         .toast {
           position: fixed;
           bottom: 20px;
@@ -586,7 +1046,6 @@ function Deposit() {
           color: #4CAF50;
         }
 
-        /* Responsive adjustments */
         @media (max-width: 380px) {
           .deposit-container {
             padding: 0;
@@ -643,6 +1102,16 @@ function Deposit() {
             justify-content: center;
           }
 
+          .amount-input {
+            padding: 12px 14px;
+            font-size: 14px;
+          }
+
+          .submit-btn {
+            padding: 14px;
+            font-size: 15px;
+          }
+
           .hint-section {
             padding: 16px;
           }
@@ -653,6 +1122,10 @@ function Deposit() {
 
           .hint-item {
             font-size: 9px;
+          }
+
+          .modal-content {
+            width: 95%;
           }
         }
 

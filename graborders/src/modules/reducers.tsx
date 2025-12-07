@@ -20,6 +20,7 @@ import withdraw from 'src/modules/withdraw/withdrawReducers'
 import kyc from 'src/modules/kyc/kycReducers'
 import notification from 'src/modules/notification/notificationReducers'
 import method from 'src/modules/depositMethod/depositMethodReducers'
+import depositMethod from 'src/modules/depositMethod/depositMethodReducers'
 import { combineReducers } from "redux";
 
 export default (history) =>
@@ -35,6 +36,7 @@ export default (history) =>
     message,
     plan,
     deposit,
+    depositMethod,
     withdraw,
     assets,
     notification,

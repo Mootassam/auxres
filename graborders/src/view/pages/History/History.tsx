@@ -1,18 +1,15 @@
 import React, { useEffect, useState, useMemo } from "react";
-import SubHeader from "src/view/shared/Header/SubHeader";
+import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import assetsActions from "src/modules/assets/view/assetsViewActions";
-import assetsSelectors from "src/modules/assets/view/assetsViewSelectors";
 import transactionListSelector from "src/modules/transaction/list/transactionListSelectors";
 import transactionListActions from "src/modules/transaction/list/transactionListActions";
 import { i18n } from "../../../i18n";
+import LoadingModal from "src/shared/LoadingModal";
 
 function History() {
   const dispatch = useDispatch();
 
   const [typeFilter, setTypeFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [timeFilter, setTimeFilter] = useState("all");
   const Transactionloading = useSelector(transactionListSelector.selectLoading);
   const transaction = useSelector(transactionListSelector.selectRows);
 
@@ -79,15 +76,6 @@ function History() {
         config.amountColor = '#81C784';
         break;
 
-      // Futures Trading Transactions
-      case 'futures_reserved':
-        config.icon = 'fa-lock';
-        config.typeText = i18n("pages.history.transactionTypes.futuresReserved");
-        config.iconClass = 'futures-reserved';
-        config.color = '#FF9800';
-        config.amountColor = '#FF9800';
-        break;
-
       case 'futures_profit':
         config.icon = 'fa-chart-line';
         config.typeText = i18n("pages.history.transactionTypes.futuresProfit");
@@ -104,72 +92,6 @@ function History() {
         config.amountColor = '#FF6838';
         break;
 
-      case 'futures_settlement':
-        config.icon = 'fa-file-contract';
-        config.typeText = i18n("pages.history.transactionTypes.futuresSettlement");
-        config.iconClass = 'futures-settlement';
-        config.color = '#9C27B0';
-        config.amountColor = '#9C27B0';
-        break;
-
-      case 'futures_fee':
-        config.icon = 'fa-receipt';
-        config.typeText = i18n("pages.history.transactionTypes.futuresFee");
-        config.iconClass = 'futures-fee';
-        config.color = '#607D8B';
-        config.amountColor = '#607D8B';
-        break;
-
-      case 'futures_refund':
-        config.icon = 'fa-undo';
-        config.typeText = i18n("pages.history.transactionTypes.futuresRefund");
-        config.iconClass = 'futures-refund';
-        config.color = '#4CAF50';
-        config.amountColor = '#4CAF50';
-        break;
-
-      case 'futures_bonus':
-        config.icon = 'fa-gift';
-        config.typeText = i18n("pages.history.transactionTypes.futuresBonus");
-        config.iconClass = 'futures-bonus';
-        config.color = '#E91E63';
-        config.amountColor = '#E91E63';
-        break;
-
-      case 'futures_commission':
-        config.icon = 'fa-handshake';
-        config.typeText = i18n("pages.history.transactionTypes.futuresCommission");
-        config.iconClass = 'futures-commission';
-        config.color = '#795548';
-        config.amountColor = '#795548';
-        break;
-
-      // Manual Control Operations
-      case 'manual_profit':
-        config.icon = 'fa-user-check';
-        config.typeText = i18n("pages.history.transactionTypes.manualProfit");
-        config.iconClass = 'manual-profit';
-        config.color = '#00C076';
-        config.amountColor = '#00C076';
-        break;
-
-      case 'manual_loss':
-        config.icon = 'fa-user-slash';
-        config.typeText = i18n("pages.history.transactionTypes.manualLoss");
-        config.iconClass = 'manual-loss';
-        config.color = '#FF6838';
-        config.amountColor = '#FF6838';
-        break;
-
-      case 'manual_adjustment':
-        config.icon = 'fa-cog';
-        config.typeText = i18n("pages.history.transactionTypes.manualAdjustment");
-        config.iconClass = 'manual-adjustment';
-        config.color = '#9C27B0';
-        config.amountColor = '#9C27B0';
-        break;
-
-      // Spot Trading
       case 'spot_profit':
         config.icon = 'fa-coins';
         config.typeText = i18n("pages.history.transactionTypes.spotTradingProfit");
@@ -186,7 +108,6 @@ function History() {
         config.amountColor = '#FF6838';
         break;
 
-      // Rewards & Bonuses
       case 'reward':
         config.icon = 'fa-hand-holding-dollar';
         config.typeText = i18n("pages.history.transactionTypes.referralReward");
@@ -201,72 +122,6 @@ function History() {
         config.iconClass = 'bonus';
         config.color = '#E91E63';
         config.amountColor = '#E91E63';
-        break;
-
-      case 'referral_commission':
-        config.icon = 'fa-users';
-        config.typeText = i18n("pages.history.transactionTypes.referralCommission");
-        config.iconClass = 'referral-commission';
-        config.color = '#FF9800';
-        config.amountColor = '#FF9800';
-        break;
-
-      // Order Management
-      case 'order_reserved':
-        config.icon = 'fa-clock';
-        config.typeText = i18n("pages.history.transactionTypes.orderReserved");
-        config.iconClass = 'order-reserved';
-        config.color = '#FF9800';
-        config.amountColor = '#FF9800';
-        break;
-
-      case 'order_cancelled':
-        config.icon = 'fa-ban';
-        config.typeText = i18n("pages.history.transactionTypes.orderCancelled");
-        config.iconClass = 'order-cancelled';
-        config.color = '#9E9E9E';
-        config.amountColor = '#9E9E9E';
-        break;
-
-      case 'order_partial_fill':
-        config.icon = 'fa-chart-pie';
-        config.typeText = i18n("pages.history.transactionTypes.orderPartialFill");
-        config.iconClass = 'order-partial';
-        config.color = '#FF9800';
-        config.amountColor = '#FF9800';
-        break;
-
-      case 'order_completed':
-        config.icon = 'fa-check-circle';
-        config.typeText = i18n("pages.history.transactionTypes.orderCompleted");
-        config.iconClass = 'order-completed';
-        config.color = '#4CAF50';
-        config.amountColor = '#4CAF50';
-        break;
-
-      // System Operations
-      case 'fee_payment':
-        config.icon = 'fa-receipt';
-        config.typeText = i18n("pages.history.transactionTypes.feePayment");
-        config.iconClass = 'fee-payment';
-        config.color = '#607D8B';
-        config.amountColor = '#607D8B';
-        break;
-
-      case 'adjustment':
-        config.icon = 'fa-sliders-h';
-        config.typeText = i18n("pages.history.transactionTypes.balanceAdjustment");
-        config.iconClass = 'adjustment';
-        config.color = '#9C27B0';
-        config.amountColor = '#9C27B0';
-        break;
-
-      case 'transfer':
-        config.icon = 'fa-exchange-alt';
-        config.typeText = i18n("pages.history.transactionTypes.transfer");
-        config.iconClass = 'transfer';
-        config.color = '#2196F3';
-        config.amountColor = '#2196F3';
         break;
 
       default:
@@ -296,42 +151,9 @@ function History() {
         if (!typeMatch) return false;
       }
 
-      // Apply status filter
-      if (statusFilter !== "all" && tx.status !== statusFilter) {
-        return false;
-      }
-
-      // Apply time filter
-      if (timeFilter !== "all") {
-        const now = new Date();
-        const transactionDate = new Date(tx.dateTransaction);
-
-        switch (timeFilter) {
-          case "today":
-            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            return transactionDate >= today;
-
-          case "week":
-            const oneWeekAgo = new Date(now);
-            oneWeekAgo.setDate(now.getDate() - 7);
-            return transactionDate >= oneWeekAgo;
-
-          case "month":
-            const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-            return transactionDate >= firstDayOfMonth;
-
-          case "year":
-            const firstDayOfYear = new Date(now.getFullYear(), 0, 1);
-            return transactionDate >= firstDayOfYear;
-
-          default:
-            return true;
-        }
-      }
-
       return true;
     });
-  }, [transaction, typeFilter, statusFilter, timeFilter]);
+  }, [transaction, typeFilter]);
 
   // Format date based on how recent it is
   const formatDate = (date) => {
@@ -364,199 +186,218 @@ function History() {
     }
   };
 
-  // Handle status filter toggle
-  const handleStatusFilter = (status) => {
-    setStatusFilter(statusFilter === status ? "all" : status);
-  };
-
   return (
-    <div className="container">
-      {/* Header Section */}
-      <SubHeader title={i18n("pages.history.title")} />
-
-      {/* Filter Options */}
-      <div className="filter-options">
-        <button
-          className={`filter-option ${typeFilter === "all" ? "active" : ""}`}
-          onClick={() => setTypeFilter("all")}
-        >
-          {i18n("pages.history.filters.all")}
-        </button>
-        <button
-          className={`filter-option ${typeFilter === "deposits" ? "active" : ""}`}
-          onClick={() => setTypeFilter("deposits")}
-        >
-          {i18n("pages.history.filters.deposits")}
-        </button>
-        <button
-          className={`filter-option ${typeFilter === "withdrawals" ? "active" : ""}`}
-          onClick={() => setTypeFilter("withdrawals")}
-        >
-          {i18n("pages.history.filters.withdrawals")}
-        </button>
-        <button
-          className={`filter-option ${typeFilter === "profits" ? "active" : ""}`}
-          onClick={() => setTypeFilter("profits")}
-        >
-          {i18n("pages.history.filters.profits")}
-        </button>
-        <button
-          className={`filter-option ${typeFilter === "losses" ? "active" : ""}`}
-          onClick={() => setTypeFilter("losses")}
-        >
-          {i18n("pages.history.filters.losses")}
-        </button>
-        <button
-          className={`filter-option ${typeFilter === "conversions" ? "active" : ""}`}
-          onClick={() => setTypeFilter("conversions")}
-        >
-          {i18n("pages.history.filters.conversions")}
-        </button>
-        <button
-          className={`filter-option ${typeFilter === "stacking" ? "active" : ""}`}
-          onClick={() => setTypeFilter("stacking")}
-        >
-          {i18n("pages.history.filters.stacking")}
-        </button>
-      </div>
-
-      {/* Status and Time Filters */}
-      <div className="secondary-filters">
-        {/* Status Filters */}
-        <div className="status-filters">
-          <div
-            className={`status-option ${statusFilter === "all" ? "active" : ""}`}
-            onClick={() => setStatusFilter("all")}
-          >
-            {i18n("pages.history.statusFilters.allStatus")}
-          </div>
-          <div
-            className={`status-option ${statusFilter === "completed" ? "active" : ""}`}
-            onClick={() => handleStatusFilter("completed")}
-          >
-            {i18n("pages.history.statusFilters.completed")}
-          </div>
-          <div
-            className={`status-option ${statusFilter === "pending" ? "active" : ""}`}
-            onClick={() => handleStatusFilter("pending")}
-          >
-            {i18n("pages.history.statusFilters.pending")}
-          </div>
-          <div
-            className={`status-option ${statusFilter === "canceled" ? "active" : ""}`}
-            onClick={() => handleStatusFilter("canceled")}
-          >
-            {i18n("pages.history.statusFilters.canceled")}
-          </div>
-        </div>
-
-        {/* Time Filter */}
-        <div className="time-filter">
-          <div
-            className={`time-option ${timeFilter === "all" ? "active" : ""}`}
-            onClick={() => setTimeFilter("all")}
-          >
-            {i18n("pages.history.timeFilters.allTime")}
-          </div>
-          <div
-            className={`time-option ${timeFilter === "today" ? "active" : ""}`}
-            onClick={() => setTimeFilter("today")}
-          >
-            {i18n("pages.history.timeFilters.today")}
-          </div>
-          <div
-            className={`time-option ${timeFilter === "week" ? "active" : ""}`}
-            onClick={() => setTimeFilter("week")}
-          >
-            {i18n("pages.history.timeFilters.week")}
-          </div>
-          <div
-            className={`time-option ${timeFilter === "month" ? "active" : ""}`}
-            onClick={() => setTimeFilter("month")}
-          >
-            {i18n("pages.history.timeFilters.month")}
-          </div>
-          <div
-            className={`time-option ${timeFilter === "year" ? "active" : ""}`}
-            onClick={() => setTimeFilter("year")}
-          >
-            {i18n("pages.history.timeFilters.year")}
-          </div>
+    <div className="history-container">
+      {/* Header Section - Matching About Page */}
+      <div className="header">
+        <div className="nav-bar">
+          <Link to="/wallets" className="back-arrow">
+            <i className="fas fa-arrow-left" />
+          </Link>
+          <div className="page-title">{i18n("pages.history.title")}</div>
         </div>
       </div>
 
-      {/* Transaction List */}
-      <div className="transaction-list">
-        {filteredTransactions.length > 0 ? (
-          filteredTransactions.map((transaction) => {
-            const { icon, typeText, iconClass, amountColor } = getTransactionConfig(
-              transaction.type,
-              transaction.direction,
-              transaction.relatedAsset
-            );
+      {/* Content Card - Matching About Page */}
+      <div className="content-card">
+        <div className="history-content">
+          {/* Loading State */}
+          {Transactionloading && (
+            <div className="loading-container">
+              <LoadingModal />
+            </div>
+          )}
 
-            return (
-              <div className="transaction-item" key={transaction.id}>
-                <div className="transaction-info">
-                  <div
-                    className={`transaction-icon ${iconClass}`}
-                    style={{ backgroundColor: getTransactionConfig(transaction.type, transaction.direction, transaction.relatedAsset).color }}
-                  >
-                    <i className={`fas ${icon}`} />
-                  </div>
-                  <div className="transaction-details">
-                    <div className="transaction-type">
-                      {typeText}
-                    </div>
-                    <div className="transaction-date">
-                      {formatDate(transaction.dateTransaction)}
-                    </div>
-                  </div>
-                </div>
-                <div className="transaction-amount">
-                  <div
-                    className="amount"
-                    style={{ color: amountColor }}
-                  >
-                    {transaction.direction === 'in' ? '+' : '-'}
-                    {transaction.amount.toFixed(5)} {transaction.asset}
-                  </div>
-                  <div
-                    className={`transaction-status status-${transaction.status}`}
-                  >
-                    {i18n(`pages.history.status.${transaction.status}`)}
-                  </div>
-                </div>
+          {/* Content when not loading */}
+          {!Transactionloading && (
+            <>
+              {/* Filter Options */}
+              <div className="filter-options">
+                <button
+                  className={`filter-option ${typeFilter === "all" ? "active" : ""}`}
+                  onClick={() => setTypeFilter("all")}
+                >
+                  {i18n("pages.history.filters.all")}
+                </button>
+                <button
+                  className={`filter-option ${typeFilter === "deposits" ? "active" : ""}`}
+                  onClick={() => setTypeFilter("deposits")}
+                >
+                  {i18n("pages.history.filters.deposits")}
+                </button>
+                <button
+                  className={`filter-option ${typeFilter === "withdrawals" ? "active" : ""}`}
+                  onClick={() => setTypeFilter("withdrawals")}
+                >
+                  {i18n("pages.history.filters.withdrawals")}
+                </button>
+                <button
+                  className={`filter-option ${typeFilter === "profits" ? "active" : ""}`}
+                  onClick={() => setTypeFilter("profits")}
+                >
+                  {i18n("pages.history.filters.profits")}
+                </button>
+                <button
+                  className={`filter-option ${typeFilter === "losses" ? "active" : ""}`}
+                  onClick={() => setTypeFilter("losses")}
+                >
+                  {i18n("pages.history.filters.losses")}
+                </button>
+                <button
+                  className={`filter-option ${typeFilter === "conversions" ? "active" : ""}`}
+                  onClick={() => setTypeFilter("conversions")}
+                >
+                  {i18n("pages.history.filters.conversions")}
+                </button>
+                <button
+                  className={`filter-option ${typeFilter === "stacking" ? "active" : ""}`}
+                  onClick={() => setTypeFilter("stacking")}
+                >
+                  {i18n("pages.history.filters.stacking")}
+                </button>
               </div>
-            );
-          })
-        ) : (
-          <div className="empty-state">
-            <div className="empty-icon">
-              <i className="fas fa-receipt" />
-            </div>
-            <div className="empty-title">{i18n("pages.history.emptyState.title")}</div>
-            <div className="empty-text">
-              {i18n("pages.history.emptyState.description")}
-            </div>
-          </div>
-        )}
+
+              {/* Transaction List */}
+              <div className="transaction-list">
+                {filteredTransactions.length > 0 ? (
+                  filteredTransactions.map((transaction) => {
+                    const { icon, typeText, iconClass, amountColor } = getTransactionConfig(
+                      transaction.type,
+                      transaction.direction,
+                      transaction.relatedAsset
+                    );
+
+                    return (
+                      <div className="transaction-item" key={transaction.id}>
+                        <div className="transaction-info">
+                          <div
+                            className={`transaction-icon ${iconClass}`}
+                            style={{ backgroundColor: getTransactionConfig(transaction.type, transaction.direction, transaction.relatedAsset).color }}
+                          >
+                            <i className={`fas ${icon}`} />
+                          </div>
+                          <div className="transaction-details">
+                            <div className="transaction-type">
+                              {typeText}
+                            </div>
+                            <div className="transaction-date">
+                              {formatDate(transaction.dateTransaction)}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="transaction-amount">
+                          <div
+                            className="amount"
+                            style={{ color: amountColor }}
+                          >
+                            {transaction.direction === 'in' ? '+' : '-'}
+                            {transaction.amount.toFixed(5)} {transaction.asset}
+                          </div>
+                          <div
+                            className={`transaction-status status-${transaction.status}`}
+                          >
+                            {i18n(`pages.history.status.${transaction.status}`)}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="no-data-message">
+                    <i className="fas fa-receipt"></i>
+                    <p>No transaction history available</p>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
       </div>
-  
 
       <style>{`
-        .container {
-          max-width: 400px;
-          margin: 0 auto;
-          padding: 0 15px;
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
 
+        body {
+          background-color: #f5f7fa;
+          color: #333;
+          line-height: 1.6;
+          overflow-x: hidden;
+        }
+
+        .history-container {
+          max-width: 400px;
+          margin: 0 auto;
+          position: relative;
+          min-height: 100vh;
+          background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
+        }
+
+        /* Header Section - Matching Profile Page */
+        .header {
+          min-height: 60px;
+          position: relative;
+          padding: 15px 20px;
+        }
+
+        .nav-bar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .back-arrow {
+          color: white;
+          font-size: 20px;
+          font-weight: 300;
+          text-decoration: none;
+          transition: opacity 0.3s ease;
+        }
+
+        .back-arrow:hover {
+          opacity: 0.8;
+        }
+
+        .page-title {
+          color: white;
+          font-size: 17px;
+          font-weight: 600;
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+        }
+
+        /* Content Card - Matching Profile Page */
+        .content-card {
+          background: white;
+          border-radius: 40px 40px 0 0;
+          padding: 30px 20px 100px;
+          box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
+          min-height: calc(100vh - 60px);
+        }
+
+        .history-content {
+          width: 100%;
+        }
+
+        .loading-container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 200px;
+        }
+
+        /* Filter Options */
         .filter-options {
           display: flex;
           gap: 8px;
           overflow-x: auto;
-          padding: 15px 0;
-          margin-bottom: 15px;
+          padding: 0 0 20px 0;
+          margin-bottom: 20px;
           -webkit-overflow-scrolling: touch;
           scrollbar-width: none;
         }
@@ -568,10 +409,10 @@ function History() {
         .filter-option {
           padding: 8px 16px;
           border-radius: 20px;
-          border: 1px solid #444;
-          background-color: #1A1A1A;
-          color: #CCCCCC;
-          font-size: 14px;
+          border: 1px solid #e7eaee;
+          background-color: #f8f9fa;
+          color: #555;
+          font-size: 13px;
           font-weight: 500;
           white-space: nowrap;
           cursor: pointer;
@@ -579,56 +420,16 @@ function History() {
         }
 
         .filter-option.active {
-          background-color: #F3BA2F;
-          color: #000;
-          border-color: #F3BA2F;
+          background-color: #106cf5;
+          color: #fff;
+          border-color: #106cf5;
         }
 
-        .secondary-filters {
-          margin-bottom: 20px;
-        }
-
-        .status-filters,
-        .time-filter {
-          display: flex;
-          gap: 8px;
-          overflow-x: auto;
-          padding: 10px 0;
-          -webkit-overflow-scrolling: touch;
-          scrollbar-width: none;
-        }
-
-        .status-filters::-webkit-scrollbar,
-        .time-filter::-webkit-scrollbar {
-          display: none;
-        }
-
-        .status-option,
-        .time-option {
-          padding: 6px 12px;
-          border-radius: 16px;
-          border: 1px solid #444;
-          background-color: #1A1A1A;
-          color: #CCCCCC;
-          font-size: 12px;
-          font-weight: 500;
-          white-space: nowrap;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        }
-
-        .status-option.active,
-        .time-option.active {
-          background-color: #627EEA;
-          color: #FFF;
-          border-color: #627EEA;
-        }
-
+        /* Transaction List */
         .transaction-list {
           display: flex;
           flex-direction: column;
           gap: 12px;
-          margin-bottom: 80px;
         }
 
         .transaction-item {
@@ -636,14 +437,17 @@ function History() {
           justify-content: space-between;
           align-items: center;
           padding: 15px;
-          background-color: #1A1A1A;
+          background-color: #f8f9fa;
           border-radius: 12px;
+          border: 1px solid #e7eaee;
           cursor: pointer;
-          transition: background-color 0.2s ease;
+          transition: all 0.2s ease;
         }
 
         .transaction-item:hover {
-          background-color: #2A2A2A;
+          background-color: #f0f2f5;
+          transform: translateY(-2px);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         .transaction-info {
@@ -669,13 +473,14 @@ function History() {
         }
 
         .transaction-type {
-          font-weight: bold;
+          font-weight: 600;
           margin-bottom: 4px;
           font-size: 14px;
+          color: #222;
         }
 
         .transaction-date {
-          color: #AAAAAA;
+          color: #888f99;
           font-size: 12px;
         }
 
@@ -684,62 +489,114 @@ function History() {
         }
 
         .amount {
-          font-weight: bold;
+          font-weight: 600;
           margin-bottom: 4px;
           font-size: 14px;
         }
 
         .transaction-status {
           font-size: 11px;
-          color: #2ff378;
+          padding: 2px 8px;
+          border-radius: 10px;
+          display: inline-block;
+        }
+
+        .transaction-status.status-completed {
+          background-color: rgba(40, 167, 69, 0.1);
+          color: #28a745;
         }
 
         .transaction-status.status-pending {
-          color: #F3BA2F;
+          background-color: rgba(255, 193, 7, 0.1);
+          color: #ffc107;
         }
 
         .transaction-status.status-canceled {
-          color: #FF6838;
+          background-color: rgba(220, 53, 69, 0.1);
+          color: #dc3545;
         }
 
-        .empty-state {
+        .no-data-message {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          min-height: 200px;
           text-align: center;
+          color: #888f99;
           padding: 40px 20px;
-          background: linear-gradient(135deg, #1A1A1A 0%, #2A2A2A 100%);
-          border-radius: 16px;
-          margin: 20px 0;
         }
 
-        .empty-icon {
+        .no-data-message i {
           font-size: 48px;
-          color: #F3BA2F;
-          margin-bottom: 15px;
+          color: #e7eaee;
+          margin-bottom: 16px;
         }
 
-        .empty-title {
-          font-size: 18px;
-          font-weight: bold;
-          margin-bottom: 8px;
-          color: #FFFFFF;
-        }
-
-        .empty-text {
-          color: #AAAAAA;
+        .no-data-message p {
           font-size: 14px;
+          max-width: 250px;
+          line-height: 1.4;
         }
 
         /* Enhanced transaction icons */
-        .transaction-icon.deposit { background-color: #F3BA2F !important; color: #000; }
-        .transaction-icon.withdraw { background-color: #FF6838 !important; color: #000; }
-        .transaction-icon.convert-in { background-color: #9C27B0 !important; color: #FFF; }
-        .transaction-icon.convert-out { background-color: #9C27B0 !important; color: #FFF; }
-        .transaction-icon.stacking { background-color: #4CAF50 !important; color: #FFF; }
-        .transaction-icon.futures-profit { background-color: #00BCD4 !important; color: #FFF; }
-        .transaction-icon.futures-loss { background-color: #FF5722 !important; color: #FFF; }
-        .transaction-icon.spot-profit { background-color: #4CAF50 !important; color: #FFF; }
-        .transaction-icon.spot-loss { background-color: #FF5722 !important; color: #FFF; }
-        .transaction-icon.default { background-color: #627EEA !important; color: #FFF; }
-        .transaction-icon.swap { background-color: #627EEA !important; color: #FFF; }
+        .transaction-icon.deposit { background-color: #F3BA2F !important; }
+        .transaction-icon.withdraw { background-color: #FF6838 !important; }
+        .transaction-icon.convert-in { background-color: #9C27B0 !important; }
+        .transaction-icon.convert-out { background-color: #9C27B0 !important; }
+        .transaction-icon.stacking { background-color: #FF9800 !important; }
+        .transaction-icon.staking_reward { background-color: #4CAF50 !important; }
+        .transaction-icon.futures-profit { background-color: #00C076 !important; }
+        .transaction-icon.futures-loss { background-color: #FF6838 !important; }
+        .transaction-icon.spot-profit { background-color: #4CAF50 !important; }
+        .transaction-icon.spot-loss { background-color: #FF5722 !important; }
+        .transaction-icon.default { background-color: #627EEA !important; }
+        .transaction-icon.swap { background-color: #627EEA !important; }
+        .transaction-icon.bonus { background-color: #E91E63 !important; }
+
+        /* Responsive adjustments */
+        @media (max-width: 380px) {
+          .history-container {
+            padding: 0;
+          }
+
+          .header {
+            padding: 16px;
+            min-height: 50px;
+          }
+
+          .content-card {
+            padding: 25px 16px 100px;
+          }
+
+          .filter-option {
+            font-size: 12px;
+            padding: 6px 12px;
+          }
+
+          .transaction-type {
+            font-size: 13px;
+          }
+
+          .transaction-date {
+            font-size: 11px;
+          }
+
+          .amount {
+            font-size: 13px;
+          }
+        }
+
+        @media (min-width: 768px) {
+          .content-card {
+            border-radius: 30px 30px 0 0;
+          }
+
+          .transaction-list {
+            max-width: 600px;
+            margin: 0 auto;
+          }
+        }
       `}</style>
     </div>
   );

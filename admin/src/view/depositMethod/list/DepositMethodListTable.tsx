@@ -74,17 +74,7 @@ function DepositMethodListTable() {
                   </span>
                 )}
               </th>
-              <th
-                className="sortable-header"
-                onClick={() => doChangeSort('name')}
-              >
-                {i18n('entities.depositMethod.fields.name')}
-                {sorter.field === 'name' && (
-                  <span className="sort-icon">
-                    {sorter.order === 'ascend' ? '↑' : '↓'}
-                  </span>
-                )}
-              </th>
+            
               <th
                 className="sortable-header"
                 onClick={() => doChangeSort('network')}
@@ -139,7 +129,6 @@ function DepositMethodListTable() {
                     </div>
                   </td>
                   <td className="table-cell">{row.symbol}</td>
-                  <td className="table-cell">{row.name}</td>
                   <td className="table-cell">{row?.network?.map((item) => <div style={{ display: 'flex' }}>{item?.name}</div>)}</td>
                   <td className="actions-cell">
                     <div className="actions-container">

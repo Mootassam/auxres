@@ -286,6 +286,23 @@ const en = {
         network: 'Deposit Network',
       },
 
+      enumerators: {
+        coins: {
+          USDT: 'USDT',
+          ETH: 'ETH',
+          BTC: 'BTC',
+          USDC: 'USDC',
+          DAI: 'DAI',
+          SHIB: 'SHIB',
+          XRP: 'XRP',
+          TRX: 'TRX',
+          SOL: 'SOL',
+          BNB: 'BNB',
+          DOGE: 'DOGE',
+
+        },
+      },
+
       new: {
         title: 'Add New Deposit Method',
       },

@@ -31,6 +31,9 @@ function DepositPage() {
                         <i className="fas fa-arrow-left" />
                     </Link>
                     <div className="page-title">Deposit</div>
+                    <Link className="header-icon" to="/history" style={{ color: 'white' }}>
+                        <i className="fas fa-receipt" />
+                    </Link>
                 </div>
             </div>
 
@@ -60,7 +63,7 @@ function DepositPage() {
                                         }}
                                     />
                                 </div>
-                                <div className="crypto-name">{crypto.name}</div>
+                                <div className="crypto-name">{crypto.symbol}</div>
                             </Link>
                         ))}
                     </div>
@@ -120,10 +123,9 @@ function DepositPage() {
 
                 /* Header Section - Matching HelpCenter */
                 .header {
-                    background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
                     min-height: 60px;
                     position: relative;
-                    padding: 20px;
+                    padding: 15px 20px;
                 }
 
                 .nav-bar {

@@ -79,7 +79,6 @@ function About() {
 
         /* Header Section - Matching Profile Page */
         .header {
-          background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
           min-height: 60px;
           position: relative;
           padding: 20px;

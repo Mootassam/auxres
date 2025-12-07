@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,6 +14,8 @@ import FieldFormItem from "src/shared/form/FieldFormItem";
 import assetsListSelectors from "src/modules/assets/list/assetsListSelectors";
 import assetsListActions from "src/modules/assets/list/assetsListActions";
 import SuccessModalComponent from "src/view/shared/modals/sucessModal";
+import method from "src/modules/depositMethod/list/depositMethodListActions";
+import depositMethodselectors from "src/modules/depositMethod/list/depositMethodSelectors";
 
 // Currency rules: minimum withdrawal and fee per currency
 const withdrawRules = {
@@ -50,6 +53,7 @@ const schema = yup.object().shape({
       function (value) {
         const { currency } = this.parent || {};
         if (!currency || !withdrawRules[currency]) return true;
+        if (typeof value !== "number") return false;
         return value >= withdrawRules[currency].min;
       }
     ),
@@ -69,31 +73,41 @@ function Withdraw() {
   const dispatch = useDispatch();
   const currentUser = useSelector(authSelectors.selectCurrentUser);
   const assets = useSelector(assetsListSelectors.selectRows) || [];
+  console.log("🚀 ~ Withdraw ~ assets:", assets)
   const selectModal = useSelector(selectors.selectModal);
   const [amount, setAmount] = useState("");
   const [address, setAddress] = useState("");
   const [selected, setSelected] = useState("");
   const [selectedNetwork, setSelectedNetwork] = useState("ethereum");
-  const [item, setItem] = useState(null);
+  const [item, setItem] = useState<{ symbol: string; amount: number } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+
+  const listMethod = useSelector(depositMethodselectors.selectRows);
+  const loading = useSelector(depositMethodselectors.selectLoading);
 
   // Fetch assets once
   useEffect(() => {
     dispatch(assetsListActions.doFetch());
   }, [dispatch]);
 
+  // Fetch deposit methods on mount
+  useEffect(() => {
+    dispatch(method.doFetch());
+  }, [dispatch]);
+
   // Update selected asset info when currency or assets change
   useEffect(() => {
     if (selected && assets.length) {
-      const found = assets.find((a) => 
+      const found = assets.find((a) =>
         String(a.symbol).toUpperCase() === String(selected).toUpperCase()
       );
       setItem(found || null);
-      
+
       // Fixed: Safely access wallet address
       const walletAddress = currentUser?.wallet?.[selected]?.address || "";
       setAddress(walletAddress);
-      
+
       // Update form currency field
       form.setValue("currency", selected);
     } else {
@@ -213,13 +227,13 @@ function Withdraw() {
   // Submit handler
   const onSubmit = async (values) => {
     if (validationState.disabled) return;
-    
+
     setIsSubmitting(true);
-    
+
     try {
       // ensure we use the selected currency
       values.currency = selected;
-      
+
       // generate order number: RE + YYYYMMDD + 7 random digits
       const now = new Date();
       const dateStr = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
@@ -235,7 +249,7 @@ function Withdraw() {
       values.status = "pending";
 
       setAmount(values.totalAmount.toString());
-      
+
       // Dispatch create action
       await dispatch(actions.doCreate(values));
 
@@ -245,15 +259,14 @@ function Withdraw() {
     }
   };
 
-  const currencyOptions = [
-    { id: "BTC", name: "Bitcoin", icon: "fab fa-btc", color: "#F3BA2F" },
-    { id: "ETH", name: "Ethereum", icon: "fab fa-ethereum", color: "#627EEA" },
-    { id: "USDT", name: "Tether", icon: "fas fa-dollar-sign", color: "#26A17B" },
-    { id: "SOL", name: "Solana", icon: "fas fa-bolt", color: "#00FFA3" },
-    { id: "XRP", name: "Ripple", icon: "fas fa-exchange-alt", color: "#23292F" },
-  ];
+  const selectedMethod = useMemo(() => {
+    return listMethod.find((method) => method.id === selected);
+  }, [listMethod, selected]);
 
-  const selectedCurrencyData = currencyOptions.find((c) => c.id === selected);
+  const networkList = selectedMethod?.network || [];
+  console.log("🚀 ~ Withdraw ~ selectedMethod:", selectedMethod)
+
+
 
   // form errors for inline display
   const { errors } = form.formState;
@@ -267,13 +280,16 @@ function Withdraw() {
             <i className="fas fa-arrow-left" />
           </Link>
           <div className="page-title">Withdraw</div>
+          <Link className="header-icon" to="/history" style={{ color: 'white' }}>
+            <i className="fas fa-receipt" />
+          </Link>
         </div>
       </div>
 
       {/* Content Card - Matching HelpCenter */}
       <div className="content-card">
         <div className="withdraw-content">
-          
+
           {/* Select currency section */}
           <div className="form-section">
             <div className="input-field">
@@ -291,18 +307,13 @@ function Withdraw() {
                     form.setValue("withdrawPassword", "");
                   }}
                 >
-                  <option value="">Select currency</option>
-                  {currencyOptions.map((currency) => (
+                  {listMethod.map((currency) => (
                     <option key={currency.id} value={currency.id}>
-                      {currency.name} ({currency.id})
+                      {currency.symbol}
                     </option>
                   ))}
                 </select>
-                {selected && (
-                  <div className="currency-select-icon" style={{ color: selectedCurrencyData?.color }}>
-                    <i className={selectedCurrencyData?.icon} />
-                  </div>
-                )}
+
               </div>
             </div>
 
@@ -315,9 +326,9 @@ function Withdraw() {
                   value={selectedNetwork}
                   onChange={(e) => setSelectedNetwork(e.target.value)}
                 >
-                  {networkOptions.map((network) => (
-                    <option key={network.value} value={network.value}>
-                      {network.label}
+                  {networkList.map((network) => (
+                    <option key={network.id} value={network.id}>
+                      {network.name}
                     </option>
                   ))}
                 </select>
@@ -352,15 +363,14 @@ function Withdraw() {
                       type="number"
                       className="amount-field"
                       placeholder="0.0"
-                      step="any"
-                      min="0"
+
                       disabled={isSubmitting || !selected}
                     />
                   </div>
                   <div className="balance-text">
                     Available: <span className="balance-amount">{formatNumber(availableBalance, decimals)} {selected}</span>
                   </div>
-                  
+
                   <div className="field-error">
                     {errors.withdrawAmount?.message && <div>{errors.withdrawAmount?.message}</div>}
                     {!errors.withdrawAmount?.message && validationState.reason === "belowMin" && (
@@ -433,12 +443,12 @@ function Withdraw() {
       </div>
 
       {selectModal && (
-        <SuccessModalComponent 
+        <SuccessModalComponent
           isOpen={selectModal}
           onClose={handleCloseModal}
           type='withdraw'
           amount={amount}
-          coinType={selected} 
+          coinType={selected}
         />
       )}
 
@@ -467,10 +477,9 @@ function Withdraw() {
 
         /* Header Section - Matching HelpCenter */
         .header {
-          background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
           min-height: 60px;
           position: relative;
-          padding: 20px;
+          padding: 15px 20px;
         }
 
         .nav-bar {

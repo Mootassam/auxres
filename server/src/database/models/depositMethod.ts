@@ -18,11 +18,6 @@ export default (database) => {
         uppercase: true,
         trim: true,
       },
-      name: {
-        type: String,
-        required: true, // e.g. Bitcoin, Ethereum
-        trim: true,
-      },
 
       network: [
         {
