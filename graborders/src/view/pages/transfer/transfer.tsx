@@ -1,5 +1,6 @@
+
 import React from 'react'
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 function transfer() {
     return (
         <>
@@ -246,16 +247,12 @@ function transfer() {
 
         .warning-message {
             color: #d40000;
-            font-size: 13px;
-            margin-top: 10px;
-
+            font-size: 12px;
             padding-left: 5px;
-            border-left: 3px solid #f56c6c;
         }
 
         /* Wallet Section */
         .wallet-section {
-            background: #f8f9fa;
             margin-bottom: 20px;
             position: relative;
             display: flex
@@ -272,7 +269,7 @@ function transfer() {
             display: flex;
             align-items: center;
             padding: 12px 0;
-            gap: 30px
+            gap: 20px
         }
 
         .wallet-row:first-child {
@@ -285,22 +282,24 @@ function transfer() {
         }
 
         .wallet-value {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            color: #000;
+         width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #000;
         }
 
         .wallet-arrow {
-            color: #999;
-            font-size: 12px;
+            font-size: 13px;
+
+
         }
 
         .transfer-direction {
             display: flex;
-            justify-content: center;
             margin: 10px 0;
         }
 
@@ -399,10 +398,10 @@ function transfer() {
         .transfer-button {
             background: #ccc;
             border: none;
-            border-radius: 12px;
-            padding: 16px 20px;
+            border-radius: 8px;
+            padding:12px;
             color: white;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
             cursor: not-allowed;
             width: 100%;
