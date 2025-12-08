@@ -5,6 +5,7 @@ const INITIAL_PAGE_SIZE = 10;
 const initialData = {
   rows: [] as Array<any>,
   count: 0,
+  allTransfer: [] as Array<any>,
   loading: false,
   filter: {},
   rawFilter: {},
@@ -85,14 +86,14 @@ export default (state = initialData, { type, payload }) => {
       loading: true,
       selectedKeys: [],
       filter: payload ? payload.filter : {},
-rawFilter: payload ? payload.rawFilter : {},
+      rawFilter: payload ? payload.rawFilter : {},
       pagination:
         payload && payload.keepPagination
           ? state.pagination
           : {
-              current: 1,
-              pageSize: INITIAL_PAGE_SIZE,
-            },
+            current: 1,
+            pageSize: INITIAL_PAGE_SIZE,
+          },
     };
   }
 
@@ -113,6 +114,48 @@ rawFilter: payload ? payload.rawFilter : {},
       count: 0,
     };
   }
+
+
+
+
+
+  if (type === actions.FETCH_TRANSFER_STARTED) {
+    return {
+      ...state,
+      loading: true,
+      selectedKeys: [],
+      filter: payload ? payload.filter : {},
+      rawFilter: payload ? payload.rawFilter : {},
+      pagination:
+        payload && payload.keepPagination
+          ? state.pagination
+          : {
+            current: 1,
+            pageSize: INITIAL_PAGE_SIZE,
+          },
+    };
+  }
+
+  if (type === actions.FETCH_TRANSFER_SUCCESS) {
+    return {
+      ...state,
+      loading: false,
+      allTransfer: payload.rows,
+      count: payload.count,
+    };
+  }
+
+  if (type === actions.FETCH_TRANSFER_ERROR) {
+    return {
+      ...state,
+      loading: false,
+      allTransfer: [],
+      count: 0,
+    };
+  }
+
+
+
 
   if (type === actions.EXPORT_STARTED) {
     return {

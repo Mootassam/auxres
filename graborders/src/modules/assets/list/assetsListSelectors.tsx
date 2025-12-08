@@ -16,7 +16,10 @@ const selectRows = createSelector(
   [selectRaw],
   (raw) => raw.rows,
 );
-
+const selectListTransfer = createSelector(
+  [selectRaw],
+  (raw) => raw.allTransfer,
+);
 const selectCount = createSelector(
   [selectRaw],
   (raw) => raw.count,
@@ -126,6 +129,7 @@ const couponsListSelectors = {
   selectRawFilter,
   selectIsAllSelected,
   selectSorter,
+  selectListTransfer
 };
 
 export default couponsListSelectors;

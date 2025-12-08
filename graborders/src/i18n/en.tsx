@@ -1073,6 +1073,7 @@ const en = {
 
     transfer: {
       success: " Transfer Successful ",
+      title: "All Transfers ",
 
 
     },

@@ -40,18 +40,18 @@ export default class AssetsServices {
   async transferBetweenAccounts(data) {
     const session = await MongooseRepository.createSession(
       this.options.database,
-    );  
+    );
 
     try {
       const record = await AssetRepository.transferBetweenAccounts(data, {
         ...this.options,
         session,
-      });     
+      });
       await MongooseRepository.commitTransaction(session);
 
       return record;
     } catch (error) {
-      await MongooseRepository.abortTransaction(session);   
+      await MongooseRepository.abortTransaction(session);
       MongooseRepository.handleUniqueFieldError(
         error,
         this.options.language,
@@ -59,7 +59,14 @@ export default class AssetsServices {
       );
 
       throw error;
-    }   
+    }
+  }
+
+  async findAllTransfers(args) {
+    return AssetRepository.findAndCountAllTransfer(
+      args,
+      this.options,
+    );
   }
 
   async update(id, data) {
@@ -133,7 +140,7 @@ export default class AssetsServices {
   }
 
 
-    async findAndCountAllMobile(args) {
+  async findAndCountAllMobile(args) {
     return AssetRepository.findAndCountAllMobile(
       args,
       this.options,

@@ -107,6 +107,30 @@ export default class depositService {
     return response.data;
   }
 
+
+   static async transferList(filter, orderBy, limit, offset) {
+    const params = {
+      filter,
+      orderBy,
+      limit: 50,
+      offset,
+    };
+
+    const tenantId = AuthCurrentTenant.get();
+
+    const response = await authAxios.get(
+      `/tenant/${tenantId}/transfer/all`,
+      {
+        params,
+      },
+    );
+
+    return response.data;
+  }
+
+
+
+
   static async listAutocomplete(query, limit) {
     const params = {
       query,

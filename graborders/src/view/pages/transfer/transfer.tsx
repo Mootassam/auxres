@@ -25,8 +25,8 @@ function Transfer() {
     });
 
     // Refs for click outside
-    const fromAccountRef = useRef(null);
-    const toAccountRef = useRef(null);
+    const fromAccountRef = useRef<HTMLDivElement>(null);
+    const toAccountRef = useRef<HTMLDivElement>(null);
 
     // List of allowed coins (same as conversion page)
     const allowedCoins = [
@@ -232,9 +232,12 @@ function Transfer() {
                             </div>
                         </Link>
                         <div className="page-title">Transfer</div>
-                        <div className="header-icon">
-                            <i className="fas fa-receipt" />
-                        </div>
+                        <Link to="/transferAll" className="header-icon remove_blue">
+
+                            <div className="header-icon">
+                                <i className="fas fa-receipt" />
+                            </div>
+                        </Link>
                     </div>
                 </div>
 

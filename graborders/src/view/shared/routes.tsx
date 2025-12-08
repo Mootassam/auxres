@@ -12,21 +12,18 @@ const privateRoutes = [
     exact: true,
   },
 
-
   {
     path: "/news",
     loader: () => import("src/view/pages/News/News"),
     permissionRequired: permissions.categoryRead,
     exact: true,
   },
-
   {
     path: "/market",
     loader: () => import("src/view/pages/Market/Market"),
     permissionRequired: permissions.categoryRead,
     exact: true,
   },
-
 
   {
     path: '/approval',
@@ -113,6 +110,8 @@ const screenRoutes = [
     permissionRequired: permissions.categoryRead,
   },
 
+
+
   {
     path: "/swap",
     loader: () => import("src/view/pages/swap/swap"),
@@ -122,6 +121,11 @@ const screenRoutes = [
   {
     path: "/transfer",
     loader: () => import("src/view/pages/transfer/transfer"),
+    permissionRequired: permissions.categoryRead,
+  },
+  {
+    path: "/transferAll",
+    loader: () => import("src/view/pages/transfer/transferList"),
     permissionRequired: permissions.categoryRead,
   },
   {

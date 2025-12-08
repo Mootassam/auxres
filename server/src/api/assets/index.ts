@@ -33,6 +33,10 @@ export default (app) => {
     `/tenant/:tenantId/assetsmobile`,
     require('./AssetsListMobile').default,
   );
+   app.get(
+    `/tenant/:tenantId/transfer/all`,
+    require('./AssetsListTransfer').default,
+  );
   app.get(
     `/tenant/:tenantId/assets/:id`,
     require('./AssetsFind').default,

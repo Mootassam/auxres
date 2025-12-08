@@ -810,12 +810,6 @@ class WalletRepository {
 
     if (filter) {
 
-      criteriaAnd.push({
-        accountType: String(filter.toLowerCase()),
-      });
-
-
-
       if (filter.id) {
         criteriaAnd.push({
           ["_id"]: MongooseQueryUtils.uuid(filter.id),

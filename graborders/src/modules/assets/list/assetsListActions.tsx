@@ -11,6 +11,10 @@ const assetsListActions = {
   FETCH_SUCCESS: `${prefix}_FETCH_SUCCESS`,
   FETCH_ERROR: `${prefix}_FETCH_ERROR`,
 
+  FETCH_TRANSFER_STARTED: `${prefix}_FETCH_TRANSFER_STARTED`,
+  FETCH_TRANSFER_SUCCESS: `${prefix}_FETCH_TRANSFER_SUCCESS`,
+  FETCH_TRANSFER_ERROR: `${prefix}_FETCH_TRANSFER_ERROR`,
+
   RESETED: `${prefix}_RESETED`,
   TOGGLE_ONE_SELECTED: `${prefix}_TOGGLE_ONE_SELECTED`,
   TOGGLE_ALL_SELECTED: `${prefix}_TOGGLE_ALL_SELECTED`,
@@ -83,32 +87,61 @@ const assetsListActions = {
 
   doFetch:
     (filter?, rawFilter?, keepPagination = false) =>
-    async (dispatch, getState) => {
-      try {
-        dispatch({
-          type: assetsListActions.FETCH_STARTED,
-          payload: { filter, rawFilter, keepPagination },
-        });
-        const response = await depositService.list(
-          filter,
-          selectors.selectOrderBy(getState()),
-          selectors.selectLimit(getState()),
-          selectors.selectOffset(getState()),
-        );
-        dispatch({
-          type: assetsListActions.FETCH_SUCCESS,
-          payload: {
-            rows: response.rows,
-            count: response.count,
-          },
-        });
-      } catch (error) {
-        Errors.handle(error);
-        dispatch({
-          type: assetsListActions.FETCH_ERROR,
-        });
-      }
-    },
+      async (dispatch, getState) => {
+        try {
+          dispatch({
+            type: assetsListActions.FETCH_STARTED,
+            payload: { filter, rawFilter, keepPagination },
+          });
+          const response = await depositService.list(
+            filter,
+            selectors.selectOrderBy(getState()),
+            selectors.selectLimit(getState()),
+            selectors.selectOffset(getState()),
+          );
+          dispatch({
+            type: assetsListActions.FETCH_SUCCESS,
+            payload: {
+              rows: response.rows,
+              count: response.count,
+            },
+          });
+        } catch (error) {
+          Errors.handle(error);
+          dispatch({
+            type: assetsListActions.FETCH_ERROR,
+          });
+        }
+      },
+
+  TransferList:
+    (filter?, rawFilter?, keepPagination = false) =>
+      async (dispatch, getState) => {
+        try {
+          dispatch({
+            type: assetsListActions.FETCH_TRANSFER_STARTED,
+            payload: { filter, rawFilter, keepPagination },
+          });
+          const response = await depositService.transferList(
+            filter,
+            selectors.selectOrderBy(getState()),
+            selectors.selectLimit(getState()),
+            selectors.selectOffset(getState()),
+          );
+          dispatch({
+            type: assetsListActions.FETCH_TRANSFER_SUCCESS,
+            payload: {
+              rows: response.rows,
+              count: response.count,
+            },
+          });
+        } catch (error) {
+          Errors.handle(error);
+          dispatch({
+            type: assetsListActions.FETCH_TRANSFER_ERROR,
+          });
+        }
+      },
 };
 
 export default assetsListActions;
