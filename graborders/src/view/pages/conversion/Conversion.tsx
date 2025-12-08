@@ -1278,7 +1278,7 @@ function Conversion() {
         .custom-select-wrapper {
           position: relative;
           margin-bottom: 12px;
-          z-index: 2;
+          // z-index: 2;
         }
 
         /* Token Selector */

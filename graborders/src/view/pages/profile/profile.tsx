@@ -10,11 +10,7 @@ import { i18n } from "../../../i18n";
 
 // Constants for menu items
 const MENU_ITEMS = [
-  {
-    icon: "fas fa-exchange-alt",
-    name: "Simulated trading",
-    type: "toggle",
-  },
+
   {
     icon: "fas fa-cog",
     path: "/settings",

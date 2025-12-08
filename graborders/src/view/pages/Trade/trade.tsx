@@ -226,7 +226,7 @@ function Trade() {
       openPositionTime: new Date().toISOString(),
       openPositionPrice: currentPrice,
       contractDuration: selectedDuration,
-      futuresAmount: quantity,
+      futuresAmount: amountInUSDT,
     };
 
     try {

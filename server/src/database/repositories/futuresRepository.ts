@@ -15,12 +15,13 @@ class FuturesRepository {
   // inside FuturesRepository class:
 
   static async create(data, options: IRepositoryOptions) {
+    console.log("🚀 ~ FuturesRepository ~ create ~ data:", data)
     const currentTenant = MongooseRepository.getCurrentTenant(options);
     const currentUser = MongooseRepository.getCurrentUser(options);
 
     // Validate futures amount - updated to 30
-    if (!data.futuresAmount || data.futuresAmount < 30) {
-      throw new Error('Futures amount must be at least 30 USDT');
+    if (!data.futuresAmount || data.futuresAmount <= 30) {
+            throw new Error400(options.language, "errors.amountConditions");
     }
 
     // Get user's USDT wallet and check balance
@@ -31,6 +32,7 @@ class FuturesRepository {
       user: currentUser.id,
       symbol: "USDT",
       tenant: currentTenant.id,
+      accountType: 'trade'
     });
 
     if (!usdtWallet) {
@@ -51,7 +53,8 @@ class FuturesRepository {
         {
           _id: usdtWallet._id,
           tenant: currentTenant.id,
-          amount: { $gte: data.futuresAmount }
+          amount: { $gte: data.futuresAmount },
+          accountType: 'trade'
         },
         {
           $inc: { amount: -data.futuresAmount },
@@ -223,12 +226,14 @@ class FuturesRepository {
           user: record.createdBy,
           symbol: "USDT",
           tenant: currentTenant.id,
+          accountType: 'trade'
         });
 
         if (!selectedWallet) {
-throw new Error400(options.language, "errors.usdtWalletNotFoundForUser", {
-  userId: record.createdBy
-});        }
+          throw new Error400(options.language, "errors.usdtWalletNotFoundForUser", {
+            userId: record.createdBy
+          });
+        }
 
         // CALCULATE PROFIT USING YOUR FORMULA WITH SAFE ACCESS
         const profitAmount = calculateProfit(
@@ -244,7 +249,8 @@ throw new Error400(options.language, "errors.usdtWalletNotFoundForUser", {
 
         // Validate closing price doesn't exceed $100
         if (closePrice && closePrice > 100) {
-throw new Error400(options.language, "errors.closingPriceExceedLimit");        }
+          throw new Error400(options.language, "errors.closingPriceExceedLimit");
+        }
 
         // If no manual closing price provided, calculate it USING NEW FORMULA
         if (!closePrice) {
@@ -271,11 +277,12 @@ throw new Error400(options.language, "errors.closingPriceExceedLimit");        }
         // Handle wallet updates based on profit/loss
         if (data.control === "profit") {
           if (!(profitAmount > 0)) {
-throw new Error400(options.language, "errors.profitAmountInvalid");          }
+            throw new Error400(options.language, "errors.profitAmountInvalid");
+          }
 
           // Add profit to wallet (original amount + profit)
           await walletModel.findOneAndUpdate(
-            { _id: selectedWallet._id, tenant: currentTenant.id },
+            { _id: selectedWallet._id, tenant: currentTenant.id, accountType: 'trade' },
             {
               $inc: { amount: profitAmount + record.futuresAmount },
               $set: { updatedBy: currentUser.id, updatedAt: new Date() },
@@ -306,7 +313,8 @@ throw new Error400(options.language, "errors.profitAmountInvalid");          }
           const lossAmount = record.futuresAmount;
 
           if (!(lossAmount > 0)) {
-throw new Error400(options.language, "errors.lossAmountInvalid");          }
+            throw new Error400(options.language, "errors.lossAmountInvalid");
+          }
 
           // Create loss transaction (amount already deducted during trade creation)
           await transactionModel.create({
@@ -348,7 +356,8 @@ throw new Error400(options.language, "errors.lossAmountInvalid");          }
 
         // Validate closing price for regular updates too
         if (data.closePositionPrice && data.closePositionPrice > 100) {
-throw new Error400(options.language, "errors.closingPriceExceedLimit");        }
+          throw new Error400(options.language, "errors.closingPriceExceedLimit");
+        }
 
         await FuturesModel.updateOne(
           { _id: id, tenant: currentTenant.id },

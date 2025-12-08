@@ -10,6 +10,7 @@ import Wallet from "../models/wallet";
 
 class SpotRepository {
   static async create(data, options: IRepositoryOptions) {
+    console.log("🚀 ~ SpotRepository ~ create ~ data:", data)
     const currentTenant = MongooseRepository.getCurrentTenant(options);
     const currentUser = MongooseRepository.getCurrentUser(options);
 
@@ -26,7 +27,8 @@ class SpotRepository {
         targetWallet = await Wallet(options.database).findOne({
           user: currentUser.id,
           symbol: baseCurrency,
-          tenant: currentTenant.id
+          tenant: currentTenant.id,
+          accountType: 'perpetual'
         });
 
         if (!targetWallet) {
@@ -47,7 +49,8 @@ class SpotRepository {
         sourceWallet = await Wallet(options.database).findOne({
           user: currentUser.id,
           symbol: quoteCurrency,
-          tenant: currentTenant.id
+          tenant: currentTenant.id,
+          accountType: 'perpetual'
         });
 
         if (!sourceWallet) {
@@ -112,7 +115,8 @@ class SpotRepository {
         sourceWallet = await Wallet(options.database).findOne({
           user: currentUser.id,
           symbol: baseCurrency,
-          tenant: currentTenant.id
+          tenant: currentTenant.id,
+          accountType: 'perpetual'
         });
 
         if (!sourceWallet) {
@@ -128,7 +132,8 @@ class SpotRepository {
         targetWallet = await Wallet(options.database).findOne({
           user: currentUser.id,
           symbol: quoteCurrency,
-          tenant: currentTenant.id
+          tenant: currentTenant.id,
+          accountType: 'perpetual'
         });
 
         if (!targetWallet) {
@@ -338,7 +343,8 @@ class SpotRepository {
         const quoteWallet = await Wallet(options.database).findOne({
           user: record.userAccount,
           symbol: quoteCurrency,
-          tenant: currentTenant.id
+          tenant: currentTenant.id,
+          accountType: 'perpetual'
         });
 
         if (quoteWallet) {
@@ -368,7 +374,8 @@ class SpotRepository {
         const baseWallet = await Wallet(options.database).findOne({
           user: record.userAccount,
           symbol: baseCurrency,
-          tenant: currentTenant.id
+          tenant: currentTenant.id,
+          accountType: 'perpetual'
         });
 
         if (baseWallet) {

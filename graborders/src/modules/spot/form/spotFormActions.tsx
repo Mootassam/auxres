@@ -66,7 +66,7 @@ const vipFormActions = {
       });
 
 
-      dispatch(spotListActions.doFetcPending())
+      dispatch(spotListActions.doFetchPending())
       dispatch(assetsListActions.doFetch());
       Message.success(
         i18n('entities.spot.create.success'),
@@ -90,7 +90,7 @@ const vipFormActions = {
       dispatch({
         type: vipFormActions.UPDATE_SUCCESS,
       });
-      dispatch(spotListActions.doFetcPending())
+      dispatch(spotListActions.doFetchPending())
       dispatch(assetsListActions.doFetch());
       Message.success(
         i18n('entities.spot.update.success'),
