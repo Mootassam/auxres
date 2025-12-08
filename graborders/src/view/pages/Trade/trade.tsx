@@ -9,6 +9,9 @@ import assetsActions from "src/modules/assets/list/assetsListActions";
 import assetsListSelectors from "src/modules/assets/list/assetsListSelectors";
 import { i18n } from "../../../i18n";
 import CoinSelectorSidebar from "src/view/shared/modals/CoinSelectorSidebar";
+import futuresFormAction from "src/modules/futures/form/futuresFormActions";
+import futuresListAction from "src/modules/futures/list/futuresListActions";
+import futuresViewActions from "src/modules/futures/view/futuresViewActions";
 
 // Utility: safe parseFloat that returns NaN if invalid
 const safeParse = (v) => {
@@ -38,7 +41,27 @@ function Trade() {
   const [isLoading, setIsLoading] = useState(true);
   const [placing, setPlacing] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [activeOrdersTab, setActiveOrdersTab] = useState("Orders");
+  const [activeOrdersTab, setActiveOrdersTab] = useState("Positions");
+  const [type, setType] = useState("trade");
+  
+  // Trade mode specific state
+  const [selectedLeverage, setSelectedLeverage] = useState("10");
+  const [selectedDuration, setSelectedDuration] = useState("30s");
+  
+  // Trading period options for Trade mode
+  const tradingPeriodOptions = [
+    { value: "30s", label: "30s - 20%" },
+    { value: "60s", label: "60s - 30%" },
+    { value: "120s", label: "120s - 50%" },
+    { value: "24h", label: "24h - 60%" },
+    { value: "48h", label: "48h - 70%" },
+    { value: "72h", label: "72h - 80%" },
+    { value: "7d", label: "7d - 90%" },
+    { value: "15d", label: "15d - 100%" }
+  ];
+  
+  // Leverage options
+  const leverageOptions = ["1", "2", "3", "5", "10", "20", "50", "100"];
 
   // Refs for websockets and performance
   const tickerWs = useRef(null);
@@ -97,22 +120,20 @@ function Trade() {
 
   // Close WebSockets
   const closeWebSockets = useCallback(() => {
-    [tickerWs, depthWs].forEach(wsRef => {
-      if (wsRef.current) {
-        try {
-          wsRef.current.onclose = null;
-          wsRef.current.close();
-        } catch (e) { }
-        wsRef.current = null;
-      }
-    });
+    if (tickerWs.current) {
+      tickerWs.current.close();
+      tickerWs.current = null;
+    }
+    if (depthWs.current) {
+      depthWs.current.close();
+      depthWs.current = null;
+    }
   }, []);
 
-  // Fetch assets and spot list on mount
+  // Fetch spot list on mount
   useEffect(() => {
     isComponentMounted.current = true;
 
-    dispatch(assetsActions.doFetch());
     dispatch(spotListActions.doFetchPending());
 
     // Faster loading timeout
@@ -130,6 +151,13 @@ function Trade() {
     };
   }, [dispatch, cancelPendingRequests, closeWebSockets]);
 
+  // Fetch assets when type changes
+  useEffect(() => {
+    if (isComponentMounted.current) {
+      dispatch(assetsActions.doFetch(type));
+    }
+  }, [dispatch, type]);
+
   // Update price when market price changes or coin changes
   useEffect(() => {
     if (marketPrice && marketPrice !== "0") {
@@ -141,9 +169,6 @@ function Trade() {
       }
     }
   }, [marketPrice, quantity]);
-
-
-
 
   // Sync quantity and amountInUSDT
   const syncQuantityFromUSDT = useCallback((usdtValue) => {
@@ -184,18 +209,57 @@ function Trade() {
     syncQuantityFromUSDT(value);
   }, [syncQuantityFromUSDT]);
 
-  // Optimized WebSocket connection management
+  // Function to create trade (for Trade mode)
+  const createTrade = async () => {
+    const currentPrice = parseFloat(marketPrice || "0") || 0;
+    const direction = activeTab; // "buy" or "sell"
+
+    const payload = {
+      futuresStatus: direction === "buy" ? "long" : "short",
+      profitAndLossAmount: '',
+      leverage: parseInt(selectedLeverage, 10),
+      control: "loss",
+      operate: "low",
+      futureCoin: selectedCoin.replace("USDT", "/USDT"),
+      closePositionTime: '',
+      closePositionPrice: '',
+      openPositionTime: new Date().toISOString(),
+      openPositionPrice: currentPrice,
+      contractDuration: selectedDuration,
+      futuresAmount: quantity,
+    };
+
+    try {
+      const createdRecord = await dispatch(futuresFormAction.doCreate(payload));
+      const record = createdRecord && createdRecord.id ? createdRecord : (createdRecord && createdRecord.payload ? createdRecord.payload : null);
+
+      if (record && record.id) {
+        // Reset form after successful creation
+        setQuantity("");
+        setAmountInUSDT("");
+        return record;
+      } else {
+        console.warn("Create did not return created record");
+        return null;
+      }
+    } catch (err) {
+      console.error("create error", err);
+      throw err;
+    }
+  };
+
+  // WebSocket connection management
   useEffect(() => {
     currentCoinRef.current = selectedCoin;
 
-    const setupWebSocket = (url, onMessage, type) => {
+    const setupWebSocket = (url, onMessage, wsType) => {
       if (!isComponentMounted.current || currentCoinRef.current !== selectedCoin) return null;
 
       try {
         const ws = new WebSocket(url);
 
         ws.onopen = () => {
-          console.log(`${type} WebSocket connected for:`, selectedCoin);
+          console.log(`${wsType} WebSocket connected for:`, selectedCoin);
         };
 
         ws.onmessage = (event) => {
@@ -205,36 +269,35 @@ function Trade() {
             const data = JSON.parse(event.data);
             onMessage(data);
           } catch (err) {
-            console.error(`Error parsing ${type} data:`, err);
+            console.error(`Error parsing ${wsType} data:`, err);
           }
         };
 
         ws.onerror = (error) => {
-          console.error(`${type} WebSocket error:`, error);
+          console.error(`${wsType} WebSocket error:`, error);
         };
 
         ws.onclose = (event) => {
-          console.log(`${type} WebSocket closed for:`, selectedCoin);
-          if (isComponentMounted.current && currentCoinRef.current === selectedCoin && event.code !== 1000) {
-            setTimeout(() => {
-              if (isComponentMounted.current && currentCoinRef.current === selectedCoin) {
-                const newWs = setupWebSocket(url, onMessage, type);
-                if (type === 'ticker' && newWs) tickerWs.current = newWs;
-                else if (type === 'depth' && newWs) depthWs.current = newWs;
-              }
-            }, 1000);
-          }
+          console.log(`${wsType} WebSocket closed for:`, selectedCoin);
         };
 
         return ws;
       } catch (err) {
-        console.error(`Error creating ${type} WebSocket:`, err);
+        console.error(`Error creating ${wsType} WebSocket:`, err);
         return null;
       }
     };
 
     // Close existing connections
-    closeWebSockets();
+    if (tickerWs.current) {
+      tickerWs.current.close();
+      tickerWs.current = null;
+    }
+    
+    if (depthWs.current) {
+      depthWs.current.close();
+      depthWs.current = null;
+    }
 
     // Setup ticker WebSocket
     const tickerUrl = `wss://stream.binance.com:9443/ws/${selectedCoin.toLowerCase()}@ticker`;
@@ -252,9 +315,17 @@ function Trade() {
     }, 'depth');
 
     return () => {
-      closeWebSockets();
+      // Cleanup on unmount or when selectedCoin changes
+      if (tickerWs.current) {
+        tickerWs.current.close();
+        tickerWs.current = null;
+      }
+      if (depthWs.current) {
+        depthWs.current.close();
+        depthWs.current = null;
+      }
     };
-  }, [selectedCoin, closeWebSockets]);
+  }, [selectedCoin]); // Only depend on selectedCoin, not type
 
   // Calculate max amount for depth visualization
   const maxAmount = useMemo(() => {
@@ -319,99 +390,116 @@ function Trade() {
     }
   }, [activeTab, currentBalance, syncQuantityFromUSDT, syncUSDTFromQuantity]);
 
-  const handleIncrementPrice = useCallback(() => {
-    const p = safeParse(price);
-    const next = Number.isFinite(p) ? (p + 1) : safeParse(marketPrice) || 0;
-    setPrice(next.toString());
-  }, [price, marketPrice]);
-
-  const handleDecrementPrice = useCallback(() => {
-    const p = safeParse(price);
-    if (!Number.isFinite(p)) return;
-    const next = Math.max(0.0001, p - 1);
-    setPrice(next.toString());
-  }, [price]);
-
-  const handleOrderBookClick = useCallback((clickPrice) => {
-    if (orderType === "LIMIT" && clickPrice !== undefined) {
-      setPrice(clickPrice.toString());
-    }
-  }, [orderType]);
-
-  // Place order
+  // Place order handler (supports both Trade and Perpetual modes)
   const handlePlaceOrder = useCallback(async () => {
     setErrorMessage("");
     if (placing) return;
 
-    const q = safeParse(quantity);
-    const p = orderType === "MARKET" ? safeParse(marketPrice) : safeParse(price);
-
-    // Validation
-    if (!Number.isFinite(q) || q <= 0) {
-      setErrorMessage(i18n("pages.trade.errors.invalidQuantity"));
-      return;
-    }
-
-    if (!Number.isFinite(p) || p <= 0) {
-      setErrorMessage(i18n("pages.trade.errors.invalidPrice"));
-      return;
-    }
-
-    // Balance validation
-    if (activeTab === "buy") {
-      const totalCost = p * q;
-      if (totalCost > currentBalance) {
-        setErrorMessage(i18n("pages.trade.errors.insufficientUSDT", formatNumber(currentBalance, 2)));
+    if (type === "trade") {
+      // Trade mode validation
+      const q = safeParse(quantity);
+      if (!Number.isFinite(q) || q <= 0) {
+        setErrorMessage(i18n("pages.trade.errors.invalidQuantity"));
         return;
+      }
+
+      // Balance validation for Trade mode
+      if (activeTab === "buy") {
+        const totalCost = safeParse(marketPrice) * q;
+        if (totalCost > currentBalance) {
+          setErrorMessage(i18n("pages.trade.errors.insufficientUSDT", formatNumber(currentBalance, 2)));
+          return;
+        }
+      } else {
+        if (q > currentBalance) {
+          setErrorMessage(i18n("pages.trade.errors.insufficientCoin", formatNumber(currentBalance, 6), baseSymbol));
+          return;
+        }
+      }
+
+      setPlacing(true);
+      try {
+        await createTrade();
+        // Success - form is reset in createTrade()
+      } catch (err) {
+        console.error("Trade create error", err);
+        setErrorMessage(i18n("pages.trade.errors.failedOrder"));
+      } finally {
+        setPlacing(false);
       }
     } else {
-      if (q > currentBalance) {
-        setErrorMessage(i18n("pages.trade.errors.insufficientCoin", formatNumber(currentBalance, 6), baseSymbol));
+      // Perpetual mode (existing spot trading logic)
+      const q = safeParse(quantity);
+      const p = orderType === "MARKET" ? safeParse(marketPrice) : safeParse(price);
+
+      // Validation
+      if (!Number.isFinite(q) || q <= 0) {
+        setErrorMessage(i18n("pages.trade.errors.invalidQuantity"));
         return;
       }
-    }
 
-    setPlacing(true);
-    try {
-      const orderPrice = p;
-      const orderQty = q;
-      const totalValue = orderPrice * orderQty;
-      const estimatedFee = totalValue * 0.001;
+      if (!Number.isFinite(p) || p <= 0) {
+        setErrorMessage(i18n("pages.trade.errors.invalidPrice"));
+        return;
+      }
 
-      const orderData = {
-        orderNo: generateOrderNumber(),
-        orderType: orderType.toLowerCase(),
-        tradingPair: selectedCoin.replace("USDT", "/USDT"),
-        status: orderType === "MARKET" ? "completed" : "pending",
-        direction: activeTab.toUpperCase(),
-        delegateType: orderType,
-        delegateState: orderType === "MARKET" ? "Filled" : "Pending",
-        orderQuantity: orderQty,
-        commissionPrice: orderPrice,
-        entrustedValue: totalValue,
-        transactionQuantity: orderType === "MARKET" ? orderQty : 0,
-        transactionValue: orderType === "MARKET" ? totalValue : 0,
-        closingPrice: orderType === "MARKET" ? orderPrice : 0,
-        handlingFee: orderType === "MARKET" ? estimatedFee : 0,
-        commissionTime: new Date().toISOString(),
-        closingTime: orderType === "MARKET" ? new Date().toISOString() : null,
-      };
+      // Balance validation
+      if (activeTab === "buy") {
+        const totalCost = p * q;
+        if (totalCost > currentBalance) {
+          setErrorMessage(i18n("pages.trade.errors.insufficientUSDT", formatNumber(currentBalance, 2)));
+          return;
+        }
+      } else {
+        if (q > currentBalance) {
+          setErrorMessage(i18n("pages.trade.errors.insufficientCoin", formatNumber(currentBalance, 6), baseSymbol));
+          return;
+        }
+      }
 
-      await dispatch(spotFormActions.doCreate(orderData));
+      setPlacing(true);
+      try {
+        const orderPrice = p;
+        const orderQty = q;
+        const totalValue = orderPrice * orderQty;
+        const estimatedFee = totalValue * 0.001;
 
-      // Reset form
-      setQuantity("");
-      setAmountInUSDT("");
+        const orderData = {
+          orderNo: generateOrderNumber(),
+          orderType: orderType.toLowerCase(),
+          tradingPair: selectedCoin.replace("USDT", "/USDT"),
+          status: orderType === "MARKET" ? "completed" : "pending",
+          direction: activeTab.toUpperCase(),
+          delegateType: orderType,
+          delegateState: orderType === "MARKET" ? "Filled" : "Pending",
+          orderQuantity: orderQty,
+          commissionPrice: orderPrice,
+          entrustedValue: totalValue,
+          transactionQuantity: orderType === "MARKET" ? orderQty : 0,
+          transactionValue: orderType === "MARKET" ? totalValue : 0,
+          closingPrice: orderType === "MARKET" ? orderPrice : 0,
+          handlingFee: orderType === "MARKET" ? estimatedFee : 0,
+          commissionTime: new Date().toISOString(),
+          closingTime: orderType === "MARKET" ? new Date().toISOString() : null,
+        };
 
-    } catch (err) {
-      console.error("Place order error", err);
-      setErrorMessage(i18n("pages.trade.errors.failedOrder"));
-    } finally {
-      setPlacing(false);
+        await dispatch(spotFormActions.doCreate(orderData));
+
+        // Reset form
+        setQuantity("");
+        setAmountInUSDT("");
+
+      } catch (err) {
+        console.error("Place order error", err);
+        setErrorMessage(i18n("pages.trade.errors.failedOrder"));
+      } finally {
+        setPlacing(false);
+      }
     }
   }, [
     placing, quantity, orderType, marketPrice, price, selectedCoin,
-    activeTab, dispatch, generateOrderNumber, currentBalance, baseSymbol, formatNumber
+    activeTab, dispatch, generateOrderNumber, currentBalance, baseSymbol,
+    formatNumber, type, createTrade
   ]);
 
   const updateStatus = async (id, data) => {
@@ -431,13 +519,13 @@ function Trade() {
             </div>
             <div>
               <p style={{ fontSize: 10 }}>
-                Perpetual
+                {type === "trade" ? "Trade" : "Perpetual"}
               </p>
             </div>
           </div>
 
           <div className="header-right">
-            <select className="trade-type-select">
+            <select className="trade-type-select" onChange={(e) => setType(e.target.value)}>
               <option value="trade">Trade</option>
               <option value="perpetual">Perpetual</option>
             </select>
@@ -482,42 +570,93 @@ function Trade() {
               )}
             </div>
 
-            <div className="order-type">
-              <div className="order-type-label">{i18n("pages.trade.orderType")}</div>
-              {isLoading ? (
-                <div className="skeleton-input" />
-              ) : (
-                <select
-                  className="order-type-select"
-                  value={orderType}
-                  onChange={(e) => setOrderType(e.target.value)}
-                >
-                  <option value="LIMIT">{i18n("pages.trade.limit")}</option>
-                  <option value="MARKET">{i18n("pages.trade.market")}</option>
-                </select>
-              )}
-            </div>
+            {/* Trade mode specific fields */}
+            {type === "trade" && (
+              <>
+                {/* Trading Period Select */}
+                <div className="input-group">
+                  <div className="input-label">Trading Period</div>
+                  {isLoading ? (
+                    <div className="skeleton-input" />
+                  ) : (
+                    <select
+                      className="order-type-select"
+                      value={selectedDuration}
+                      onChange={(e) => setSelectedDuration(e.target.value)}
+                    >
+                      {tradingPeriodOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
 
-            {/* Price input (limit only) */}
-            {orderType === "LIMIT" && (
-              <div className="input-group">
-                <div className="input-label">{i18n("pages.trade.price")}</div>
-                {isLoading ? (
-                  <div className="skeleton-input" />
-                ) : (
-                  <div className="input-with-buttons">
-                    <input
-                      className="value-input"
-                      value={price}
-                      onChange={handlePriceChange}
-                      inputMode="decimal"
-                      aria-label="price"
-                    />
-                  </div>
-                )}
-              </div>
+                {/* Leverage Select */}
+                <div className="input-group">
+                  <div className="input-label">Leverage</div>
+                  {isLoading ? (
+                    <div className="skeleton-input" />
+                  ) : (
+                    <select
+                      className="order-type-select"
+                      value={selectedLeverage}
+                      onChange={(e) => setSelectedLeverage(e.target.value)}
+                    >
+                      {leverageOptions.map((option) => (
+                        <option key={option} value={option}>
+                          {option}x
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+              </>
             )}
 
+            {/* Perpetual mode fields */}
+            {type === "perpetual" && (
+              <>
+                <div className="order-type">
+                  <div className="order-type-label">{i18n("pages.trade.orderType")}</div>
+                  {isLoading ? (
+                    <div className="skeleton-input" />
+                  ) : (
+                    <select
+                      className="order-type-select"
+                      value={orderType}
+                      onChange={(e) => setOrderType(e.target.value)}
+                    >
+                      <option value="LIMIT">{i18n("pages.trade.limit")}</option>
+                      <option value="MARKET">{i18n("pages.trade.market")}</option>
+                    </select>
+                  )}
+                </div>
+
+                {/* Price input (limit only) */}
+                {orderType === "LIMIT" && (
+                  <div className="input-group">
+                    <div className="input-label">{i18n("pages.trade.price")}</div>
+                    {isLoading ? (
+                      <div className="skeleton-input" />
+                    ) : (
+                      <div className="input-with-buttons">
+                        <input
+                          className="value-input"
+                          value={price}
+                          onChange={handlePriceChange}
+                          inputMode="decimal"
+                          aria-label="price"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Common fields for both modes */}
             {/* Quantity in Coin */}
             <div className="input-group">
               <div className="input-label">{i18n("pages.trade.amount")} ({baseSymbol})</div>
@@ -600,7 +739,7 @@ function Trade() {
                   const amount = safeParse(ask.amount) || 0;
                   const widthPercentage = Math.min(100, (amount / maxAmount) * 100);
                   return (
-                    <div key={`ask-${idx}`} className="order-book-row ask-row" onClick={() => handleOrderBookClick(ask.price)}>
+                    <div key={`ask-${idx}`} className="order-book-row ask-row">
                       <div className="depth-bar ask-depth" style={{ width: `${widthPercentage}%` }} />
                       <div className="order-price">{formatNumber(ask.price, 4)}</div>
                       <div className="order-amount">{formatNumber(ask.amount, 4)}</div>
@@ -616,7 +755,7 @@ function Trade() {
                   const amount = safeParse(bid.amount) || 0;
                   const widthPercentage = Math.min(100, (amount / maxAmount) * 100);
                   return (
-                    <div key={`bid-${idx}`} className="order-book-row bid-row" onClick={() => handleOrderBookClick(bid.price)}>
+                    <div key={`bid-${idx}`} className="order-book-row bid-row">
                       <div className="depth-bar bid-depth" style={{ width: `${widthPercentage}%` }} />
                       <div className="order-price">{formatNumber(bid.price, 4)}</div>
                       <div className="order-amount">{formatNumber(bid.amount, 4)}</div>
@@ -631,7 +770,7 @@ function Trade() {
         {/* Orders Tabs */}
         <div className="orders-tabs">
           <div className="orders-tabs-header">
-            {['Positions', 'Orders', 'History orders', 'Transaction history'].map(tab => (
+            {['Positions', 'History orders', 'Transaction history'].map(tab => (
               <div
                 key={tab}
                 className={`orders-tab ${activeOrdersTab === tab ? 'active' : ''}`}
