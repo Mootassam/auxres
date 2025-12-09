@@ -21,7 +21,7 @@ class FuturesRepository {
 
     // Validate futures amount - updated to 30
     if (!data.futuresAmount || data.futuresAmount <= 30) {
-            throw new Error400(options.language, "errors.amountConditions");
+      throw new Error400(options.language, "errors.amountConditions");
     }
 
     // Get user's USDT wallet and check balance
@@ -132,7 +132,6 @@ class FuturesRepository {
   }
 
   static async update(id, data, options: IRepositoryOptions) {
-    console.log("🚀 ~ FuturesRepository ~ update ~ data:", data)
     const currentTenant = MongooseRepository.getCurrentTenant(options);
     const currentUser = MongooseRepository.getCurrentUser(options);
 
@@ -163,10 +162,14 @@ class FuturesRepository {
       if (!amount || !leverage || !duration) return 0;
 
       const data = [
-        { duration: "60", payout: "10" },
-        { duration: "120", payout: "20" },
-        { duration: "180", payout: "40" },
-        { duration: "240", payout: "80" },
+        { duration: "30", payout: "20" },
+        { duration: "60", payout: "30" },
+        { duration: "120", payout: "50" },
+        { duration: "86400", payout: "60" },
+        { duration: "172800", payout: "70" },
+        { duration: "259200", payout: "80" },
+        { duration: "604800", payout: "90" },
+        { duration: "1296000", payout: "100" },
       ];
 
       const leverageNum = parseFloat(leverage?.toString() || "0");
@@ -236,12 +239,14 @@ class FuturesRepository {
           });
         }
 
+
         // CALCULATE PROFIT USING YOUR FORMULA WITH SAFE ACCESS
         const profitAmount = calculateProfit(
           record.futuresAmount,
           record.leverage,
           record.contractDuration
         );
+
 
         const lossAmount = record.futuresAmount;
 
@@ -277,7 +282,9 @@ class FuturesRepository {
 
         // Handle wallet updates based on profit/loss
         if (data.control === "profit") {
-          
+
+          console.log("🚀 ~ FuturesRepository ~ update ~ profitAmount:", profitAmount)
+
           if (!(profitAmount > 0)) {
             throw new Error400(options.language, "errors.profitAmountInvalid");
           }

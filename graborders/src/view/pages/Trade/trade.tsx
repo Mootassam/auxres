@@ -43,23 +43,23 @@ function Trade() {
   const [errorMessage, setErrorMessage] = useState("");
   const [activeOrdersTab, setActiveOrdersTab] = useState("Positions");
   const [type, setType] = useState("trade");
-  
+
   // Trade mode specific state
   const [selectedLeverage, setSelectedLeverage] = useState("10");
   const [selectedDuration, setSelectedDuration] = useState("30s");
-  
+
   // Trading period options for Trade mode
   const tradingPeriodOptions = [
-    { value: "30s", label: "30s - 20%" },
-    { value: "60s", label: "60s - 30%" },
-    { value: "120s", label: "120s - 50%" },
-    { value: "24h", label: "24h - 60%" },
-    { value: "48h", label: "48h - 70%" },
-    { value: "72h", label: "72h - 80%" },
-    { value: "7d", label: "7d - 90%" },
-    { value: "15d", label: "15d - 100%" }
+    { value: 30, label: "30s - 20%" },          // 30 seconds
+    { value: 60, label: "60s - 30%" },          // 60 seconds
+    { value: 120, label: "120s - 50%" },        // 120 seconds
+    { value: 86400, label: "24h - 60%" },       // 24 hours
+    { value: 172800, label: "48h - 70%" },      // 48 hours
+    { value: 259200, label: "72h - 80%" },      // 72 hours
+    { value: 604800, label: "7d - 90%" },       // 7 days
+    { value: 1296000, label: "15d - 100%" }     // 15 days
   ];
-  
+
   // Leverage options
   const leverageOptions = ["1", "2", "3", "5", "10", "20", "50", "100"];
 
@@ -202,11 +202,18 @@ function Trade() {
     syncUSDTFromQuantity(value);
   }, [syncUSDTFromQuantity]);
 
-  // Handle amount in USDT change
+  // Handle amount in USDT change - FIXED VERSION
   const handleAmountInUSDTChange = useCallback((e) => {
     const value = e.target.value;
     setAmountInUSDT(value);
-    syncQuantityFromUSDT(value);
+    
+    // Only sync quantity if the value is not empty
+    if (value !== "") {
+      syncQuantityFromUSDT(value);
+    } else {
+      // If USDT amount is cleared, clear quantity too
+      setQuantity("");
+    }
   }, [syncQuantityFromUSDT]);
 
   // Function to create trade (for Trade mode)
@@ -293,7 +300,7 @@ function Trade() {
       tickerWs.current.close();
       tickerWs.current = null;
     }
-    
+
     if (depthWs.current) {
       depthWs.current.close();
       depthWs.current = null;
@@ -684,7 +691,6 @@ function Trade() {
               ) : (
                 <input
                   className="value-input"
-                  value={amountInUSDT}
                   onChange={handleAmountInUSDTChange}
                   placeholder="0.0"
                   inputMode="decimal"
