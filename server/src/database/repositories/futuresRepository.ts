@@ -132,6 +132,7 @@ class FuturesRepository {
   }
 
   static async update(id, data, options: IRepositoryOptions) {
+    console.log("🚀 ~ FuturesRepository ~ update ~ data:", data)
     const currentTenant = MongooseRepository.getCurrentTenant(options);
     const currentUser = MongooseRepository.getCurrentUser(options);
 
@@ -276,6 +277,7 @@ class FuturesRepository {
 
         // Handle wallet updates based on profit/loss
         if (data.control === "profit") {
+          
           if (!(profitAmount > 0)) {
             throw new Error400(options.language, "errors.profitAmountInvalid");
           }
