@@ -7,10 +7,13 @@ import spotListActions from "src/modules/spot/list/spotListActions";
 import spotFormActions from "src/modules/spot/form/spotFormActions";
 import assetsActions from "src/modules/assets/list/assetsListActions";
 import assetsListSelectors from "src/modules/assets/list/assetsListSelectors";
+import transactionListSelectors from "src/modules/transaction/list/transactionListSelectors";
+import transactionListActions from "src/modules/transaction/list/transactionListActions";
+import futuresListSelectors from "src/modules/futures/list/futuresListSelectors";
+import futuresListAction from "src/modules/futures/list/futuresListActions";
 import { i18n } from "../../../i18n";
 import CoinSelectorSidebar from "src/view/shared/modals/CoinSelectorSidebar";
 import futuresFormAction from "src/modules/futures/form/futuresFormActions";
-import futuresListAction from "src/modules/futures/list/futuresListActions";
 import futuresViewActions from "src/modules/futures/view/futuresViewActions";
 
 // Utility: safe parseFloat that returns NaN if invalid
@@ -23,9 +26,17 @@ const safeParse = (v) => {
 function Trade() {
   const dispatch = useDispatch();
 
-  // Redux data
+  // Redux data selectors
   const listspot = useSelector(spotListSelectors.selectRows) || [];
   const listAssets = useSelector(assetsListSelectors.selectRows) || [];
+  const transactions = useSelector(transactionListSelectors.selectRows) || [];
+  const listFutures = useSelector(futuresListSelectors.selectRows) || [];
+  const pendingrows = useSelector(futuresListSelectors.pendingRows) || []
+  // Loading states
+  const spotLoading = useSelector(spotListSelectors.selectLoading);
+  const futureLoading = useSelector(futuresListSelectors.selectLoading);
+  const transactionLoading = useSelector(transactionListSelectors.selectLoading);
+  const assetsLoading = useSelector(assetsListSelectors.selectLoading);
 
   // Local UI state
   const [selectedCoin, setSelectedCoin] = useState("BTCUSDT");
@@ -38,7 +49,6 @@ function Trade() {
   const [amountInUSDT, setAmountInUSDT] = useState("");
   const [activeTab, setActiveTab] = useState("buy");
   const [orderBook, setOrderBook] = useState({ asks: [], bids: [] });
-  const [isLoading, setIsLoading] = useState(true);
   const [placing, setPlacing] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [activeOrdersTab, setActiveOrdersTab] = useState("Positions");
@@ -50,14 +60,14 @@ function Trade() {
 
   // Trading period options for Trade mode
   const tradingPeriodOptions = [
-    { value: 30, label: "30s - 20%" },          // 30 seconds
-    { value: 60, label: "60s - 30%" },          // 60 seconds
-    { value: 120, label: "120s - 50%" },        // 120 seconds
-    { value: 86400, label: "24h - 60%" },       // 24 hours
-    { value: 172800, label: "48h - 70%" },      // 48 hours
-    { value: 259200, label: "72h - 80%" },      // 72 hours
-    { value: 604800, label: "7d - 90%" },       // 7 days
-    { value: 1296000, label: "15d - 100%" }     // 15 days
+    { value: 30, label: "30s - 20%" },
+    { value: 60, label: "60s - 30%" },
+    { value: 120, label: "120s - 50%" },
+    { value: 86400, label: "24h - 60%" },
+    { value: 172800, label: "48h - 70%" },
+    { value: 259200, label: "72h - 80%" },
+    { value: 604800, label: "7d - 90%" },
+    { value: 1296000, label: "15d - 100%" }
   ];
 
   // Leverage options
@@ -70,6 +80,11 @@ function Trade() {
   const dataFetchController = useRef(null);
   const isComponentMounted = useRef(true);
 
+  // Derived symbols
+  const baseSymbol = useMemo(() => {
+    return selectedCoin.replace("USDT", "");
+  }, [selectedCoin]);
+
   // Memoized balances mapping
   const balances = useMemo(() => {
     if (!Array.isArray(listAssets)) return {};
@@ -78,11 +93,6 @@ function Trade() {
       return acc;
     }, {});
   }, [listAssets]);
-
-  // Derived symbols
-  const baseSymbol = useMemo(() => {
-    return selectedCoin.replace("USDT", "");
-  }, [selectedCoin]);
 
   // Current balance based on active tab
   const currentBalance = useMemo(() => {
@@ -102,6 +112,126 @@ function Trade() {
       maximumFractionDigits: decimals,
     });
   }, []);
+
+  // Format currency
+  const formatCurrency = useCallback((num) => {
+    const n = Number(num);
+    if (!Number.isFinite(n)) return "$0.00";
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(n);
+  }, []);
+
+  // Format date
+  const formatDate = useCallback((dateString) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    } catch (e) {
+      return 'Invalid date';
+    }
+  }, []);
+
+  // Format time
+  const formatTime = useCallback((dateString) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+    } catch (e) {
+      return 'Invalid time';
+    }
+  }, []);
+
+  // Format duration
+  const formatDuration = useCallback((seconds) => {
+    if (!seconds) return "N/A";
+
+    if (seconds < 60) return `${seconds}s`;
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h`;
+    if (seconds < 604800) return `${Math.floor(seconds / 86400)}d`;
+    return `${Math.floor(seconds / 86400)}d`;
+  }, []);
+
+  // Get transaction configuration
+  const getTransactionConfig = (type, direction, relatedAsset) => {
+    const config = {
+      icon: 'fa-exchange-alt',
+      typeText: i18n("pages.history.transactionTypes.transaction"),
+      iconClass: 'swap',
+      color: '#627EEA',
+      amountColor: direction === 'in' ? '#2ff378' : '#FF6838'
+    };
+
+    switch (type) {
+      case 'deposit':
+        config.icon = 'fa-arrow-down';
+        config.typeText = i18n("pages.history.transactionTypes.deposit");
+        config.iconClass = 'deposit';
+        config.color = '#F3BA2F';
+        config.amountColor = '#2ff378';
+        break;
+
+      case 'withdraw':
+        config.icon = 'fa-arrow-up';
+        config.typeText = i18n("pages.history.transactionTypes.withdrawal");
+        config.iconClass = 'withdraw';
+        config.color = '#FF6838';
+        config.amountColor = '#FF6838';
+        break;
+
+      case 'futures_profit':
+        config.icon = 'fa-chart-line';
+        config.typeText = i18n("pages.history.transactionTypes.futuresProfit");
+        config.iconClass = 'futures-profit';
+        config.color = '#00C076';
+        config.amountColor = '#00C076';
+        break;
+
+      case 'futures_loss':
+        config.icon = 'fa-chart-line';
+        config.typeText = i18n("pages.history.transactionTypes.futuresLoss");
+        config.iconClass = 'futures-loss';
+        config.color = '#FF6838';
+        config.amountColor = '#FF6838';
+        break;
+
+      case 'futures_reserved':
+        config.icon = 'fa-clock';
+        config.typeText = i18n("pages.history.transactionTypes.futuresReserved");
+        config.iconClass = 'futures-reserved';
+        config.color = '#FF9800';
+        config.amountColor = '#FF6838';
+        break;
+
+      case 'order_reserved':
+        config.icon = 'fa-clock';
+        config.typeText = i18n("pages.history.transactionTypes.orderReserved");
+        config.iconClass = 'order-reserved';
+        config.color = '#FF9800';
+        config.amountColor = '#FF6838';
+        break;
+
+      default:
+        config.icon = 'fa-exchange-alt';
+        config.typeText = i18n("pages.history.transactionTypes.transaction");
+        config.iconClass = 'default';
+        config.color = '#627EEA';
+        config.amountColor = '#627EEA';
+    }
+    return config;
+  };
 
   // Generate unique order number
   const generateOrderNumber = useCallback(() => {
@@ -130,46 +260,6 @@ function Trade() {
     }
   }, []);
 
-  // Fetch spot list on mount
-  useEffect(() => {
-    isComponentMounted.current = true;
-
-    dispatch(spotListActions.doFetchPending());
-
-    // Faster loading timeout
-    const t = setTimeout(() => {
-      if (isComponentMounted.current) {
-        setIsLoading(false);
-      }
-    }, 400);
-
-    return () => {
-      isComponentMounted.current = false;
-      clearTimeout(t);
-      cancelPendingRequests();
-      closeWebSockets();
-    };
-  }, [dispatch, cancelPendingRequests, closeWebSockets]);
-
-  // Fetch assets when type changes
-  useEffect(() => {
-    if (isComponentMounted.current) {
-      dispatch(assetsActions.doFetch(type));
-    }
-  }, [dispatch, type]);
-
-  // Update price when market price changes or coin changes
-  useEffect(() => {
-    if (marketPrice && marketPrice !== "0") {
-      setPrice(marketPrice);
-
-      if (quantity && !isNaN(Number(quantity))) {
-        const calculatedUSDT = Number(quantity) * Number(marketPrice);
-        setAmountInUSDT(calculatedUSDT.toFixed(2));
-      }
-    }
-  }, [marketPrice, quantity]);
-
   // Sync quantity and amountInUSDT
   const syncQuantityFromUSDT = useCallback((usdtValue) => {
     const usdtNum = safeParse(usdtValue);
@@ -195,6 +285,109 @@ function Trade() {
     }
   }, [price]);
 
+  // Calculate max amount for depth visualization
+  const maxAmount = useMemo(() => {
+    const all = [
+      ...orderBook.asks.map((it) => safeParse(it.amount)),
+      ...orderBook.bids.map((it) => safeParse(it.amount)),
+    ].filter((n) => Number.isFinite(n));
+    return Math.max(...all, 1);
+  }, [orderBook]);
+
+  // Get futures status color and text
+  const getFuturesStatusConfig = (status) => {
+    const config = {
+      color: '#6c757d',
+      bgColor: '#e9ecef',
+      text: status || 'Unknown'
+    };
+
+    switch (status?.toLowerCase()) {
+      case 'long':
+        config.color = '#37b66a';
+        config.bgColor = 'rgba(55, 182, 106, 0.1)';
+        config.text = 'Long';
+        break;
+      case 'short':
+        config.color = '#f56c6c';
+        config.bgColor = 'rgba(245, 108, 108, 0.1)';
+        config.text = 'Short';
+        break;
+      case 'closed':
+        config.color = '#106cf5';
+        config.bgColor = 'rgba(16, 108, 245, 0.1)';
+        config.text = 'Closed';
+        break;
+      case 'liquidated':
+        config.color = '#dc3545';
+        config.bgColor = 'rgba(220, 53, 69, 0.1)';
+        config.text = 'Liquidated';
+        break;
+    }
+    return config;
+  };
+
+  // Initialize component
+  useEffect(() => {
+    isComponentMounted.current = true;
+
+    // Fetch initial assets
+    dispatch(assetsActions.doFetch(type));
+
+    return () => {
+      isComponentMounted.current = false;
+      cancelPendingRequests();
+      closeWebSockets();
+    };
+  }, [dispatch, cancelPendingRequests, closeWebSockets, type]);
+
+  // Conditional data fetching based on type and active tab
+  useEffect(() => {
+    if (!isComponentMounted.current) return;
+
+    let timeoutId;
+
+    const fetchData = () => {
+      if (activeOrdersTab === "Transaction history") {
+        dispatch(transactionListActions.doFetchPending());
+        return;
+      }
+
+      if (type === "perpetual") {
+        if (activeOrdersTab === "Positions") {
+          dispatch(spotListActions.doFetchPending());
+        } else if (activeOrdersTab === "History orders") {
+          dispatch(spotListActions.doFetch());
+        }
+      } else if (type === "trade") {
+        if (activeOrdersTab === "Positions") {
+          dispatch(futuresListAction.doFetchPending());
+        } else if (activeOrdersTab === "History orders") {
+          dispatch(futuresListAction.doFetch());
+        }
+      }
+    };
+
+    // Debounce fetch to prevent rapid calls
+    timeoutId = setTimeout(fetchData, 100);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [dispatch, type, activeOrdersTab]);
+
+  // Update price when market price changes or coin changes
+  useEffect(() => {
+    if (marketPrice && marketPrice !== "0") {
+      setPrice(marketPrice);
+
+      if (quantity && !isNaN(Number(quantity))) {
+        const calculatedUSDT = Number(quantity) * Number(marketPrice);
+        setAmountInUSDT(calculatedUSDT.toFixed(2));
+      }
+    }
+  }, [marketPrice, quantity]);
+
   // Handle quantity change
   const handleQuantityChange = useCallback((e) => {
     const value = e.target.value;
@@ -202,16 +395,14 @@ function Trade() {
     syncUSDTFromQuantity(value);
   }, [syncUSDTFromQuantity]);
 
-  // Handle amount in USDT change - FIXED VERSION
+  // Handle amount in USDT change
   const handleAmountInUSDTChange = useCallback((e) => {
     const value = e.target.value;
     setAmountInUSDT(value);
-    
-    // Only sync quantity if the value is not empty
+
     if (value !== "") {
       syncQuantityFromUSDT(value);
     } else {
-      // If USDT amount is cleared, clear quantity too
       setQuantity("");
     }
   }, [syncQuantityFromUSDT]);
@@ -219,7 +410,7 @@ function Trade() {
   // Function to create trade (for Trade mode)
   const createTrade = async () => {
     const currentPrice = parseFloat(marketPrice || "0") || 0;
-    const direction = activeTab; // "buy" or "sell"
+    const direction = activeTab;
 
     const payload = {
       futuresStatus: direction === "buy" ? "long" : "short",
@@ -238,17 +429,18 @@ function Trade() {
 
     try {
       const createdRecord = await dispatch(futuresFormAction.doCreate(payload));
-      const record = createdRecord && createdRecord.id ? createdRecord : (createdRecord && createdRecord.payload ? createdRecord.payload : null);
+      const record = createdRecord?.id ? createdRecord : createdRecord?.payload;
 
-      if (record && record.id) {
-        // Reset form after successful creation
+      if (record?.id) {
         setQuantity("");
         setAmountInUSDT("");
+        // Refresh futures positions list
+        if (activeOrdersTab === "Positions") {
+          dispatch(futuresListAction.doFetchPending());
+        }
         return record;
-      } else {
-        console.warn("Create did not return created record");
-        return null;
       }
+      return null;
     } catch (err) {
       console.error("create error", err);
       throw err;
@@ -322,7 +514,6 @@ function Trade() {
     }, 'depth');
 
     return () => {
-      // Cleanup on unmount or when selectedCoin changes
       if (tickerWs.current) {
         tickerWs.current.close();
         tickerWs.current = null;
@@ -332,16 +523,7 @@ function Trade() {
         depthWs.current = null;
       }
     };
-  }, [selectedCoin]); // Only depend on selectedCoin, not type
-
-  // Calculate max amount for depth visualization
-  const maxAmount = useMemo(() => {
-    const all = [
-      ...orderBook.asks.map((it) => safeParse(it.amount)),
-      ...orderBook.bids.map((it) => safeParse(it.amount)),
-    ].filter((n) => Number.isFinite(n));
-    return Math.max(...all, 1);
-  }, [orderBook]);
+  }, [selectedCoin]);
 
   // Handlers
   const handleOpenCoinModal = useCallback(() => setIsCoinModalOpen(true), []);
@@ -355,20 +537,10 @@ function Trade() {
 
     setSelectedCoin(coin);
     setIsCoinModalOpen(false);
-    setIsLoading(true);
 
     // Reset form fields when coin changes
     setQuantity("");
     setAmountInUSDT("");
-
-    // Brief loading state
-    const t = setTimeout(() => {
-      if (isComponentMounted.current) {
-        setIsLoading(false);
-      }
-    }, 300);
-
-    return () => clearTimeout(t);
   }, [selectedCoin]);
 
   const handlePriceChange = useCallback((e) => {
@@ -397,7 +569,7 @@ function Trade() {
     }
   }, [activeTab, currentBalance, syncQuantityFromUSDT, syncUSDTFromQuantity]);
 
-  // Place order handler (supports both Trade and Perpetual modes)
+  // Place order handler
   const handlePlaceOrder = useCallback(async () => {
     setErrorMessage("");
     if (placing) return;
@@ -427,7 +599,6 @@ function Trade() {
       setPlacing(true);
       try {
         await createTrade();
-        // Success - form is reset in createTrade()
       } catch (err) {
         console.error("Trade create error", err);
         setErrorMessage(i18n("pages.trade.errors.failedOrder"));
@@ -435,7 +606,7 @@ function Trade() {
         setPlacing(false);
       }
     } else {
-      // Perpetual mode (existing spot trading logic)
+      // Perpetual mode
       const q = safeParse(quantity);
       const p = orderType === "MARKET" ? safeParse(marketPrice) : safeParse(price);
 
@@ -496,6 +667,11 @@ function Trade() {
         setQuantity("");
         setAmountInUSDT("");
 
+        // Refresh spot positions list
+        if (activeOrdersTab === "Positions") {
+          dispatch(spotListActions.doFetchPending());
+        }
+
       } catch (err) {
         console.error("Place order error", err);
         setErrorMessage(i18n("pages.trade.errors.failedOrder"));
@@ -513,6 +689,30 @@ function Trade() {
     data.status = "canceled";
     dispatch(spotFormActions.doUpdate(id, data));
   };
+
+  // Get loading state based on current context
+  const getCurrentLoading = useMemo(() => {
+    if (activeOrdersTab === "Transaction history") return transactionLoading;
+    if (type === "perpetual") return spotLoading;
+    if (type === "trade") return futureLoading;
+    return false;
+  }, [activeOrdersTab, type, spotLoading, futureLoading, transactionLoading]);
+
+  // Get data based on current context
+  const getCurrentData = useMemo(() => {
+    if (activeOrdersTab === "Transaction history") return transactions;
+    if (type === "perpetual" && activeOrdersTab === "Positions") return listspot.filter(order => order.status === "pending");
+    if (type === "perpetual" && activeOrdersTab === "History orders") return listspot.filter(order => order.status !== "pending");
+    if (type === "trade" && activeOrdersTab === "Positions") return pendingrows
+    if (type === "trade" && activeOrdersTab === "History orders") return listFutures.filter(future => future.closePositionTime);
+    return [];
+  }, [activeOrdersTab, type, listspot, listFutures, transactions]);
+
+  // Determine if current tab has no data
+  const hasNoData = useMemo(() => {
+    if (getCurrentLoading) return false;
+    return getCurrentData.length === 0;
+  }, [getCurrentLoading, getCurrentData]);
 
   return (
     <div className="container">
@@ -532,7 +732,7 @@ function Trade() {
           </div>
 
           <div className="header-right">
-            <select className="trade-type-select" onChange={(e) => setType(e.target.value)}>
+            <select className="trade-type-select" value={type} onChange={(e) => setType(e.target.value)}>
               <option value="trade">Trade</option>
               <option value="perpetual">Perpetual</option>
             </select>
@@ -549,32 +749,26 @@ function Trade() {
           {/* Trade Form */}
           <div className="trade-form">
             <div className="buy-sell-tabs" role="tablist">
-              {isLoading ? (
-                <div className="skeleton-tab" />
-              ) : (
-                <>
-                  <div
-                    role="tab"
-                    aria-selected={activeTab === "buy"}
-                    tabIndex={0}
-                    className={`buy-tab ${activeTab === "buy" ? "active" : ""}`}
-                    onClick={() => setActiveTab("buy")}
-                    onKeyDown={(e) => e.key === "Enter" && setActiveTab("buy")}
-                  >
-                    {i18n("pages.trade.buy")}
-                  </div>
-                  <div
-                    role="tab"
-                    aria-selected={activeTab === "sell"}
-                    tabIndex={0}
-                    className={`sell-tab ${activeTab === "sell" ? "active" : ""}`}
-                    onClick={() => setActiveTab("sell")}
-                    onKeyDown={(e) => e.key === "Enter" && setActiveTab("sell")}
-                  >
-                    {i18n("pages.trade.sell")}
-                  </div>
-                </>
-              )}
+              <div
+                role="tab"
+                aria-selected={activeTab === "buy"}
+                tabIndex={0}
+                className={`buy-tab ${activeTab === "buy" ? "active" : ""}`}
+                onClick={() => setActiveTab("buy")}
+                onKeyDown={(e) => e.key === "Enter" && setActiveTab("buy")}
+              >
+                {i18n("pages.trade.buy")}
+              </div>
+              <div
+                role="tab"
+                aria-selected={activeTab === "sell"}
+                tabIndex={0}
+                className={`sell-tab ${activeTab === "sell" ? "active" : ""}`}
+                onClick={() => setActiveTab("sell")}
+                onKeyDown={(e) => e.key === "Enter" && setActiveTab("sell")}
+              >
+                {i18n("pages.trade.sell")}
+              </div>
             </div>
 
             {/* Trade mode specific fields */}
@@ -583,41 +777,33 @@ function Trade() {
                 {/* Trading Period Select */}
                 <div className="input-group">
                   <div className="input-label">Trading Period</div>
-                  {isLoading ? (
-                    <div className="skeleton-input" />
-                  ) : (
-                    <select
-                      className="order-type-select"
-                      value={selectedDuration}
-                      onChange={(e) => setSelectedDuration(e.target.value)}
-                    >
-                      {tradingPeriodOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  )}
+                  <select
+                    className="order-type-select"
+                    value={selectedDuration}
+                    onChange={(e) => setSelectedDuration(e.target.value)}
+                  >
+                    {tradingPeriodOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Leverage Select */}
                 <div className="input-group">
                   <div className="input-label">Leverage</div>
-                  {isLoading ? (
-                    <div className="skeleton-input" />
-                  ) : (
-                    <select
-                      className="order-type-select"
-                      value={selectedLeverage}
-                      onChange={(e) => setSelectedLeverage(e.target.value)}
-                    >
-                      {leverageOptions.map((option) => (
-                        <option key={option} value={option}>
-                          {option}x
-                        </option>
-                      ))}
-                    </select>
-                  )}
+                  <select
+                    className="order-type-select"
+                    value={selectedLeverage}
+                    onChange={(e) => setSelectedLeverage(e.target.value)}
+                  >
+                    {leverageOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}x
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </>
             )}
@@ -627,37 +813,29 @@ function Trade() {
               <>
                 <div className="order-type">
                   <div className="order-type-label">{i18n("pages.trade.orderType")}</div>
-                  {isLoading ? (
-                    <div className="skeleton-input" />
-                  ) : (
-                    <select
-                      className="order-type-select"
-                      value={orderType}
-                      onChange={(e) => setOrderType(e.target.value)}
-                    >
-                      <option value="LIMIT">{i18n("pages.trade.limit")}</option>
-                      <option value="MARKET">{i18n("pages.trade.market")}</option>
-                    </select>
-                  )}
+                  <select
+                    className="order-type-select"
+                    value={orderType}
+                    onChange={(e) => setOrderType(e.target.value)}
+                  >
+                    <option value="LIMIT">{i18n("pages.trade.limit")}</option>
+                    <option value="MARKET">{i18n("pages.trade.market")}</option>
+                  </select>
                 </div>
 
                 {/* Price input (limit only) */}
                 {orderType === "LIMIT" && (
                   <div className="input-group">
                     <div className="input-label">{i18n("pages.trade.price")}</div>
-                    {isLoading ? (
-                      <div className="skeleton-input" />
-                    ) : (
-                      <div className="input-with-buttons">
-                        <input
-                          className="value-input"
-                          value={price}
-                          onChange={handlePriceChange}
-                          inputMode="decimal"
-                          aria-label="price"
-                        />
-                      </div>
-                    )}
+                    <div className="input-with-buttons">
+                      <input
+                        className="value-input"
+                        value={price}
+                        onChange={handlePriceChange}
+                        inputMode="decimal"
+                        aria-label="price"
+                      />
+                    </div>
                   </div>
                 )}
               </>
@@ -667,63 +845,47 @@ function Trade() {
             {/* Quantity in Coin */}
             <div className="input-group">
               <div className="input-label">{i18n("pages.trade.amount")} ({baseSymbol})</div>
-              {isLoading ? (
-                <div className="skeleton-input" />
-              ) : (
-                <div className="input-with-buttons">
-                  <input
-                    className="value-input"
-                    value={quantity}
-                    onChange={handleQuantityChange}
-                    placeholder="0.0"
-                    inputMode="decimal"
-                    aria-label="quantity"
-                  />
-                </div>
-              )}
+              <div className="input-with-buttons">
+                <input
+                  className="value-input"
+                  value={quantity}
+                  onChange={handleQuantityChange}
+                  placeholder="0.0"
+                  inputMode="decimal"
+                  aria-label="quantity"
+                />
+              </div>
             </div>
 
             {/* Amount in USDT */}
             <div className="input-group">
               <div className="input-label">{i18n("pages.trade.amount")} (USDT)</div>
-              {isLoading ? (
-                <div className="skeleton-input" />
-              ) : (
-                <input
-                  className="value-input"
-                  onChange={handleAmountInUSDTChange}
-                  placeholder="0.0"
-                  inputMode="decimal"
-                  aria-label="amount in usdt"
-                />
-              )}
+              <input
+                className="value-input"
+                onChange={handleAmountInUSDTChange}
+                placeholder="0.0"
+                inputMode="decimal"
+                aria-label="amount in usdt"
+              />
             </div>
 
             {/* Balance Display */}
-            {isLoading ? (
-              <div className="skeleton-balance" />
-            ) : (
-              <div className="balance-info">
-                {i18n("pages.trade.available")}: {formatNumber(currentBalance, activeTab === "buy" ? 2 : 6)} {activeTab === "buy" ? "USDT" : baseSymbol}
-              </div>
-            )}
+            <div className="balance-info">
+              {i18n("pages.trade.available")}: {formatNumber(currentBalance, activeTab === "buy" ? 2 : 6)} {activeTab === "buy" ? "USDT" : baseSymbol}
+            </div>
 
             {/* Error */}
             {errorMessage && <div className="error-message" role="alert">{errorMessage}</div>}
 
             {/* Action */}
-            {isLoading ? (
-              <div className="skeleton-button" />
-            ) : (
-              <button
-                className={`action-button ${activeTab === "buy" ? "buy-button" : "sell-button"}`}
-                onClick={handlePlaceOrder}
-                disabled={placing}
-                aria-busy={placing}
-              >
-                {placing ? i18n("pages.trade.placing") : `${activeTab === "buy" ? i18n("pages.trade.buy") : i18n("pages.trade.sell")} ${baseSymbol}`}
-              </button>
-            )}
+            <button
+              className={`action-button ${activeTab === "buy" ? "buy-button" : "sell-button"}`}
+              onClick={handlePlaceOrder}
+              disabled={placing || assetsLoading}
+              aria-busy={placing}
+            >
+              {placing ? i18n("pages.trade.placing") : `${activeTab === "buy" ? i18n("pages.trade.buy") : i18n("pages.trade.sell")} ${baseSymbol}`}
+            </button>
           </div>
 
           {/* Order Book */}
@@ -733,43 +895,33 @@ function Trade() {
               <span>{i18n("pages.trade.orderBook.amount")} ({baseSymbol})</span>
             </div>
 
-            {isLoading ? (
-              <>
-                {[...Array(5)].map((_, i) => <div key={`s-a-${i}`} className="skeleton-order-book" />)}
-                <div className="skeleton-current-price" />
-                {[...Array(5)].map((_, i) => <div key={`s-b-${i}`} className="skeleton-order-book" />)}
-              </>
-            ) : (
-              <>
-                {orderBook.asks.map((ask, idx) => {
-                  const amount = safeParse(ask.amount) || 0;
-                  const widthPercentage = Math.min(100, (amount / maxAmount) * 100);
-                  return (
-                    <div key={`ask-${idx}`} className="order-book-row ask-row">
-                      <div className="depth-bar ask-depth" style={{ width: `${widthPercentage}%` }} />
-                      <div className="order-price">{formatNumber(ask.price, 4)}</div>
-                      <div className="order-amount">{formatNumber(ask.amount, 4)}</div>
-                    </div>
-                  );
-                })}
-
-                <div className="order-book-row current-price-row">
-                  <div className="current-price">${formatNumber(marketPrice, 2)}</div>
+            {orderBook.asks.map((ask, idx) => {
+              const amount = safeParse(ask.amount) || 0;
+              const widthPercentage = Math.min(100, (amount / maxAmount) * 100);
+              return (
+                <div key={`ask-${idx}`} className="order-book-row ask-row">
+                  <div className="depth-bar ask-depth" style={{ width: `${widthPercentage}%` }} />
+                  <div className="order-price">{formatNumber(ask.price, 4)}</div>
+                  <div className="order-amount">{formatNumber(ask.amount, 4)}</div>
                 </div>
+              );
+            })}
 
-                {orderBook.bids.map((bid, idx) => {
-                  const amount = safeParse(bid.amount) || 0;
-                  const widthPercentage = Math.min(100, (amount / maxAmount) * 100);
-                  return (
-                    <div key={`bid-${idx}`} className="order-book-row bid-row">
-                      <div className="depth-bar bid-depth" style={{ width: `${widthPercentage}%` }} />
-                      <div className="order-price">{formatNumber(bid.price, 4)}</div>
-                      <div className="order-amount">{formatNumber(bid.amount, 4)}</div>
-                    </div>
-                  );
-                })}
-              </>
-            )}
+            <div className="order-book-row current-price-row">
+              <div className="current-price">${formatNumber(marketPrice, 2)}</div>
+            </div>
+
+            {orderBook.bids.map((bid, idx) => {
+              const amount = safeParse(bid.amount) || 0;
+              const widthPercentage = Math.min(100, (amount / maxAmount) * 100);
+              return (
+                <div key={`bid-${idx}`} className="order-book-row bid-row">
+                  <div className="depth-bar bid-depth" style={{ width: `${widthPercentage}%` }} />
+                  <div className="order-price">{formatNumber(bid.price, 4)}</div>
+                  <div className="order-amount">{formatNumber(bid.amount, 4)}</div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -788,79 +940,197 @@ function Trade() {
           </div>
 
           <div className="orders-tab-content">
-            {activeOrdersTab === 'Orders' && (
-              <>
-                {listspot && listspot.length > 0 ? (
-                  <div className="orders-list">
-                    {listspot.map((order) => (
-                      <div key={order.id ?? order.orderNo} className="order-item">
-                        <div className="order-main-info">
-                          <div className="order-pair-action">
-                            <span className="order-pair">{order.tradingPair}</span>
-                            <span className={`order-action ${String(order?.direction || "").toLowerCase()}`}>
-                              {order.direction}
-                            </span>
-                            <span className="order-type-badge">{order.orderType}</span>
-                          </div>
-                          <div className="order-date">
-                            {order.commissionTime ? new Date(order.commissionTime).toLocaleDateString() : ""}
-                            <span className="order-time">
-                              {order.commissionTime ? new Date(order.commissionTime).toLocaleTimeString() : ""}
-                            </span>
+            {getCurrentLoading ? (
+              <div className="loading-skeleton">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="skeleton-item" />
+                ))}
+              </div>
+            ) : hasNoData ? (
+              <div className="empty-orders">
+                <div className="empty-icon">
+                  <i className="fas fa-inbox" />
+                </div>
+                <div className="empty-text">No {activeOrdersTab.toLowerCase()} found</div>
+                <div className="empty-subtext">
+                  {activeOrdersTab === "Transaction history"
+                    ? "Your transactions will appear here"
+                    : `Your ${activeOrdersTab.toLowerCase()} will appear here`}
+                </div>
+              </div>
+            ) : activeOrdersTab === "Transaction history" ? (
+              <div className="transactions-list">
+                {getCurrentData.map((transaction) => {
+                  const config = getTransactionConfig(transaction.type, transaction.direction, transaction.relatedAsset);
+                  const amountSign = transaction.direction === 'in' ? '+' : '-';
+
+                  return (
+                    <div key={transaction.id ?? transaction._id} className="transaction-item">
+                      <div className="transaction-icon" style={{ backgroundColor: config.color }}>
+                        <i className={`fas ${config.icon}`} />
+                      </div>
+
+                      <div className="transaction-details">
+                        <div className="transaction-main">
+                          <div className="transaction-type">{config.typeText}</div>
+                          <div className="transaction-amount" style={{ color: config.amountColor }}>
+                            {amountSign}{formatNumber(transaction.amount, 2)} {transaction.asset}
                           </div>
                         </div>
 
-                        <div className="order-details">
-                          <div className="order-detail">
-                            <span className="detail-label">{i18n("pages.trade.openOrders.status")}</span>
-                            <span className={`order-status ${String(order.status).toLowerCase()}`}>{order.status}</span>
+                        <div className="transaction-secondary">
+                          <div className="transaction-status">
+                            <span className={`status-badge status-${transaction.status}`}>
+                              {transaction.status}
+                            </span>
                           </div>
-
-                          <div className="order-detail">
-                            <span className="detail-label">{i18n("pages.trade.openOrders.price")}</span>
-                            <span className="order-price-value">{formatNumber(order.commissionPrice, 4)} USDT</span>
+                          <div className="transaction-date">
+                            {formatDate(transaction.createdAt)} {formatTime(transaction.createdAt)}
                           </div>
-
-                          <div className="order-detail">
-                            <span className="detail-label">{i18n("pages.trade.openOrders.amount")}</span>
-                            <span className="order-amount-value">{order.orderQuantity} {order?.tradingPair?.split("/")[0]}</span>
-                          </div>
-
-                          <div className="order-detail">
-                            <span className="detail-label">{i18n("pages.trade.openOrders.total")}</span>
-                            <span className="order-total">{formatNumber(order.entrustedValue)} USDT</span>
-                          </div>
-                        </div>
-
-                        <div className="order-actions">
-                          {String(order.status).toLowerCase() === "pending" ||
-                            String(order.status).toLowerCase() === "partially filled" ? (
-                            <button className="cancel-order-btn" onClick={() => updateStatus(order.id, order)}>
-                              {i18n("pages.trade.openOrders.cancel")}
-                            </button>
-                          ) : (
-                            <div className="completed-indicator">
-                              <i className="fas fa-check-circle" />
-                            </div>
-                          )}
                         </div>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="empty-orders">
-                    <div className="empty-icon"><i className="fas fa-clipboard-list" /></div>
-                    <div className="empty-text">{i18n("pages.trade.openOrders.noOrders")}</div>
-                    <div className="empty-subtext">{i18n("pages.trade.openOrders.noOrdersSubtext")}</div>
-                  </div>
-                )}
-              </>
-            )}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : type === "perpetual" ? (
+              <div className="orders-list">
+                {getCurrentData.map((order) => (
+                  <div key={order.id ?? order.orderNo} className="order-item">
+                    <div className="order-main-info">
+                      <div className="order-pair-action">
+                        <span className="order-pair">{order.tradingPair}</span>
+                        <span className={`order-action ${String(order?.direction || "").toLowerCase()}`}>
+                          {order.direction}
+                        </span>
+                        <span className="order-type-badge">{order.orderType}</span>
+                      </div>
+                      <div className="order-date">
+                        {order.commissionTime ? new Date(order.commissionTime).toLocaleDateString() : ""}
+                        <span className="order-time">
+                          {order.commissionTime ? new Date(order.commissionTime).toLocaleTimeString() : ""}
+                        </span>
+                      </div>
+                    </div>
 
-            {activeOrdersTab !== 'Orders' && (
-              <div className="empty-tab-content">
-                <div className="empty-icon"><i className="fas fa-clipboard-list" /></div>
-                <div className="empty-text">No {activeOrdersTab.toLowerCase()} available</div>
+                    <div className="order-details">
+                      <div className="order-detail">
+                        <span className="detail-label">Status</span>
+                        <span className={`order-status ${String(order.status).toLowerCase()}`}>{order.status}</span>
+                      </div>
+
+                      <div className="order-detail">
+                        <span className="detail-label">Price</span>
+                        <span className="order-price-value">{formatNumber(order.commissionPrice, 4)} USDT</span>
+                      </div>
+
+                      <div className="order-detail">
+                        <span className="detail-label">Amount</span>
+                        <span className="order-amount-value">{order.orderQuantity} {order?.tradingPair?.split("/")[0]}</span>
+                      </div>
+
+                      <div className="order-detail">
+                        <span className="detail-label">Total</span>
+                        <span className="order-total">{formatNumber(order.entrustedValue)} USDT</span>
+                      </div>
+                    </div>
+
+                    <div className="order-actions">
+                      {String(order.status).toLowerCase() === "pending" ||
+                        String(order.status).toLowerCase() === "partially filled" ? (
+                        <button className="cancel-order-btn" onClick={() => updateStatus(order.id, order)}>
+                          Cancel
+                        </button>
+                      ) : (
+                        <div className="completed-indicator">
+                          <i className="fas fa-check-circle" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              // Trade mode futures display
+              <div className="futures-list">
+                {getCurrentData.map((future) => {
+                  const statusConfig = getFuturesStatusConfig(future.futuresStatus);
+                  const profitLoss = future.profitAndLossAmount ? safeParse(future.profitAndLossAmount) : 0;
+                  const isProfit = profitLoss >= 0;
+
+                  return (
+                    <div key={future.id ?? future._id} className="future-item">
+                      <div className="future-header">
+                        <div className="future-pair-status">
+                          <span className="future-pair">{future.futureCoin || "Unknown"}</span>
+                          <span
+                            className="future-status"
+                            style={{
+                              color: statusConfig.color,
+                              backgroundColor: statusConfig.bgColor
+                            }}
+                          >
+                            {statusConfig.text}
+                          </span>
+                        </div>
+                        <div className="future-leverage">
+                          {future.leverage}x
+                        </div>
+                      </div>
+
+                      <div className="future-details">
+                        <div className="future-detail-row">
+                          <span className="detail-label">Amount</span>
+                          <span className="detail-value">{formatCurrency(future.futuresAmount)}</span>
+                        </div>
+
+                        <div className="future-detail-row">
+                          <span className="detail-label">Duration</span>
+                          <span className="detail-value">{formatDuration(future.contractDuration)}</span>
+                        </div>
+
+                        <div className="future-detail-row">
+                          <span className="detail-label">Entry Price</span>
+                          <span className="detail-value">{formatCurrency(future.openPositionPrice)}</span>
+                        </div>
+
+                        {future.closePositionPrice && (
+                          <div className="future-detail-row">
+                            <span className="detail-label">Exit Price</span>
+                            <span className="detail-value">{formatCurrency(future.closePositionPrice)}</span>
+                          </div>
+                        )}
+
+                        {(profitLoss !== 0 || future.profitAndLossAmount) && (
+                          <div className="future-detail-row">
+                            <span className="detail-label">P&L</span>
+                            <span className={`detail-value ${isProfit ? 'profit' : 'loss'}`}>
+                              {isProfit ? '+' : ''}{formatCurrency(profitLoss)}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="future-footer">
+                        <div className="future-timestamp">
+                          <div className="timestamp-label">Opened</div>
+                          <div className="timestamp-value">
+                            {future.openPositionTime ? formatTime(future.openPositionTime) : 'N/A'}
+                          </div>
+                        </div>
+
+                        {future.closePositionTime && (
+                          <div className="future-timestamp">
+                            <div className="timestamp-label">Closed</div>
+                            <div className="timestamp-value">
+                              {formatTime(future.closePositionTime)}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -957,23 +1227,6 @@ function Trade() {
           opacity: 0.8;
         }
 
-        .market-info {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-
-        .market-name {
-          font-weight: 600;
-          font-size: 16px;
-          color: #1a1a1a;
-        }
-
-        .market-change {
-          font-size: 12px;
-          font-weight: 500;
-        }
-
         /* Main Content */
         .main-content {
           background: white;
@@ -1033,9 +1286,22 @@ function Trade() {
           min-height: 200px;
         }
 
-        .empty-tab-content {
-          text-align: center;
-          padding: 40px 0;
+        .loading-skeleton {
+          padding: 10px 0;
+        }
+
+        .skeleton-item {
+          height: 60px;
+          background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+          background-size: 200% 100%;
+          animation: loading 1.5s infinite;
+          border-radius: 8px;
+          margin-bottom: 10px;
+        }
+
+        @keyframes loading {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
         }
 
         /* Buy/Sell Tabs */
@@ -1129,23 +1395,6 @@ function Trade() {
           font-size: 12px;
           padding: 8px;
           outline: none;
-        }
-
-        .value-buttons {
-          display: flex;
-        }
-
-        .value-button {
-          background-color: #f8f9fa;
-          color: #6c757d;
-          border: none;
-          width: 26px;
-          height: 26px;
-          border-radius: 6px;
-          margin-left: 4px;
-          cursor: pointer;
-          font-size: 12px;
-          font-weight: 600;
         }
 
         .balance-info {
@@ -1265,7 +1514,111 @@ function Trade() {
           font-size: 12px;
         }
 
+        /* Transaction Item Styles */
+        .transactions-list {
+          padding: 0 4px;
+        }
+
+        .transaction-item {
+          display: flex;
+          align-items: center;
+          padding: 12px 0;
+          border-bottom: 1px solid #f0f0f0;
+        }
+
+        .transaction-item:last-child {
+          border-bottom: none;
+        }
+
+        .transaction-icon {
+          width: 36px;
+          height: 36px;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-right: 12px;
+          flex-shrink: 0;
+        }
+
+        .transaction-icon i {
+          color: white;
+          font-size: 14px;
+        }
+
+        .transaction-details {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .transaction-main {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 4px;
+        }
+
+        .transaction-type {
+          font-size: 12px;
+          font-weight: 500;
+          color: #1a1a1a;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          margin-right: 8px;
+        }
+
+        .transaction-amount {
+          font-size: 12px;
+          font-weight: 600;
+          white-space: nowrap;
+        }
+
+        .transaction-secondary {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .transaction-status {
+          font-size: 10px;
+        }
+
+        .status-badge {
+          padding: 2px 6px;
+          border-radius: 10px;
+          font-weight: 500;
+          text-transform: capitalize;
+        }
+
+        .status-completed,
+        .status-success {
+          background-color: rgba(55, 182, 106, 0.1);
+          color: #37b66a;
+        }
+
+        .status-pending {
+          background-color: rgba(16, 108, 245, 0.1);
+          color: #106cf5;
+        }
+
+        .status-failed,
+        .status-cancelled {
+          background-color: rgba(245, 108, 108, 0.1);
+          color: #f56c6c;
+        }
+
+        .transaction-date {
+          font-size: 10px;
+          color: #8c98a4;
+        }
+
         /* Order Item Styles */
+        .orders-list {
+          padding: 0 4px;
+          color:#000;
+        }
+
         .order-item {
           background-color: #f8fbff;
           border-radius: 8px;
@@ -1284,6 +1637,7 @@ function Trade() {
           display: flex;
           align-items: center;
           gap: 8px;
+          color:#000
         }
 
         .order-pair {
@@ -1385,6 +1739,107 @@ function Trade() {
           font-size: 12px;
         }
 
+        /* Future Item Styles */
+        .futures-list {
+          padding: 0 4px;
+        }
+
+        .future-item {
+          background-color: #f8fbff;
+          border-radius: 8px;
+          padding: 12px;
+          margin-bottom: 10px;
+        }
+
+        .future-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 12px;
+        }
+
+        .future-pair-status {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .future-pair {
+          font-weight: 600;
+          font-size: 12px;
+          color:#000;
+        }
+
+        .future-status {
+          font-size: 11px;
+          padding: 3px 8px;
+          border-radius: 12px;
+          font-weight: 600;
+        }
+
+        .future-leverage {
+          font-size: 11px;
+          font-weight: 600;
+          color: #106cf5;
+          background-color: rgba(16, 108, 245, 0.1);
+          padding: 3px 8px;
+          border-radius: 12px;
+        }
+
+        .future-details {
+          margin-bottom: 12px;
+        }
+
+        .future-detail-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 6px;
+        }
+
+        .detail-label {
+          font-size: 11px;
+          color: #6c757d;
+        }
+
+        .detail-value {
+          font-size: 11px;
+          font-weight: 600;
+          color: #1a1a1a;
+        }
+
+        .detail-value.profit {
+          color: #37b66a;
+        }
+
+        .detail-value.loss {
+          color: #f56c6c;
+        }
+
+        .future-footer {
+          display: flex;
+          justify-content: space-between;
+          padding-top: 8px;
+          border-top: 1px solid #eef2f6;
+        }
+
+        .future-timestamp {
+          text-align: center;
+        }
+
+        .timestamp-label {
+          font-size: 10px;
+          color: #6c757d;
+          margin-bottom: 2px;
+        }
+
+        .timestamp-value {
+          font-size: 10px;
+          font-weight: 600;
+          color: #1a1a1a;
+        }
+
+        /* Empty State */
         .empty-orders {
           text-align: center;
           padding: 30px 0;
@@ -1418,62 +1873,6 @@ function Trade() {
           border: 1px solid #fecaca;
         }
 
-        /* Skeleton Loading Styles */
-        .skeleton-loading {
-          background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-          background-size: 200% 100%;
-          animation: loading 1.5s infinite;
-          border-radius: 4px;
-        }
-        
-        @keyframes loading {
-          0% { background-position: 200% 0; }
-          100% { background-position: -200% 0; }
-        }
-        
-        /* Skeleton elements */
-        .skeleton-market-name {
-          width: 120px;
-          height: 16px;
-        }
-        
-        .skeleton-price-change {
-          width: 60px;
-          height: 16px;
-        }
-        
-        .skeleton-tab {
-          width: 100%;
-          height: 44px;
-        }
-        
-        .skeleton-input {
-          width: 100%;
-          height: 40px;
-          margin-bottom: 16px;
-        }
-        
-        .skeleton-balance {
-          width: 100%;
-          height: 14px;
-          margin-bottom: 16px;
-        }
-        
-        .skeleton-button {
-          width: 100%;
-          height: 48px;
-        }
-        
-        .skeleton-order-book {
-          height: 20px;
-          margin-bottom: 4px;
-        }
-        
-        .skeleton-current-price {
-          height: 30px;
-          margin: 8px 0;
-        }
-
         /* Responsive */
         @media (max-width: 380px) {
           .container {
@@ -1489,11 +1888,6 @@ function Trade() {
           .trading-layout {
             gap: 10px;
           }
-        }
-
-        .remove_blue {
-          text-decoration: none;
-          color: inherit;
         }
       `}</style>
     </div>
