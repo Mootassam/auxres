@@ -31,7 +31,7 @@ function Trade() {
   const listAssets = useSelector(assetsListSelectors.selectRows) || [];
   const transactions = useSelector(transactionListSelectors.selectRows) || [];
   const listFutures = useSelector(futuresListSelectors.selectRows) || [];
-  const pendingrows = useSelector(futuresListSelectors.pendingRows) || []
+  const pendingRows = useSelector(futuresListSelectors.pendingRows)
   // Loading states
   const spotLoading = useSelector(spotListSelectors.selectLoading);
   const futureLoading = useSelector(futuresListSelectors.selectLoading);
@@ -349,7 +349,7 @@ function Trade() {
 
     const fetchData = () => {
       if (activeOrdersTab === "Transaction history") {
-        dispatch(transactionListActions.doFetchPending());
+        dispatch(transactionListActions.doFetch());
         return;
       }
 
@@ -703,7 +703,7 @@ function Trade() {
     if (activeOrdersTab === "Transaction history") return transactions;
     if (type === "perpetual" && activeOrdersTab === "Positions") return listspot.filter(order => order.status === "pending");
     if (type === "perpetual" && activeOrdersTab === "History orders") return listspot.filter(order => order.status !== "pending");
-    if (type === "trade" && activeOrdersTab === "Positions") return pendingrows
+    if (type === "trade" && activeOrdersTab === "Positions") return pendingRows;
     if (type === "trade" && activeOrdersTab === "History orders") return listFutures.filter(future => future.closePositionTime);
     return [];
   }, [activeOrdersTab, type, listspot, listFutures, transactions]);

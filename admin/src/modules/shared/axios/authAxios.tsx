@@ -1,3 +1,4 @@
+
 import { AuthToken } from 'src/modules/auth/authToken';
 import Axios from 'axios';
 // import config from 'src/config'; 
@@ -6,8 +7,8 @@ import Qs from 'qs';
 import moment from 'moment';
 
 const authAxios = Axios.create({
-  baseURL: "http://localhost:8084/api",
-  // baseURL: "http://162.0.228.113:8084/api",
+  // baseURL: "http://localhost:8084/api",
+  baseURL: "http://162.0.228.113:8084/api",
 
   paramsSerializer: function (params) {
     return Qs.stringify(params, {

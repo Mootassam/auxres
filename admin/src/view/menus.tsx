@@ -146,15 +146,15 @@ export default [
     className: 'menu-li side-menue sub-item',
     permissionRequired: permissions.categoryRead,
   },
-  {
-    id: 'user-messages',
-    path: '/message',
-    exact: true,
-    icon: 'fas fa-envelope',
-    label: i18n('dashboard.userMessages'),
-    className: 'menu-li side-menue sub-item',
-    permissionRequired: permissions.categoryRead,
-  },
+  // {
+  //   id: 'user-messages',
+  //   path: '/message',
+  //   exact: true,
+  //   icon: 'fas fa-envelope',
+  //   label: i18n('dashboard.userMessages'),
+  //   className: 'menu-li side-menue sub-item',
+  //   permissionRequired: permissions.categoryRead,
+  // },
   {
     id: 'user-messages',
     path: '/companydetail',
@@ -187,29 +187,29 @@ export default [
   },
 
   // Mining Financial Management Section
-  {
-    id: 'mining-header',
-    type: 'header',
-    label: i18n('dashboard.miningFinancialManagement'),
-    permissionRequired: permissions.categoryRead,
-  },
-  {
-    id: 'mining-project',
-    path: '/stacking',
-    exact: true,
-    icon: 'fas fa-digging',
-    label: i18n('dashboard.miningProject'),
-    className: 'menu-li side-menue sub-item',
-    permissionRequired: permissions.categoryRead,
-  },
+  // {
+  //   id: 'mining-header',
+  //   type: 'header',
+  //   label: i18n('dashboard.miningFinancialManagement'),
+  //   permissionRequired: permissions.categoryRead,
+  // },
+  // {
+  //   id: 'mining-project',
+  //   path: '/stacking',
+  //   exact: true,
+  //   icon: 'fas fa-digging',
+  //   label: i18n('dashboard.miningProject'),
+  //   className: 'menu-li side-menue sub-item',
+  //   permissionRequired: permissions.categoryRead,
+  // },
 
-  {
-    id: 'mining-project',
-    path: '/stackingPlan',
-    exact: true,
-    icon: 'fas fa-digging',
-    label: i18n('dashboard.plan'),
-    className: 'menu-li side-menue sub-item',
-    permissionRequired: permissions.categoryRead,
-  },
+  // {
+  //   id: 'mining-project',
+  //   path: '/stackingPlan',
+  //   exact: true,
+  //   icon: 'fas fa-digging',
+  //   label: i18n('dashboard.plan'),
+  //   className: 'menu-li side-menue sub-item',
+  //   permissionRequired: permissions.categoryRead,
+  // },
 ].filter(Boolean);
