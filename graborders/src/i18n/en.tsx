@@ -1082,6 +1082,8 @@ const en = {
       title: "SPOT",
       buy: "BUY",
       sell: "SELL",
+      long: "Long",
+      short: "Short",
       limit: "LIMIT",
       market: "MARKET",
       orderType: "Order Type",

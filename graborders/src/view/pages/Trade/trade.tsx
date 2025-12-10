@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import CoinListModal from "src/shared/modal/CoinListModal";
 import { Link } from "react-router-dom";
@@ -757,7 +758,7 @@ function Trade() {
                 onClick={() => setActiveTab("buy")}
                 onKeyDown={(e) => e.key === "Enter" && setActiveTab("buy")}
               >
-                {i18n("pages.trade.buy")}
+                {i18n("pages.trade.long")}
               </div>
               <div
                 role="tab"
@@ -767,7 +768,7 @@ function Trade() {
                 onClick={() => setActiveTab("sell")}
                 onKeyDown={(e) => e.key === "Enter" && setActiveTab("sell")}
               >
-                {i18n("pages.trade.sell")}
+                {i18n("pages.trade.short")}
               </div>
             </div>
 

@@ -308,9 +308,6 @@ function Wallet() {
             </div>
             <div className="balance-amount">{formattedTotalValue}</div>
             <div className="usd-equivalent">≈${formattedTotalValue}</div>
-            <div className="earnings-today">
-              {i18n("pages.wallet.todaysEarnings")} 0.00
-            </div>
           </div>
         </div>
 
@@ -330,9 +327,7 @@ function Wallet() {
                 <div key={date}>{date}</div>
               ))}
             </div>
-            <div className="expand-arrow">
-              <i className="fas fa-chevron-down"></i>
-            </div>
+      
           </div>
 
           {/* Action Buttons */}
