@@ -155,7 +155,6 @@ class depositMethodRepository {
     let rows = await depositMethod(options.database)
       .find(criteria)
       .skip(skip)
-      .limit(limitEscaped)
       .sort(sort)
       .populate("user")
       .populate("network")
