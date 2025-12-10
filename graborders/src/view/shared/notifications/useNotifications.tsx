@@ -16,7 +16,7 @@ export default function useNotifications(
     if (!userId) return;
     
     if (!socket) {
-      socket = io("https://AureX-exchange.com", {
+      socket = io("https://BINEX-exchange.com", {
         transports: ["websocket"],
         // Optional: Add reconnection options
         reconnection: true,

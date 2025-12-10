@@ -245,7 +245,7 @@ const Faq: React.FC = () => {
       title: i18n('pages.faq.actionCards.community'),
       description: i18n('pages.faq.actionCards.joinDiscussions'),
       icon: 'fa-comments',
-      link: 'https://t.me/AureXexchange_official',
+      link: 'https://t.me/BINEXexchange_official',
       isExternal: true
     }
   ];

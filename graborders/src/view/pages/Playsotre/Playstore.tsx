@@ -33,11 +33,11 @@ function Playstore() {
     setIsDownloading(true)
 
     try {
-      const apkUrl = 'https://AureX-exchange.com/apk/AureX-exchange.apk'
+      const apkUrl = 'https://BINEX-exchange.com/apk/BINEX-exchange.apk'
 
       const link = document.createElement('a')
       link.href = apkUrl
-      link.download = 'AureX-Exchange-v3.4.2.apk'
+      link.download = 'BINEX-Exchange-v3.4.2.apk'
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
@@ -75,7 +75,7 @@ function Playstore() {
         <p className="subtitle">Keep up to date with the latest news through our app</p>
         
         <div className="phone-image-container">
-          <img src="./images/phone.png" alt="AureX App Preview" className="phone-image" />
+          <img src="./images/phone.png" alt="BINEX App Preview" className="phone-image" />
         </div>
       </div>
 

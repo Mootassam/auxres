@@ -48,16 +48,16 @@ function Termeofuse() {
                         {i18n("pages.termsOfUse.riskWarning.content")}
                     </div>
                 </div>
-                {/* About AureX Section */}
+                {/* About BINEX Section */}
                 <div className="content-section">
                     <div className="section-title">{i18n("pages.termsOfUse.aboutServices.title")}</div>
                     <div className="content-item">
                         <div className="item-title">
                             <i className="fas fa-info-circle item-icon" />
-                            {i18n("pages.termsOfUse.aboutServices.aboutAureX.title")}
+                            {i18n("pages.termsOfUse.aboutServices.aboutBINEX.title")}
                         </div>
                         <div className="item-content">
-                            {i18n("pages.termsOfUse.aboutServices.aboutAureX.content")}
+                            {i18n("pages.termsOfUse.aboutServices.aboutBINEX.content")}
                         </div>
                     </div>
                     <div className="content-item">

@@ -273,7 +273,7 @@ pages: {
 },
     proof: {
         title: "Verificación de Identidad",
-        instructions: "Verifica tu identidad para acceder a todas las funciones de tu AureX",
+        instructions: "Verifica tu identidad para acceder a todas las funciones de tu BINEX",
         sections: {
             documentInfo: "Información del Documento",
             documentUpload: "Carga de Documento"
@@ -405,7 +405,7 @@ pages: {
     privacy: {
         title: "Portal de Privacidad",
         hero: {
-            title: "Portal de Privacidad AureX",
+            title: "Portal de Privacidad BINEX",
             subtitle: "Protegiendo tus datos y privacidad con lineamientos estrictos, cumplimiento legal y las mejores prácticas de la industria."
         },
         principles: {
@@ -440,7 +440,7 @@ pages: {
         personalData: {
             title: "¿Qué son los Datos Personales?",
             definition: "Los datos personales se refieren a cualquier información que identifique a un individuo.",
-            examples: "Ejemplos: nombre, ID AureX, dirección de correo, datos de ubicación, historial de transacciones e información del dispositivo."
+            examples: "Ejemplos: nombre, ID BINEX, dirección de correo, datos de ubicación, historial de transacciones e información del dispositivo."
         },
         dataUsage: {
             title: "Cómo Usamos Tus Datos",
@@ -475,7 +475,7 @@ pages: {
         },
         dataSharing: {
             title: "Compartición de Datos",
-            content: "Podemos compartir tus datos con otras entidades AureX o terceros confiables bajo estrictas salvaguardas contractuales, solo cuando sea necesario para los propósitos delineados en nuestro Aviso de Privacidad."
+            content: "Podemos compartir tus datos con otras entidades BINEX o terceros confiables bajo estrictas salvaguardas contractuales, solo cuando sea necesario para los propósitos delineados en nuestro Aviso de Privacidad."
         },
         cookies: {
             title: "Cookies y Rastreo",
@@ -505,21 +505,21 @@ pages: {
     termsOfUse: {
         title: "Términos de Uso",
         hero: {
-            title: "Términos de Uso AureX"
+            title: "Términos de Uso BINEX"
         },
         agreement: {
             title: "Acuerdo",
-            content: "Este es un acuerdo vinculante entre tú (el usuario) y AureX. Cubre todos los Servicios AureX que accedes o usas."
+            content: "Este es un acuerdo vinculante entre tú (el usuario) y BINEX. Cubre todos los Servicios BINEX que accedes o usas."
         },
         riskWarning: {
             title: "Advertencia de Riesgo",
-            content: "Los activos digitales son volátiles y pueden fluctuar significativamente en valor. AureX no es un bróker, asesor financiero o inversor. Debes realizar tu propia debida diligencia antes de tomar cualquier decisión financiera."
+            content: "Los activos digitales son volátiles y pueden fluctuar significativamente en valor. BINEX no es un bróker, asesor financiero o inversor. Debes realizar tu propia debida diligencia antes de tomar cualquier decisión financiera."
         },
         aboutServices: {
             title: "Acerca de Nuestros Servicios",
-            aboutAureX: {
-                title: "Acerca de AureX",
-                content: "AureX proporciona intercambio de activos digitales, servicios de custodia y servicios financieros relacionados a través de nuestra plataforma."
+            aboutBINEX: {
+                title: "Acerca de BINEX",
+                content: "BINEX proporciona intercambio de activos digitales, servicios de custodia y servicios financieros relacionados a través de nuestra plataforma."
             },
             eligibility: {
                 title: "Elegibilidad",
@@ -527,14 +527,14 @@ pages: {
             },
             communication: {
                 title: "Comunicación",
-                content: "Debes mantener actualizada tu información de contacto. AureX te contactará vía email, SMS o teléfono respecto a tu cuenta y nuestros servicios."
+                content: "Debes mantener actualizada tu información de contacto. BINEX te contactará vía email, SMS o teléfono respecto a tu cuenta y nuestros servicios."
             }
         },
         services: {
             title: "Nuestros Servicios",
             servicesProvided: {
                 title: "Servicios Proporcionados",
-                content: "AureX ofrece trading de activos digitales, soluciones de custodia seguras y soporte al cliente mediante bots automatizados y representantes humanos. También está disponible la funcionalidad de chat de usuario."
+                content: "BINEX ofrece trading de activos digitales, soluciones de custodia seguras y soporte al cliente mediante bots automatizados y representantes humanos. También está disponible la funcionalidad de chat de usuario."
             },
             fees: {
                 title: "Comisiones",
@@ -564,7 +564,7 @@ pages: {
             },
             transactionCancellation: {
                 title: "Cancelación de Transacción",
-                content: "AureX se reserva el derecho de cancelar o modificar transacciones en casos de sospecha de fraude, errores o violaciones de estos Términos."
+                content: "BINEX se reserva el derecho de cancelar o modificar transacciones en casos de sospecha de fraude, errores o violaciones de estos Términos."
             },
             unauthorizedTransactions: {
                 title: "Transacciones No Autorizadas",
@@ -575,11 +575,11 @@ pages: {
             title: "Activos Digitales",
             supportedAssets: {
                 title: "Activos Soportados",
-                content: "Solo puedes realizar transacciones con activos digitales explícitamente soportados por AureX. Intentar depositar activos no soportados puede resultar en pérdida permanente."
+                content: "Solo puedes realizar transacciones con activos digitales explícitamente soportados por BINEX. Intentar depositar activos no soportados puede resultar en pérdida permanente."
             },
             forksAirdrops: {
                 title: "Forks y Airdrops",
-                content: "AureX no garantiza soporte para forks de blockchain, airdrops u otros eventos similares. Las decisiones de soporte se toman a nuestra sola discreción."
+                content: "BINEX no garantiza soporte para forks de blockchain, airdrops u otros eventos similares. Las decisiones de soporte se toman a nuestra sola discreción."
             }
         },
         accountSecurity: {
@@ -591,37 +591,37 @@ pages: {
         },
         privacy: {
             title: "Privacidad",
-            content: "Tu privacidad se rige por el Aviso de Privacidad de AureX, que explica cómo recopilamos, usamos y protegemos tu información personal."
+            content: "Tu privacidad se rige por el Aviso de Privacidad de BINEX, que explica cómo recopilamos, usamos y protegemos tu información personal."
         },
         termination: {
             title: "Terminación de Cuenta",
             terminationSuspension: {
                 title: "Terminación/Suspensión",
-                content: "AureX puede restringir, suspender o terminar cuentas por fraude, violaciones legales, actividad sospechosa o violaciones de los Términos. Los usuarios pueden cerrar cuentas a menos que estén congeladas o inactivas."
+                content: "BINEX puede restringir, suspender o terminar cuentas por fraude, violaciones legales, actividad sospechosa o violaciones de los Términos. Los usuarios pueden cerrar cuentas a menos que estén congeladas o inactivas."
             }
         },
         prohibitedUse: {
             title: "Uso Prohibido",
-            content: "No puedes usar los servicios AureX para fraude, manipulación de mercado, actividades ilegales, acceso no autorizado o cualquier propósito que viole leyes aplicables o estos Términos."
+            content: "No puedes usar los servicios BINEX para fraude, manipulación de mercado, actividades ilegales, acceso no autorizado o cualquier propósito que viole leyes aplicables o estos Términos."
         },
         liability: {
             title: "Responsabilidad y Propiedad Intelectual",
             liability: {
                 title: "Responsabilidad",
-                content: "AureX no es responsable por pérdidas excepto en casos de negligencia grave probada o fraude. No somos responsables por fluctuaciones de mercado, problemas técnicos o acciones de terceros."
+                content: "BINEX no es responsable por pérdidas excepto en casos de negligencia grave probada o fraude. No somos responsables por fluctuaciones de mercado, problemas técnicos o acciones de terceros."
             },
             intellectualProperty: {
                 title: "Propiedad Intelectual",
-                content: "AureX retiene todos los derechos de propiedad intelectual sobre nuestra plataforma, tecnología y marca. Los usuarios reciben una licencia limitada para usar nuestros servicios como se describe en estos Términos."
+                content: "BINEX retiene todos los derechos de propiedad intelectual sobre nuestra plataforma, tecnología y marca. Los usuarios reciben una licencia limitada para usar nuestros servicios como se describe en estos Términos."
             },
             indemnity: {
                 title: "Indemnización",
-                content: "Aceptas indemnizar y mantener a AureX indemne contra cualquier reclamo, pérdida o daño resultante del uso indebido de nuestros servicios o violación de estos Términos."
+                content: "Aceptas indemnizar y mantener a BINEX indemne contra cualquier reclamo, pérdida o daño resultante del uso indebido de nuestros servicios o violación de estos Términos."
             }
         },
         importantNotice: {
             title: "Aviso Importante",
-            content: "Al usar los servicios AureX, reconoces que has leído, entendido y aceptas estar vinculado por estos Términos de Uso. Si no estás de acuerdo, debes discontinuar el uso de nuestros servicios inmediatamente."
+            content: "Al usar los servicios BINEX, reconoces que has leído, entendido y aceptas estar vinculado por estos Términos de Uso. Si no estás de acuerdo, debes discontinuar el uso de nuestros servicios inmediatamente."
         },
         actionCards: {
             security: {
@@ -642,7 +642,7 @@ pages: {
             }
         },
         footer: {
-            copyright: "© 2025 AureX. Todos los derechos reservados.",
+            copyright: "© 2025 BINEX. Todos los derechos reservados.",
             lastUpdated: "Última actualización: 6 de mayo de 2025"
         }
     },
@@ -744,7 +744,7 @@ pages: {
     invitation: {
         title: "Invitar Amigos",
         earnTogether: "Gana Junto a Ellos",
-        description: "Invita amigos a unirse a AureX y gana recompensas cuando se registren y comiencen a operar.",
+        description: "Invita amigos a unirse a BINEX y gana recompensas cuando se registren y comiencen a operar.",
         yourReferralCode: "TU CÓDIGO DE REFERIDO",
         loading: "Cargando...",
         copied: "¡COPIADO!",
@@ -844,7 +844,7 @@ pages: {
             lostDevice: "Si tu dispositivo se pierde o es robado, revoca inmediatamente el acceso de sesión desde la configuración de tu cuenta.",
             phishing: "Si has sido víctima de un intento de phishing, congela tu cuenta y contacta al soporte inmediatamente.",
             supportTitle: "Soporte de Seguridad 24/7",
-            supportEmail: "support@AureX-exchange.com"
+            supportEmail: "support@BINEX-exchange.com"
         },
         resources: {
             title: "Recursos de Seguridad",
@@ -968,7 +968,7 @@ pages: {
             },
             accountActivated: {
                 title: "Verificación KYC",
-                message: "Hola {0} tus documentos KYC han sido verificados, ahora puedes disfrutar de funciones ilimitadas en AureX"
+                message: "Hola {0} tus documentos KYC han sido verificados, ahora puedes disfrutar de funciones ilimitadas en BINEX"
             },
             custom: {
                 title: "Notificación",
@@ -1333,7 +1333,7 @@ pages: {
         title: "Centro de Ayuda",
         hero: {
             title: "Preguntas Frecuentes",
-            subtitle: "Encuentra respuestas a preguntas comunes sobre el uso de AureX"
+            subtitle: "Encuentra respuestas a preguntas comunes sobre el uso de BINEX"
         },
         search: {
             placeholder: "Buscar respuestas..."
@@ -1355,7 +1355,7 @@ pages: {
             verificationProcess: "Carga una identificación gubernamental y una foto selfie. La verificación usualmente se aprueba en horas."
         },
         steps: {
-            goToWebsite: "Ve a https://AureX-exchange.com",
+            goToWebsite: "Ve a https://BINEX-exchange.com",
             clickSignUp: 'Haz clic en "Registrarse"',
             enterDetails: "Ingresa tus datos",
             verifyEmail: "Verifica tu dirección de correo",
@@ -1401,7 +1401,7 @@ pages: {
             profitLossExplanation: "Calculado en base a la diferencia de precio multiplicada por tu apalancamiento y tamaño de posición."
         },
         benefits: {
-            title: "¿Por Qué Elegir AureX Futures?",
+            title: "¿Por Qué Elegir BINEX Futures?",
             hedge: "Cobertura contra la volatilidad del mercado",
             multiplyProfits: "Multiplica ganancias con apalancamiento",
             tradeBothMarkets: "Opera en mercados alcistas y bajistas",
@@ -1414,8 +1414,8 @@ pages: {
             joinDiscussions: "Únete a discusiones"
         },
         footer: {
-            copyright: "© 2025 AureX. Todos los derechos reservados.",
-            needHelp: "¿Necesitas más ayuda? Contacta a support@AureX-exchange.com"
+            copyright: "© 2025 BINEX. Todos los derechos reservados.",
+            needHelp: "¿Necesitas más ayuda? Contacta a support@BINEX-exchange.com"
         }
     },
     tabBottomNavigator: {

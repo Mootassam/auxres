@@ -157,8 +157,8 @@ function TermsofServicePage() {
                     <div className="section-title">Agreement</div>
                     <div className="section-content">
                         <p>
-                            This is a binding agreement between you (the user) and AureX. It
-                            covers all AureX Services you access or use.
+                            This is a binding agreement between you (the user) and BINEX. It
+                            covers all BINEX Services you access or use.
                         </p>
                     </div>
                 </div>
@@ -168,7 +168,7 @@ function TermsofServicePage() {
                     <div className="section-content">
                         <p>
                             Digital assets are volatile and can fluctuate significantly in value.
-                            AureX is not a broker, financial advisor, or investment advisor. You
+                            BINEX is not a broker, financial advisor, or investment advisor. You
                             must conduct your own due diligence before making any financial
                             decisions.
                         </p>
@@ -179,7 +179,7 @@ function TermsofServicePage() {
                     <div className="section-title">About Our Services</div>
                     <div className="section-content">
                         <p>
-                            AureX provides digital asset exchange, custody services, and related
+                            BINEX provides digital asset exchange, custody services, and related
                             financial services through our platform.
                         </p>
                     </div>
@@ -200,7 +200,7 @@ function TermsofServicePage() {
                     <div className="section-title">Communication</div>
                     <div className="section-content">
                         <p>
-                            You must keep your contact information updated. AureX will contact you
+                            You must keep your contact information updated. BINEX will contact you
                             via email, SMS, or phone regarding your account and our services.
                         </p>
                     </div>
@@ -210,7 +210,7 @@ function TermsofServicePage() {
                     <div className="section-title">Our Services</div>
                     <div className="section-content">
                         <p>
-                            AureX offers digital asset trading, secure custody solutions, and
+                            BINEX offers digital asset trading, secure custody solutions, and
                             customer support through both automated bots and human
                             representatives. User chat functionality is also available.
                         </p>
@@ -250,7 +250,7 @@ function TermsofServicePage() {
                             fees if insufficient funds are available.
                         </p>
                         <p>
-                            AureX reserves the right to cancel or amend transactions in cases of
+                            BINEX reserves the right to cancel or amend transactions in cases of
                             suspected fraud, errors, or violations of these Terms.
                         </p>
                         <p>
@@ -265,11 +265,11 @@ function TermsofServicePage() {
                     <div className="section-content">
                         <p>
                             You may only transact with digital assets explicitly supported by
-                            AureX. Attempting to deposit unsupported assets may result in
+                            BINEX. Attempting to deposit unsupported assets may result in
                             permanent loss.
                         </p>
                         <p>
-                            AureX does not guarantee support for blockchain forks, airdrops, or
+                            BINEX does not guarantee support for blockchain forks, airdrops, or
                             other similar events. Support decisions are made at our sole
                             discretion.
                         </p>
@@ -291,7 +291,7 @@ function TermsofServicePage() {
                     <div className="section-title">Privacy</div>
                     <div className="section-content">
                         <p>
-                            Your privacy is governed by the AureX Privacy Notice, which explains
+                            Your privacy is governed by the BINEX Privacy Notice, which explains
                             how we collect, use, and protect your personal information.
                         </p>
                         <p>
@@ -306,7 +306,7 @@ function TermsofServicePage() {
                     <div className="section-title">Account Termination</div>
                     <div className="section-content">
                         <p>
-                            AureX may restrict, suspend, or terminate accounts for fraud, law
+                            BINEX may restrict, suspend, or terminate accounts for fraud, law
                             violations, suspicious activity, or Terms violations. Users may close
                             accounts unless frozen or dormant.
                         </p>
@@ -317,7 +317,7 @@ function TermsofServicePage() {
                     <div className="section-title">Prohibited Use</div>
                     <div className="section-content">
                         <p>
-                            You may not use AureX services for fraud, market manipulation, illegal
+                            You may not use BINEX services for fraud, market manipulation, illegal
                             activities, unauthorized access, or any purpose that violates
                             applicable laws or these Terms.
                         </p>
@@ -328,12 +328,12 @@ function TermsofServicePage() {
                     <div className="section-title">Liability &amp; Intellectual Property</div>
                     <div className="section-content">
                         <p>
-                            AureX is not responsible for losses except in cases of proven gross
+                            BINEX is not responsible for losses except in cases of proven gross
                             negligence or fraud. We are not liable for market fluctuations,
                             technical issues, or third-party actions.
                         </p>
                         <p>
-                            AureX retains all intellectual property rights to our platform,
+                            BINEX retains all intellectual property rights to our platform,
                             technology, and branding. Users receive a limited license to use our
                             services as outlined in these Terms.
                         </p>
@@ -344,7 +344,7 @@ function TermsofServicePage() {
                     <div className="section-title">Indemnity</div>
                     <div className="section-content">
                         <p>
-                            You agree to indemnify and hold AureX harmless against any claims,
+                            You agree to indemnify and hold BINEX harmless against any claims,
                             losses, or damages resulting from your misuse of our services or
                             violation of these Terms.
                         </p>
@@ -355,7 +355,7 @@ function TermsofServicePage() {
                     <div className="section-title">Important Notice</div>
                     <div className="section-content">
                         <p>
-                            By using AureX services, you acknowledge that you have read,
+                            By using BINEX services, you acknowledge that you have read,
                             understood, and agree to be bound by these Terms of Use. If you do not
                             agree, you must discontinue use of our services immediately.
                         </p>
@@ -389,7 +389,7 @@ function TermsofServicePage() {
 
             {/* Footer */}
             <div className="footer">
-                © 2025 AureX. All rights reserved.
+                © 2025 BINEX. All rights reserved.
             </div>
             {showSuccessModal && <SuccessModal />}
             <style >{`

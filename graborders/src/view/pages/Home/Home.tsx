@@ -133,9 +133,9 @@ function Home() {
           </div>
 
           <div className="ai-card2">
-            <div className="ai-title">Explore NFTs with AureX</div>
+            <div className="ai-title">Explore NFTs with BINEX</div>
             <div className="ai-description">
-              Step into the world of NFTs with AureX, your all-in-one digital asset trading wallet. Designed for both beginners and professional traders, AureX lets you explore, buy, sell,and
+              Step into the world of NFTs with BINEX, your all-in-one digital asset trading wallet. Designed for both beginners and professional traders, BINEX lets you explore, buy, sell,and
             </div>
           </div>
 

@@ -56,7 +56,7 @@ function Invitation() {
   };
 
   const shareReferral = (platform: string) => {
-    const shareText = `Join AureX using my referral code: ${currentUser?.refcode}`;
+    const shareText = `Join BINEX using my referral code: ${currentUser?.refcode}`;
     const shareUrl = window.location.origin;
 
     switch (platform) {
@@ -68,7 +68,7 @@ function Invitation() {
         break;
       case "email":
         window.open(
-          `mailto:?subject=Join AureX&body=${encodeURIComponent(shareText)}`,
+          `mailto:?subject=Join BINEX&body=${encodeURIComponent(shareText)}`,
           "_blank"
         );
         break;
@@ -78,7 +78,7 @@ function Invitation() {
       case "more":
         if (navigator.share) {
           navigator.share({
-            title: "AureX Referral",
+            title: "BINEX Referral",
             text: shareText,
             url: shareUrl,
           });
