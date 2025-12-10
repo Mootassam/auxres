@@ -73,12 +73,14 @@ const en = {
   },
 
   errors: {
+    walletNotFound: "Wakket bit found for this asset",
+    withdrawinsufficientBalance: "Insufficient balance for this withdrawal.",
     futuresAlreadyFinalized: "This futures entry is already finalized and cannot be changed.",
     usdtWalletNotFound: "USDT wallet not found",
     usdtWalletNotFoundForUser: "USDT wallet not found for user {{userId}}",
     closingPriceExceedLimit: "Closing price cannot exceed $100",
     profitAmountInvalid: "Profit amount is zero or invalid.",
-    amountConditions:'Futures amount must be at least 30 USDT',  
+    amountConditions: 'Futures amount must be at least 30 USDT',
     lossAmountInvalid: "Loss amount is zero or invalid.",
     passwordNotMatching: "Password not matching",
     insufficientBalanceUpgrade: "Insufficient balance. Please upgrade.",

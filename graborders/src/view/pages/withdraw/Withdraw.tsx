@@ -1,4 +1,3 @@
-
 import React, { useMemo, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -25,15 +24,6 @@ const withdrawRules = {
   SOL: { min: 0.01, fee: 0.0005, decimals: 6 },
   XRP: { min: 1, fee: 0.1, decimals: 6 },
 };
-
-const networkOptions = [
-  { value: "ethereum", label: "Ethereum (ERC20)" },
-  { value: "bsc", label: "Binance Smart Chain (BEP20)" },
-  { value: "tron", label: "Tron (TRC20)" },
-  { value: "polygon", label: "Polygon" },
-  { value: "solana", label: "Solana" },
-  { value: "bitcoin", label: "Bitcoin" }
-];
 
 const schema = yup.object().shape({
   orderNo: yupFormSchemas.string(i18n("entities.withdraw.fields.orderNo")),
@@ -73,28 +63,36 @@ function Withdraw() {
   const dispatch = useDispatch();
   const currentUser = useSelector(authSelectors.selectCurrentUser);
   const assets = useSelector(assetsListSelectors.selectRows) || [];
-  console.log("🚀 ~ Withdraw ~ assets:", assets)
   const selectModal = useSelector(selectors.selectModal);
   const [amount, setAmount] = useState("");
   const [address, setAddress] = useState("");
   const [selected, setSelected] = useState("");
-  const [selectedNetwork, setSelectedNetwork] = useState("ethereum");
+  const [selectedNetwork, setSelectedNetwork] = useState("");
   const [item, setItem] = useState<{ symbol: string; amount: number } | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
 
   const listMethod = useSelector(depositMethodselectors.selectRows);
-  const loading = useSelector(depositMethodselectors.selectLoading);
+  const loading = useSelector(selectors.selectSaveLoading);
+
 
   // Fetch assets once
   useEffect(() => {
-    dispatch(assetsListActions.doFetch());
+    dispatch(assetsListActions.doFetch('exchange'));
   }, [dispatch]);
 
   // Fetch deposit methods on mount
   useEffect(() => {
     dispatch(method.doFetch());
   }, [dispatch]);
+
+  // Set default currency when listMethod loads
+  useEffect(() => {
+    if (listMethod && listMethod.length > 0 && !selected) {
+      const defaultCurrency = listMethod[0];
+      setSelected(defaultCurrency.symbol || defaultCurrency.id);
+      form.setValue("currency", defaultCurrency.symbol || defaultCurrency.id);
+    }
+  }, [listMethod]);
 
   // Update selected asset info when currency or assets change
   useEffect(() => {
@@ -152,6 +150,23 @@ function Withdraw() {
   const min = selected ? selectedRules.min : 0;
   const decimals = selected ? selectedRules.decimals : 8;
 
+  // Get selected method details
+  const selectedMethod = useMemo(() => {
+    return listMethod?.find((method) =>
+      method.symbol === selected || method.id === selected
+    );
+  }, [listMethod, selected]);
+
+  // Get network list for selected currency
+  const networkList = selectedMethod?.network || [];
+
+  // Set default network when currency changes
+  useEffect(() => {
+    if (networkList.length > 0 && !selectedNetwork) {
+      setSelectedNetwork(networkList[0].id || networkList[0].name);
+    }
+  }, [selectedMethod, networkList]);
+
   // Receive amount (what user receives after fee)
   const receiveAmount = isAmountNumber ? Math.max(parsedAmount - (fee || 0), 0) : 0;
 
@@ -162,6 +177,11 @@ function Withdraw() {
       minimumFractionDigits: 0,
       maximumFractionDigits: d,
     });
+  };
+
+  // Get currency icon URL
+  const getCurrencyIcon = (symbol) => {
+    return `https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/${symbol}.png`;
   };
 
   // Combine multiple validation checks to produce button label + disabled state + inline messages
@@ -221,14 +241,13 @@ function Withdraw() {
     setSelected("");
     setAddress("");
     setAmount("");
-    setIsSubmitting(false);
   };
 
   // Submit handler
   const onSubmit = async (values) => {
     if (validationState.disabled) return;
 
-    setIsSubmitting(true);
+   
 
     try {
       // ensure we use the selected currency
@@ -245,7 +264,6 @@ function Withdraw() {
       const feeNum = fee || 0;
       values.fee = feeNum;
       values.totalAmount = amountNum - feeNum; // what user receives
-      values.withdrawAdress = address;
       values.status = "pending";
 
       setAmount(values.totalAmount.toString());
@@ -255,18 +273,18 @@ function Withdraw() {
 
     } catch (error) {
       console.error("Withdrawal submission error:", error);
-      setIsSubmitting(false);
+
     }
   };
 
-  const selectedMethod = useMemo(() => {
-    return listMethod.find((method) => method.id === selected);
-  }, [listMethod, selected]);
-
-  const networkList = selectedMethod?.network || [];
-  console.log("🚀 ~ Withdraw ~ selectedMethod:", selectedMethod)
-
-
+  // Handle currency selection
+  const handleCurrencySelect = (currency) => {
+    setSelected(currency.symbol || currency.id);
+    form.setValue("currency", currency.symbol || currency.id);
+    form.setValue("withdrawAmount", "");
+    form.setValue("withdrawPassword", "");
+    setShowCurrencyDropdown(false);
+  };
 
   // form errors for inline display
   const { errors } = form.formState;
@@ -294,66 +312,144 @@ function Withdraw() {
           <div className="form-section">
             <div className="input-field">
               <label className="input-label">Select currency</label>
-              <div className="input-wrapper">
-                <select
-                  className="currency-select"
-                  value={selected}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setSelected(val);
-                    form.setValue("currency", val);
-                    // When currency changes, clear amount/password to force validation
-                    form.setValue("withdrawAmount", "");
-                    form.setValue("withdrawPassword", "");
-                  }}
+              <div className="custom-select-wrapper">
+                <div
+                  className="currency-select-trigger"
+                  onClick={() => setShowCurrencyDropdown(!showCurrencyDropdown)}
                 >
-                  {listMethod.map((currency) => (
-                    <option key={currency.id} value={currency.id}>
-                      {currency.symbol}
-                    </option>
-                  ))}
-                </select>
+                  {selected ? (
+                    <div className="selected-currency">
+                      <div className="currency-icon">
+                        <img
+                          src={getCurrencyIcon(selected)}
+                          alt={selected}
+                          onError={(e) => {
+                            const img = e.target;
+                            if (img && img instanceof HTMLImageElement) {
+                              img.onerror = null;
+                              img.style.display = "none";
+                              const parent = img.parentElement;
+                              if (parent) {
+                                parent.textContent = selected.charAt(0);
+                                parent.style.background = "#f0f0f0";
+                                parent.style.color = "#333";
+                                parent.style.fontSize = "14px";
+                                parent.style.fontWeight = "bold";
+                                parent.style.display = "inline-flex";
+                                parent.style.alignItems = "center";
+                                parent.style.justifyContent = "center";
+                                parent.style.width = "24px";
+                                parent.style.height = "24px";
+                                parent.style.borderRadius = "50%";
+                              }
+                            }
+                          }}
+                        />
+                      </div>
+                      <span className="currency-text">{selected}</span>
+                    </div>
+                  ) : (
+                    <span className="placeholder">Select Currency</span>
+                  )}
+                  <i className="fas fa-chevron-down dropdown-arrow" />
+                </div>
 
+                {showCurrencyDropdown && (
+                  <div className="currency-dropdown">
+                    {listMethod.map((currency) => (
+                      <div
+                        key={currency.id}
+                        className="currency-option"
+                        onClick={() => handleCurrencySelect(currency)}
+                      >
+                        <div className="currency-icon">
+                          <img
+                            src={getCurrencyIcon(currency.symbol)}
+                            alt={currency.symbol}
+                            onError={(e) => {
+                              const img = e.target;
+                              if (img && img instanceof HTMLImageElement) {
+                                img.onerror = null;
+                                img.style.display = "none";
+                                const parent = img.parentElement;
+                                if (parent) {
+                                  parent.textContent = currency.symbol.charAt(0);
+                                  parent.style.background = "#f0f0f0";
+                                  parent.style.color = "#333";
+                                  parent.style.fontSize = "14px";
+                                  parent.style.fontWeight = "bold";
+                                  parent.style.display = "inline-flex";
+                                  parent.style.alignItems = "center";
+                                  parent.style.justifyContent = "center";
+                                  parent.style.width = "24px";
+                                  parent.style.height = "24px";
+                                  parent.style.borderRadius = "50%";
+                                }
+                              }
+                            }}
+                          />
+                        </div>
+                        <span className="currency-text">{currency.symbol}</span>
+                        {currency.name && <span className="currency-name"> - {currency.name}</span>}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Withdraw network */}
-            <div className="input-field">
-              <label className="input-label">Withdraw network</label>
-              <div className="input-wrapper">
-                <select
-                  className="network-select"
-                  value={selectedNetwork}
-                  onChange={(e) => setSelectedNetwork(e.target.value)}
-                >
-                  {networkList.map((network) => (
-                    <option key={network.id} value={network.id}>
-                      {network.name}
-                    </option>
-                  ))}
-                </select>
+            {/* Withdraw network - Now shows automatically */}
+            {selected && networkList.length > 0 && (
+              <div className="input-field">
+                <label className="input-label">Withdraw network</label>
+                <div className="custom-select-wrapper">
+                  <div className="network-select-trigger">
+                    <div className="selected-network">
+                      <i className="fas fa-network-wired network-icon" />
+                      <span className="network-text">
+                        {networkList.find(n => n.id === selectedNetwork || n.name === selectedNetwork)?.name ||
+                          networkList[0]?.name ||
+                          "Select Network"}
+                      </span>
+                    </div>
+                    <i className="fas fa-chevron-down dropdown-arrow" />
+                  </div>
+                  <select
+                    className="network-select"
+                    value={selectedNetwork || networkList[0]?.id || networkList[0]?.name || ""}
+                    onChange={(e) => setSelectedNetwork(e.target.value)}
+                    style={{ display: 'none' }}
+                  >
+                    {networkList.map((network) => (
+                      <option key={network.id || network.name} value={network.id || network.name}>
+                        {network.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Withdraw address */}
-            <div className="input-field">
-              <label className="input-label">Withdraw address</label>
-              <div className="input-wrapper">
-                <input
-                  type="text"
-                  className="address-field"
-                  placeholder="Your wallet address will appear here"
-                />
-              </div>
-              {!address && selected && (
-                <div className="field-hint">
-                  Please add a wallet address for {selected} to withdraw
-                </div>
-              )}
-            </div>
+
 
             <FormProvider {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
+
+
+                <div className="input-field">
+                  <label className="input-label">Withdraw address</label>
+                  <div className="input-wrapper">
+                    <FieldFormItem
+                      name="withdrawAdress"
+                      type="text"
+                      className="address-field"
+                      placeholder="Your wallet address will appear here"
+                    />
+                  </div>
+                  <br />
+
+                </div>
                 {/* Amount section */}
                 <div className="input-field">
                   <label className="input-label">Amount of coins withdrawn</label>
@@ -363,8 +459,7 @@ function Withdraw() {
                       type="number"
                       className="amount-field"
                       placeholder="0.0"
-
-                      disabled={isSubmitting || !selected}
+                
                     />
                   </div>
                   <div className="balance-text">
@@ -413,7 +508,7 @@ function Withdraw() {
                       type="password"
                       className="password-field"
                       placeholder="Enter your withdrawal password"
-                      disabled={isSubmitting}
+                      disabled={loading}
                     />
                   </div>
                   <div className="field-error">
@@ -425,9 +520,9 @@ function Withdraw() {
                 <button
                   type="submit"
                   className="withdraw-button"
-                  disabled={validationState.disabled || isSubmitting}
+                  disabled={validationState.disabled || loading}
                 >
-                  {isSubmitting ? (
+                  {loading ? (
                     <>
                       <i className="fas fa-spinner fa-spin" style={{ marginRight: '8px' }}></i>
                       Processing...
@@ -541,11 +636,12 @@ function Withdraw() {
           margin-bottom: 8px;
         }
 
-        .input-wrapper {
+        .custom-select-wrapper {
           position: relative;
         }
 
-        .currency-select, .network-select {
+        .currency-select-trigger,
+        .network-select-trigger {
           width: 100%;
           padding: 12px;
           border: 1px solid #e0e0e0;
@@ -553,24 +649,107 @@ function Withdraw() {
           font-size: 12px;
           background-color: white;
           color: #333;
-          appearance: none;
           cursor: pointer;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
           transition: all 0.3s ease;
         }
 
-        .currency-select:focus, .network-select:focus {
-          outline: none;
+        .currency-select-trigger:hover,
+        .network-select-trigger:hover {
           border-color: #106cf5;
-          box-shadow: 0 0 0 3px rgba(16, 108, 245, 0.1);
         }
 
-        .currency-select-icon {
+        .selected-currency,
+        .selected-network {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .currency-icon {
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+        }
+
+        .currency-icon img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+        }
+
+        .currency-text,
+        .network-text {
+          font-size: 12px;
+          font-weight: 500;
+        }
+
+        .network-icon {
+          color: #106cf5;
+          font-size: 14px;
+        }
+
+        .dropdown-arrow {
+          color: #666;
+          font-size: 12px;
+          transition: transform 0.3s ease;
+        }
+
+        .currency-select-trigger.active .dropdown-arrow {
+          transform: rotate(180deg);
+        }
+
+        /* Currency Dropdown */
+        .currency-dropdown {
           position: absolute;
-          right: 16px;
-          top: 50%;
-          transform: translateY(-50%);
-          font-size: 20px;
-          pointer-events: none;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: white;
+          border: 1px solid #e0e0e0;
+          border-radius: 8px;
+          margin-top: 4px;
+          max-height: 200px;
+          overflow-y: auto;
+          z-index: 1000;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .currency-option {
+          padding: 12px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          cursor: pointer;
+          transition: background-color 0.2s ease;
+        }
+
+        .currency-option:hover {
+          background-color: #f5f7fa;
+        }
+
+        .currency-option .currency-icon {
+          width: 24px;
+          height: 24px;
+        }
+
+        .currency-name {
+          font-size: 11px;
+          color: #666;
+        }
+
+        .placeholder {
+          color: #999;
+        }
+
+        .input-wrapper {
+          position: relative;
         }
 
         .address-field, .amount-field, .password-field {
@@ -689,12 +868,12 @@ function Withdraw() {
         /* Withdraw Button */
         .withdraw-button {
           width: 100%;
-          padding: 16px;
+          padding: 12px;
           background: #106cf5;
           color: white;
           border: none;
           border-radius: 8px;
-          font-size: 16px;
+          font-size: 14px;
           font-weight: 600;
           cursor: pointer;
           transition: all 0.3s ease;
@@ -730,8 +909,12 @@ function Withdraw() {
             border-radius: 30px 30px 0 0;
           }
 
-          .currency-select, .network-select, .address-field, .amount-field, .password-field {
-            padding: 12px ;
+          .currency-select-trigger,
+          .network-select-trigger,
+          .address-field,
+          .amount-field,
+          .password-field {
+            padding: 12px;
             font-size: 14px;
           }
 
@@ -762,6 +945,15 @@ function Withdraw() {
           .withdraw-button {
             padding: 12px;
             font-size: 15px;
+          }
+
+          .currency-icon {
+            width: 20px;
+            height: 20px;
+          }
+
+          .currency-text, .network-text {
+            font-size: 11px;
           }
         }
 

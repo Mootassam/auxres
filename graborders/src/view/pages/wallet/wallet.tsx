@@ -328,6 +328,7 @@ function Wallet() {
               ))}
             </div>
       
+      
           </div>
 
           {/* Action Buttons */}

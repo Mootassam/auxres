@@ -67,9 +67,8 @@ const vipFormActions = {
         type: vipFormActions.CREATE_SUCCESS,
       });
 
-      dispatch(assetsListActions.doFetch());
+      dispatch(assetsListActions.doFetch('exchange'));
 
-      getHistory().push("/withdraw");
     } catch (error) {
       Errors.handle(error);
 

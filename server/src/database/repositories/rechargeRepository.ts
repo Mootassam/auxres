@@ -14,13 +14,35 @@ import Error400 from "../../errors/Error400";
 
 class WithdrawRepository {
   static async create(data, options: IRepositoryOptions) {
+
     const currentTenant = MongooseRepository.getCurrentTenant(options);
     const currentUser = MongooseRepository.getCurrentUser(options);
+    const WalletModel = assets(options.database);
 
+    let wallet = await WalletModel.findOne({
+      user: currentUser.id,
+      symbol: data.currency,
+      accountType: 'exchange'
+    });
+
+
+
+    if (!wallet) {
+      throw new Error400(options.language, "errors.walletNotFound");
+
+    }
+
+
+    if (wallet.amount < 0) {
+      throw new Error400(options.language, "errors.withdrawinsufficientBalance");
+
+
+    }
 
     const user = await User(options.database).findById(currentUser.id);
     if (!user || user.withdrawPassword !== data.withdrawPassword) {
-throw new Error400(options.language, "errors.passwordNotMatching");    }
+      throw new Error400(options.language, "errors.passwordNotMatching");
+    }
 
 
     const [record] = await Withdraw(options.database).create(
@@ -35,22 +57,16 @@ throw new Error400(options.language, "errors.passwordNotMatching");    }
       options
     );
 
-    const WalletModel = assets(options.database);
+
     const TransactionModel = options.database.model("transaction");
 
-    // 1️⃣ Fetch the user's wallet for the given asset
-    let wallet = await WalletModel.findOne({
-      user: currentUser.id,
-      symbol: data.currency,
-    });
 
-    if (!wallet) {
-      throw new Error("Wallet not found for this asset");
-    }
+
+
 
     // 2️⃣ Reduce balance immediately (hold funds while withdrawal is pending)
     await WalletModel.updateOne(
-      { _id: wallet.id },
+      { _id: wallet.id, accountType: 'exchange' },
       {
         $inc: { amount: -data.totalAmount }, // reduce balance
         updatedBy: currentUser.id,
@@ -166,7 +182,7 @@ throw new Error400(options.language, "errors.passwordNotMatching");    }
         options, // your repository options
       });
 
-      
+
       const withdrawRecord = await Withdraw(options.database).findById(id);
       const WalletModel = assets(options.database);
 

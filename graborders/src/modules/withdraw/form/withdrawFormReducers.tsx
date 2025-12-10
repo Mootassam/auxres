@@ -1,3 +1,4 @@
+
 import actions from 'src/modules/withdraw/form/withdrawFormActions';
 
 const initialData = {

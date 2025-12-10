@@ -183,10 +183,10 @@ const SuccessModalComponent: React.FC<SuccessModalProps> = ({
         .success-button {
           background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
           border: none;
-          border-radius: 12px;
-          padding: 16px 20px;
+          border-radius: 8px;
+          padding: 12px;
           color: white;
-          font-size: 16px;
+          font-size: 14px;
           font-weight: 600;
           cursor: pointer;
           transition: all 0.3s ease;
@@ -227,9 +227,7 @@ const SuccessModalComponent: React.FC<SuccessModalProps> = ({
 
       <div className="success-modal-overlay" onClick={handleOverlayClick}>
         <div className="success-modal-container">
-          <div className="modal-header">
-            <div className="page-title">Success</div>
-          </div>
+      
 
           <div className="success-content">
             <div className="success-icon">
