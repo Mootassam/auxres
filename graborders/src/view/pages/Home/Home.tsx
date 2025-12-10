@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -44,7 +45,7 @@ function Home() {
           <div className="crypto-illustration">
             <img src="./images/header.png" alt="Crypto Illustration" style={{ height: '100%', width: '100%', objectFit: 'contain' }} />
           </div>
-          <div className="slogan">Where Fortune Meets Precision</div>
+          <div className="slogan">Profit With Confidence</div>
         </div>
         {/* Promo Banner - Auto Slider */}
 

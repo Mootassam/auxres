@@ -23,6 +23,12 @@ const withdrawRules = {
   USDT: { min: 30, fee: 3, decimals: 2 },
   SOL: { min: 0.01, fee: 0.0005, decimals: 6 },
   XRP: { min: 1, fee: 0.1, decimals: 6 },
+  BNB: { min: 0.01, fee: 0.0005, decimals: 6 },
+  TRX: { min: 1, fee: 0.1, decimals: 6 },
+  SHIB: { min: 100000, fee: 10000, decimals: 0 },
+  DAI: { min: 30, fee: 3, decimals: 2 },
+  USDC: { min: 30, fee: 3, decimals: 2 },
+  DOGE: { min: 10, fee: 1, decimals: 2 },
 };
 
 const schema = yup.object().shape({
@@ -70,10 +76,10 @@ function Withdraw() {
   const [selectedNetwork, setSelectedNetwork] = useState("");
   const [item, setItem] = useState<{ symbol: string; amount: number } | null>(null);
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
+  const [showNetworkDropdown, setShowNetworkDropdown] = useState(false);
 
   const listMethod = useSelector(depositMethodselectors.selectRows);
   const loading = useSelector(selectors.selectSaveLoading);
-
 
   // Fetch assets once
   useEffect(() => {
@@ -89,8 +95,14 @@ function Withdraw() {
   useEffect(() => {
     if (listMethod && listMethod.length > 0 && !selected) {
       const defaultCurrency = listMethod[0];
-      setSelected(defaultCurrency.symbol || defaultCurrency.id);
-      form.setValue("currency", defaultCurrency.symbol || defaultCurrency.id);
+      const symbol = defaultCurrency.symbol || defaultCurrency.id;
+      setSelected(symbol);
+      form.setValue("currency", symbol);
+      
+      // Also set the default network for this currency
+      if (defaultCurrency.network && defaultCurrency.network.length > 0) {
+        setSelectedNetwork(defaultCurrency.network[0]._id || defaultCurrency.network[0].name);
+      }
     }
   }, [listMethod]);
 
@@ -108,10 +120,16 @@ function Withdraw() {
 
       // Update form currency field
       form.setValue("currency", selected);
+      
+      // Update withdraw address field if available
+      if (walletAddress) {
+        form.setValue("withdrawAdress", walletAddress);
+      }
     } else {
       setItem(null);
       setAddress("");
       form.setValue("currency", "");
+      form.setValue("withdrawAdress", "");
     }
   }, [selected, assets, currentUser]);
 
@@ -150,20 +168,27 @@ function Withdraw() {
   const min = selected ? selectedRules.min : 0;
   const decimals = selected ? selectedRules.decimals : 8;
 
-  // Get selected method details
+  // Get selected method details - FIXED: Use the correct data structure
   const selectedMethod = useMemo(() => {
-    return listMethod?.find((method) =>
-      method.symbol === selected || method.id === selected
-    );
+    if (!listMethod || !selected) return null;
+    return listMethod.find((method) => {
+      const methodSymbol = method.symbol || method.id || "";
+      return String(methodSymbol).toUpperCase() === String(selected).toUpperCase();
+    });
   }, [listMethod, selected]);
 
-  // Get network list for selected currency
+  // Get network list for selected currency - FIXED
   const networkList = selectedMethod?.network || [];
 
   // Set default network when currency changes
   useEffect(() => {
-    if (networkList.length > 0 && !selectedNetwork) {
-      setSelectedNetwork(networkList[0].id || networkList[0].name);
+    if (networkList.length > 0) {
+      // Always reset to first network when currency changes
+      const defaultNetwork = networkList[0];
+      setSelectedNetwork(defaultNetwork._id || defaultNetwork.name);
+      setShowNetworkDropdown(false);
+    } else {
+      setSelectedNetwork("");
     }
   }, [selectedMethod, networkList]);
 
@@ -181,7 +206,14 @@ function Withdraw() {
 
   // Get currency icon URL
   const getCurrencyIcon = (symbol) => {
-    return `https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/${symbol}.png`;
+    const cleanSymbol = symbol ? symbol.toUpperCase() : "";
+    return `https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/${cleanSymbol}.png`;
+  };
+
+  // Handle network selection
+  const handleNetworkSelect = (network) => {
+    setSelectedNetwork(network._id || network.name);
+    setShowNetworkDropdown(false);
   };
 
   // Combine multiple validation checks to produce button label + disabled state + inline messages
@@ -189,6 +221,11 @@ function Withdraw() {
     // not allowed if currency is not selected
     if (!selected) {
       return { disabled: true, label: i18n("pages.withdraw.validation.selectCurrency"), reason: "selectCurrency" };
+    }
+
+    // Network selection required if multiple networks available
+    if (networkList.length > 0 && !selectedNetwork) {
+      return { disabled: true, label: i18n("pages.withdraw.validation.selectNetwork"), reason: "selectNetwork" };
     }
 
     // amount missing or invalid
@@ -223,6 +260,12 @@ function Withdraw() {
       };
     }
 
+    // address required
+    const withdrawAddress = form.getValues("withdrawAdress");
+    if (!withdrawAddress || withdrawAddress.trim() === "") {
+      return { disabled: true, label: i18n("pages.withdraw.validation.enterAddress"), reason: "enterAddress" };
+    }
+
     // password required
     if (!watchedPassword || (typeof watchedPassword === "string" && watchedPassword.trim() === "")) {
       return { disabled: true, label: i18n("pages.withdraw.validation.enterPassword"), reason: "enterPassword" };
@@ -241,13 +284,12 @@ function Withdraw() {
     setSelected("");
     setAddress("");
     setAmount("");
+    setSelectedNetwork("");
   };
 
   // Submit handler
   const onSubmit = async (values) => {
     if (validationState.disabled) return;
-
-   
 
     try {
       // ensure we use the selected currency
@@ -266,6 +308,9 @@ function Withdraw() {
       values.totalAmount = amountNum - feeNum; // what user receives
       values.status = "pending";
 
+      // Add selected network to values
+      values.network = selectedNetwork;
+
       setAmount(values.totalAmount.toString());
 
       // Dispatch create action
@@ -273,17 +318,19 @@ function Withdraw() {
 
     } catch (error) {
       console.error("Withdrawal submission error:", error);
-
     }
   };
 
   // Handle currency selection
   const handleCurrencySelect = (currency) => {
-    setSelected(currency.symbol || currency.id);
-    form.setValue("currency", currency.symbol || currency.id);
+    const symbol = currency.symbol || currency.id;
+    setSelected(symbol);
+    form.setValue("currency", symbol);
     form.setValue("withdrawAmount", "");
     form.setValue("withdrawPassword", "");
+    form.setValue("withdrawAdress", "");
     setShowCurrencyDropdown(false);
+    setShowNetworkDropdown(false);
   };
 
   // form errors for inline display
@@ -356,76 +403,91 @@ function Withdraw() {
 
                 {showCurrencyDropdown && (
                   <div className="currency-dropdown">
-                    {listMethod.map((currency) => (
-                      <div
-                        key={currency.id}
-                        className="currency-option"
-                        onClick={() => handleCurrencySelect(currency)}
-                      >
-                        <div className="currency-icon">
-                          <img
-                            src={getCurrencyIcon(currency.symbol)}
-                            alt={currency.symbol}
-                            onError={(e) => {
-                              const img = e.target;
-                              if (img && img instanceof HTMLImageElement) {
-                                img.onerror = null;
-                                img.style.display = "none";
-                                const parent = img.parentElement;
-                                if (parent) {
-                                  parent.textContent = currency.symbol.charAt(0);
-                                  parent.style.background = "#f0f0f0";
-                                  parent.style.color = "#333";
-                                  parent.style.fontSize = "14px";
-                                  parent.style.fontWeight = "bold";
-                                  parent.style.display = "inline-flex";
-                                  parent.style.alignItems = "center";
-                                  parent.style.justifyContent = "center";
-                                  parent.style.width = "24px";
-                                  parent.style.height = "24px";
-                                  parent.style.borderRadius = "50%";
-                                }
-                              }
-                            }}
-                          />
-                        </div>
-                        <span className="currency-text">{currency.symbol}</span>
-                        {currency.name && <span className="currency-name"> - {currency.name}</span>}
-                      </div>
-                    ))}
+                    {listMethod && listMethod.length > 0 ? (
+                      listMethod.map((currency) => {
+                        const symbol = currency.symbol || currency.id;
+                        return (
+                          <div
+                            key={currency.id || symbol}
+                            className="currency-option"
+                            onClick={() => handleCurrencySelect(currency)}
+                          >
+                            <div className="currency-icon">
+                              <img
+                                src={getCurrencyIcon(symbol)}
+                                alt={symbol}
+                                onError={(e) => {
+                                  const img = e.target;
+                                  if (img && img instanceof HTMLImageElement) {
+                                    img.onerror = null;
+                                    img.style.display = "none";
+                                    const parent = img.parentElement;
+                                    if (parent) {
+                                      parent.textContent = symbol.charAt(0);
+                                      parent.style.background = "#f0f0f0";
+                                      parent.style.color = "#333";
+                                      parent.style.fontSize = "14px";
+                                      parent.style.fontWeight = "bold";
+                                      parent.style.display = "inline-flex";
+                                      parent.style.alignItems = "center";
+                                      parent.style.justifyContent = "center";
+                                      parent.style.width = "24px";
+                                      parent.style.height = "24px";
+                                      parent.style.borderRadius = "50%";
+                                    }
+                                  }
+                                }}
+                              />
+                            </div>
+                            <span className="currency-text">{symbol}</span>
+                            {currency.name && <span className="currency-name"> - {currency.name}</span>}
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="no-options">No currencies available</div>
+                    )}
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Withdraw network - Now shows automatically */}
+            {/* Withdraw network - Fixed to show dropdown */}
             {selected && networkList.length > 0 && (
               <div className="input-field">
                 <label className="input-label">Withdraw network</label>
                 <div className="custom-select-wrapper">
-                  <div className="network-select-trigger">
+                  <div
+                    className="network-select-trigger"
+                    onClick={() => setShowNetworkDropdown(!showNetworkDropdown)}
+                  >
                     <div className="selected-network">
                       <i className="fas fa-network-wired network-icon" />
                       <span className="network-text">
-                        {networkList.find(n => n.id === selectedNetwork || n.name === selectedNetwork)?.name ||
-                          networkList[0]?.name ||
-                          "Select Network"}
+                        {networkList.find(n => 
+                          n._id === selectedNetwork || 
+                          n.id === selectedNetwork || 
+                          n.name === selectedNetwork
+                        )?.name || "Select Network"}
                       </span>
                     </div>
                     <i className="fas fa-chevron-down dropdown-arrow" />
                   </div>
-                  <select
-                    className="network-select"
-                    value={selectedNetwork || networkList[0]?.id || networkList[0]?.name || ""}
-                    onChange={(e) => setSelectedNetwork(e.target.value)}
-                    style={{ display: 'none' }}
-                  >
-                    {networkList.map((network) => (
-                      <option key={network.id || network.name} value={network.id || network.name}>
-                        {network.name}
-                      </option>
-                    ))}
-                  </select>
+                  
+                  {showNetworkDropdown && (
+                    <div className="network-dropdown">
+                      {networkList.map((network) => (
+                        <div
+                          key={network._id || network.id || network.name}
+                          className="network-option"
+                          onClick={() => handleNetworkSelect(network)}
+                        >
+                          <i className="fas fa-network-wired network-icon-small" />
+                          <span className="network-text">{network.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -444,7 +506,9 @@ function Withdraw() {
                       name="withdrawAdress"
                       type="text"
                       className="address-field"
-                      placeholder="Your wallet address will appear here"
+                      placeholder="Enter your wallet address"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
                     />
                   </div>
                   <br />
@@ -459,7 +523,7 @@ function Withdraw() {
                       type="number"
                       className="amount-field"
                       placeholder="0.0"
-                
+                      step="any"
                     />
                   </div>
                   <div className="balance-text">
@@ -706,7 +770,8 @@ function Withdraw() {
         }
 
         /* Currency Dropdown */
-        .currency-dropdown {
+        .currency-dropdown,
+        .network-dropdown {
           position: absolute;
           top: 100%;
           left: 0;
@@ -721,7 +786,8 @@ function Withdraw() {
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-        .currency-option {
+        .currency-option,
+        .network-option {
           padding: 12px;
           display: flex;
           align-items: center;
@@ -730,7 +796,8 @@ function Withdraw() {
           transition: background-color 0.2s ease;
         }
 
-        .currency-option:hover {
+        .currency-option:hover,
+        .network-option:hover {
           background-color: #f5f7fa;
         }
 
@@ -742,6 +809,18 @@ function Withdraw() {
         .currency-name {
           font-size: 11px;
           color: #666;
+        }
+
+        .network-icon-small {
+          color: #106cf5;
+          font-size: 12px;
+        }
+
+        .no-options {
+          padding: 12px;
+          color: #999;
+          font-size: 12px;
+          text-align: center;
         }
 
         .placeholder {

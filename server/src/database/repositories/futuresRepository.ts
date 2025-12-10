@@ -15,7 +15,6 @@ class FuturesRepository {
   // inside FuturesRepository class:
 
   static async create(data, options: IRepositoryOptions) {
-    console.log("🚀 ~ FuturesRepository ~ create ~ data:", data)
     const currentTenant = MongooseRepository.getCurrentTenant(options);
     const currentUser = MongooseRepository.getCurrentUser(options);
 

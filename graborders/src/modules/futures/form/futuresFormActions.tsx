@@ -4,6 +4,7 @@ import Errors from "src/modules/shared/error/errors";
 import Message from "src/view/shared/message";
 import { getHistory } from "src/modules/store";
 import { i18n } from "../../../i18n";
+import assetsListActions from "src/modules/assets/list/assetsListActions";
 
 const prefix = "COUPONS_FORM";
 
@@ -59,9 +60,11 @@ const vipFormActions = {
         type: vipFormActions.CREATE_SUCCESS,
       });
 
-      // Message.success(
-      //   i18n('entities.futures.create.success'),
-      // );
+      dispatch(assetsListActions.doFetch('trade'))
+
+      Message.success(
+        i18n('entities.futures.create.success'),
+      );
       return record;
     } catch (error) {
       Errors.handle(error);
