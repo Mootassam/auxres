@@ -74,6 +74,15 @@ const screenRoutes = [
   },
 
   {
+    path: "/language",
+    loader: () => import("src/view/pages/Language/Language"),
+  },
+
+  {
+    path: "/currency",
+    loader: () => import("src/view/pages/currency/Currency"),
+  },
+  {
     path: "/about",
     loader: () => import("src/view/pages/About/About"),
     permissionRequired: permissions.categoryRead,
@@ -331,10 +340,7 @@ const navRoutes = [
     path: "/",
     loader: () => import("src/view/pages/Home/Home"),
   },
-  {
-    path: "/language",
-    loader: () => import("src/view/pages/Language/Language"),
-  },
+
 
   {
     path: "/market",

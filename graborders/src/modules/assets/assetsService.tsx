@@ -108,7 +108,7 @@ export default class depositService {
   }
 
 
-   static async transferList(filter, orderBy, limit, offset) {
+  static async transferList(filter, orderBy, limit, offset) {
     const params = {
       filter,
       orderBy,

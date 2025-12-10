@@ -30,6 +30,7 @@ function Settings() {
               <div className="option-icon">
                 <i className="fas fa-language" />
               </div>
+              
               <div className="option-content">
                 <div className="option-title">Language</div>
               </div>
@@ -38,8 +39,8 @@ function Settings() {
               </div>
             </div>
           </Link>
-          
-          <Link to="/quotation" className="settings-option remove_blue">
+
+          <Link to="/currency" className="settings-option remove_blue">
             <div className="option-content-wrapper">
               <div className="option-icon">
                 <i className="fas fa-dollar-sign" />
@@ -52,7 +53,7 @@ function Settings() {
               </div>
             </div>
           </Link>
-          
+
           <Link to="/color-config" className="settings-option remove_blue">
             <div className="option-content-wrapper">
               <div className="option-icon">
@@ -66,7 +67,7 @@ function Settings() {
               </div>
             </div>
           </Link>
-          
+
           <Link to="/about" className="settings-option remove_blue">
             <div className="option-content-wrapper">
               <div className="option-icon">
@@ -80,7 +81,7 @@ function Settings() {
               </div>
             </div>
           </Link>
-          
+
           <div className="settings-option version-option">
             <div className="option-content-wrapper">
               <div className="option-icon">

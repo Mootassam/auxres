@@ -340,8 +340,6 @@ function Playstore() {
 
           .download-section {
             max-width: 400px;
-            left: 50%;
-            transform: translateX(-50%);
           }
         }
 

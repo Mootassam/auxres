@@ -22,7 +22,7 @@ function I18nSelect() {
       {/* Header Section - Matching Profile Page */}
       <div className="header">
         <div className="nav-bar">
-          <Link to="/profile" className="back-arrow">
+          <Link to="/settings" className="back-arrow">
             <i className="fas fa-arrow-left"></i>
           </Link>
           <div className="page-title">{i18n('pages.language.selectLanguage')}</div>
