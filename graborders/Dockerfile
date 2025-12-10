@@ -1,22 +1,8 @@
-FROM node:18 as builder
-WORKDIR /app
+# Stage 1: Skip building, just copy the build folder
+FROM nginx:alpine
 
-# Install pnpm globally
-RUN npm install -g pnpm
-
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies with pnpm
-RUN pnpm install
-
-# Copy the rest of the project
-COPY . .
-
-# Build the project
-RUN pnpm run build
-
-# Serve with nginx
-FROM nginx:latest
+# Copy custom nginx config
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy pre-built React app
+COPY ./dist /usr/share/nginx/html
