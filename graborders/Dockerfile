@@ -1,8 +1,11 @@
-# Stage 1: Skip building, just copy the build folder
-FROM nginx:alpine
+FROM node:14 as builder
+WORKDIR /app
+COPY package*.json ./
+COPY package-lock.json ./
+RUN npm install --silent
+COPY . .
+RUN npm run build
 
-# Copy custom nginx config
+FROM nginx
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
-
-# Copy pre-built React app
-COPY ./dist /usr/share/nginx/html
+COPY --from=builder  /app/dist /usr/share/nginx/html
