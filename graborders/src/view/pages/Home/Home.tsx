@@ -413,7 +413,9 @@ function Home() {
         /* Hero Section */
         .hero-section {
             text-align: center;
-            background: linear-gradient(rgb(16, 108, 245), rgb(242, 244, 247));
+        background: linear-gradient(180deg, #0c396c, #0a66ff, #f2f4f7);
+
+
             padding: 0px 10px;
         }
 

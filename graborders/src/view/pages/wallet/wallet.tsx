@@ -369,6 +369,10 @@ function Wallet() {
           margin-bottom: 40px;
         }
 
+        
+        select option { 
+        color :#000}
+
         .container {
           max-width: 400px;
           margin: 0 auto;
