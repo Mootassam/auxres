@@ -1,13 +1,40 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import authActions from "src/modules/auth/authActions";
+import CurrencyModal from "../currency/Currency";
 
+
+
+// Main Settings Component
 function Settings() {
   const dispatch = useDispatch();
+  const [isCurrencyModalOpen, setIsCurrencyModalOpen] = useState(false);
+  const [selectedCurrency, setSelectedCurrency] = useState({
+    symbol: "$",
+    code: "USD",
+    name: "USD [$]"
+  });
 
   const handleSignOut = () => {
     dispatch(authActions.doSignout());
+  };
+
+  const handleCurrencySelect = (currency) => {
+    setSelectedCurrency({
+      symbol: currency.symbol,
+      code: currency.code,
+      name: `${currency.code} [${currency.symbol}]`
+    });
+    setIsCurrencyModalOpen(false);
+  };
+
+  const openCurrencyModal = () => {
+    setIsCurrencyModalOpen(true);
+  };
+
+  const closeCurrencyModal = () => {
+    setIsCurrencyModalOpen(false);
   };
 
   return (
@@ -30,7 +57,6 @@ function Settings() {
               <div className="option-icon">
                 <i className="fas fa-language" />
               </div>
-              
               <div className="option-content">
                 <div className="option-title">Language</div>
               </div>
@@ -40,19 +66,20 @@ function Settings() {
             </div>
           </Link>
 
-          <Link to="/currency" className="settings-option remove_blue">
+          {/* Currency Option - Now opens modal instead of navigating */}
+          <div className="settings-option remove_blue" onClick={openCurrencyModal}>
             <div className="option-content-wrapper">
               <div className="option-icon">
                 <i className="fas fa-dollar-sign" />
               </div>
               <div className="option-content">
-                <div className="option-title">Quotation currency USD [$]</div>
+                <div className="option-title">Quotation currency {selectedCurrency.name}</div>
               </div>
               <div className="option-arrow">
                 <i className="fas fa-chevron-right" />
               </div>
             </div>
-          </Link>
+          </div>
 
           <Link to="/color-config" className="settings-option remove_blue">
             <div className="option-content-wrapper">
@@ -102,6 +129,14 @@ function Settings() {
           </button>
         </div>
       </div>
+
+      {/* Currency Selection Modal - Using separate component */}
+      <CurrencyModal
+        isOpen={isCurrencyModalOpen}
+        onClose={closeCurrencyModal}
+        selectedCurrency={selectedCurrency}
+        onSelectCurrency={handleCurrencySelect}
+      />
 
       <style>{`
         * {
@@ -181,6 +216,7 @@ function Settings() {
           text-decoration: none;
           color: inherit;
           margin-bottom: 12px;
+          cursor: pointer;
         }
 
         .settings-option:last-child {
