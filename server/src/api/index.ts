@@ -13,6 +13,10 @@ import setupSwaggerUI from "./apiDocumentation";
 import { Server as SocketIOServer } from "socket.io";
 import { createServer } from "http";
 import { setSocketIO } from "../services/notificationServices";
+import { startRatesCron } from "../database/utils/rates.cron";
+
+
+
 
 const app = express();
 const server = createServer(app);
@@ -25,6 +29,8 @@ const io = new SocketIOServer(server, {
 });
 
 setSocketIO(io);
+
+startRatesCron()
 
 // Enables CORS
 app.use(cors({ origin: true }));

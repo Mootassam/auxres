@@ -87,6 +87,16 @@ export default class depositService {
     return response.data;
   }
 
+    static async Convert(id) {
+    const tenantId = AuthCurrentTenant.get();
+
+    const response = await authAxios.get(
+      `/tenant/${tenantId}/convert/${id}`,
+    );
+
+    return response.data;
+  }
+
   static async list(filter, orderBy, limit, offset) {
     const params = {
       filter,

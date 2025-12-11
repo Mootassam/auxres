@@ -114,6 +114,31 @@ const assetsListActions = {
         }
       },
 
+
+
+  doConvert:
+    (fiat) =>
+      async (dispatch, getState) => {
+        try {
+          dispatch({
+            type: assetsListActions.FETCH_STARTED
+          });
+          const response = await depositService.Convert
+            (fiat);
+          dispatch({
+            type: assetsListActions.FETCH_SUCCESS,
+            payload: {
+              rows: response.rows,
+              count: response.count,
+            },
+          });
+        } catch (error) {
+          Errors.handle(error);
+          dispatch({
+            type: assetsListActions.FETCH_ERROR,
+          });
+        }
+      },
   TransferList:
     (filter?, rawFilter?, keepPagination = false) =>
       async (dispatch, getState) => {

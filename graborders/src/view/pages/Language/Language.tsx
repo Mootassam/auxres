@@ -5,10 +5,7 @@ import SubHeader from 'src/view/shared/Header/SubHeader'
 function Language() {
   return (
 
-
-
-<I18nSelect />
-
+    <div></div>
 
 
   )

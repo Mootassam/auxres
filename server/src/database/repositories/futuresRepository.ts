@@ -445,6 +445,7 @@ class FuturesRepository {
         return v * 1000;
     }
   }
+  
   static async destroy(id, options: IRepositoryOptions) {
     const currentTenant = MongooseRepository.getCurrentTenant(options);
 

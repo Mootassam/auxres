@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { getLanguages, getLanguageCode, i18n } from '../../i18n';
 import actions from 'src/modules/layout/layoutActions';
 
-function I18nSelect() {
+const I18nSelect = ({ isInModal = false }) => {
   const [loadingLanguage, setLoadingLanguage] = useState(null);
 
   const doChangeLanguage = async (language) => {
@@ -17,6 +16,246 @@ function I18nSelect() {
     }
   };
 
+  // When used inside a modal, we don't need the header
+  if (isInModal) {
+    return (
+      <div className="i18n-modal-content">
+   
+        <div className="languages-list-modal">
+          {getLanguages().map((language) => {
+            const isActive = getLanguageCode() === language.id;
+            const isLoading = loadingLanguage === language.id;
+
+            return (
+              <div
+                key={language.id}
+                onClick={() => !isLoading && doChangeLanguage(language.id)}
+                className={`language-item-modal ${isActive ? 'active' : ''} ${isLoading ? 'loading' : ''}`}
+              >
+                <div className="language-flag-modal">
+                  <img src={language.flag} alt={language.label} />
+                </div>
+                <div className="language-info-modal">
+                  <div className="language-name-modal">{language.label}</div>
+                  <div className="language-native-modal">{language.label}</div>
+                </div>
+                {isActive && !isLoading && (
+                  <div className="selected-indicator-modal">
+                    <i className="fas fa-check"></i>
+                  </div>
+                )}
+                {isLoading && (
+                  <div className="loading-indicator-modal">
+                    <i className="fas fa-spinner fa-spin"></i>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="language-help-modal">
+          <i className="fas fa-info-circle"></i>
+          <span>Changing the language will affect all text in the application</span>
+        </div>
+
+        <style jsx="true">{`
+          .i18n-modal-content {
+            padding: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+          }
+
+          .language-intro {
+            padding: 20px 20px 16px 20px;
+            border-bottom: 1px solid #eef2f7;
+            text-align: center;
+          }
+
+          .language-icon {
+            font-size: 24px;
+            color: #106cf5;
+            margin-bottom: 12px;
+          }
+
+          .language-intro h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 6px;
+          }
+
+          .language-intro p {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.4;
+          }
+
+          .languages-list-modal {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+            max-height: calc(85vh - 200px);
+          }
+
+          .languages-list-modal::-webkit-scrollbar {
+            width: 4px;
+          }
+
+          .languages-list-modal::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 2px;
+          }
+
+          .languages-list-modal::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 2px;
+          }
+
+          .languages-list-modal::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+          }
+
+          .language-item-modal {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid #f5f7fa;
+          }
+
+          .language-item-modal:last-child {
+            border-bottom: none;
+          }
+
+          .language-item-modal:hover {
+            background-color: #f8fafd;
+          }
+
+          .language-item-modal.active {
+            background-color: #f0f7ff;
+          }
+
+          .language-item-modal.loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+          }
+
+          .language-flag-modal {
+            width: 32px;
+            height: 24px;
+            margin-right: 16px;
+            border-radius: 3px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+          }
+
+          .language-flag-modal img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+
+          .language-info-modal {
+            flex: 1;
+          }
+
+          .language-name-modal {
+            font-size: 16px;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 2px;
+          }
+
+          .language-native-modal {
+            font-size: 13px;
+            color: #666;
+            font-weight: 400;
+          }
+
+          .selected-indicator-modal {
+            color: #106cf5;
+            font-size: 16px;
+            margin-left: 10px;
+            flex-shrink: 0;
+            animation: fadeInScale 0.3s ease;
+          }
+
+          .loading-indicator-modal {
+            color: #106cf5;
+            font-size: 16px;
+            margin-left: 10px;
+            flex-shrink: 0;
+          }
+
+          .language-help-modal {
+            padding: 16px 20px;
+            border-top: 1px solid #eef2f7;
+            background-color: #f8fafd;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+          }
+
+          .language-help-modal i {
+            color: #106cf5;
+            font-size: 14px;
+            flex-shrink: 0;
+          }
+
+          .language-help-modal span {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.4;
+          }
+
+          @keyframes fadeInScale {
+            from {
+              opacity: 0;
+              transform: scale(0.8);
+            }
+            to {
+              opacity: 1;
+              transform: scale(1);
+            }
+          }
+
+          @media (max-width: 380px) {
+            .language-intro {
+              padding: 16px 16px 12px 16px;
+            }
+
+            .language-intro h2 {
+              font-size: 16px;
+            }
+
+            .language-item-modal {
+              padding: 14px 16px;
+            }
+
+            .language-flag-modal {
+              width: 28px;
+              height: 21px;
+              margin-right: 12px;
+            }
+
+            .language-name-modal {
+              font-size: 15px;
+            }
+
+            .language-help-modal {
+              padding: 14px 16px;
+            }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
+  // Original standalone component (for when not in modal)
   return (
     <div className="i18n-container">
       {/* Header Section - Matching Profile Page */}
@@ -43,21 +282,19 @@ function I18nSelect() {
           {getLanguages().map((language) => {
             const isActive = getLanguageCode() === language.id;
             const isLoading = loadingLanguage === language.id;
-            
+
             return (
               <div
                 key={language.id}
                 onClick={() => !isLoading && doChangeLanguage(language.id)}
-                className={`language-item ${
-                  isActive ? 'active' : ''
-                } ${isLoading ? 'loading' : ''}`}
+                className={`language-item ${isActive ? 'active' : ''} ${isLoading ? 'loading' : ''}`}
               >
                 <div className="language-flag">
                   <img src={language.flag} alt={language.label} />
                 </div>
                 <div className="language-info">
                   <div className="language-name">{language.label}</div>
-                  <div className="language-native">{language.nativeName || language.label}</div>
+                  <div className="language-native">{language.label}</div>
                 </div>
                 {isActive && !isLoading && (
                   <div className="selected-indicator">
@@ -94,7 +331,6 @@ function I18nSelect() {
           background-color: #f5f7fa;
           color: #333;
           line-height: 1.6;
-          overflow-x: hidden;
         }
 
         .i18n-container {
@@ -117,7 +353,6 @@ function I18nSelect() {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 20px;
         }
 
         .back-arrow {
@@ -134,7 +369,7 @@ function I18nSelect() {
 
         .page-title {
           color: white;
-          font-size: 18px;
+          font-size: 17px;
           font-weight: 600;
           position: absolute;
           left: 50%;
@@ -145,29 +380,23 @@ function I18nSelect() {
         .content-card {
           background: white;
           border-radius: 40px 40px 0 0;
-          padding: 30px 20px 100px;
+          padding: 20px;
           box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
           min-height: calc(100vh - 60px);
+          display: flex;
+          flex-direction: column;
         }
 
         .language-intro {
           text-align: center;
-          margin-bottom: 30px;
-          padding: 0 10px;
+          margin-bottom: 20px;
+          padding: 20px 0;
         }
 
         .language-icon {
-          width: 80px;
-          height: 80px;
-          border-radius: 50%;
-          background: linear-gradient(135deg, #e6f0ff 0%, #d0e2ff 100%);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin: 0 auto 20px;
+          font-size: 32px;
           color: #106cf5;
-          font-size: 36px;
-          box-shadow: 0 8px 16px rgba(16, 108, 245, 0.15);
+          margin-bottom: 16px;
         }
 
         .language-intro h2 {
@@ -179,37 +408,41 @@ function I18nSelect() {
 
         .language-intro p {
           font-size: 14px;
-          color: #888f99;
+          color: #666;
           line-height: 1.4;
         }
 
         .languages-list {
-          margin-bottom: 30px;
+          flex: 1;
+          overflow-y: auto;
+          margin-bottom: 20px;
         }
 
         .language-item {
           display: flex;
           align-items: center;
           padding: 16px;
-          background: #fff;
           border: 1px solid #e7eaee;
-          border-radius: 12px;
-          cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          border-radius: 7px;
           margin-bottom: 12px;
-          position: relative;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          background: #fff;
+        }
+
+        .language-item:last-child {
+          margin-bottom: 0;
         }
 
         .language-item:hover {
-          transform: translateY(-2px);
           border-color: #106cf5;
           box-shadow: 0 4px 12px rgba(16, 108, 245, 0.1);
+          transform: translateY(-2px);
         }
 
         .language-item.active {
-          background: linear-gradient(135deg, #f0f7ff 0%, #e6f0ff 100%);
+          background-color: #f0f7ff;
           border-color: #106cf5;
-          border-width: 2px;
         }
 
         .language-item.loading {
@@ -218,21 +451,12 @@ function I18nSelect() {
         }
 
         .language-flag {
-          width: 48px;
-          height: 48px;
-          border-radius: 8px;
-          overflow: hidden;
+          width: 40px;
+          height: 30px;
           margin-right: 16px;
-          border: 2px solid #e7eaee;
-          flex-shrink: 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .language-item.active .language-flag {
-          border-color: #106cf5;
-          box-shadow: 0 2px 8px rgba(16, 108, 245, 0.2);
+          border-radius: 4px;
+          overflow: hidden;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .language-flag img {
@@ -254,56 +478,24 @@ function I18nSelect() {
 
         .language-native {
           font-size: 14px;
-          color: #888f99;
-        }
-
-        .language-item.active .language-name {
-          color: #106cf5;
-        }
-
-        .language-item.active .language-native {
           color: #666;
         }
 
         .selected-indicator {
-          width: 24px;
-          height: 24px;
-          background: #106cf5;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-left: 12px;
-          flex-shrink: 0;
-        }
-
-        .selected-indicator i {
-          font-size: 12px;
-          color: white;
+          color: #106cf5;
+          font-size: 18px;
         }
 
         .loading-indicator {
-          width: 24px;
-          height: 24px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-left: 12px;
-          flex-shrink: 0;
-        }
-
-        .loading-indicator i {
-          font-size: 16px;
           color: #106cf5;
+          font-size: 18px;
         }
 
         .language-help {
-          background: #f8f9fa;
-          border-radius: 12px;
           padding: 16px;
-          text-align: center;
-          margin-top: 20px;
-          border: 1px solid #e7eaee;
+          background-color: #f8fafd;
+          border-radius: 7px;
+          border: 1px solid #eef2f7;
         }
 
         .language-help p {
@@ -311,30 +503,12 @@ function I18nSelect() {
           color: #666;
           display: flex;
           align-items: center;
-          justify-content: center;
-          gap: 8px;
+          gap: 10px;
         }
 
         .language-help i {
           color: #106cf5;
           font-size: 16px;
-        }
-
-        /* Animations */
-        @keyframes pulse {
-          0% {
-            box-shadow: 0 0 0 0 rgba(16, 108, 245, 0.4);
-          }
-          70% {
-            box-shadow: 0 0 0 6px rgba(16, 108, 245, 0);
-          }
-          100% {
-            box-shadow: 0 0 0 0 rgba(16, 108, 245, 0);
-          }
-        }
-
-        .pulse {
-          animation: pulse 2s infinite;
         }
 
         /* Responsive adjustments */
@@ -349,18 +523,17 @@ function I18nSelect() {
           }
 
           .content-card {
-            padding: 25px 16px 100px;
+            padding: 16px;
           }
 
           .language-intro {
-            margin-bottom: 20px;
+            padding: 16px 0;
+            margin-bottom: 16px;
           }
 
           .language-icon {
-            width: 60px;
-            height: 60px;
             font-size: 28px;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
           }
 
           .language-intro h2 {
@@ -372,8 +545,8 @@ function I18nSelect() {
           }
 
           .language-flag {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 27px;
             margin-right: 12px;
           }
 
@@ -384,19 +557,19 @@ function I18nSelect() {
           .language-native {
             font-size: 13px;
           }
+
+          .language-help {
+            padding: 14px;
+          }
+
+          .language-help p {
+            font-size: 13px;
+          }
         }
 
         @media (min-width: 768px) {
-          .i18n-container {
-            max-width: 400px;
-          }
-
           .content-card {
             border-radius: 30px 30px 0 0;
-          }
-
-          .language-item {
-            padding: 18px 20px;
           }
         }
       `}</style>

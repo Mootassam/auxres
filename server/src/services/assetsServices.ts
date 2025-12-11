@@ -69,6 +69,13 @@ export default class AssetsServices {
     );
   }
 
+  async ConvertFiat(fiat) {
+    return AssetRepository.convertCoins(
+      fiat
+
+    );
+  }
+
   async update(id, data) {
     const session = await MongooseRepository.createSession(
       this.options.database,

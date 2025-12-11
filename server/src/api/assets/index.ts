@@ -30,10 +30,15 @@ export default (app) => {
   );
 
   app.get(
+    `/tenant/:tenantId/convert/:id`,
+    require('./AssetsConvert').default,
+  );
+
+  app.get(
     `/tenant/:tenantId/assetsmobile`,
     require('./AssetsListMobile').default,
   );
-   app.get(
+  app.get(
     `/tenant/:tenantId/transfer/all`,
     require('./AssetsListTransfer').default,
   );

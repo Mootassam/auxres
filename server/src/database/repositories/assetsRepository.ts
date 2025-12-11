@@ -12,6 +12,7 @@ import axios from "axios";
 import User from "../models/user";
 import UserRepository from "./userRepository";
 import Transfer from "../models/Transfer";
+import { RedisService } from "../redisConnection";
 class WalletRepository {
   static async create(data, options: IRepositoryOptions) {
     const currentTenant = MongooseRepository.getCurrentTenant(options);
@@ -785,6 +786,27 @@ class WalletRepository {
       sourceWallet,
       targetWallet,
     };
+  }
+
+
+  static async convertCoins(fiat: string) {
+    const redis = RedisService.getClient();
+
+    const cryptoUSD = JSON.parse(await redis.get("CRYPTO_USD") || "{}");
+    const fiatRates = JSON.parse(await redis.get("FIAT_RATES") || "{}");
+
+    if (!fiatRates[fiat]) {
+      throw new Error("Unsupported fiat");
+    }
+
+    const rate = fiatRates[fiat];
+    const result: Record<string, number> = {};
+
+    for (const symbol in cryptoUSD) {
+      result[symbol] = Number((cryptoUSD[symbol] * rate).toFixed(6));
+    }
+
+    return result;
   }
 
 

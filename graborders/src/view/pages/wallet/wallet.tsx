@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import assetsActions from "src/modules/assets/list/assetsListActions";
 import assetsListSelectors from "src/modules/assets/list/assetsListSelectors";
 import { i18n } from "../../../i18n";
+import CurrencyModal from "../currency/Currency"; // Import the CurrencyModal component
 
 // Constants (moved outside component to prevent recreation)
 const QUICK_ACTIONS = [
@@ -174,6 +175,12 @@ function Wallet() {
   const [activeItem, setActiveItem] = useState<string>(location.pathname);
   const [activeTimeframe, setActiveTimeframe] = useState("7 days");
   const [activeTab, setActiveTab] = useState("Exchange");
+  const [isCurrencyModalOpen, setIsCurrencyModalOpen] = useState(false);
+  const [selectedCurrency, setSelectedCurrency] = useState({
+    symbol: "$",
+    code: "USD",
+    name: "USD"
+  });
 
   // Memoized callbacks
   const formatAmount = useCallback((amount: string) => {
@@ -186,6 +193,23 @@ function Wallet() {
   const handleTabClick = useCallback((tab: string) => {
     setActiveTab(tab);
   }, []);
+
+  const handleCurrencySelect = (currency) => {
+    setSelectedCurrency({
+      symbol: currency.symbol,
+      code: currency.code,
+      name: currency.code
+    });
+    setIsCurrencyModalOpen(false);
+  };
+
+  const openCurrencyModal = () => {
+    setIsCurrencyModalOpen(true);
+  };
+
+  const closeCurrencyModal = () => {
+    setIsCurrencyModalOpen(false);
+  };
 
   // Fetch assets with cleanup
   useEffect(() => {
@@ -300,13 +324,15 @@ function Wallet() {
                 <i className="fas fa-eye-slash"></i>
                 {i18n("pages.wallet.assetValuation")}
               </div>
-              <select className="currency-selector">
-                <option>USD</option>
-                <option>EUR</option>
-                <option>CNY</option>
-              </select>
+              {/* Currency Selector - Now opens modal */}
+              <div className="currency-selector-modal" onClick={openCurrencyModal}>
+                <div className="currency-display">
+                  {selectedCurrency.code}
+                  <i className="fas fa-chevron-down"></i>
+                </div>
+              </div>
             </div>
-            <div className="balance-amount">{formattedTotalValue}</div>
+            <div className="balance-amount">{selectedCurrency.symbol}{formattedTotalValue}</div>
             <div className="usd-equivalent">≈${formattedTotalValue}</div>
           </div>
         </div>
@@ -327,8 +353,6 @@ function Wallet() {
                 <div key={date}>{date}</div>
               ))}
             </div>
-      
-      
           </div>
 
           {/* Action Buttons */}
@@ -358,7 +382,15 @@ function Wallet() {
         </div>
       </div>
 
-      {/* CSS Styles - Consider moving to separate CSS file for better performance */}
+      {/* Currency Selection Modal */}
+      <CurrencyModal
+        isOpen={isCurrencyModalOpen}
+        onClose={closeCurrencyModal}
+        selectedCurrency={selectedCurrency}
+        onSelectCurrency={handleCurrencySelect}
+      />
+
+      {/* CSS Styles */}
       <style>{`
         .sectionn__assets{ 
           background-color: #fff;
@@ -369,16 +401,12 @@ function Wallet() {
           margin-bottom: 40px;
         }
 
-        
-        select option { 
-        color :#000}
-
         .container {
           max-width: 400px;
           margin: 0 auto;
           height: 100dvh;
           position: relative;
-         background: linear-gradient(135deg, #4082e3 0%, #ffffff 100%);
+          background: linear-gradient(135deg, #4082e3 0%, #ffffff 100%);
           background-size: cover;
           overflow-y: auto;
           background-repeat: no-repeat;
@@ -442,14 +470,43 @@ function Wallet() {
           color: white;
         }
 
-        .currency-selector {
+        /* New Currency Selector Modal Style */
+        .currency-selector-modal {
           background: rgba(255, 255, 255, 0.2);
           border: none;
           border-radius: 6px;
-          padding: 4px 8px;
+          padding: 6px 12px;
           color: white;
           font-size: 12px;
           cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          transition: all 0.2s ease;
+          user-select: none;
+          min-width: 70px;
+          justify-content: center;
+        }
+
+        .currency-selector-modal:hover {
+          background: rgba(255, 255, 255, 0.3);
+          transform: translateY(-1px);
+        }
+
+        .currency-display {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-weight: 500;
+        }
+
+        .currency-display i {
+          font-size: 10px;
+          transition: transform 0.2s ease;
+        }
+
+        .currency-selector-modal:hover .currency-display i {
+          transform: translateY(1px);
         }
 
         .balance-amount {
@@ -770,6 +827,11 @@ function Wallet() {
           
           .action-label {
             font-size: 11px;
+          }
+          
+          .currency-selector-modal {
+            padding: 5px 10px;
+            min-width: 60px;
           }
         }
       `}</style>
