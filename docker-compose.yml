@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   backend:
     build: ./server
@@ -10,13 +8,13 @@ services:
       - upload:/upload
     environment:
       DATABASE_CONNECTION: mongodb://db:27017/grap
-      REDIS_HOST: redis
+      REDIS_HOST: redis 
     depends_on:
       - db
       - redis
 
   db:
-    image: mongo:6.0
+    image: mongo:5.0
     ports:
       - 2757:27017
     restart: unless-stopped
@@ -29,11 +27,11 @@ services:
       - 3022:80
     restart: unless-stopped
     volumes:
-      - ./admin:/app
-      - /app/node_modules
+      - "./admin:/app"
+      - "/app/node_modules"
     stdin_open: true
     environment:
-      CHOKIDAR_USEPOLLING: 'true'
+      - CHOKIDAR_USEPOLLING=true
 
   web1:
     build: ./graborders
@@ -41,17 +39,14 @@ services:
       - 3015:80
     restart: unless-stopped
     volumes:
-      - ./graborders:/app
-      - /app/node_modules
+      - "./graborders:/app"
+      - "/app/node_modules"
     stdin_open: true
     environment:
-      CHOKIDAR_USEPOLLING: 'true'
-
+      - CHOKIDAR_USEPOLLING=true
+      
   redis:
-    image: redis:latest
-    ports:
-      - 6379:6379
-    restart: unless-stopped
+    image: 'redis:latest'
 
 volumes:
   phone:
