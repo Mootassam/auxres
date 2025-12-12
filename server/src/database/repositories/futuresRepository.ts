@@ -14,7 +14,7 @@ import Error400 from "../../errors/Error400";
 class FuturesRepository {
   // inside FuturesRepository class:
 
-static async create(data, options: IRepositoryOptions) {
+ static async create(data, options: IRepositoryOptions) {
     const currentTenant = MongooseRepository.getCurrentTenant(options);
     const currentUser = MongooseRepository.getCurrentUser(options);
 
@@ -31,31 +31,29 @@ static async create(data, options: IRepositoryOptions) {
       user: currentUser.id,
       symbol: "USDT",
       tenant: currentTenant.id,
-      accountType: 'trade'  // Only working with trade account
+      accountType: 'trade'
     });
 
     if (!usdtWallet) {
-      throw new Error400(options.language,'errors.usdtWalletNotFound');
-    }
-
-    // Check if the trade wallet is frozen
-    if (usdtWallet.status === 'freeze') {
-      throw new Error400(options.language,'errors.usdtWalletFrozen');
+      throw new Error400(options.database, 'errors.usdtWalletNotFound');
     }
 
     if (usdtWallet.amount < data.futuresAmount) {
-      throw new Error400(options.language,'errors.insufficientusdtWallet');
+      throw new Error400(options.database,'errors.insufficientusdtWallet');
+    }
+
+    if (usdtWallet.status !== 'active') {
+      throw new Error400(options.database, 'errors.usdtWalletorfrozen');
     }
 
     try {
-      // 1. Deduct the futures amount from USDT trade wallet
+      // 1. Deduct the futures amount from USDT wallet
       const updatedWallet = await walletModel.findOneAndUpdate(
         {
           _id: usdtWallet._id,
           tenant: currentTenant.id,
           amount: { $gte: data.futuresAmount },
-          accountType: 'trade',
-          status: 'available'  // Ensure wallet is not frozen before updating
+          accountType: 'trade'
         },
         {
           $inc: { amount: -data.futuresAmount },
@@ -65,7 +63,7 @@ static async create(data, options: IRepositoryOptions) {
       );
 
       if (!updatedWallet) {
-        throw new Error400(options.language,'errors.insufficientorfrozen');
+        throw new Error400(options.database,'errors.insufficientusdtWallet');
       }
 
       const openPositionTime = data.openPositionTime

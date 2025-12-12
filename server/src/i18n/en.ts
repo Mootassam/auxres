@@ -85,8 +85,8 @@ const en = {
     futuresAlreadyFinalized: "This futures entry is already finalized and cannot be changed.",
     usdtWalletNotFound: "USDT wallet not found",
     usdtWalletFrozen: "USDT trade wallet is frozen",
-            insufficientusdtWallet: "Insufficient USDT balance in trade wallet",
-
+    insufficientusdtWallet: "Insufficient USDT balance in trade wallet",
+ usdtWalletorfrozen:"Insufficient funds in wallet after validation or wallet is frozen",
     usdtWalletNotFoundForUser: "USDT wallet not found for user {{userId}}",
     closingPriceExceedLimit: "Closing price cannot exceed $100",
     profitAmountInvalid: "Profit amount is zero or invalid.",
