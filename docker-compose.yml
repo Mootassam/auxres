@@ -22,9 +22,6 @@ services:
     restart: unless-stopped
     volumes:
       - phone:/data/db
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: examplepassword
 
   web:
     build: ./admin
