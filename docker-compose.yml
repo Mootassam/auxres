@@ -8,8 +8,10 @@ services:
       - upload:/upload
     environment:
       DATABASE_CONNECTION: mongodb://db:27017/grap
+      REDIS_HOST: redis 
     depends_on:
       - db
+      - redis
 
   db:
     image: mongo:4.0-xenial
@@ -42,6 +44,9 @@ services:
     stdin_open: true
     environment:
       - CHOKIDAR_USEPOLLING=true
+      
+  redis:
+    image: 'redis:latest'
 
 volumes:
   phone:

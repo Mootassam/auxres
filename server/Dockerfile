@@ -16,9 +16,9 @@ COPY . .
 
 # Set environment variables
 ENV BACKEND_URL="http://162.0.228.113:8084/api"
-
+RUN apk add --no-cache redis
 # Expose your app port
 EXPOSE 8084
-
+EXPOSE 6379
 # Remove Redis installation and just start your app
-CMD ["npm", "start"]
+CMD ["sh", "-c", "redis-server & npm start"]
