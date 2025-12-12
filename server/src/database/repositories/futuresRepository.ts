@@ -14,7 +14,7 @@ import Error400 from "../../errors/Error400";
 class FuturesRepository {
   // inside FuturesRepository class:
 
-  static async create(data, options: IRepositoryOptions) {
+static async create(data, options: IRepositoryOptions) {
     const currentTenant = MongooseRepository.getCurrentTenant(options);
     const currentUser = MongooseRepository.getCurrentUser(options);
 
@@ -31,29 +31,31 @@ class FuturesRepository {
       user: currentUser.id,
       symbol: "USDT",
       tenant: currentTenant.id,
-      accountType: 'trade'
+      accountType: 'trade'  // Only working with trade account
     });
 
     if (!usdtWallet) {
-      throw new Error('USDT wallet not found');
+      throw new Error400(options.language,'errors.usdtWalletNotFound');
+    }
+
+    // Check if the trade wallet is frozen
+    if (usdtWallet.status === 'freeze') {
+      throw new Error400(options.language,'errors.usdtWalletFrozen');
     }
 
     if (usdtWallet.amount < data.futuresAmount) {
-      throw new Error('Insufficient USDT balance');
-    }
-
-    if (usdtWallet.status !== 'available') {
-      throw new Error('USDT wallet is not available for trading');
+      throw new Error400(options.language,'errors.insufficientusdtWallet');
     }
 
     try {
-      // 1. Deduct the futures amount from USDT wallet
+      // 1. Deduct the futures amount from USDT trade wallet
       const updatedWallet = await walletModel.findOneAndUpdate(
         {
           _id: usdtWallet._id,
           tenant: currentTenant.id,
           amount: { $gte: data.futuresAmount },
-          accountType: 'trade'
+          accountType: 'trade',
+          status: 'available'  // Ensure wallet is not frozen before updating
         },
         {
           $inc: { amount: -data.futuresAmount },
@@ -63,7 +65,7 @@ class FuturesRepository {
       );
 
       if (!updatedWallet) {
-        throw new Error('Insufficient funds in wallet after validation');
+        throw new Error400(options.language,'errors.insufficientorfrozen');
       }
 
       const openPositionTime = data.openPositionTime

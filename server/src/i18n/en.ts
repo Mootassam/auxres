@@ -73,10 +73,20 @@ const en = {
   },
 
   errors: {
-    walletNotFound: "Wakket bit found for this asset",
+      frozenDuringExecution: "Cannot execute {{operation}}. Your {{currency}} perpetual wallet is currently frozen. Please contact customer support.",
+      insufficientorfrozen:"Insufficient funds in wallet after validation or wallet is frozen",
+    notFounds: `{{currency}} wallet not found. Please contact support.`,
+    frozen: "Your {{currency}} wallet is currently frozen. Please contact customer support to unfreeze your account.",
+    frozenWithFunds: "Your {{currency}} wallet is frozen. You have {{frozenAmount}} {{currency}} frozen and {{availableAmount}} {{currency}} available. Please contact customer support to unfreeze your account.",
+    insufficientBalance: "Insufficient {{currency}} balance. Requested: {{requested}}, Available: {{available}}.",
+    insufficientWithFrozen: "Insufficient available {{currency}} balance. Requested: {{requested}}, Available: {{available}}, Frozen: {{frozen}}, Total: {{total}}. Please contact support to unfreeze your funds.",
+    walletNotFound: "wallet bit found for this asset",
     withdrawinsufficientBalance: "Insufficient balance for this withdrawal.",
     futuresAlreadyFinalized: "This futures entry is already finalized and cannot be changed.",
     usdtWalletNotFound: "USDT wallet not found",
+    usdtWalletFrozen: "USDT trade wallet is frozen",
+            insufficientusdtWallet: "Insufficient USDT balance in trade wallet",
+
     usdtWalletNotFoundForUser: "USDT wallet not found for user {{userId}}",
     closingPriceExceedLimit: "Closing price cannot exceed $100",
     profitAmountInvalid: "Profit amount is zero or invalid.",

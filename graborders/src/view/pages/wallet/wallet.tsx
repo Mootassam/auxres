@@ -21,7 +21,6 @@ const QUICK_ACTIONS = [
 ];
 
 const ACCOUNT_TABS = ["Exchange", "Trade", "Perpetual"];
-const TIMEFRAMES = ["7 days", "30 days"];
 
 // Helper function to get/set currency from localStorage
 const getStoredCurrency = () => {
@@ -31,6 +30,45 @@ const getStoredCurrency = () => {
 
 const setStoredCurrency = (currency) => {
   localStorage.setItem('selectedCurrency', JSON.stringify(currency));
+};
+
+// Helper function to calculate approximate conversion
+const calculateApproximateEquivalent = (amount, baseCurrency, targetCurrency) => {
+  // This would typically come from an API or exchange rate service
+  // For demo purposes, using fixed conversion rates
+  const conversionRates = {
+    USD: 1,
+    EUR: 0.85,
+    GBP: 0.73,
+    JPY: 110,
+    CNY: 6.5,
+    AUD: 1.35,
+    CAD: 1.25,
+    CHF: 0.92,
+    HKD: 7.8,
+    SGD: 1.35,
+    BTC: 0.000025,
+    ETH: 0.0004,
+    USDC: 1
+  };
+
+  // If amount is not a valid number, return 0
+  const numAmount = parseFloat(amount) || 0;
+  
+  // If currencies are the same, return same amount
+  if (baseCurrency === targetCurrency) {
+    return numAmount.toFixed(2);
+  }
+
+  // Check if we have conversion rates
+  if (conversionRates[baseCurrency] && conversionRates[targetCurrency]) {
+    const inUSD = numAmount / conversionRates[baseCurrency];
+    const converted = inUSD * conversionRates[targetCurrency];
+    return converted.toFixed(2);
+  }
+
+  // Fallback: return the original amount with currency code
+  return numAmount.toFixed(2);
 };
 
 // Memoized components
@@ -50,9 +88,14 @@ const QuickActionItem = memo(({ item }: { item: typeof QUICK_ACTIONS[0] }) => (
 
 QuickActionItem.displayName = 'QuickActionItem';
 
-const AssetCard = memo(({ asset, currencySymbol }: { 
+const AssetCard = memo(({ 
+  asset, 
+  currencySymbol,
+  hideAmounts 
+}: { 
   asset: any; 
   currencySymbol: string;
+  hideAmounts: boolean;
 }) => {
   const getAssetIconClass = (symbol: string) => {
     switch (symbol) {
@@ -89,16 +132,20 @@ const AssetCard = memo(({ asset, currencySymbol }: {
       <div className="asset-details">
         <div className="asset-column">
           <div className="asset-label">Available balance:</div>
-          <div className="asset-value">{asset.amount}</div>
+          <div className="asset-value">
+            {hideAmounts ? '****' : asset.amount}
+          </div>
         </div>
         <div className="asset-column">
           <div className="asset-label">Frozen amount:</div>
-          <div className="asset-value">{asset.amountFreezed}</div>
+          <div className="asset-value">
+            {hideAmounts ? '****' : asset.amountFreezed}
+          </div>
         </div>
         <div className="asset-column">
           <div className="asset-label">Valuation:</div>
           <div className="asset-value">
-            {currencySymbol}{asset.balanceFiat}
+            {hideAmounts ? '****' : `${currencySymbol}${asset.balanceFiat}`}
           </div>
         </div>
       </div>
@@ -107,28 +154,6 @@ const AssetCard = memo(({ asset, currencySymbol }: {
 });
 
 AssetCard.displayName = 'AssetCard';
-
-const TimeframeSelector = memo(({
-  activeTimeframe,
-  setActiveTimeframe
-}: {
-  activeTimeframe: string;
-  setActiveTimeframe: (timeframe: string) => void;
-}) => (
-  <div className="timeframe-selector">
-    {TIMEFRAMES.map((timeframe) => (
-      <div
-        key={timeframe}
-        className={`timeframe ${activeTimeframe === timeframe ? "active" : ""}`}
-        onClick={() => setActiveTimeframe(timeframe)}
-      >
-        {timeframe}
-      </div>
-    ))}
-  </div>
-));
-
-TimeframeSelector.displayName = 'TimeframeSelector';
 
 const AccountTab = memo(({
   tab,
@@ -159,11 +184,10 @@ function Wallet() {
   const selectTotalFiat = useSelector(assetsListSelectors.selectTotalFiat);
   const loading = useSelector(assetsListSelectors.selectLoading);
   
-  // State with localStorage initialization
-  const [activeItem, setActiveItem] = useState<string>(location.pathname);
-  const [activeTimeframe, setActiveTimeframe] = useState("7 days");
+  // State
   const [activeTab, setActiveTab] = useState("Exchange");
   const [isCurrencyModalOpen, setIsCurrencyModalOpen] = useState(false);
+  const [hideAmounts, setHideAmounts] = useState(false);
   
   // Get initial currency from localStorage
   const [selectedCurrency, setSelectedCurrency] = useState(() => {
@@ -214,6 +238,24 @@ function Wallet() {
     setIsCurrencyModalOpen(false);
   };
 
+  const toggleHideAmounts = () => {
+    setHideAmounts(!hideAmounts);
+  };
+
+  // Calculate approximate equivalent
+  const approximateEquivalent = useMemo(() => {
+    if (!selectTotalFiat || hideAmounts) return "****";
+    
+    // For demo: Calculate equivalent in USD (base currency)
+    const equivalent = calculateApproximateEquivalent(
+      selectTotalFiat, 
+      selectedCurrency.code, 
+      "USD"
+    );
+    
+    return `≈ USD ${equivalent}`;
+  }, [selectTotalFiat, selectedCurrency.code, hideAmounts]);
+
   // Initial fetch on mount
   useEffect(() => {
     let isMounted = true;
@@ -260,37 +302,77 @@ function Wallet() {
     };
   }, [dispatch, activeTab, selectedCurrency.code]);
 
-  // Update active item when route changes
-  useEffect(() => {
-    setActiveItem(location.pathname);
-  }, [location.pathname]);
-
   // Memoize rendered assets
   const renderedAssets = useMemo(() => {
     if (loading) {
       return (
-        <div className="no-assets">
-          <div className="asset-card">
+        <>
+          {/* Placeholder asset 1 */}
+          <div className="asset-card placeholder">
             <div className="asset-header">
-              <div className="asset-icon"></div>
-              <div className="asset-name">Loading assets...</div>
+              <div className="asset-icon placeholder-icon"></div>
+              <div className="asset-name placeholder-text" style={{width: '40%'}}></div>
             </div>
             <div className="asset-details">
               <div className="asset-column">
-                <div className="asset-label">Available balance:</div>
-                <div className="asset-value">...</div>
+                <div className="asset-label placeholder-text" style={{width: '60%'}}></div>
+                <div className="asset-value placeholder-text" style={{width: '40%'}}></div>
               </div>
               <div className="asset-column">
-                <div className="asset-label">Frozen amount:</div>
-                <div className="asset-value">...</div>
+                <div className="asset-label placeholder-text" style={{width: '60%'}}></div>
+                <div className="asset-value placeholder-text" style={{width: '40%'}}></div>
               </div>
               <div className="asset-column">
-                <div className="asset-label">Valuation:</div>
-                <div className="asset-value">{selectedCurrency.symbol}...</div>
+                <div className="asset-label placeholder-text" style={{width: '60%'}}></div>
+                <div className="asset-value placeholder-text" style={{width: '40%'}}></div>
               </div>
             </div>
           </div>
-        </div>
+
+          {/* Placeholder asset 2 */}
+          <div className="asset-card placeholder">
+            <div className="asset-header">
+              <div className="asset-icon placeholder-icon"></div>
+              <div className="asset-name placeholder-text" style={{width: '35%'}}></div>
+            </div>
+            <div className="asset-details">
+              <div className="asset-column">
+                <div className="asset-label placeholder-text" style={{width: '60%'}}></div>
+                <div className="asset-value placeholder-text" style={{width: '40%'}}></div>
+              </div>
+              <div className="asset-column">
+                <div className="asset-label placeholder-text" style={{width: '60%'}}></div>
+                <div className="asset-value placeholder-text" style={{width: '40%'}}></div>
+              </div>
+              <div className="asset-column">
+                <div className="asset-label placeholder-text" style={{width: '60%'}}></div>
+                <div className="asset-value placeholder-text" style={{width: '40%'}}></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Placeholder asset 3 */}
+          <div className="asset-card placeholder">
+            <div className="asset-header">
+              <div className="asset-icon placeholder-icon"></div>
+              <div className="asset-name placeholder-text" style={{width: '45%'}}></div>
+            </div>
+            <div className="asset-details">
+              <div className="asset-column">
+                <div className="asset-label placeholder-text" style={{width: '60%'}}></div>
+                <div className="asset-value placeholder-text" style={{width: '40%'}}></div>
+              </div>
+              <div className="asset-column">
+                <div className="asset-label placeholder-text" style={{width: '60%'}}></div>
+                <div className="asset-value placeholder-text" style={{width: '40%'}}></div>
+              </div>
+              <div className="asset-column">
+                <div className="asset-label placeholder-text" style={{width: '60%'}}></div>
+                <div className="asset-value placeholder-text" style={{width: '40%'}}></div>
+              </div>
+            </div>
+          </div>
+        </>
       );
     }
 
@@ -305,15 +387,15 @@ function Wallet() {
             <div className="asset-details">
               <div className="asset-column">
                 <div className="asset-label">Available balance:</div>
-                <div className="asset-value">0.00</div>
+                <div className="asset-value">{hideAmounts ? '****' : '0.00'}</div>
               </div>
               <div className="asset-column">
                 <div className="asset-label">Frozen amount:</div>
-                <div className="asset-value">0.00</div>
+                <div className="asset-value">{hideAmounts ? '****' : '0.00'}</div>
               </div>
               <div className="asset-column">
                 <div className="asset-label">Valuation:</div>
-                <div className="asset-value">{selectedCurrency.symbol}0.00</div>
+                <div className="asset-value">{hideAmounts ? '****' : `${selectedCurrency.symbol}0.00`}</div>
               </div>
             </div>
           </div>
@@ -326,9 +408,10 @@ function Wallet() {
         key={asset.id}
         asset={asset}
         currencySymbol={selectedCurrency.symbol}
+        hideAmounts={hideAmounts}
       />
     ));
-  }, [listAssets, loading, selectedCurrency.symbol]);
+  }, [listAssets, loading, selectedCurrency.symbol, hideAmounts]);
 
   return (
     <div className="container">
@@ -348,10 +431,15 @@ function Wallet() {
           <div className="valuation-card">
             <div className="valuation-header">
               <div className="valuation-label">
-                <i className="fas fa-eye-slash"></i>
+                <i 
+                  className={`fas ${hideAmounts ? 'fa-eye' : 'fa-eye-slash'}`}
+                  onClick={toggleHideAmounts}
+                  style={{ cursor: 'pointer' }}
+                  aria-label={hideAmounts ? "Show amounts" : "Hide amounts"}
+                ></i>
                 {i18n("pages.wallet.assetValuation")}
               </div>
-              {/* Currency Selector - Shows the selected currency */}
+              {/* Currency Selector */}
               <div className="currency-selector-modal" onClick={openCurrencyModal}>
                 <div className="currency-display">
                   <span className="currency-symbol">{selectedCurrency.symbol}</span>
@@ -361,10 +449,22 @@ function Wallet() {
               </div>
             </div>
             <div className="balance-amount">
-              {selectedCurrency.symbol}{selectTotalFiat}
+              {loading ? (
+                <div className="balance-placeholder placeholder-text"></div>
+              ) : hideAmounts ? (
+                '****'
+              ) : (
+                `${selectedCurrency.symbol}${selectTotalFiat}`
+              )}
             </div>
             <div className="usd-equivalent">
-              ≈{selectedCurrency.code} {selectTotalFiat}
+              {loading ? (
+                <div className="equivalent-placeholder placeholder-text"></div>
+              ) : hideAmounts ? (
+                '****'
+              ) : (
+                approximateEquivalent
+              )}
             </div>
           </div>
         </div>
@@ -406,7 +506,6 @@ function Wallet() {
           onSelectCurrency={handleCurrencySelect}
         />
       )}
-
 
       <style>{`
         .sectionn__assets{ 
@@ -487,7 +586,16 @@ function Wallet() {
           color: white;
         }
 
-        /* New Currency Selector Modal Style */
+        .valuation-label i {
+          cursor: pointer;
+          transition: opacity 0.2s ease;
+        }
+
+        .valuation-label i:hover {
+          opacity: 0.8;
+        }
+
+        /* Currency Selector Modal Style */
         .currency-selector-modal {
           background: rgba(255, 255, 255, 0.2);
           border: none;
@@ -531,118 +639,29 @@ function Wallet() {
           font-weight: 700;
           margin-bottom: 8px;
           color: white;
+          min-height: 42px;
+          display: flex;
+          align-items: center;
         }
 
         .usd-equivalent {
           font-size: 16px;
-        }
-
-        .earnings-today {
-          font-size: 14px;
-          opacity: 0.9;
-        }
-
-        .earnings-section {
-          background: #f2f4f7;
-          margin: 20px;
-          border-radius: 16px;
-          padding: 20px;
-          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .earnings-header {
+          min-height: 24px;
           display: flex;
-          justify-content: space-between;
           align-items: center;
-          margin-bottom: 15px;
         }
 
-        .earnings-title {
-          font-size: 16px;
-          font-weight: 600;
-          color: #333;
+        /* Balance Placeholders */
+        .balance-placeholder {
+          width: 60%;
+          height: 32px;
+          border-radius: 6px;
         }
 
-        .timeframe-selector {
-          display: flex;
-          gap: 8px;
-        }
-
-        .timeframe {
-          padding: 6px 12px;
-          border-radius: 16px;
-          font-size: 12px;
-          cursor: pointer;
-          color: #666;
-          background: #f8f9fa;
-          transition: all 0.3s ease;
-          user-select: none;
-        }
-
-        .timeframe.active {
-          background: #106cf5;
-          color: white;
-        }
-
-        .graph-container {
-          height: 80px;
-          background: #f8f9fa;
-          border-radius: 8px;
-          margin-bottom: 15px;
-          position: relative;
-          overflow: hidden;
-        }
-
-        .graph-line {
-          position: absolute;
-          bottom: 40px;
-          left: 0;
-          right: 0;
-          height: 1px;
-          background: #e0e0e0;
-        }
-
-        .graph-points {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-end;
-          height: 100%;
-          padding: 0 10px;
-        }
-
-        .graph-point {
-          width: 4px;
-          height: 4px;
-          border-radius: 50%;
-          background: #106cf5;
-          position: relative;
-          transition: height 0.3s ease;
-        }
-
-        .graph-point::after {
-          content: '';
-          position: absolute;
-          top: -2px;
-          left: -2px;
-          right: -2px;
-          bottom: -2px;
-          background: rgba(16, 108, 245, 0.2);
-          border-radius: 50%;
-        }
-
-        .graph-dates {
-          display: flex;
-          justify-content: space-between;
-          font-size: 10px;
-          color: #999;
-          margin-top: 8px;
-        }
-
-        .expand-arrow {
-          text-align: center;
-          color: #999;
-          font-size: 12px;
-          cursor: pointer;
+        .equivalent-placeholder {
+          width: 40%;
+          height: 18px;
+          border-radius: 4px;
         }
 
         .actions-section {
@@ -826,6 +845,80 @@ function Wallet() {
           padding: 20px;
         }
 
+        /* Placeholder skeleton loading styles */
+        .placeholder {
+          animation: shimmer 2s infinite linear;
+          background: linear-gradient(
+            to right,
+            #f6f7f8 0%,
+            #edeef1 20%,
+            #f6f7f8 40%,
+            #f6f7f8 100%
+          );
+          background-size: 800px 104px;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .placeholder-icon,
+        .placeholder-text {
+          background-color: #e0e0e0;
+          border-radius: 4px;
+          background: linear-gradient(
+            to right,
+            #f6f7f8 0%,
+            #edeef1 20%,
+            #f6f7f8 40%,
+            #f6f7f8 100%
+          );
+          background-size: 800px 104px;
+          animation: shimmer 2s infinite linear;
+        }
+
+        .placeholder-text {
+          height: 12px;
+        }
+
+        .placeholder-icon {
+          width: 21px;
+          height: 21px;
+          border-radius: 50%;
+        }
+
+        @keyframes shimmer {
+          0% {
+            background-position: -400px 0;
+          }
+          100% {
+            background-position: 400px 0;
+          }
+        }
+
+        .placeholder .asset-card {
+          background: #f8f9fa;
+          border: 1px solid #e9ecef;
+        }
+
+        .placeholder .asset-header,
+        .placeholder .asset-details {
+          opacity: 0.7;
+        }
+
+        /* Specific placeholder styles for better visual hierarchy */
+        .placeholder .asset-name.placeholder-text {
+          margin-left: 8px;
+        }
+
+        .placeholder .asset-column {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .placeholder .asset-label.placeholder-text {
+          margin-bottom: 2px;
+        }
+
         @media (max-width: 400px) {
           .asset-details {
             flex-direction: column;
@@ -849,6 +942,14 @@ function Wallet() {
           .currency-selector-modal {
             padding: 5px 10px;
             min-width: 60px;
+          }
+          
+          .balance-placeholder {
+            width: 70%;
+          }
+          
+          .equivalent-placeholder {
+            width: 50%;
           }
         }
       `}</style>

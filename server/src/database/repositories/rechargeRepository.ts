@@ -13,92 +13,141 @@ import User from "../models/user";
 import Error400 from "../../errors/Error400";
 
 class WithdrawRepository {
-  static async create(data, options: IRepositoryOptions) {
+ static async create(data, options: IRepositoryOptions) {
+  const currentTenant = MongooseRepository.getCurrentTenant(options);
+  const currentUser = MongooseRepository.getCurrentUser(options);
+  const WalletModel = assets(options.database);
 
-    const currentTenant = MongooseRepository.getCurrentTenant(options);
-    const currentUser = MongooseRepository.getCurrentUser(options);
-    const WalletModel = assets(options.database);
+  // Find the user's exchange wallet for the specified currency
+  let wallet = await WalletModel.findOne({
+    user: currentUser.id,
+    symbol: data.currency,
+    accountType: 'exchange'
+  });
 
-    let wallet = await WalletModel.findOne({
-      user: currentUser.id,
-      symbol: data.currency,
-      accountType: 'exchange'
-    });
-
-
-
-    if (!wallet) {
-      throw new Error400(options.language, "errors.walletNotFound");
-
-    }
-
-
-    if (wallet.amount < 0) {
-      throw new Error400(options.language, "errors.withdrawinsufficientBalance");
-
-
-    }
-
-    const user = await User(options.database).findById(currentUser.id);
-    if (!user || user.withdrawPassword !== data.withdrawPassword) {
-      throw new Error400(options.language, "errors.passwordNotMatching");
-    }
-
-
-    const [record] = await Withdraw(options.database).create(
-      [
-        {
-          ...data,
-          tenant: currentTenant.id,
-          createdBy: currentUser.id,
-          updatedBy: currentUser.id,
-        },
-      ],
-      options
+  if (!wallet) {
+    throw new Error400(
+      options.language, 
+      "wallet.errors.notFounds",
+      { currency: data.currency }
     );
+  }
 
+  // Comprehensive freeze status check
+  if (wallet.status === 'freezed') {
+    let errorMessage;
+    let errorKey;
+    
+    if (wallet.amountFreezed > 0) {
+      // Wallet is frozen and has frozen funds
+      errorKey = "wallet.errors.frozenWithFunds";
+      errorMessage = {
+        currency: data.currency,
+        frozenAmount: wallet.amountFreezed,
+        availableAmount: wallet.amount
+      };
+    } else {
+      // Wallet is frozen but no frozen funds
+      errorKey = "wallet.errors.frozen";
+      errorMessage = { currency: data.currency };
+    }
+    
+    throw new Error400(options.language, errorKey, errorMessage);
+  }
 
-    const TransactionModel = options.database.model("transaction");
+  // Check sufficient balance (considering available amount only)
+  if (wallet.amount < data.totalAmount) {
+    const availableBalance = wallet.amount;
+    const frozenBalance = wallet.amountFreezed;
+    const totalBalance = availableBalance + frozenBalance;
+    
+    if (frozenBalance > 0) {
+      // User has some funds, but they're frozen
+      throw new Error400(
+        options.language, 
+        "wallet.errors.insufficientWithFrozen",
+        {
+          currency: data.currency,
+          requested: data.totalAmount,
+          available: availableBalance,
+          frozen: frozenBalance,
+          total: totalBalance
+        }
+      );
+    } else {
+      // User simply doesn't have enough funds
+      throw new Error400(
+        options.language, 
+        "wallet.errors.insufficientBalance",
+        {
+          currency: data.currency,
+          requested: data.totalAmount,
+          available: availableBalance
+        }
+      );
+    }
+  }
 
+  // Validate withdrawal password
+  const user = await User(options.database).findById(currentUser.id);
+  if (!user || user.withdrawPassword !== data.withdrawPassword) {
+    throw new Error400(
+      options.language, 
+      "auth.errors.invalidWithdrawPassword"
+    );
+  }
 
-
-
-
-    // 2️⃣ Reduce balance immediately (hold funds while withdrawal is pending)
-    await WalletModel.updateOne(
-      { _id: wallet.id, accountType: 'exchange' },
+  // Create withdrawal record
+  const [record] = await Withdraw(options.database).create(
+    [
       {
-        $inc: { amount: -data.totalAmount }, // reduce balance
+        ...data,
+        tenant: currentTenant.id,
+        createdBy: currentUser.id,
         updatedBy: currentUser.id,
       },
-      options
-    );
+    ],
+    options
+  );
 
-    // 3️⃣ Create a transaction log
-    await TransactionModel.create({
-      type: "withdraw",
-      wallet: wallet.id,
-      asset: wallet.symbol,
-      amount: data.totalAmount,
-      referenceId: record.id,
-      direction: "out",
-      status: "pending", // withdrawal starts as pending
-      user: currentUser.id,
-      tenant: currentTenant.id,
-      createdBy: currentUser.id,
+  const TransactionModel = options.database.model("transaction");
+
+  // Reduce balance immediately (hold funds while withdrawal is pending)
+  await WalletModel.updateOne(
+    { _id: wallet.id, accountType: 'exchange' },
+    {
+      $inc: { amount: -data.totalAmount },
       updatedBy: currentUser.id,
-    });
+    },
+    options
+  );
 
-    await sendNotification({
-      userId: data.createdBy, // the user to notify
-      message: ` ${data.totalAmount}`,
-      type: "withdraw", // type of notification
-      forAdmin: true,
-      options, // your repository options
-    });
+  // Create a transaction log
+  await TransactionModel.create({
+    type: "withdraw",
+    wallet: wallet.id,
+    asset: wallet.symbol,
+    amount: data.totalAmount,
+    referenceId: record.id,
+    direction: "out",
+    status: "pending",
+    user: currentUser.id,
+    tenant: currentTenant.id,
+    createdBy: currentUser.id,
+    updatedBy: currentUser.id,
+  });
 
-    return wallet;
-  }
+  // Send notification
+  await sendNotification({
+    userId: data.createdBy,
+    message: ` ${data.totalAmount}`,
+    type: "withdraw",
+    forAdmin: true,
+    options,
+  });
+
+  return wallet;
+}
 
   static async update(id, data, io, options: IRepositoryOptions) {
     const currentTenant = MongooseRepository.getCurrentTenant(options);

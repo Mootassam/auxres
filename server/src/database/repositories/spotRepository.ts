@@ -7,310 +7,481 @@ import FileRepository from "./fileRepository";
 import Spot from "../models/spot";
 import Transaction from "../models/transaction";
 import Wallet from "../models/wallet";
+import Error400 from "../../errors/Error400";
 
 class SpotRepository {
   static async create(data, options: IRepositoryOptions) {
-    console.log("🚀 ~ SpotRepository ~ create ~ data:", data)
-    const currentTenant = MongooseRepository.getCurrentTenant(options);
-    const currentUser = MongooseRepository.getCurrentUser(options);
+  const currentTenant = MongooseRepository.getCurrentTenant(options);
+  const currentUser = MongooseRepository.getCurrentUser(options);
 
-    try {
-      // Get the trading pair and extract base/quote currencies
-      const [baseCurrency, quoteCurrency] = data.tradingPair.split('/');
-      let targetWallet;
-      let sourceWallet;
+  try {
+    // Get the trading pair and extract base/quote currencies
+    const [baseCurrency, quoteCurrency] = data.tradingPair.split('/');
+    let targetWallet;
+    let sourceWallet;
 
-      if (data.direction === "BUY") {
-        // BUY LOGIC: Convert quote currency to base currency
+    if (data.direction === "BUY") {
+      // BUY LOGIC: Convert quote currency to base currency
 
-        // 1. Find or create the target wallet (base currency)
-        targetWallet = await Wallet(options.database).findOne({
+      // 1. Find or create the target wallet (base currency)
+      targetWallet = await Wallet(options.database).findOne({
+        user: currentUser.id,
+        symbol: baseCurrency,
+        tenant: currentTenant.id,
+        accountType: 'perpetual'
+      });
+
+      if (!targetWallet) {
+        // Create new wallet for the base currency
+        [targetWallet] = await Wallet(options.database).create([{
           user: currentUser.id,
           symbol: baseCurrency,
+          coinName: baseCurrency,
+          amount: 0,
+          status: "active", // New wallets are active by default
           tenant: currentTenant.id,
-          accountType: 'perpetual'
-        });
-
-        if (!targetWallet) {
-          // Create new wallet for the base currency
-          [targetWallet] = await Wallet(options.database).create([{
-            user: currentUser.id,
-            symbol: baseCurrency,
-            coinName: baseCurrency,
-            amount: 0,
-            status: "available",
-            tenant: currentTenant.id,
-            createdBy: currentUser.id,
-            updatedBy: currentUser.id
-          }]);
-        }
-
-        // 2. Find the source wallet (quote currency - usually USDT)
-        sourceWallet = await Wallet(options.database).findOne({
-          user: currentUser.id,
-          symbol: quoteCurrency,
-          tenant: currentTenant.id,
-          accountType: 'perpetual'
-        });
-
-        if (!sourceWallet) {
-          throw new Error(`Wallet for ${quoteCurrency} not found. Please deposit ${quoteCurrency} first.`);
-        }
-
-        // 3. Check if source wallet has sufficient balance
-        const requiredAmount = data.entrustedValue || data.orderQuantity * data.commissionPrice;
-
-        if (sourceWallet.amount < requiredAmount) {
-          throw new Error(`Insufficient ${quoteCurrency} balance. Available: ${sourceWallet.amount}, Required: ${requiredAmount}`);
-        }
-
-        // 4. Execute the trade based on order type
-        if (data.delegateType === "MARKET") {
-          // MARKET ORDER: Immediate execution
-          // Deduct from source wallet (quote currency)
-          sourceWallet.amount -= requiredAmount;
-          await sourceWallet.save();
-
-          // Add to target wallet (base currency)
-          const receivedAmount = data.orderQuantity;
-          targetWallet.amount += receivedAmount;
-          await targetWallet.save();
-
-          // Update order status to completed for market orders
-          data.status = "completed";
-          data.transactionQuantity = receivedAmount;
-          data.transactionValue = requiredAmount;
-          data.closingPrice = data.commissionPrice;
-          data.closingTime = new Date();
-
-        } else if (data.delegateType === "LIMIT") {
-          // LIMIT ORDER: Reserve funds (deduct from available balance)
-          sourceWallet.amount -= requiredAmount;
-          await sourceWallet.save();
-
-          // Create reservation transaction
-          await Transaction(options.database).create([{
-            type: "order_reserved",
-            wallet: sourceWallet._id,
-            asset: quoteCurrency,
-            amount: requiredAmount,
-            status: "completed",
-            direction: "out",
-            user: currentUser.id,
-            tenant: currentTenant.id,
-            dateTransaction: new Date(),
-            createdBy: currentUser.id,
-            updatedBy: currentUser.id,
-            referenceId: null // Will be updated after order creation
-          }], options);
-
-          // Order remains pending
-          data.status = "pending";
-        }
-
-      } else if (data.direction === "SELL") {
-        // SELL LOGIC: Convert base currency to quote currency
-
-        // 1. Find the source wallet (base currency)
-        sourceWallet = await Wallet(options.database).findOne({
-          user: currentUser.id,
-          symbol: baseCurrency,
-          tenant: currentTenant.id,
-          accountType: 'perpetual'
-        });
-
-        if (!sourceWallet) {
-          throw new Error(`Wallet for ${baseCurrency} not found. Please deposit ${baseCurrency} first.`);
-        }
-
-        // 2. Check if source wallet has sufficient balance
-        if (sourceWallet.amount < data.orderQuantity) {
-          throw new Error(`Insufficient ${baseCurrency} balance. Available: ${sourceWallet.amount}, Required: ${data.orderQuantity}`);
-        }
-
-        // 3. Find or create target wallet (quote currency)
-        targetWallet = await Wallet(options.database).findOne({
-          user: currentUser.id,
-          symbol: quoteCurrency,
-          tenant: currentTenant.id,
-          accountType: 'perpetual'
-        });
-
-        if (!targetWallet) {
-          [targetWallet] = await Wallet(options.database).create([{
-            user: currentUser.id,
-            symbol: quoteCurrency,
-            coinName: quoteCurrency,
-            amount: 0,
-            status: "available",
-            tenant: currentTenant.id,
-            createdBy: currentUser.id,
-            updatedBy: currentUser.id
-          }]);
-        }
-
-        // 4. Execute the trade based on order type
-        if (data.delegateType === "MARKET") {
-          // MARKET ORDER: Immediate execution
-          // Deduct from source wallet (base currency)
-          sourceWallet.amount -= data.orderQuantity;
-          await sourceWallet.save();
-
-          // Add to target wallet (quote currency)
-          const receivedAmount = data.entrustedValue || data.orderQuantity * data.commissionPrice;
-          targetWallet.amount += receivedAmount;
-          await targetWallet.save();
-
-          // Update order status to completed for market orders
-          data.status = "completed";
-          data.transactionQuantity = data.orderQuantity;
-          data.transactionValue = receivedAmount;
-          data.closingPrice = data.commissionPrice;
-          data.closingTime = new Date();
-
-        } else if (data.delegateType === "LIMIT") {
-          // LIMIT ORDER: Reserve funds (deduct from available balance)
-          sourceWallet.amount -= data.orderQuantity;
-          await sourceWallet.save();
-
-          // Create reservation transaction
-          await Transaction(options.database).create([{
-            type: "order_reserved",
-            wallet: sourceWallet._id,
-            asset: baseCurrency,
-            amount: data.orderQuantity,
-            status: "completed",
-            direction: "out",
-            user: currentUser.id,
-            tenant: currentTenant.id,
-            dateTransaction: new Date(),
-            createdBy: currentUser.id,
-            updatedBy: currentUser.id,
-            referenceId: null // Will be updated after order creation
-          }], options);
-
-          // Order remains pending
-          data.status = "pending";
+          createdBy: currentUser.id,
+          updatedBy: currentUser.id
+        }]);
+      } else {
+        // ✅ ADDED: Check if target wallet is frozen
+        if (targetWallet.status === 'freezed') {
+          throw new Error400(
+            options.language,
+            "errors.frozen",
+            { 
+              currency: baseCurrency,
+              walletType: "perpetual"
+            }
+          );
         }
       }
 
-      // Create the spot order record
-      const [record] = await Spot(options.database).create(
-        [{
-          ...data,
-          userAccount: currentUser.id,
-          tenant: currentTenant.id,
-          createdBy: currentUser.id,
-          updatedBy: currentUser.id,
-          commissionTime: new Date()
-        }],
-        options
-      );
+      // 2. Find the source wallet (quote currency - usually USDT)
+      sourceWallet = await Wallet(options.database).findOne({
+        user: currentUser.id,
+        symbol: quoteCurrency,
+        tenant: currentTenant.id,
+        accountType: 'perpetual'
+      });
 
-      // Update reservation transactions with order reference
-      if (data.delegateType === "LIMIT") {
-        await Transaction(options.database).updateOne(
-          {
-            user: currentUser.id,
-            tenant: currentTenant.id,
-            type: "order_reserved",
-            referenceId: null
-          },
-          { referenceId: record._id },
-          options
+      if (!sourceWallet) {
+        throw new Error400(
+          options.language,
+          "errors.notFounds",
+          { 
+            currency: quoteCurrency,
+            walletType: "perpetual"
+          }
         );
       }
 
-      // Create transaction records for completed MARKET trades
-      if (data.delegateType === "MARKET") {
-        const [baseCurrency, quoteCurrency] = data.tradingPair.split('/');
+      // ✅ ADDED: Check if source wallet is frozen
+      if (sourceWallet.status === 'freezed') {
+        throw new Error400(
+          options.language,
+          "errors.frozen",
+          { 
+            currency: quoteCurrency,
+            walletType: "perpetual"
+          }
+        );
+      }
 
-        if (data.direction === "BUY") {
-          // For BUY: Create spot transaction for the asset received
-          await Transaction(options.database).create([{
-            type: "spot_profit",
-            wallet: targetWallet._id,
-            asset: baseCurrency,
-            relatedAsset: quoteCurrency,
-            amount: data.orderQuantity,
-            status: "completed",
-            direction: "in",
-            user: currentUser.id,
-            tenant: currentTenant.id,
-            dateTransaction: new Date(),
-            createdBy: currentUser.id,
-            updatedBy: currentUser.id,
-            referenceId: record._id
-          }], options);
+      // 3. Check if source wallet has sufficient balance
+      const requiredAmount = data.entrustedValue || data.orderQuantity * data.commissionPrice;
 
-          // Also create transaction for the quote currency spent
-          await Transaction(options.database).create([{
-            type: "spot_loss",
-            wallet: sourceWallet._id,
-            asset: quoteCurrency,
-            relatedAsset: baseCurrency,
-            amount: data.entrustedValue || data.orderQuantity * data.commissionPrice,
-            status: "completed",
-            direction: "out",
-            user: currentUser.id,
-            tenant: currentTenant.id,
-            dateTransaction: new Date(),
-            createdBy: currentUser.id,
-            updatedBy: currentUser.id,
-            referenceId: record._id
-          }], options);
-
-        } else if (data.direction === "SELL") {
-          // For SELL: Create spot transaction for the asset sold
-          await Transaction(options.database).create([{
-            type: "spot_loss",
-            wallet: sourceWallet._id,
-            asset: baseCurrency,
-            relatedAsset: quoteCurrency,
-            amount: data.orderQuantity,
-            status: "completed",
-            direction: "out",
-            user: currentUser.id,
-            tenant: currentTenant.id,
-            dateTransaction: new Date(),
-            createdBy: currentUser.id,
-            updatedBy: currentUser.id,
-            referenceId: record._id
-          }], options);
-
-          // Also create transaction for the quote currency received
-          await Transaction(options.database).create([{
-            type: "spot_profit",
-            wallet: targetWallet._id,
-            asset: quoteCurrency,
-            relatedAsset: baseCurrency,
-            amount: data.entrustedValue || data.orderQuantity * data.commissionPrice,
-            status: "completed",
-            direction: "in",
-            user: currentUser.id,
-            tenant: currentTenant.id,
-            dateTransaction: new Date(),
-            createdBy: currentUser.id,
-            updatedBy: currentUser.id,
-            referenceId: record._id
-          }], options);
+      // ✅ ADDED: Check for available balance (not frozen balance)
+      if (sourceWallet.amount < requiredAmount) {
+        const availableBalance = sourceWallet.amount;
+        const frozenBalance = sourceWallet.amountFreezed;
+        const totalBalance = availableBalance + frozenBalance;
+        
+        if (frozenBalance > 0) {
+          throw new Error400(
+            options.language,
+            "errors.insufficientWithFrozen",
+            {
+              currency: quoteCurrency,
+              requested: requiredAmount,
+              available: availableBalance,
+              frozen: frozenBalance,
+              total: totalBalance,
+              walletType: "perpetual"
+            }
+          );
+        } else {
+          throw new Error400(
+            options.language,
+            "errors.insufficientBalance",
+            {
+              currency: quoteCurrency,
+              requested: requiredAmount,
+              available: availableBalance,
+              walletType: "perpetual"
+            }
+          );
         }
       }
 
-      // Create audit log
-      await this._createAuditLog(
-        AuditLogRepository.CREATE,
-        record.id,
-        data,
+      // 4. Execute the trade based on order type
+      if (data.delegateType === "MARKET") {
+        // MARKET ORDER: Immediate execution
+        // ✅ ADDED: Double-check wallet status before executing
+        if (sourceWallet.status === 'freezed') {
+          throw new Error400(
+            options.language,
+            "errors.frozenDuringExecution",
+            { 
+              currency: quoteCurrency,
+              walletType: "perpetual",
+              operation: "market buy"
+            }
+          );
+        }
+
+        // Deduct from source wallet (quote currency)
+        sourceWallet.amount -= requiredAmount;
+        await sourceWallet.save();
+
+        // Add to target wallet (base currency)
+        const receivedAmount = data.orderQuantity;
+        targetWallet.amount += receivedAmount;
+        await targetWallet.save();
+
+        // Update order status to completed for market orders
+        data.status = "completed";
+        data.transactionQuantity = receivedAmount;
+        data.transactionValue = requiredAmount;
+        data.closingPrice = data.commissionPrice;
+        data.closingTime = new Date();
+
+      } else if (data.delegateType === "LIMIT") {
+        // ✅ ADDED: Check if source wallet is frozen before reserving
+        if (sourceWallet.status === 'freezed') {
+          throw new Error400(
+            options.language,
+            "errors.frozenDuringExecution",
+            { 
+              currency: quoteCurrency,
+              walletType: "perpetual",
+              operation: "limit buy order placement"
+            }
+          );
+        }
+
+        // LIMIT ORDER: Reserve funds (deduct from available balance)
+        sourceWallet.amount -= requiredAmount;
+        await sourceWallet.save();
+
+        // Create reservation transaction
+        await Transaction(options.database).create([{
+          type: "order_reserved",
+          wallet: sourceWallet._id,
+          asset: quoteCurrency,
+          amount: requiredAmount,
+          status: "completed",
+          direction: "out",
+          user: currentUser.id,
+          tenant: currentTenant.id,
+          dateTransaction: new Date(),
+          createdBy: currentUser.id,
+          updatedBy: currentUser.id,
+          referenceId: null // Will be updated after order creation
+        }], options);
+
+        // Order remains pending
+        data.status = "pending";
+      }
+
+    } else if (data.direction === "SELL") {
+      // SELL LOGIC: Convert base currency to quote currency
+
+      // 1. Find the source wallet (base currency)
+      sourceWallet = await Wallet(options.database).findOne({
+        user: currentUser.id,
+        symbol: baseCurrency,
+        tenant: currentTenant.id,
+        accountType: 'perpetual'
+      });
+
+      if (!sourceWallet) {
+        throw new Error400(
+          options.language,
+          "errors.notFounds",
+          { 
+            currency: baseCurrency,
+            walletType: "perpetual"
+          }
+        );
+      }
+
+      // ✅ ADDED: Check if source wallet is frozen
+      if (sourceWallet.status === 'freezed') {
+        throw new Error400(
+          options.language,
+          "errors.frozen",
+          { 
+            currency: baseCurrency,
+            walletType: "perpetual"
+          }
+        );
+      }
+
+      // 2. Check if source wallet has sufficient balance
+      if (sourceWallet.amount < data.orderQuantity) {
+        const availableBalance = sourceWallet.amount;
+        const frozenBalance = sourceWallet.amountFreezed;
+        const totalBalance = availableBalance + frozenBalance;
+        
+        if (frozenBalance > 0) {
+          throw new Error400(
+            options.language,
+            "errors.insufficientWithFrozen",
+            {
+              currency: baseCurrency,
+              requested: data.orderQuantity,
+              available: availableBalance,
+              frozen: frozenBalance,
+              total: totalBalance,
+              walletType: "perpetual"
+            }
+          );
+        } else {
+          throw new Error400(
+            options.language,
+            "errors.insufficientBalance",
+            {
+              currency: baseCurrency,
+              requested: data.orderQuantity,
+              available: availableBalance,
+              walletType: "perpetual"
+            }
+          );
+        }
+      }
+
+      // 3. Find or create target wallet (quote currency)
+      targetWallet = await Wallet(options.database).findOne({
+        user: currentUser.id,
+        symbol: quoteCurrency,
+        tenant: currentTenant.id,
+        accountType: 'perpetual'
+      });
+
+      if (!targetWallet) {
+        [targetWallet] = await Wallet(options.database).create([{
+          user: currentUser.id,
+          symbol: quoteCurrency,
+          coinName: quoteCurrency,
+          amount: 0,
+          status: "active", // New wallets are active by default
+          tenant: currentTenant.id,
+          createdBy: currentUser.id,
+          updatedBy: currentUser.id
+        }]);
+      } else {
+        // ✅ ADDED: Check if target wallet is frozen
+        if (targetWallet.status === 'freezed') {
+          throw new Error400(
+            options.language,
+            "errors.frozen",
+            { 
+              currency: quoteCurrency,
+              walletType: "perpetual"
+            }
+          );
+        }
+      }
+
+      // 4. Execute the trade based on order type
+      if (data.delegateType === "MARKET") {
+        // ✅ ADDED: Double-check wallet status before executing
+        if (sourceWallet.status === 'freezed') {
+          throw new Error400(
+            options.language,
+            "errors.frozenDuringExecution",
+            { 
+              currency: baseCurrency,
+              walletType: "perpetual",
+              operation: "market sell"
+            }
+          );
+        }
+
+        // MARKET ORDER: Immediate execution
+        // Deduct from source wallet (base currency)
+        sourceWallet.amount -= data.orderQuantity;
+        await sourceWallet.save();
+
+        // Add to target wallet (quote currency)
+        const receivedAmount = data.entrustedValue || data.orderQuantity * data.commissionPrice;
+        targetWallet.amount += receivedAmount;
+        await targetWallet.save();
+
+        // Update order status to completed for market orders
+        data.status = "completed";
+        data.transactionQuantity = data.orderQuantity;
+        data.transactionValue = receivedAmount;
+        data.closingPrice = data.commissionPrice;
+        data.closingTime = new Date();
+
+      } else if (data.delegateType === "LIMIT") {
+        // ✅ ADDED: Check if source wallet is frozen before reserving
+        if (sourceWallet.status === 'freezed') {
+          throw new Error400(
+            options.language,
+            "errors.frozenDuringExecution",
+            { 
+              currency: baseCurrency,
+              walletType: "perpetual",
+              operation: "limit sell order placement"
+            }
+          );
+        }
+
+        // LIMIT ORDER: Reserve funds (deduct from available balance)
+        sourceWallet.amount -= data.orderQuantity;
+        await sourceWallet.save();
+
+        // Create reservation transaction
+        await Transaction(options.database).create([{
+          type: "order_reserved",
+          wallet: sourceWallet._id,
+          asset: baseCurrency,
+          amount: data.orderQuantity,
+          status: "completed",
+          direction: "out",
+          user: currentUser.id,
+          tenant: currentTenant.id,
+          dateTransaction: new Date(),
+          createdBy: currentUser.id,
+          updatedBy: currentUser.id,
+          referenceId: null // Will be updated after order creation
+        }], options);
+
+        // Order remains pending
+        data.status = "pending";
+      }
+    }
+
+    // Create the spot order record
+    const [record] = await Spot(options.database).create(
+      [{
+        ...data,
+        userAccount: currentUser.id,
+        tenant: currentTenant.id,
+        createdBy: currentUser.id,
+        updatedBy: currentUser.id,
+        commissionTime: new Date()
+      }],
+      options
+    );
+
+    // Update reservation transactions with order reference
+    if (data.delegateType === "LIMIT") {
+      await Transaction(options.database).updateOne(
+        {
+          user: currentUser.id,
+          tenant: currentTenant.id,
+          type: "order_reserved",
+          referenceId: null
+        },
+        { referenceId: record._id },
         options
       );
-
-      return this.findById(record.id, options);
-
-    } catch (error) {
-      throw error;
     }
+
+    // Create transaction records for completed MARKET trades
+    if (data.delegateType === "MARKET") {
+      const [baseCurrency, quoteCurrency] = data.tradingPair.split('/');
+
+      if (data.direction === "BUY") {
+        // For BUY: Create spot transaction for the asset received
+        await Transaction(options.database).create([{
+          type: "spot_profit",
+          wallet: targetWallet._id,
+          asset: baseCurrency,
+          relatedAsset: quoteCurrency,
+          amount: data.orderQuantity,
+          status: "completed",
+          direction: "in",
+          user: currentUser.id,
+          tenant: currentTenant.id,
+          dateTransaction: new Date(),
+          createdBy: currentUser.id,
+          updatedBy: currentUser.id,
+          referenceId: record._id
+        }], options);
+
+        // Also create transaction for the quote currency spent
+        await Transaction(options.database).create([{
+          type: "spot_loss",
+          wallet: sourceWallet._id,
+          asset: quoteCurrency,
+          relatedAsset: baseCurrency,
+          amount: data.entrustedValue || data.orderQuantity * data.commissionPrice,
+          status: "completed",
+          direction: "out",
+          user: currentUser.id,
+          tenant: currentTenant.id,
+          dateTransaction: new Date(),
+          createdBy: currentUser.id,
+          updatedBy: currentUser.id,
+          referenceId: record._id
+        }], options);
+
+      } else if (data.direction === "SELL") {
+        // For SELL: Create spot transaction for the asset sold
+        await Transaction(options.database).create([{
+          type: "spot_loss",
+          wallet: sourceWallet._id,
+          asset: baseCurrency,
+          relatedAsset: quoteCurrency,
+          amount: data.orderQuantity,
+          status: "completed",
+          direction: "out",
+          user: currentUser.id,
+          tenant: currentTenant.id,
+          dateTransaction: new Date(),
+          createdBy: currentUser.id,
+          updatedBy: currentUser.id,
+          referenceId: record._id
+        }], options);
+
+        // Also create transaction for the quote currency received
+        await Transaction(options.database).create([{
+          type: "spot_profit",
+          wallet: targetWallet._id,
+          asset: quoteCurrency,
+          relatedAsset: baseCurrency,
+          amount: data.entrustedValue || data.orderQuantity * data.commissionPrice,
+          status: "completed",
+          direction: "in",
+          user: currentUser.id,
+          tenant: currentTenant.id,
+          dateTransaction: new Date(),
+          createdBy: currentUser.id,
+          updatedBy: currentUser.id,
+          referenceId: record._id
+        }], options);
+      }
+    }
+
+    // Create audit log
+    await this._createAuditLog(
+      AuditLogRepository.CREATE,
+      record.id,
+      data,
+      options
+    );
+
+    return this.findById(record.id, options);
+
+  } catch (error) {
+    throw error;
   }
+}
 
   static async UpdateStatus(id, data, options: IRepositoryOptions) {
     const currentTenant = MongooseRepository.getCurrentTenant(options);

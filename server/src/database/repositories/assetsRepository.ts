@@ -242,12 +242,7 @@ class WalletRepository {
   // }
 
 
-  static async processStacking(data, options) {
-    console.log("🚀 ~ WalletRepository ~ processStacking ~ options:", options)
-    console.log("🚀 ~ WalletRepository ~ processStacking ~ data:", data)
 
-
-  }
 
   static async processDeposit(userId, data, options) {
     const db = options.database;
@@ -541,6 +536,8 @@ class WalletRepository {
 
     return { rows, count };
   }
+
+
 static async findAndCountAllMobile(
   { filter,  fiat = "USD" },
   options: IRepositoryOptions
@@ -555,13 +552,9 @@ static async findAndCountAllMobile(
   criteriaAnd.push({ user: currentUser.id });
 
   if (filter) {
-
       criteriaAnd.push({
         accountType: String(filter).toLowerCase(),
       });
-   
-
-  
   }
 
   const sort = MongooseQueryUtils.sort( "createdAt_DESC");
