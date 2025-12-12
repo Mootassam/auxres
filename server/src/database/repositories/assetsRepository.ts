@@ -531,74 +531,80 @@ class WalletRepository {
 
     return { rows, count };
   }
-  static async findAndCountAllMobile(
-    { filter, limit = 0, offset = 0, orderBy = "" },
-    options: IRepositoryOptions
-  ) {
-    console.log("🚀 ~ WalletRepository ~ findAndCountAllMobile ~ filter:", filter)
-    const currentTenant = MongooseRepository.getCurrentTenant(options);
-    const currentUser = MongooseRepository.getCurrentUser(options);
+static async findAndCountAllMobile(
+  { filter,  fiat = "USD" },
+  options: IRepositoryOptions
+) {
 
-    let criteriaAnd: any = [];
+  const currentTenant = MongooseRepository.getCurrentTenant(options);
+  const currentUser = MongooseRepository.getCurrentUser(options);
 
-    criteriaAnd.push({
-      tenant: currentTenant.id,
-    });
+  let criteriaAnd: any = [];
 
-    criteriaAnd.push({
-      user: currentUser.id,
-    });
+  criteriaAnd.push({ tenant: currentTenant.id });
+  criteriaAnd.push({ user: currentUser.id });
 
-
-
-
-    if (filter) {
+  if (filter) {
 
       criteriaAnd.push({
-        accountType: String(filter.toLowerCase()),
+        accountType: String(filter).toLowerCase(),
       });
+   
 
-
-
-      if (filter.id) {
-        criteriaAnd.push({
-          ["_id"]: MongooseQueryUtils.uuid(filter.id),
-        });
-      }
-
-      if (filter.user) {
-        criteriaAnd.push({
-          user: filter.user,
-        });
-      }
-
-      if (filter.idnumer) {
-        criteriaAnd.push({
-          idnumer: {
-            $regex: MongooseQueryUtils.escapeRegExp(filter.idnumer),
-            $options: "i",
-          },
-        });
-      }
-    }
-
-    const sort = MongooseQueryUtils.sort(orderBy || "createdAt_DESC");
-    const skip = Number(offset || 0) || undefined;
-    const limitEscaped = Number(limit || 0) || undefined;
-    const criteria = criteriaAnd.length ? { $and: criteriaAnd } : null;
-    let rows = await Wallet(options.database)
-      .find(criteria)
-      .skip(skip)
-      .sort(sort)
-      .populate("user")
-      .populate("createdBy");
-
-    const count = await Wallet(options.database).countDocuments(criteria);
-
-    rows = await Promise.all(rows.map(this._fillFileDownloadUrls));
-
-    return { rows, count };
+  
   }
+
+  const sort = MongooseQueryUtils.sort( "createdAt_DESC");
+  const skip = Number( 0) || undefined;
+  const limitEscaped = Number( 0) || undefined;
+  const criteria = criteriaAnd.length ? { $and: criteriaAnd } : null;
+
+  // Fetch wallet rows
+  let rows = await Wallet(options.database)
+    .find(criteria)
+    .skip(skip)
+    .limit(limitEscaped)
+    .sort(sort)
+
+  const count = await Wallet(options.database).countDocuments(criteria);
+
+  // Apply file URLs
+  rows = await Promise.all(rows.map(this._fillFileDownloadUrls));
+
+  // --------------------------------------------
+  // 🔥 CONVERT AMOUNTS TO SELECTED FIAT
+  // --------------------------------------------
+
+  // Get conversion USD → FIAT for all coins
+  const convertedPrices = await this.convertCoins(fiat.toUpperCase());
+
+  let totalFiat = 0;
+
+  rows = rows.map((wallet) => {
+    const plain = { ...wallet };
+    const symbol = plain.symbol;    // BTC, USDT, DOGE, etc.
+    const amount = plain.amount;    // user balance
+
+    const coinPriceInFiat = convertedPrices[symbol] ?? 0;
+
+    const balanceFiat = Number((amount * coinPriceInFiat).toFixed(2));
+
+    plain.balanceFiat = balanceFiat;
+    plain.fiat = fiat.toUpperCase();
+
+    totalFiat += balanceFiat;
+
+    return plain;
+  });
+
+  return {
+    rows,
+    count,
+    totalFiat: Number(totalFiat.toFixed(2)),
+    fiat: fiat.toUpperCase(),
+  };
+}
+
 
 
   static async findAllAutocomplete(search, limit, options: IRepositoryOptions) {
@@ -665,6 +671,9 @@ class WalletRepository {
 
     return output;
   }
+
+
+  
 
 
 

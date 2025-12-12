@@ -160,6 +160,7 @@ const CurrencyModal = ({ isOpen, onClose, selectedCurrency, onSelectCurrency }) 
           padding: 0;
           max-height: calc(85vh - 100px);
           overflow-y: auto;
+              padding-bottom: 90px;
         }
 
         .currency-modal-list::-webkit-scrollbar {

@@ -4,7 +4,10 @@ const INITIAL_PAGE_SIZE = 10;
 
 const initialData = {
   rows: [] as Array<any>,
+  listFiat: [] as Array<any>,
   count: 0,
+  selectedFiat: "USD",
+  totalFiat : 0, 
   allTransfer: [] as Array<any>,
   loading: false,
   filter: {},
@@ -80,20 +83,22 @@ export default (state = initialData, { type, payload }) => {
     };
   }
 
+
+  
+if (type === actions.SELECT_FIAT) {
+  return {
+    ...state,
+    selectedFiat: payload, // payload should be the currency code like "USD", "EUR"
+  };
+}
+
   if (type === actions.FETCH_STARTED) {
     return {
       ...state,
       loading: true,
-      selectedKeys: [],
       filter: payload ? payload.filter : {},
       rawFilter: payload ? payload.rawFilter : {},
-      pagination:
-        payload && payload.keepPagination
-          ? state.pagination
-          : {
-            current: 1,
-            pageSize: INITIAL_PAGE_SIZE,
-          },
+  
     };
   }
 
@@ -102,6 +107,8 @@ export default (state = initialData, { type, payload }) => {
       ...state,
       loading: false,
       rows: payload.rows,
+      selectedFiat:payload.selectedFiat,
+      totalFiat: payload.totalFiat,
       count: payload.count,
     };
   }
@@ -117,6 +124,28 @@ export default (state = initialData, { type, payload }) => {
 
 
 
+  if (type === actions.CONVERT_STARTED) {
+    return {
+      ...state,
+      loading: true,
+    }
+  }
+
+  if (type === actions.CONVERT_SUCCESS) {
+    return {
+      ...state,
+      loading: false,
+      listFiat: payload,
+    };
+  }
+
+  if (type === actions.CONVERT_ERROR) {
+    return {
+      ...state,
+      loading: false,
+      listFiat: [],
+    };
+  }
 
 
   if (type === actions.FETCH_TRANSFER_STARTED) {

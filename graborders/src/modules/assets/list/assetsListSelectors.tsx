@@ -16,6 +16,20 @@ const selectRows = createSelector(
   [selectRaw],
   (raw) => raw.rows,
 );
+
+
+const selectedFiat = createSelector(
+  [selectRaw],
+  (raw) => raw.selectedFiat,
+);
+
+
+const selectTotalFiat = createSelector(
+  [selectRaw],
+  (raw) => raw.totalFiat,
+);
+
+
 const selectListTransfer = createSelector(
   [selectRaw],
   (raw) => raw.allTransfer,
@@ -121,8 +135,10 @@ const couponsListSelectors = {
   selectLimit,
   selectFilter,
   selectOffset,
+  selectTotalFiat,
   selectPagination,
   selectSelectedKeys,
+  selectedFiat,
   selectSelectedRows,
   selectHasRows,
   selectExportLoading,

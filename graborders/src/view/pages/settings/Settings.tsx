@@ -1,37 +1,66 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import authActions from "src/modules/auth/authActions";
 import CurrencyModal from "../currency/Currency";
 import I18nSelect from "src/view/layout/I18nSelect";
-import assetsListActions from "src/modules/assets/list/assetsListActions";
+
+// Helper function to get/set currency from localStorage
+const getStoredCurrency = () => {
+  const stored = localStorage.getItem('selectedCurrency');
+  return stored ? JSON.parse(stored) : { code: "USD", symbol: "$" };
+};
+
+const setStoredCurrency = (currency) => {
+  localStorage.setItem('selectedCurrency', JSON.stringify(currency));
+};
+
+// Currency symbols mapping
+const CURRENCY_SYMBOLS = {
+  USD: '$',
+  EUR: '€',
+  GBP: '£',
+  JPY: '¥',
+  CNY: '¥',
+  AUD: 'A$',
+  CAD: 'C$',
+  CHF: 'CHF',
+  HKD: 'HK$',
+  SGD: 'S$'
+};
 
 // Main Settings Component
 function Settings() {
   const dispatch = useDispatch();
   const [isCurrencyModalOpen, setIsCurrencyModalOpen] = useState(false);
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
-  const [selectedCurrency, setSelectedCurrency] = useState({
-    symbol: "$",
-    code: "USD",
-    name: "USD [$]"
+  
+  // Initialize currency from localStorage
+  const [selectedCurrency, setSelectedCurrency] = useState(() => {
+    return getStoredCurrency();
   });
+
+  // Update currency name for display
+  const currencyDisplayName = useMemo(() => {
+    return `${selectedCurrency.code} [${selectedCurrency.symbol}]`;
+  }, [selectedCurrency]);
 
   const handleSignOut = () => {
     dispatch(authActions.doSignout());
   };
 
-  const convertFiat = () => {
-  }
-
   const handleCurrencySelect = (currency) => {
-    setSelectedCurrency({
-      symbol: currency.symbol,
+    // Create new currency object
+    const newCurrency = {
       code: currency.code,
-      name: `${currency.code} [${currency.symbol}]`
-    });
-    dispatch(assetsListActions.doConvert(currency.code))
-
+      symbol: currency.symbol || CURRENCY_SYMBOLS[currency.code] || currency.code
+    };
+    
+    // Save to localStorage and update state
+    setStoredCurrency(newCurrency);
+    setSelectedCurrency(newCurrency);
+    
+    // Close modal
     setIsCurrencyModalOpen(false);
   };
 
@@ -88,7 +117,7 @@ function Settings() {
                 <i className="fas fa-dollar-sign" />
               </div>
               <div className="option-content">
-                <div className="option-title">Quotation currency {selectedCurrency.name}</div>
+                <div className="option-title">Quotation currency {currencyDisplayName}</div>
               </div>
               <div className="option-arrow">
                 <i className="fas fa-chevron-right" />

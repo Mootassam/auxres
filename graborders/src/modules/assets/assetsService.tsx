@@ -97,12 +97,10 @@ export default class depositService {
     return response.data;
   }
 
-  static async list(filter, orderBy, limit, offset) {
+  static async list(filter,fiat ) {
     const params = {
       filter,
-      orderBy,
-      limit: 50,
-      offset,
+      fiat
     };
 
     const tenantId = AuthCurrentTenant.get();

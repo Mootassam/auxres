@@ -11,6 +11,13 @@ const assetsListActions = {
   FETCH_SUCCESS: `${prefix}_FETCH_SUCCESS`,
   FETCH_ERROR: `${prefix}_FETCH_ERROR`,
 
+
+
+  CONVERT_STARTED: `${prefix}_CONVERT_STARTED`,
+  CONVERT_SUCCESS: `${prefix}_CONVERT_SUCCESS`,
+  CONVERT_ERROR: `${prefix}_CONVERT_ERROR`,
+
+
   FETCH_TRANSFER_STARTED: `${prefix}_FETCH_TRANSFER_STARTED`,
   FETCH_TRANSFER_SUCCESS: `${prefix}_FETCH_TRANSFER_SUCCESS`,
   FETCH_TRANSFER_ERROR: `${prefix}_FETCH_TRANSFER_ERROR`,
@@ -22,6 +29,9 @@ const assetsListActions = {
 
   PAGINATION_CHANGED: `${prefix}_PAGINATION_CHANGED`,
   SORTER_CHANGED: `${prefix}_SORTER_CHANGED`,
+
+  SELECT_FIAT: `${prefix}_SELECT_FIAT`,
+
 
   EXPORT_STARTED: `${prefix}_EXPORT_STARTED`,
   EXPORT_SUCCESS: `${prefix}_EXPORT_SUCCESS`,
@@ -81,29 +91,34 @@ const assetsListActions = {
         getState(),
       );
       dispatch(
-        assetsListActions.doFetch(filter, rawFilter, true),
+        assetsListActions.doFetch(filter, rawFilter),
       );
     },
 
+SelectFiat: (fiatCode) => ({
+  type: assetsListActions.SELECT_FIAT,
+  payload: fiatCode,
+}),
+
   doFetch:
-    (filter?, rawFilter?, keepPagination = false) =>
+    (filter?, fiat = 'USD') =>
       async (dispatch, getState) => {
         try {
           dispatch({
             type: assetsListActions.FETCH_STARTED,
-            payload: { filter, rawFilter, keepPagination },
+            payload: { filter, fiat },
           });
           const response = await depositService.list(
             filter,
-            selectors.selectOrderBy(getState()),
-            selectors.selectLimit(getState()),
-            selectors.selectOffset(getState()),
+            fiat
           );
           dispatch({
             type: assetsListActions.FETCH_SUCCESS,
             payload: {
               rows: response.rows,
               count: response.count,
+              totalFiat: response.totalFiat,
+              selectedFiat: fiat,
             },
           });
         } catch (error) {
@@ -121,24 +136,22 @@ const assetsListActions = {
       async (dispatch, getState) => {
         try {
           dispatch({
-            type: assetsListActions.FETCH_STARTED
+            type: assetsListActions.CONVERT_STARTED
           });
           const response = await depositService.Convert
             (fiat);
           dispatch({
-            type: assetsListActions.FETCH_SUCCESS,
-            payload: {
-              rows: response.rows,
-              count: response.count,
-            },
+            type: assetsListActions.CONVERT_SUCCESS,
+            payload: response
           });
         } catch (error) {
           Errors.handle(error);
           dispatch({
-            type: assetsListActions.FETCH_ERROR,
+            type: assetsListActions.CONVERT_ERROR,
           });
         }
       },
+
   TransferList:
     (filter?, rawFilter?, keepPagination = false) =>
       async (dispatch, getState) => {

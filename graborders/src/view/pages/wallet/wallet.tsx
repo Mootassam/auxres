@@ -10,9 +10,9 @@ import { useDispatch, useSelector } from "react-redux";
 import assetsActions from "src/modules/assets/list/assetsListActions";
 import assetsListSelectors from "src/modules/assets/list/assetsListSelectors";
 import { i18n } from "../../../i18n";
-import CurrencyModal from "../currency/Currency"; // Import the CurrencyModal component
+import CurrencyModal from "../currency/Currency";
 
-// Constants (moved outside component to prevent recreation)
+// Constants
 const QUICK_ACTIONS = [
   { path: "/withdraw", icon: "fas fa-arrow-up", name: "Withdraw" },
   { path: "/deposit", icon: "fas fa-arrow-down", name: "Deposit" },
@@ -20,20 +20,20 @@ const QUICK_ACTIONS = [
   { path: "/conversion", icon: "fas fa-sync-alt", name: "Swap" },
 ];
 
-const BOTTOM_NAV_ITEMS = [
-  { icon: "fas fa-home", label: "Home", path: "/" },
-  { icon: "fas fa-chart-line", label: "Quotes", path: "/quotes" },
-  { icon: "fas fa-exchange-alt", label: "Trade", path: "/trade" },
-  { icon: "fas fa-percentage", label: "Finance", path: "/finance" },
-  { icon: "fas fa-wallet", label: "Assets", path: "/assets", active: true },
-];
-
 const ACCOUNT_TABS = ["Exchange", "Trade", "Perpetual"];
-const GRAPH_POINTS = ["10%", "15%", "8%", "12%", "6%", "10%", "5%"];
-const GRAPH_DATES = ["11-19", "11-21", "11-23", "11-25"];
 const TIMEFRAMES = ["7 days", "30 days"];
 
-// Memoized components to prevent unnecessary re-renders
+// Helper function to get/set currency from localStorage
+const getStoredCurrency = () => {
+  const stored = localStorage.getItem('selectedCurrency');
+  return stored ? JSON.parse(stored) : { code: "USD", symbol: "$" };
+};
+
+const setStoredCurrency = (currency) => {
+  localStorage.setItem('selectedCurrency', JSON.stringify(currency));
+};
+
+// Memoized components
 const QuickActionItem = memo(({ item }: { item: typeof QUICK_ACTIONS[0] }) => (
   <Link
     to={item.path}
@@ -50,9 +50,9 @@ const QuickActionItem = memo(({ item }: { item: typeof QUICK_ACTIONS[0] }) => (
 
 QuickActionItem.displayName = 'QuickActionItem';
 
-const AssetCard = memo(({ asset, formatAmount }: {
-  asset: any;
-  formatAmount: (amount: string) => string
+const AssetCard = memo(({ asset, currencySymbol }: { 
+  asset: any; 
+  currencySymbol: string;
 }) => {
   const getAssetIconClass = (symbol: string) => {
     switch (symbol) {
@@ -89,7 +89,7 @@ const AssetCard = memo(({ asset, formatAmount }: {
       <div className="asset-details">
         <div className="asset-column">
           <div className="asset-label">Available balance:</div>
-          <div className="asset-value">{formatAmount(asset.amount)}</div>
+          <div className="asset-value">{asset.amount}</div>
         </div>
         <div className="asset-column">
           <div className="asset-label">Frozen amount:</div>
@@ -98,7 +98,7 @@ const AssetCard = memo(({ asset, formatAmount }: {
         <div className="asset-column">
           <div className="asset-label">Valuation:</div>
           <div className="asset-value">
-            ${formatAmount(asset.amount)}
+            {currencySymbol}{asset.balanceFiat}
           </div>
         </div>
       </div>
@@ -130,23 +130,6 @@ const TimeframeSelector = memo(({
 
 TimeframeSelector.displayName = 'TimeframeSelector';
 
-const GraphVisualization = memo(() => (
-  <div className="graph-container">
-    <div className="graph-line"></div>
-    <div className="graph-points">
-      {GRAPH_POINTS.map((height, index) => (
-        <div
-          key={index}
-          className="graph-point"
-          style={{ height }}
-        />
-      ))}
-    </div>
-  </div>
-));
-
-GraphVisualization.displayName = 'GraphVisualization';
-
 const AccountTab = memo(({
   tab,
   activeTab,
@@ -170,38 +153,58 @@ AccountTab.displayName = 'AccountTab';
 function Wallet() {
   const dispatch = useDispatch();
   const location = useLocation();
+  
+  // Selectors
   const listAssets = useSelector(assetsListSelectors.selectRows);
-
+  const selectTotalFiat = useSelector(assetsListSelectors.selectTotalFiat);
+  const loading = useSelector(assetsListSelectors.selectLoading);
+  
+  // State with localStorage initialization
   const [activeItem, setActiveItem] = useState<string>(location.pathname);
   const [activeTimeframe, setActiveTimeframe] = useState("7 days");
   const [activeTab, setActiveTab] = useState("Exchange");
   const [isCurrencyModalOpen, setIsCurrencyModalOpen] = useState(false);
-  const [selectedCurrency, setSelectedCurrency] = useState({
-    symbol: "$",
-    code: "USD",
-    name: "USD"
+  
+  // Get initial currency from localStorage
+  const [selectedCurrency, setSelectedCurrency] = useState(() => {
+    return getStoredCurrency();
   });
 
-  // Memoized callbacks
-  const formatAmount = useCallback((amount: string) => {
-    const num = parseFloat(amount);
-    if (isNaN(num)) return "0.00";
-    if (num % 1 === 0) return `${num}.00`;
-    return num.toFixed(2);
-  }, []);
+  // Currency symbols mapping
+  const CURRENCY_SYMBOLS = useMemo(() => ({
+    USD: '$',
+    EUR: '€',
+    GBP: '£',
+    JPY: '¥',
+    CNY: '¥',
+    AUD: 'A$',
+    CAD: 'C$',
+    CHF: 'CHF',
+    HKD: 'HK$',
+    SGD: 'S$'
+  }), []);
 
+  // Memoized callbacks
   const handleTabClick = useCallback((tab: string) => {
     setActiveTab(tab);
-  }, []);
+    // Dispatch to fetch assets for the selected tab with current currency
+    dispatch(assetsActions.doFetch(tab, selectedCurrency.code));
+  }, [dispatch, selectedCurrency.code]);
 
-  const handleCurrencySelect = (currency) => {
-    setSelectedCurrency({
-      symbol: currency.symbol,
+  const handleCurrencySelect = useCallback((currency: any) => {
+    // Update localStorage and state
+    const newCurrency = {
       code: currency.code,
-      name: currency.code
-    });
+      symbol: currency.symbol || CURRENCY_SYMBOLS[currency.code] || currency.code
+    };
+    
+    setStoredCurrency(newCurrency);
+    setSelectedCurrency(newCurrency);
+    
+    // Fetch assets with the new currency and current tab
+    dispatch(assetsActions.doFetch(activeTab, currency.code));
     setIsCurrencyModalOpen(false);
-  };
+  }, [dispatch, activeTab, CURRENCY_SYMBOLS]);
 
   const openCurrencyModal = () => {
     setIsCurrencyModalOpen(true);
@@ -211,20 +214,15 @@ function Wallet() {
     setIsCurrencyModalOpen(false);
   };
 
-  // Fetch assets with cleanup
+  // Initial fetch on mount
   useEffect(() => {
     let isMounted = true;
-    let timeoutId: NodeJS.Timeout;
 
     const fetchAssets = async () => {
       if (!isMounted) return;
 
       try {
-        // Add debouncing for frequent tab switches
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(async () => {
-          await dispatch(assetsActions.doFetch(activeTab));
-        }, 150);
+        await dispatch(assetsActions.doFetch(activeTab, selectedCurrency.code));
       } catch (error) {
         if (isMounted) {
           console.error("Error fetching assets:", error);
@@ -236,37 +234,66 @@ function Wallet() {
 
     return () => {
       isMounted = false;
-      clearTimeout(timeoutId);
     };
-  }, [dispatch, activeTab]);
+  }, []); // Only run on mount
+
+  // Fetch assets when activeTab changes
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchAssets = async () => {
+      if (!isMounted) return;
+
+      try {
+        await dispatch(assetsActions.doFetch(activeTab, selectedCurrency.code));
+      } catch (error) {
+        if (isMounted) {
+          console.error("Error fetching assets:", error);
+        }
+      }
+    };
+
+    fetchAssets();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [dispatch, activeTab, selectedCurrency.code]);
 
   // Update active item when route changes
   useEffect(() => {
     setActiveItem(location.pathname);
   }, [location.pathname]);
 
-  // Calculate total portfolio value (memoized)
-  const { totalValue, totalChange } = useMemo(() => {
-    let total = 0;
-    let change = 0;
-
-    for (const asset of listAssets) {
-      const amount = parseFloat(asset.amount || "0");
-      total += amount;
-    }
-
-    return { totalValue: total, totalChange: change };
-  }, [listAssets]);
-
-  // Memoize total value formatted strings
-  const formattedTotalValue = useMemo(() =>
-    totalValue.toLocaleString(undefined, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }), [totalValue]);
-
   // Memoize rendered assets
   const renderedAssets = useMemo(() => {
+    if (loading) {
+      return (
+        <div className="no-assets">
+          <div className="asset-card">
+            <div className="asset-header">
+              <div className="asset-icon"></div>
+              <div className="asset-name">Loading assets...</div>
+            </div>
+            <div className="asset-details">
+              <div className="asset-column">
+                <div className="asset-label">Available balance:</div>
+                <div className="asset-value">...</div>
+              </div>
+              <div className="asset-column">
+                <div className="asset-label">Frozen amount:</div>
+                <div className="asset-value">...</div>
+              </div>
+              <div className="asset-column">
+                <div className="asset-label">Valuation:</div>
+                <div className="asset-value">{selectedCurrency.symbol}...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     if (listAssets.length === 0) {
       return (
         <div className="no-assets">
@@ -286,7 +313,7 @@ function Wallet() {
               </div>
               <div className="asset-column">
                 <div className="asset-label">Valuation:</div>
-                <div className="asset-value">$0.00</div>
+                <div className="asset-value">{selectedCurrency.symbol}0.00</div>
               </div>
             </div>
           </div>
@@ -298,10 +325,10 @@ function Wallet() {
       <AssetCard
         key={asset.id}
         asset={asset}
-        formatAmount={formatAmount}
+        currencySymbol={selectedCurrency.symbol}
       />
     ));
-  }, [listAssets, formatAmount]);
+  }, [listAssets, loading, selectedCurrency.symbol]);
 
   return (
     <div className="container">
@@ -324,37 +351,25 @@ function Wallet() {
                 <i className="fas fa-eye-slash"></i>
                 {i18n("pages.wallet.assetValuation")}
               </div>
-              {/* Currency Selector - Now opens modal */}
+              {/* Currency Selector - Shows the selected currency */}
               <div className="currency-selector-modal" onClick={openCurrencyModal}>
                 <div className="currency-display">
-                  {selectedCurrency.code}
+                  <span className="currency-symbol">{selectedCurrency.symbol}</span>
+                  <span className="currency-code">{selectedCurrency.code}</span>
                   <i className="fas fa-chevron-down"></i>
                 </div>
               </div>
             </div>
-            <div className="balance-amount">{selectedCurrency.symbol}{formattedTotalValue}</div>
-            <div className="usd-equivalent">≈${formattedTotalValue}</div>
+            <div className="balance-amount">
+              {selectedCurrency.symbol}{selectTotalFiat}
+            </div>
+            <div className="usd-equivalent">
+              ≈{selectedCurrency.code} {selectTotalFiat}
+            </div>
           </div>
         </div>
 
         <div className="sectionn__assets">
-          {/* Earnings Trends Section */}
-          <div className="earnings-section">
-            <div className="earnings-header">
-              <div className="earnings-title">{i18n("pages.wallet.earningsTrends")}</div>
-              <TimeframeSelector
-                activeTimeframe={activeTimeframe}
-                setActiveTimeframe={setActiveTimeframe}
-              />
-            </div>
-            <GraphVisualization />
-            <div className="graph-dates">
-              {GRAPH_DATES.map((date) => (
-                <div key={date}>{date}</div>
-              ))}
-            </div>
-          </div>
-
           {/* Action Buttons */}
           <div className="actions-section">
             <div className="actions-grid">
@@ -383,22 +398,25 @@ function Wallet() {
       </div>
 
       {/* Currency Selection Modal */}
-      <CurrencyModal
-        isOpen={isCurrencyModalOpen}
-        onClose={closeCurrencyModal}
-        selectedCurrency={selectedCurrency}
-        onSelectCurrency={handleCurrencySelect}
-      />
+      {isCurrencyModalOpen && (
+        <CurrencyModal
+          isOpen={isCurrencyModalOpen}
+          onClose={closeCurrencyModal}
+          selectedCurrency={selectedCurrency}
+          onSelectCurrency={handleCurrencySelect}
+        />
+      )}
 
-      {/* CSS Styles */}
+
       <style>{`
         .sectionn__assets{ 
           background-color: #fff;
-          height: calc(100% - 184px);
           border-radius: 21px 21px 0 0;
           overflow-y: auto;
           will-change: transform;
           margin-bottom: 40px;
+          height:100dvh;
+          padding-bottom: 250px;
         }
 
         .container {
@@ -408,7 +426,6 @@ function Wallet() {
           position: relative;
           background: linear-gradient(135deg, #4082e3 0%, #ffffff 100%);
           background-size: cover;
-          overflow-y: auto;
           background-repeat: no-repeat;
           contain: layout style paint;
         }
@@ -629,7 +646,7 @@ function Wallet() {
         }
 
         .actions-section {
-          padding: 0 20px 20px;
+          padding: 20px 20px 20px;
         }
 
         .actions-grid {
