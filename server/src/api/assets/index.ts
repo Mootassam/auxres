@@ -29,6 +29,12 @@ export default (app) => {
     require('./AssetsList').default,
   );
 
+
+    app.get(
+    `/tenant/:tenantId/assetsFreeze/:id`,
+    require('./AssetsFreeze').default,
+  );
+
   app.get(
     `/tenant/:tenantId/convert/:id`,
     require('./AssetsConvert').default,

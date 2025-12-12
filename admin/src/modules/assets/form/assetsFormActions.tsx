@@ -3,6 +3,8 @@ import vipService from 'src/modules/assets/assetsService';
 import Errors from 'src/modules/shared/error/errors';
 import Message from 'src/view/shared/message';
 import { getHistory } from 'src/modules/store';
+import actions from 'src/modules/assets/list/assetsListActions';
+
 import { i18n } from 'src/i18n';
 
 const prefix = 'COUPONS_FORM';
@@ -11,6 +13,11 @@ const vipFormActions = {
   INIT_STARTED: `${prefix}_INIT_STARTED`,
   INIT_SUCCESS: `${prefix}_INIT_SUCCESS`,
   INIT_ERROR: `${prefix}_INIT_ERROR`,
+
+
+    CHANGE_STARTED: `${prefix}_CHANGE_STARTED`,
+  CHANGE_SUCCESS: `${prefix}_CHANGE_SUCCESS`,
+  CHANGE_ERROR: `${prefix}_CHANGE_ERROR`,
 
   CREATE_STARTED: `${prefix}_CREATE_STARTED`,
   CREATE_SUCCESS: `${prefix}_CREATE_SUCCESS`,
@@ -63,6 +70,35 @@ const vipFormActions = {
 
       Message.success(
         i18n('entities.vip.create.success'),
+      );
+
+      getHistory().push('/assets');
+    } catch (error) {
+      Errors.handle(error);
+
+      dispatch({
+        type: vipFormActions.CREATE_ERROR,
+      });
+    }
+  },
+
+
+    changeStatus: (values) => async (dispatch) => {
+    try {
+      dispatch({
+        type: vipFormActions.CHANGE_STARTED,
+      });
+
+      await vipService.assetsFreeze(values);
+
+      dispatch({
+        type: vipFormActions.CREATE_SUCCESS,
+      });
+
+      dispatch(actions.doFetch())
+
+      Message.success(
+        i18n('entities.assets.create.success'),
       );
 
       getHistory().push('/assets');

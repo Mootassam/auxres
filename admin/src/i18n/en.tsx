@@ -2,6 +2,9 @@ const en = {
   common: {
     freeze: 'freeze',
     onclicklogin: 'One-Click Login',
+      freezeConfirmation: "Freeze Funds",
+    unfreezeConfirmation: "Unfreeze Funds",
+     unfreeze: "Unfreeze",
     or: 'Or',
     cancel: 'Cancel',
     reset: 'Reset',
@@ -329,11 +332,20 @@ const en = {
 
     assets: {
       menu: 'Assets',
+
+       freeze: {
+        confirmation: "Are you sure you want to freeze these funds?"
+      },
+      unfreeze: {
+        confirmation: "Are you sure you want to unfreeze these funds?"
+      },
       list: {
         title: 'Assets List',
       },
       fields: {
+        accountType:"Account Type",
         id: 'ID',
+        idnumber:'idnumber',
         user: 'User',
         symbol: 'Symbol',
         coinName: 'Coin Name',
@@ -352,6 +364,11 @@ const en = {
           locked: 'Locked',
           pending: 'Pending',
         },
+        accountType :{ 
+            exchange: 'exchange',
+          trade: 'trade',
+          perpetual: 'perpetual',
+        }
       },
 
       new: {

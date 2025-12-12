@@ -492,6 +492,15 @@ class WalletRepository {
 
 
     if (filter) {
+
+         if (filter.accountType) {
+         criteriaAnd.push({
+          accountType: {
+            $regex: MongooseQueryUtils.escapeRegExp(filter.accountType),
+            $options: "i",
+          },
+        });
+      }
       if (filter.id) {
         criteriaAnd.push({
           ["_id"]: MongooseQueryUtils.uuid(filter.id),
@@ -710,7 +719,6 @@ static async findAndCountAllMobile(
           coinName: crypto.name,
           amount: 0,
           accountType: type,        // 👈 IMPORTANT
-          status: "available",
           tenant: tenantId,
           createdBy: newUser,
           updatedBy: newUser,
@@ -732,7 +740,6 @@ static async findAndCountAllMobile(
 
 
   static async transferBetweenAccounts(data, options: IRepositoryOptions) {
-    console.log("🚀 ~ WalletRepository ~ transferBetweenAccounts ~ data:", data)
     const currentTenant = MongooseRepository.getCurrentTenant(options);
     const currentUser = MongooseRepository.getCurrentUser(options);
 
@@ -879,6 +886,57 @@ static async findAndCountAllMobile(
 
     return { rows, count };
   }
+
+
+ static async FreezeAccount(id, options: IRepositoryOptions) {
+  const currentTenant = MongooseRepository.getCurrentTenant(options);
+  const currentUser = MongooseRepository.getCurrentUser(options);
+
+  // Find and update in one atomic operation using aggregation pipeline
+  const updatedWallet = await Wallet(options.database).findOneAndUpdate(
+    {
+      _id: id,
+      tenant: currentTenant.id,
+    },
+    [
+      {
+        $set: {
+          // Toggle status
+          status: {
+            $cond: {
+              if: { $eq: ['$status', 'active'] },
+              then: 'freezed',
+              else: 'active',
+            },
+          },
+          // Swap amounts based on current status
+          amount: {
+            $cond: {
+              if: { $eq: ['$status', 'active'] },
+              then: 0,
+              else: { $add: ['$amount', '$amountFreezed'] },
+            },
+          },
+          amountFreezed: {
+            $cond: {
+              if: { $eq: ['$status', 'active'] },
+              then: { $add: ['$amount', '$amountFreezed'] },
+              else: 0,
+            },
+          },
+          updatedBy: currentUser.id,
+        },
+      },
+    ],
+    { new: true } // Return updated document
+  );
+
+  if (!updatedWallet) {
+    throw new Error('Wallet not found');
+  }
+
+  return updatedWallet;
+}
 
 
 

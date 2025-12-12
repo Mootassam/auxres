@@ -28,10 +28,7 @@ const schema = yup.object().shape({
     i18n('entities.assets.fields.amount'),
     { required: true },
   ),
-  status: yupFormSchemas.enumerator(
-    i18n('entities.assets.fields.status'),
-    { options: assetEnumerators.status },
-  ),
+
 });
 
 function AssetsForm(props) {
@@ -42,7 +39,6 @@ function AssetsForm(props) {
       symbol: record.symbol || '',
       coinName: record.coinName || '',
       amount: record.amount || '',
-      status: record.status || 'available',
     };
   });
 
@@ -99,19 +95,6 @@ function AssetsForm(props) {
               />
             </div>
 
-            <div className="col-lg-6 col-md-8 col-12">
-              <SelectFormItem
-                name="status"
-                label={i18n('entities.assets.fields.status')}
-                options={assetEnumerators.status.map((value) => ({
-                  value,
-                  label: i18n(
-                    `entities.assets.enumerators.status.${value}`,
-                  ),
-                }))}
-                required={true}
-              />
-            </div>
           </div>
 
           <div className="form-buttons">

@@ -39,10 +39,16 @@ export default (database) => {
         default: 0,
       },
 
+      amountFreezed: {
+        type: Number,
+        required: true,
+        default: 0,
+      },
+
       status: {
         type: String,
-        enum: ["available", "locked", "pending", "suspended"],
-        default: "available",
+        enum: ["active", "freezed"],
+        default: "active",
       },
 
       tenant: {

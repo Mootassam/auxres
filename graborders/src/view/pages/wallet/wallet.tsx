@@ -93,7 +93,7 @@ const AssetCard = memo(({ asset, currencySymbol }: {
         </div>
         <div className="asset-column">
           <div className="asset-label">Frozen amount:</div>
-          <div className="asset-value">0.00</div>
+          <div className="asset-value">{asset.amountFreezed}</div>
         </div>
         <div className="asset-column">
           <div className="asset-label">Valuation:</div>

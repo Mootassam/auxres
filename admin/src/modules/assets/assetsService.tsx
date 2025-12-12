@@ -74,6 +74,17 @@ export default class assetsService {
     return response.data;
   }
 
+
+    static async assetsFreeze(id) {
+    const tenantId = AuthCurrentTenant.get();
+
+    const response = await authAxios.get(
+      `/tenant/${tenantId}/assetsFreeze/${id}`,
+    );
+
+    return response.data;
+  }
+
   static async list(filter, orderBy, limit, offset) {
     const params = {
       filter,

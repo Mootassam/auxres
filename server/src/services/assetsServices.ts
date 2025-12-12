@@ -69,6 +69,14 @@ export default class AssetsServices {
     );
   }
 
+
+    async FreezeAccount(id) {
+    return AssetRepository.FreezeAccount(
+      id,
+      this.options,
+    );
+  }
+
   async ConvertFiat(fiat) {
     return AssetRepository.convertCoins(
       fiat

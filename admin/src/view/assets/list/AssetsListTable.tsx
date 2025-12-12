@@ -6,6 +6,8 @@ import assetsSelectors from 'src/modules/assets/assetsSelectors';
 import destroyActions from 'src/modules/assets/destroy/assetsDestroyActions';
 import destroySelectors from 'src/modules/assets/destroy/assetsDestroySelectors';
 import actions from 'src/modules/assets/list/assetsListActions';
+import assetsFormActions from 'src/modules/assets/form/assetsFormActions';
+
 import selectors from 'src/modules/assets/list/assetsListSelectors';
 import ConfirmModal from 'src/view/shared/modals/ConfirmModal';
 import Spinner from 'src/view/shared/Spinner';
@@ -13,7 +15,8 @@ import Pagination from 'src/view/shared/table/Pagination';
 import UserListItem from 'src/view/user/list/UserListItem';
 
 function AssetsListTable(props) {
-  const [recordIdToDestroy, setRecordIdToDestroy] = useState(null);
+  const [recordIdToFreeze, setRecordIdToFreeze] = useState(null);
+  const [recordIdToUnfreeze, setRecordIdToUnfreeze] = useState(null);
   const dispatch = useDispatch();
 
   const findLoading = useSelector(selectors.selectLoading);
@@ -29,8 +32,13 @@ function AssetsListTable(props) {
   const hasPermissionToEdit = useSelector(assetsSelectors.selectPermissionToEdit);
   const hasPermissionToDestroy = useSelector(assetsSelectors.selectPermissionToDestroy);
 
-  const doOpenDestroyConfirmModal = (id) => setRecordIdToDestroy(id);
-  const doCloseDestroyConfirmModal = () => setRecordIdToDestroy(null);
+  // Open freeze modal
+  const doOpenFreezeConfirmModal = (id) => setRecordIdToFreeze(id);
+  const doCloseFreezeConfirmModal = () => setRecordIdToFreeze(null);
+
+  // Open unfreeze modal
+  const doOpenUnfreezeConfirmModal = (id) => setRecordIdToUnfreeze(id);
+  const doCloseUnfreezeConfirmModal = () => setRecordIdToUnfreeze(null);
 
   const doChangeSort = (field) => {
     const order = sorter.field === field && sorter.order === 'ascend' ? 'descend' : 'ascend';
@@ -41,9 +49,16 @@ function AssetsListTable(props) {
     dispatch(actions.doChangePagination(pagination));
   };
 
-  const doDestroy = (id) => {
-    doCloseDestroyConfirmModal();
-    dispatch(destroyActions.doDestroy(id));
+  // Handle freeze action
+  const doFreeze = (id) => {
+    doCloseFreezeConfirmModal();
+    dispatch(assetsFormActions.changeStatus(id));
+  };
+
+  // Handle unfreeze action
+  const doUnfreeze = (id) => {
+    doCloseUnfreezeConfirmModal();
+        dispatch(assetsFormActions.changeStatus(id));
   };
 
   const doToggleAllSelected = () => dispatch(actions.doToggleAllSelected());
@@ -74,6 +89,17 @@ function AssetsListTable(props) {
               >
                 {i18n('entities.assets.fields.user')}
                 {sorter.field === 'user' && (
+                  <span className="sort-icon">
+                    {sorter.order === 'ascend' ? '↑' : '↓'}
+                  </span>
+                )}
+              </th>
+                 <th 
+                className="sortable-header"
+                onClick={() => doChangeSort('accountType')}
+              >
+                {i18n('entities.assets.fields.accountType')}
+                {sorter.field === 'symbol' && (
                   <span className="sort-icon">
                     {sorter.order === 'ascend' ? '↑' : '↓'}
                   </span>
@@ -164,11 +190,18 @@ function AssetsListTable(props) {
                   <td className="table-cell">
                     <UserListItem value={row.createdBy} />
                   </td>
+                   <td className="table-cell">       {row.accountType}</td>
+
                   <td className="table-cell">{row.symbol}</td>
                   <td className="table-cell">{row.coinName}</td>
+           
                   <td className="table-cell numeric">{row.amount}</td>
                   <td className="table-cell">
-                    <span className={`status-badge ${(row.status === 'success' || row.status === 'available') ? 'success' : 'canceled'}`}>
+                    <span className={`status-badge ${
+                      row.status === 'available' ? 'success' : 
+                      row.status === 'freeze' ? 'canceled' : 
+                      'warning'
+                    }`}>
                       {row.status}
                     </span>
                   </td>
@@ -181,14 +214,25 @@ function AssetsListTable(props) {
                         </Link>
                       )}
                       {hasPermissionToDestroy && (
-                        <button 
-                          className="btn-action delete" 
-                          type="button" 
-                          onClick={() => doOpenDestroyConfirmModal(row.id)}
-                        >
-                          <i className="fas fa-trash"></i>
-                          <span>{i18n('common.destroy')}</span>
-                        </button>
+                        row.status === 'available' ? (
+                          <button 
+                            className="btn-action freeze" 
+                            type="button" 
+                            onClick={() => doOpenFreezeConfirmModal(row.id)}
+                          >
+                            <i className="fas fa-lock"></i>
+                            <span>{i18n('common.freeze')}</span>
+                          </button>
+                        ) : (
+                          <button 
+                            className="btn-action unfreeze" 
+                            type="button" 
+                            onClick={() => doOpenUnfreezeConfirmModal(row.id)}
+                          >
+                            <i className="fas fa-unlock"></i>
+                            <span>{i18n('common.unfreeze')}</span>
+                          </button>
+                        )
                       )}
                     </div>
                   </td>
@@ -202,14 +246,30 @@ function AssetsListTable(props) {
         <Pagination onChange={doChangePagination} disabled={loading} pagination={pagination} />
       </div>
 
-      {recordIdToDestroy && (
+      {/* Freeze Confirmation Modal */}
+      {recordIdToFreeze && (
         <ConfirmModal
-          title={i18n('common.areYouSure')}
-          onConfirm={() => doDestroy(recordIdToDestroy)}
-          onClose={doCloseDestroyConfirmModal}
-          okText={i18n('common.yes')}
-          cancelText={i18n('common.no')}
-        />
+          title={i18n('common.freezeConfirmation')}
+          onConfirm={() => doFreeze(recordIdToFreeze)}
+          onClose={doCloseFreezeConfirmModal}
+          okText={i18n('common.freeze')}
+          cancelText={i18n('common.cancel')}
+        >
+          <p>{i18n('entities.assets.freeze.confirmation')}</p>
+        </ConfirmModal>
+      )}
+
+      {/* Unfreeze Confirmation Modal */}
+      {recordIdToUnfreeze && (
+        <ConfirmModal
+          title={i18n('common.unfreezeConfirmation')}
+          onConfirm={() => doUnfreeze(recordIdToUnfreeze)}
+          onClose={doCloseUnfreezeConfirmModal}
+          okText={i18n('common.unfreeze')}
+          cancelText={i18n('common.cancel')}
+        >
+          <p>{i18n('entities.assets.unfreeze.confirmation')}</p>
+        </ConfirmModal>
       )}
     </div>
   );
