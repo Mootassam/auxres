@@ -198,8 +198,8 @@ function AssetsListTable(props) {
                   <td className="table-cell numeric">{row.amount}</td>
                   <td className="table-cell">
                     <span className={`status-badge ${
-                      row.status === 'available' ? 'success' : 
-                      row.status === 'freeze' ? 'canceled' : 
+                      row.status === 'active' ? 'success' : 
+                      row.status === 'freezed' ? 'canceled' : 
                       'warning'
                     }`}>
                       {row.status}
@@ -214,7 +214,7 @@ function AssetsListTable(props) {
                         </Link>
                       )}
                       {hasPermissionToDestroy && (
-                        row.status === 'available' ? (
+                        row.status === 'active' ? (
                           <button 
                             className="btn-action freeze" 
                             type="button" 
