@@ -476,6 +476,7 @@ class WalletRepository {
     return this._fillFileDownloadUrls(record);
   }
 
+
   static async findAndCountAll(
     { filter, limit = 0, offset = 0, orderBy = "" },
     options: IRepositoryOptions
