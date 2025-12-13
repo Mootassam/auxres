@@ -1,30 +1,40 @@
+version: "3.9"
+
 services:
   backend:
     build: ./server
     ports:
-      - 8084:8084
+      - "8084:8084"
     restart: unless-stopped
     volumes:
       - upload:/upload
     environment:
       DATABASE_CONNECTION: mongodb://db:27017/grap
-      REDIS_HOST: redis 
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
       - db
       - redis
+    command: ["npm", "start"] # ensure no nodemon / ts-node in prod
 
   db:
     image: mongo:4.4
     ports:
-      - 2757:27017
+      - "2757:27017"
     restart: unless-stopped
     volumes:
       - phone:/data/db
 
+  redis:
+    image: redis:7.2-alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
   web:
     build: ./admin
     ports:
-      - 3022:80
+      - "3022:80"
     restart: unless-stopped
     volumes:
       - "./admin:/app"
@@ -36,7 +46,7 @@ services:
   web1:
     build: ./graborders
     ports:
-      - 3015:80
+      - "3015:80"
     restart: unless-stopped
     volumes:
       - "./graborders:/app"
@@ -44,9 +54,6 @@ services:
     stdin_open: true
     environment:
       - CHOKIDAR_USEPOLLING=true
-      
-  redis:
-    image: 'redis:latest'
 
 volumes:
   phone:
