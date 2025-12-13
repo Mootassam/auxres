@@ -73,6 +73,9 @@ const en = {
   },
 
   errors: {
+    Invalidnonce :"Invalid nonce", 
+    Invalidsignature:"Invalid signature",
+
       frozenDuringExecution: "Cannot execute {{operation}}. Your {{currency}} perpetual wallet is currently frozen. Please contact customer support.",
       insufficientorfrozen:"Insufficient funds in wallet after validation or wallet is frozen",
     notFounds: `{{currency}} wallet not found. Please contact support.`,

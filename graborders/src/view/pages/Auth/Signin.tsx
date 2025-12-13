@@ -1,24 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import actions from "src/modules/auth/authActions";
 import { FormProvider, useForm } from "react-hook-form";
-import * as yup from "yup";
-import yupFormSchemas from "src/modules/shared/yup/yupFormSchemas";
-import { i18n } from "../../../i18n";
 import { yupResolver } from "@hookform/resolvers/yup";
-import InputFormItem from "src/shared/form/InputFormItem";
-import selectors from "src/modules/auth/authSelectors";
-import ButtonIcon from "src/shared/ButtonIcon";
-import { useHistory } from "react-router-dom";
-import I18nSelect from "src/view/layout/I18nSelect";
+import * as yup from "yup";
+import { ethers } from "ethers";
 
-// Fixed schema with better validation
+import actions from "src/modules/auth/authActions";
+import selectors from "src/modules/auth/authSelectors";
+import yupFormSchemas from "src/modules/shared/yup/yupFormSchemas";
+import InputFormItem from "src/shared/form/InputFormItem";
+import I18nSelect from "src/view/layout/I18nSelect";
+import { i18n } from "../../../i18n";
+import { useHistory } from "react-router-dom";
+import Message from "src/shared/message";
+import UserService from "src/modules/user/userService";
+
+/* =======================
+   Validation Schema
+======================= */
 const schema = yup.object().shape({
   email: yupFormSchemas
-    .string(i18n("user.fields.username"), {
-      required: true,
-    })
+    .string(i18n("user.fields.username"), { required: true })
     .email(i18n("validation.email")),
   password: yupFormSchemas.string(i18n("user.fields.password"), {
     required: true,
@@ -34,27 +37,103 @@ function Signin() {
   const loading = useSelector(selectors.selectLoading);
   const externalErrorMessage = useSelector(selectors.selectErrorMessage);
 
-  const [initialValues] = useState({
-    email: "",
-    password: "",
-    rememberMe: true,
-  });
-
   const [isChecked, setIsChecked] = useState(true);
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
+
+  const [walletLoading, setWalletLoading] = useState(false);
+  const [walletError, setWalletError] = useState<string | null>(null);
+
+  const form = useForm({
+    resolver: yupResolver(schema),
+    mode: "onSubmit",
+    defaultValues: {
+      email: "",
+      password: "",
+      rememberMe: true,
+    },
+  });
 
   useEffect(() => {
     dispatch(actions.doClearErrorMessage());
   }, [dispatch]);
 
-  const form = useForm({
-    resolver: yupResolver(schema),
-    mode: "onSubmit",
-    defaultValues: initialValues,
-  });
-
+  /* =======================
+     Email / Password Login
+  ======================= */
   const onSubmit = ({ email, password, rememberMe }) => {
     dispatch(actions.doSigninWithEmailAndPassword(email, password, rememberMe));
+  };
+
+  /* =======================
+     Wallet Login (Any Provider)
+  ======================= */
+  const connectWallet = async () => {
+    try {
+      setWalletError(null);
+      setWalletLoading(true);
+
+      // Check if Ethereum provider is available
+      if (!window.ethereum) {
+        Message.error("Please install MetaMask or another Web3 wallet")
+        return;
+      }
+
+      // Request account access
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const address = await signer.getAddress();
+
+      // Get nonce from server
+      const nonceRes = await UserService.userNonce(address);
+
+      if (!nonceRes.nonce) {
+        throw new Error('Failed to get nonce from server');
+      }
+
+      const nonce = await nonceRes.nonce
+
+      // Sign message with nonce
+      const message = `Sign this message to verify your wallet: ${nonce}`;
+      const signature = await signer.signMessage(message);
+
+      const values = {
+        address,
+        signature,
+        message,
+        provider: window.ethereum.isMetaMask ? 'metamask' : 'web3'
+      }
+
+      // Verify signature with server
+      const verifyRes = await UserService.verify(values)
+
+      if (!verifyRes) {
+        throw new Error('Verification failed');
+      }
+
+      // Dispatch Redux action to update auth state
+      dispatch(actions.doSigninWithWallet(verifyRes));
+
+
+    } catch (error) {
+      console.error('Wallet login error:', error);
+
+      // User rejected the request
+      if (error.code === 4001 || error.message?.includes('rejected')) {
+        setWalletError("Wallet connection was rejected");
+      }
+      // Network/chain errors
+      else if (error.code === 4902 || error.message?.includes('chain')) {
+        setWalletError("Please connect to the correct network");
+      }
+      // Generic error
+      else {
+        setWalletError(error.message || "Failed to connect wallet");
+      }
+    } finally {
+      setWalletLoading(false);
+    }
   };
 
   const goBack = () => {
@@ -83,7 +162,6 @@ function Signin() {
           <span>{i18n("auth.signin.button")}</span>
         </button>
 
-        {/* Language Selector - Now opens modal */}
         <div className="language-selector-modal" onClick={openLanguageModal}>
           <div className="language-display">
             English
@@ -94,14 +172,12 @@ function Signin() {
 
       {/* Main Content */}
       <div className="containera">
-        {/* Tabs */}
         <div className="tabs">
           <button className="tab active">Mail</button>
           <button className="tab">Phone</button>
         </div>
 
         <FormProvider {...form}>
-          {/* Display error message if exists */}
           {externalErrorMessage && (
             <div
               className="error-message"
@@ -119,7 +195,6 @@ function Signin() {
           )}
 
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            {/* Email Field */}
             <div className="form-group">
               <label className="form-label">Your mailbox</label>
               <InputFormItem
@@ -127,11 +202,9 @@ function Signin() {
                 name="email"
                 placeholder="Please enter your email"
                 className="form-input"
-                externalErrorMessage={null}
               />
             </div>
 
-            {/* Password Field */}
             <div className="form-group">
               <label className="form-label">Your password</label>
               <InputFormItem
@@ -140,14 +213,12 @@ function Signin() {
                 placeholder="Please enter your password"
                 className="form-input"
                 autoComplete="current-password"
-                externalErrorMessage={null}
               />
             </div>
 
-            {/* Remember Me Checkbox */}
             <div className="checkbox-group">
               <div
-                className={`checkbox ${isChecked ? 'checked' : ''}`}
+                className={`checkbox ${isChecked ? "checked" : ""}`}
                 onClick={toggleCheckbox}
               ></div>
               <label className="checkbox-label" onClick={toggleCheckbox}>
@@ -155,28 +226,28 @@ function Signin() {
               </label>
             </div>
 
-            {/* Login Button */}
             <button
               className="login-button"
-              disabled={loading}
+              disabled={loading || walletLoading}
               type="submit"
-              style={{ opacity: loading ? 0.6 : 1 }}
+              style={{ opacity: (loading || walletLoading) ? 0.6 : 1 }}
             >
               {loading ? (
-                <span>{i18n("auth.signin.signingIn")}</span>
+                <>
+                  <i className="fas fa-spinner fa-spin" style={{ marginRight: '8px' }}></i>
+                  {i18n("auth.signin.signingIn")}
+                </>
               ) : (
                 <span>{i18n("auth.signin.button")}</span>
               )}
             </button>
 
-            {/* Sign Up Button */}
             <Link to="/auth/signup" className="signup-button-link">
               <button type="button" className="signup-button">
                 Sign up now
               </button>
             </Link>
 
-            {/* Forgot Password Link */}
             <div className="footer">
               <Link to="/forgot-password" className="forgot-password">
                 Forget password
@@ -184,24 +255,143 @@ function Signin() {
             </div>
           </form>
         </FormProvider>
+
+        {/* Wallet Login Section */}
+        <div style={{ marginTop: '1.5rem' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            marginBottom: '1rem'
+          }}>
+            <div style={{ flex: 1, height: '1px', backgroundColor: '#e0e0e0' }}></div>
+            <span style={{
+              padding: '0 1rem',
+              color: '#8E8E93',
+              fontSize: '13px'
+            }}>
+              OR
+            </span>
+            <div style={{ flex: 1, height: '1px', backgroundColor: '#e0e0e0' }}></div>
+          </div>
+
+          {walletError && (
+            <div
+              className="error-message"
+              style={{
+                color: "#ff3b30",
+                textAlign: "center",
+                marginBottom: "1rem",
+                padding: "0.75rem",
+                backgroundColor: "rgba(255, 59, 48, 0.1)",
+                borderRadius: "8px",
+                fontSize: "13px",
+                border: "1px solid rgba(255, 59, 48, 0.2)"
+              }}
+            >
+              {walletError}
+            </div>
+          )}
+
+          {window.ethereum && (
+            <button
+              onClick={connectWallet}
+              disabled={walletLoading || loading}
+              className="wallet-button"
+              style={{
+                opacity: (walletLoading || loading) ? 0.6 : 1,
+                width: '100%',
+                backgroundColor: walletLoading ? '#007AFF' : 'white',
+                color: walletLoading ? 'white' : '#007AFF',
+                border: '2px solid #007AFF',
+                borderRadius: '7px',
+                padding: '14px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: (walletLoading || loading) ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px'
+              }}
+              type="button"
+            >
+              {walletLoading ? (
+                <>
+                  <i className="fas fa-spinner fa-spin"></i>
+                  Connecting Wallet...
+                </>
+              ) : (
+                <>
+                  <i className="fas fa-wallet"></i>
+                  Login with Wallet
+                </>
+              )}
+            </button>
+          )}
+
+          {!window.ethereum && (
+            <div style={{
+              textAlign: 'center',
+              padding: '1rem',
+              backgroundColor: '#f8f9fa',
+              borderRadius: '8px',
+              border: '1px dashed #C7C7CC'
+            }}>
+              <i className="fas fa-wallet" style={{
+                fontSize: '24px',
+                color: '#8E8E93',
+                marginBottom: '8px'
+              }}></i>
+              <p style={{
+                fontSize: '13px',
+                color: '#8E8E93',
+                marginBottom: '8px'
+              }}>
+                Web3 wallet not detected
+              </p>
+              <p style={{
+                fontSize: '11px',
+                color: '#8E8E93'
+              }}>
+                Install MetaMask or another Web3 wallet to use this feature
+              </p>
+            </div>
+          )}
+
+          {window.ethereum && (
+            <div style={{
+              textAlign: 'center',
+              marginTop: '0.75rem',
+              fontSize: '11px',
+              color: '#8E8E93'
+            }}>
+              Supports MetaMask, Coinbase Wallet, etc.
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Language Selection Modal - Bottom Sheet Style */}
+      {/* Language Modal */}
       {isLanguageModalOpen && (
         <div className="modal-overlay" onClick={closeLanguageModal}>
-          <div className="modal-container-bottom" onClick={(e) => e.stopPropagation()}>
-            {/* Modal Header */}
+          <div
+            className="modal-container-bottom"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="modal-header-bottom">
               <div className="modal-drag-handle"></div>
               <div className="modal-title-wrapper">
                 <div className="modal-title">Select Language</div>
-                <button className="modal-close-btn-bottom" onClick={closeLanguageModal}>
+                <button
+                  className="modal-close-btn-bottom"
+                  onClick={closeLanguageModal}
+                >
                   <i className="fas fa-times" />
                 </button>
               </div>
             </div>
-            
-            {/* Modal Content */}
+
             <div className="modal-content-bottom">
               <I18nSelect isInModal={true} />
             </div>
@@ -416,6 +606,9 @@ function Signin() {
           cursor: pointer;
           transition: all 0.2s ease;
           margin-bottom: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         .login-button:hover:not(:disabled) {
@@ -464,6 +657,44 @@ function Signin() {
 
         .forgot-password:hover {
           text-decoration: underline;
+        }
+
+        /* Wallet button specific styles */
+        .wallet-button {
+          width: 100%;
+          background-color: white;
+          color: #007AFF;
+          border: 2px solid #007AFF;
+          border-radius: 7px;
+          padding: 14px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+        }
+
+        .wallet-button:hover:not(:disabled) {
+          background-color: #f0f7ff;
+          transform: translateY(-1px);
+        }
+
+        .wallet-button:disabled {
+          cursor: not-allowed;
+          opacity: 0.6;
+        }
+
+        /* Spinner animation */
+        .fa-spinner {
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
 
         /* Modal Styles for Language Selection */
@@ -586,6 +817,10 @@ function Signin() {
           }
           
           .login-button, .signup-button {
+            padding: 14px;
+          }
+
+          .wallet-button {
             padding: 14px;
           }
 

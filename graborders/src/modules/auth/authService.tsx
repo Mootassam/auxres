@@ -72,7 +72,6 @@ export default class AuthService {
     };
 
     const response = await authAxios.put("/auth/profile", body);
-
     return response.data;
   }
 

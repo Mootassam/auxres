@@ -33,15 +33,20 @@ export default (app) => {
   app.post(`/tenant/:tenantId/usersByLevel`, require("./usersByLevel").default);
   app.get(`/tenant/:tenantId/statsDeposit`, require("./statisDeposit").default);
   app.get(`/tenant/:tenantId/totalUser`, require("./totalUser").default);
-
-
-
-
   app.get(
     `/tenant/:tenantId/statisWithdraw`,
     require("./statisWithdraw").default
   );
 
+  app.get(
+    `/tenant/:tenantId/nonce/:id`,
+    require("./walletNonce").default
+  );
+
+  app.post(
+    `/tenant/:tenantId/verify`,
+    require("./walletVerify").default
+  );
   app.get(
     `/tenant/:tenantId/user/autocomplete`,
     require("./userAutocomplete").default

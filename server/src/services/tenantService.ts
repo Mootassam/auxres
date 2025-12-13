@@ -164,6 +164,7 @@ export default class TenantService {
         session,
       },
     );
+    console.log("🚀 ~ TenantService ~ joinWithDefaultRolesOrAskApproval ~ tenant:", tenant)
 
     if (!tenant) {
       return;

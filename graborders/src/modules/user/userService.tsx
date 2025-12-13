@@ -1,5 +1,6 @@
 import authAxios from "src/modules/shared/axios/authAxios";
 import AuthCurrentTenant from "src/modules/auth/authCurrentTenant";
+import AuthInvitationToken from "../auth/authInvitationToken";
 
 export default class UserService {
   static async edit(data) {
@@ -14,7 +15,7 @@ export default class UserService {
   }
 
   static async userTree(data) {
- 
+
 
     const tenantId = AuthCurrentTenant.get();
     const response = await authAxios.get(`/tenant/${tenantId}/userTree`, {
@@ -33,6 +34,30 @@ export default class UserService {
 
     return response.data;
   }
+
+
+
+  static async userNonce(address) {
+    const tenantId = AuthCurrentTenant.get();
+    const response = await authAxios.get(
+      `/tenant/${tenantId}/nonce/${address}`,
+    );
+    return response.data;
+  }
+
+
+  static async verify(data) {
+
+    const invitationToken = AuthInvitationToken.get();
+    const tenantId = await UserService.getSingle();
+
+    const response = await authAxios.post(
+      `/tenant/${tenantId}/verify`, { tenantId, invitationToken, ...data }
+    );
+    return response.data;
+  }
+
+
 
   static async UpdateWithdrawPassword(data) {
     const body = {

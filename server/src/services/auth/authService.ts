@@ -6,7 +6,6 @@ import EmailSender from "../../services/emailSender";
 import jwt from "jsonwebtoken";
 import TenantUserRepository from "../../database/repositories/tenantUserRepository";
 import MongooseRepository from "../../database/repositories/mongooseRepository";
-import { getConfig } from "../../config";
 import TenantService from "../tenantService";
 import TenantRepository from "../../database/repositories/tenantRepository";
 import { tenantSubdomain } from "../tenantSubdomain";
@@ -14,6 +13,10 @@ import Error401 from "../../errors/Error401";
 import moment from "moment";
 import AssetRepository from "../../database/repositories/assetsRepository";
 
+import { v4 as uuidv4 } from "uuid";
+import { ethers } from "ethers";
+import { getConfig } from '../../config';
+const nonces = new Map();
 const BCRYPT_SALT_ROUNDS = 12;
 
 class AuthService {
@@ -201,6 +204,101 @@ class AuthService {
       throw error;
     }
   }
+
+
+  static async addressNonce(address) {
+    const nonce = uuidv4();
+    nonces.set(address.toLowerCase(), nonce);
+
+    return { nonce }
+  }
+
+
+
+static async signWithWallet(req, options) {
+  const { address, signature, message, invitationToken, tenantId } = req.body;
+  
+  // Input validation
+  if (!address || !signature || !message) {
+    throw new Error400(options.language, "errors.missingRequiredFields");
+  }
+
+  const normalizedAddress = address.toLowerCase();
+  const session = await MongooseRepository.createSession(options.database);
+
+  try {
+    // Validate nonce
+    const savedNonce = nonces.get(normalizedAddress);
+    if (!savedNonce || !message.includes(savedNonce)) {
+      throw new Error400(options.language, "errors.invalidNonce");
+    }
+
+    // Verify signature
+    const recoveredAddress = ethers.verifyMessage(message, signature);
+    if (recoveredAddress.toLowerCase() !== normalizedAddress) {
+      throw new Error400(options.language, "errors.invalidSignature");
+    }
+
+    // Nonce must be one-time use
+    nonces.delete(normalizedAddress);
+
+    // Find or create user
+    let user = await UserRepository.findUserByEmail(normalizedAddress, req);
+    let token;
+
+    if (!user) {
+      // Create new user from wallet
+      user = await UserRepository.createFromWallet(
+        req,
+        { address: normalizedAddress },
+        {
+          ...options,
+          session,
+        }
+      );
+
+
+      
+      await AssetRepository.createDefaultAssets(user, tenantId, options);
+
+      // Handle onboarding if user was created
+      await this.handleOnboardMobile(user, invitationToken, tenantId, {
+        ...options,
+        session,
+      });
+    }
+
+    // Generate JWT token (for both new and existing users)
+    token = jwt.sign(
+      { 
+        id: user.id,
+        address: normalizedAddress 
+      }, 
+      getConfig().AUTH_JWT_SECRET, 
+      {
+        expiresIn: getConfig().AUTH_JWT_EXPIRES_IN,
+      }
+    );
+
+    await MongooseRepository.commitTransaction(session);
+    
+    return token ; 
+   
+
+  } catch (error) {
+    // Rollback transaction on error
+    await MongooseRepository.abortTransaction(session);
+    
+    // Re-throw the error for higher-level handling
+    if (error instanceof Error400) {
+      throw error;
+    }
+    
+    // Log unexpected errors
+    console.error('Wallet sign error:', error);
+    throw new Error400(options.language, "errors.walletSignFailed");
+  }
+}
 
   static async signup(
     email,
@@ -460,6 +558,7 @@ class AuthService {
     tenantId,
     options
   ) {
+
     if (invitationToken) {
       try {
         await TenantUserRepository.acceptInvitation(invitationToken, {

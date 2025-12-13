@@ -56,10 +56,8 @@ const authActions = {
 
 
 
-
   doRegisterEmailAndPassword: (email,
     password,
-
     phoneNumber,
     withdrawPassword,
     invitationcode,) => async (dispatch) => {
@@ -93,6 +91,8 @@ const authActions = {
       }
     },
 
+
+
   doSigninWithEmailAndPassword:
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (email, password, rememberMe) => async (dispatch) => {
@@ -102,6 +102,41 @@ const authActions = {
         let currentUser = null;
 
         const token = await service.signinWithEmailAndPassword(email, password);
+
+        await AuthToken.set(token, true);
+
+        currentUser = await service.fetchMe();
+
+
+        dispatch({
+          type: authActions.AUTH_SUCCESS,
+          payload: {
+            currentUser,
+          },
+        });
+      } catch (error) {
+        await service.signout();
+
+        if (Errors.errorCode(error) !== 400) {
+          Errors.handle(error);
+        }
+
+        dispatch({
+          type: authActions.AUTH_ERROR,
+          payload: Errors.selectMessage(error),
+        });
+      }
+    },
+
+
+      doSigninWithWallet:
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (token) => async (dispatch) => {
+      try {
+        dispatch({ type: authActions.AUTH_START });
+
+        let currentUser = null;
+
 
         await AuthToken.set(token, true);
 

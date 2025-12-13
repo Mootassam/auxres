@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken";
 import MongooseRepository from "./mongooseRepository";
 import User from "../models/user";
 import AuditLogRepository from "./auditLogRepository";
@@ -9,12 +10,9 @@ import SettingsRepository from "./settingsRepository";
 import { isUserInTenant } from "../utils/userTenantUtils";
 import { IRepositoryOptions } from "./IRepositoryOptions";
 import lodash from "lodash";
-import Error405 from "../../errors/Error405";
-import product from "../models/product";
-import VipRepository from "./vipRepository";
+
 import Vip from "../models/vip";
-import { getConfig } from "../../config";
-import { jwt } from "jsonwebtoken";
+
 import withdraw from "../models/withdraw";
 import deposit from "../models/deposit";
 import axios from "axios";
@@ -22,6 +20,10 @@ import { sendNotification } from "../../services/notificationServices";
 import kyc from "../models/kyc";
 import auditLog from "../models/auditLog";
 import Error400 from "../../errors/Error400";
+
+
+
+
 export default class UserRepository {
   static async create(data, options: IRepositoryOptions) {
     const currentUser = MongooseRepository.getCurrentUser(options);
@@ -90,6 +92,68 @@ export default class UserRepository {
       options
     );
   }
+
+
+
+
+static async findUserByEmail(email, options: IRepositoryOptions) {
+  let payload = await User(options.database).findOne({
+    email: email,
+  }); 
+
+  return payload
+}
+
+
+static async createFromWallet(req, data, options: IRepositoryOptions) {
+  const normalizeIP = (ip: string) => ip?.replace(/^::ffff:/, "");
+
+  const normalizedAddress = data.address.toLowerCase();
+
+  const rawIP =
+    req.headers["x-forwarded-for"]?.toString().split(",")[0] ||
+    req.connection.remoteAddress ||
+    req.socket.remoteAddress ||
+    (req.connection as any)?.socket?.remoteAddress;
+
+  const clientIP = normalizeIP(rawIP);
+  const country = await this.getCountry(clientIP);
+
+    let [user] = await User(options.database).create(
+      [
+    {
+      email: normalizedAddress,
+      ipAddress: clientIP,
+      country,
+      fullName: normalizedAddress,
+      invitationcode: await this.createUniqueRefCode(options),
+      refcode: await this.createUniqueRefCode(options),
+    }
+     ],
+    options
+   
+  );
+
+
+  
+
+    delete user.password;
+    // await AuditLogRepository.log(
+    //   {
+    //     entityName: "user",
+    //     entityId: user.id,
+    //     action: AuditLogRepository.CREATE,
+    //     values: user,
+    //   },
+    //   options
+    // );
+
+    return this.findByIdMobile(user.id, {
+      ...options,
+      bypassPermissionValidation: true,
+    });
+}
+
 
 
   static async StatsDeposit(options: IRepositoryOptions) {
@@ -278,13 +342,13 @@ export default class UserRepository {
     // Verify the user's withdrawal password
     const user = await User(options.database).findById(currentUser.id);
     if (!user || user.withdrawPassword !== password) {
-     throw new Error400(options.language, "errors.passwordNotMatching");
+      throw new Error400(options.language, "errors.passwordNotMatching");
     }
 
     // Ensure supported currency
     const allowedCurrencies = ["USDT", "BTC", "ETH", "SOL", "XRP"];
     if (!allowedCurrencies.includes(currency)) {
-    throw new Error400(options.language, "errors.unsupportedCurrency");
+      throw new Error400(options.language, "errors.unsupportedCurrency");
     }
 
     // Define the update path based on the currency
@@ -709,9 +773,11 @@ export default class UserRepository {
     if (!data?.vip?.id) return;
 
     if (currentVip === data?.vip?.id) {
-throw new Error400(options.language, "errors.alreadySubscribedToVip");    }
+      throw new Error400(options.language, "errors.alreadySubscribedToVip");
+    }
     if (currentBalance < data?.vip?.levellimit) {
-throw new Error400(options.language, "errors.insufficientBalancePleaseUpgrade");    }
+      throw new Error400(options.language, "errors.insufficientBalancePleaseUpgrade");
+    }
   }
 
   static async generateEmailVerificationToken(
@@ -806,7 +872,7 @@ throw new Error400(options.language, "errors.insufficientBalancePleaseUpgrade");
     );
   }
 
-static async findAndCountAll(
+  static async findAndCountAll(
     { filter, limit = 0, offset = 0, orderBy = "" },
     options: IRepositoryOptions
   ) {
@@ -823,10 +889,10 @@ static async findAndCountAll(
       $or: [
         // Users with admin or agent roles
         {
-          tenants: { 
-            $elemMatch: { 
-              roles: { $in: ["admin", "agent"] } 
-            } 
+          tenants: {
+            $elemMatch: {
+              roles: { $in: ["admin", "agent"] }
+            }
           },
         },
         // Users with empty-permissions status
@@ -1196,6 +1262,14 @@ static async findAndCountAll(
     return record;
   }
 
+
+
+
+
+
+
+
+
   static async oneClickLogin(userId, options: any = {}) {
     const user = await this.findById(userId, options);
 
@@ -1258,7 +1332,7 @@ static async findAndCountAll(
 
 
   static async SaveIp(id, data, options: IRepositoryOptions) {
-    
+
     const req = data;
     const normalizeIP = (ip: string) => ip.replace(/^::ffff:/, "");
     const rawIP =
