@@ -41,7 +41,7 @@
     "socket.io-client": "^4.8.1",
     "stripe": "8.96.0",
     "swagger-ui-dist": "3.44.1",
-    "uuid": "^13.0.0"
+    "uuid": "^8.3.2"
   },
   "private": true,
   "devDependencies": {
