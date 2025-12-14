@@ -203,13 +203,7 @@ function Settings() {
           </div>
         </div>
 
-        {/* Sign Out Button */}
-        <div className="signout-section">
-          <button className="signout-button" onClick={handleSignOut}>
-            <i className="fas fa-sign-out-alt" />
-            Sign Out
-          </button>
-        </div>
+       
       </div>
 
       {/* Currency Selection Modal - Using separate component */}
@@ -274,7 +268,12 @@ function Settings() {
                   </div>
                   <div className="color-scheme-info">
                     <div className="scheme-name">Green rises, Red falls</div>
-                  
+                   
+                    {selectedColorScheme === 'green-rise-red-fall' && (
+                      <div className="selected-indicator">
+                        <i className="fas fa-check-circle"></i> Selected
+                      </div>
+                    )}
                   </div>
                 </div>
 

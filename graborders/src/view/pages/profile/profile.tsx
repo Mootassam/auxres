@@ -243,6 +243,9 @@ function Profile() {
     );
   }, [simulatedTradingEnabled, toggleSimulatedTrading, handleClearCache]);
 
+  const handleSignOut = () => {
+    dispatch(authActions.doSignout());
+  };
   return (
     <div className="profile-container">
       {/* Header Section */}
@@ -286,15 +289,63 @@ function Profile() {
         </div>
       </div>
 
+
+
       {/* Content Section */}
       <div className="content-card">
         <ul className="menu-list">
           {menuItems.map((item, index) => renderMenuItem(item, index))}
         </ul>
+
+          <div className="signout-section">
+          <button className="signout-button" onClick={handleSignOut}>
+            <i className="fas fa-sign-out-alt" />
+            Sign Out
+          </button>
+        </div>
       </div>
 
+
+ {/* Sign Out Button */}
+      
       {/* Add necessary styles - make sure these are included */}
       <style>{`
+
+
+  /* Sign Out Button */
+        .signout-section {
+          margin-top: 30px;
+          padding: 20px 0;
+          border-top: 1px solid #e7eaee;
+        }
+
+        .signout-button {
+          width: 100%;
+          padding: 12px;
+          background: #f44336;
+          color: white;
+          border: none;
+          border-radius: 7px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+        }
+
+        .signout-button:hover {
+          background: #d32f2f;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(244, 67, 54, 0.2);
+        }
+
+        .signout-button:active {
+          transform: translateY(0);
+        }
+
         .profile-container {
           max-width: 400px;
           margin: 0 auto;
