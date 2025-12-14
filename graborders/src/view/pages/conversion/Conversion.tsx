@@ -1030,9 +1030,9 @@ function Conversion() {
           background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
           border: none;
           border-radius: 12px;
-          padding: 16px;
+          padding: 12px;
           color: white;
-          font-size: 16px;
+          font-size: 14px;
           font-weight: 600;
           cursor: pointer;
           transition: all 0.3s ease;
@@ -1055,9 +1055,9 @@ function Conversion() {
           background: transparent;
           border: 1px solid #e7eaee;
           border-radius: 12px;
-          padding: 16px;
+          padding: 12px;
           color: #888f99;
-          font-size: 16px;
+          font-size: 14px;
           font-weight: 500;
           cursor: pointer;
           transition: all 0.3s ease;

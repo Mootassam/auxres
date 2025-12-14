@@ -27,12 +27,7 @@ const MENU_ITEMS = [
     path: "/transferAll",
     name: "Account change records",
   },
-  {
-    icon: "fas fa-gift",
-    path: "/invitation",
-    name: "Invite friends",
-    requiresKyc: true,
-  },
+
   {
     icon: "fas fa-comment-dots",
     path: "/online-service",

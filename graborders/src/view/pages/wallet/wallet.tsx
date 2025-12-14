@@ -418,9 +418,9 @@ function Wallet() {
       {/* Header Section */}
       <div className="header">
         <div className="nav-bar">
-          <div className="back-arrow"></div>
+ 
           <div className="page-title">{i18n("pages.wallet.myAssets")}</div>
-          <div className="header-icon"></div>
+
         </div>
       </div>
 
@@ -537,8 +537,6 @@ function Wallet() {
         }
 
         .nav-bar {
-          display: flex;
-          justify-content: space-between;
           align-items: center;
         }
 

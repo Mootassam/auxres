@@ -15,6 +15,16 @@ const setStoredCurrency = (currency) => {
   localStorage.setItem('selectedCurrency', JSON.stringify(currency));
 };
 
+// Helper function for color scheme storage
+const getStoredColorScheme = () => {
+  const stored = localStorage.getItem('candlestickColorScheme');
+  return stored || 'green-rise-red-fall'; // Default scheme
+};
+
+const setStoredColorScheme = (scheme) => {
+  localStorage.setItem('candlestickColorScheme', scheme);
+};
+
 // Currency symbols mapping
 const CURRENCY_SYMBOLS = {
   USD: '$',
@@ -34,16 +44,29 @@ function Settings() {
   const dispatch = useDispatch();
   const [isCurrencyModalOpen, setIsCurrencyModalOpen] = useState(false);
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
+  const [isColorConfigModalOpen, setIsColorConfigModalOpen] = useState(false);
   
   // Initialize currency from localStorage
   const [selectedCurrency, setSelectedCurrency] = useState(() => {
     return getStoredCurrency();
   });
 
+  // Initialize color scheme from localStorage
+  const [selectedColorScheme, setSelectedColorScheme] = useState(() => {
+    return getStoredColorScheme();
+  });
+
   // Update currency name for display
   const currencyDisplayName = useMemo(() => {
     return `${selectedCurrency.code} [${selectedCurrency.symbol}]`;
   }, [selectedCurrency]);
+
+  // Color scheme display name
+  const colorSchemeDisplayName = useMemo(() => {
+    return selectedColorScheme === 'green-rise-red-fall' 
+      ? 'Green rises, Red falls' 
+      : 'Red rises, Green falls';
+  }, [selectedColorScheme]);
 
   const handleSignOut = () => {
     dispatch(authActions.doSignout());
@@ -64,6 +87,12 @@ function Settings() {
     setIsCurrencyModalOpen(false);
   };
 
+  const handleColorSchemeSelect = (scheme) => {
+    setStoredColorScheme(scheme);
+    setSelectedColorScheme(scheme);
+    setIsColorConfigModalOpen(false);
+  };
+
   const openCurrencyModal = () => {
     setIsCurrencyModalOpen(true);
   };
@@ -78,6 +107,14 @@ function Settings() {
 
   const closeLanguageModal = () => {
     setIsLanguageModalOpen(false);
+  };
+
+  const openColorConfigModal = () => {
+    setIsColorConfigModalOpen(true);
+  };
+
+  const closeColorConfigModal = () => {
+    setIsColorConfigModalOpen(false);
   };
 
   return (
@@ -125,19 +162,20 @@ function Settings() {
             </div>
           </div>
 
-          <Link to="/color-config" className="settings-option remove_blue">
+          {/* Color Configuration Option - Now opens modal instead of navigating */}
+          <div className="settings-option remove_blue" onClick={openColorConfigModal}>
             <div className="option-content-wrapper">
               <div className="option-icon">
                 <i className="fas fa-palette" />
               </div>
               <div className="option-content">
-                <div className="option-title">Color configuration</div>
+                <div className="option-title">Color configuration <span className="color-scheme-name">({colorSchemeDisplayName})</span></div>
               </div>
               <div className="option-arrow">
                 <i className="fas fa-chevron-right" />
               </div>
             </div>
-          </Link>
+          </div>
 
           <Link to="/about" className="settings-option remove_blue">
             <div className="option-content-wrapper">
@@ -200,6 +238,64 @@ function Settings() {
             {/* Modal Content */}
             <div className="modal-content-bottom">
               <I18nSelect isInModal={true} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Color Configuration Modal */}
+      {isColorConfigModalOpen && (
+        <div className="modal-overlay" onClick={closeColorConfigModal}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()}>
+            {/* Modal Header */}
+            <div className="modal-header">
+              <div className="modal-title-wrapper">
+                <div className="modal-title">Color Configuration</div>
+                <button className="modal-close-btn" onClick={closeColorConfigModal}>
+                  <i className="fas fa-times" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Content */}
+            <div className="modal-content">
+              <div className="color-scheme-options">
+                {/* Green rises, Red falls option */}
+                <div 
+                  className={`color-scheme-card ${selectedColorScheme === 'green-rise-red-fall' ? 'selected' : ''}`}
+                  onClick={() => handleColorSchemeSelect('green-rise-red-fall')}
+                >
+                  <div className="color-scheme-preview">
+                
+                    <div className="scheme-image">
+                      {/* You can use the image here when you have it */}
+                      <img src="/images/settings/s1.png" alt="Green rises, Red falls" />
+                    </div>
+                  </div>
+                  <div className="color-scheme-info">
+                    <div className="scheme-name">Green rises, Red falls</div>
+                  
+                  </div>
+                </div>
+
+                {/* Red rises, Green falls option */}
+                <div 
+                  className={`color-scheme-card ${selectedColorScheme === 'red-rise-green-fall' ? 'selected' : ''}`}
+                  onClick={() => handleColorSchemeSelect('red-rise-green-fall')}
+                >
+                  <div className="color-scheme-preview">
+                    <div className="scheme-image">
+                      {/* You can use the image here when you have it */}
+                      <img src="/images/settings/s2.png" alt="Red rises, Green falls" />
+                    </div>
+                  </div>
+                  <div className="color-scheme-info">
+                    <div className="scheme-name">Red rises, Green falls</div>
+                  
+               
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -335,6 +431,12 @@ function Settings() {
           color: #222;
         }
 
+        .color-scheme-name {
+          font-size: 12px;
+          color: #666;
+          font-weight: 400;
+        }
+
         .option-arrow {
           color: #ccc;
           font-size: 12px;
@@ -381,7 +483,7 @@ function Settings() {
           transform: translateY(0);
         }
 
-        /* Modal Styles */
+        /* Color Configuration Modal Styles */
         .modal-overlay {
           position: fixed;
           top: 0;
@@ -391,12 +493,207 @@ function Settings() {
           background-color: rgba(0, 0, 0, 0.5);
           backdrop-filter: blur(4px);
           display: flex;
-          align-items: flex-end;
+          align-items: center;
           justify-content: center;
           z-index: 1000;
           animation: fadeIn 0.3s ease;
         }
 
+        .modal-container {
+          background: white;
+          border-radius: 20px;
+          width: 90%;
+          max-width: 400px;
+          max-height: 85vh;
+          overflow: hidden;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+          animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          display: flex;
+          flex-direction: column;
+        }
+
+        .modal-header {
+          padding: 20px 20px 15px 20px;
+          border-bottom: 1px solid #eef2f7;
+          position: relative;
+        }
+
+        .modal-title-wrapper {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .modal-title {
+          font-size: 18px;
+          font-weight: 700;
+          color: #222;
+        }
+
+        .modal-close-btn {
+          background: #f5f7fa;
+          border: none;
+          color: #666;
+          font-size: 16px;
+          cursor: pointer;
+          padding: 8px;
+          border-radius: 50%;
+          width: 36px;
+          height: 36px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+        }
+
+        .modal-close-btn:hover {
+          background: #eef2f7;
+          color: #333;
+        }
+
+        .modal-content {
+          flex: 1;
+          overflow-y: auto;
+          padding: 20px;
+          max-height: calc(85vh - 80px);
+        }
+
+        .color-scheme-options {
+          display: flex;
+          gap: 10px;
+        }
+
+        .color-scheme-card {
+          border: 2px solid #e7eaee;
+    border-radius: 16px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+        }
+
+        .color-scheme-card:hover {
+          transform: translateY(-4px);
+          border-color: #106cf5;
+          box-shadow: 0 8px 24px rgba(16, 108, 245, 0.15);
+        }
+
+        .color-scheme-card.selected {
+          border-color: #106cf5;
+          background: linear-gradient(135deg, #f8fbff 0%, #f0f7ff 100%);
+          box-shadow: 0 8px 24px rgba(16, 108, 245, 0.1);
+        }
+
+        .color-scheme-preview {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 16px;
+        }
+
+        .candlestick-preview {
+          display: flex;
+          gap: 24px;
+          align-items: flex-end;
+          height: 80px;
+        }
+
+        .candle {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          width: 30px;
+        }
+
+        .candle.bullish .candle-body {
+          width: 30px;
+          height: 50px;
+          background: #10b981;
+          border-radius: 4px;
+          margin-bottom: 4px;
+        }
+
+        .candle.bearish .candle-body {
+          width: 30px;
+          height: 30px;
+          background: #ef4444;
+          border-radius: 4px;
+          margin-bottom: 4px;
+        }
+
+        .candle.bullish.inverse .candle-body {
+          background: #ef4444;
+        }
+
+        .candle.bearish.inverse .candle-body {
+          background: #10b981;
+        }
+
+        .candle-wick {
+          width: 2px;
+          height: 20px;
+          background: #374151;
+        }
+
+        .candle.bullish .candle-wick {
+          height: 30px;
+        }
+
+        .scheme-image {
+          width: 80px;
+          height: 80px;
+          background: #f5f7fa;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #666;
+          font-size: 12px;
+        }
+
+        .scheme-image img {
+          width: 32%;
+          object-fit: cover;
+          border-radius: 12px;
+        }
+
+        .color-scheme-info {
+          text-align: center;
+        }
+
+        .scheme-name {
+          font-size: 14px;
+          font-weight: 600;
+          color: #222;
+          margin-bottom: 4px;
+        }
+
+        .scheme-description {
+          font-size: 14px;
+          color: #666;
+          margin-bottom: 8px;
+        }
+
+        .selected-indicator {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 14px;
+          color: #106cf5;
+          font-weight: 500;
+          padding: 6px 12px;
+          background: rgba(16, 108, 245, 0.1);
+          border-radius: 20px;
+        }
+
+        .selected-indicator i {
+          font-size: 16px;
+        }
+
+        /* Existing Modal Styles for Language */
         .modal-container-bottom {
           background: white;
           border-radius: 24px 24px 0 0;
@@ -425,21 +722,6 @@ function Settings() {
           margin: 0 auto 12px auto;
         }
 
-        .modal-title-wrapper {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 8px;
-        }
-
-        .modal-title {
-          font-size: 17px;
-          font-weight: 700;
-          color: #222;
-          flex: 1;
-          padding-right: 10px;
-        }
-
         .modal-close-btn-bottom {
           background: #f5f7fa;
           border: none;
@@ -455,11 +737,6 @@ function Settings() {
           justify-content: center;
           transition: all 0.2s ease;
           flex-shrink: 0;
-        }
-
-        .modal-close-btn-bottom:hover {
-          background: #eef2f7;
-          color: #333;
         }
 
         .modal-content-bottom {
@@ -483,6 +760,17 @@ function Settings() {
           to {
             opacity: 1;
             transform: translateY(0);
+          }
+        }
+
+        @keyframes scaleIn {
+          from {
+            opacity: 0;
+            transform: scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
           }
         }
 
@@ -514,27 +802,55 @@ function Settings() {
             font-size: 13px;
           }
 
+          .color-scheme-name {
+            font-size: 11px;
+          }
+
           .signout-button {
             padding: 10px;
             font-size: 13px;
           }
 
-          .modal-container-bottom {
-            max-height: 90vh;
+          .modal-container {
+            width: 95%;
+            border-radius: 16px;
           }
 
-          .modal-header-bottom {
-            padding: 12px 16px 6px 16px;
+          .modal-header {
+            padding: 16px;
           }
 
           .modal-title {
             font-size: 16px;
           }
 
-          .modal-drag-handle {
-            width: 36px;
-            height: 3px;
-            margin-bottom: 10px;
+          .modal-content {
+            padding: 16px;
+          }
+
+          .color-scheme-card {
+            padding: 16px;
+          }
+
+          .candlestick-preview {
+            gap: 16px;
+            height: 60px;
+          }
+
+          .candle {
+            width: 24px;
+          }
+
+          .candle-body {
+            width: 24px !important;
+          }
+
+          .scheme-name {
+            font-size: 14px;
+          }
+
+          .scheme-description {
+            font-size: 12px;
           }
         }
 

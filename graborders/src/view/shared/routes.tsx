@@ -88,7 +88,6 @@ const screenRoutes = [
     permissionRequired: permissions.categoryRead,
     exact: true,
   },
-
   {
     path: "/support",
     loader: () => import("src/view/pages/Support/Support"),
@@ -103,6 +102,13 @@ const screenRoutes = [
   {
     path: "/support/details/:id",
     loader: () => import("src/view/pages/Support/supportDetails"),
+    permissionRequired: permissions.categoryRead,
+    exact: true,
+  },
+
+    {
+    path: "/product/details/:id",
+    loader: () => import("src/view/pages/product/productDetails"),
     permissionRequired: permissions.categoryRead,
     exact: true,
   },

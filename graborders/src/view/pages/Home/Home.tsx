@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -122,23 +121,27 @@ function Home() {
           </Link>
 
           {/* AI Trading Card */}
-          <div className="ai-card">
-            <div className="ai-title">AI Smart Trading</div>
-            <div className="ai-description">
-              An AI quantitative trading robot is an automated trading system that
-              combines artificial intelligence (AI) with quantitative trading
-              techniques. Its primary function is to automatically buy and sell
-              financial products and cryptocurrencies based on market data and
-              specific trading strategies to achieve stable profits or control risks.
+          <Link to="/product/details/9" className="remove_blue">
+            <div className="ai-card">
+              <div className="ai-title">AI Smart Trading</div>
+              <div className="ai-description">
+                An AI quantitative trading robot is an automated trading system that
+                combines artificial intelligence (AI) with quantitative trading
+                techniques. Its primary function is to automatically buy and sell
+                financial products and cryptocurrencies based on market data and
+                specific trading strategies to achieve stable profits or control risks.
+              </div>
             </div>
-          </div>
+          </Link>
 
-          <div className="ai-card2">
-            <div className="ai-title">Explore NFTs with BINEX</div>
-            <div className="ai-description">
-              Step into the world of NFTs with BINEX, your all-in-one digital asset trading wallet. Designed for both beginners and professional traders, BINEX lets you explore, buy, sell,and
+          <Link to="/product/details/10" className="remove_blue">
+            <div className="ai-card2">
+              <div className="ai-title">Explore NFTs with BINEX</div>
+              <div className="ai-description">
+                Step into the world of NFTs with BINEX, your all-in-one digital asset trading wallet. Designed for both beginners and professional traders, BINEX lets you explore, buy, sell,and
+              </div>
             </div>
-          </div>
+          </Link>
 
           {/* Stats Section */}
           <div className="stats-section">
@@ -278,39 +281,50 @@ function Home() {
           {/* News Section */}
           <div className="news-section">
             <div className="section-title">News from the circle</div>
-            <div className="news-item">
-              <div>
-                <div className="news-date">10-14-2025</div>
-                <div className="news-title">
-                  Elon Musk Says Bitcoin Is Based on Energy, Which Is Impossible to Fake
+
+            {/* News Item 1: Elon Musk Bitcoin News */}
+            <Link to="/product/details/11" className="remove_blue">
+              <div className="news-item">
+                <div>
+                  <div className="news-date">10-14-2025</div>
+                  <div className="news-title">
+                    Elon Musk Says Bitcoin Is Based on Energy, Which Is Impossible to Fake
+                  </div>
+                </div>
+                <div>
+                  <img src="./images/news/elon.jpg" alt="Elon Musk news" style={{ width: "128px", height: "72px", objectFit: "cover" }} />
                 </div>
               </div>
-              <div>
-                <img src="./images/news/elon.jpg" alt="Elon Musk news" style={{ width: "128px", height: "72px", objectFit: "cover" }} />
-              </div>
-            </div>
-            <div className="news-item">
-              <div>
-                <div className="news-date">10-5-2025</div>
-                <div className="news-title">
-                  Bitcoin Touches Record Price Above $125,000
+            </Link>
+
+            {/* News Item 2: Bitcoin Record Price */}
+            <Link to="/product/details/12" className="remove_blue">
+              <div className="news-item">
+                <div>
+                  <div className="news-date">10-5-2025</div>
+                  <div className="news-title">
+                    Bitcoin Touches Record Price Above $125,000
+                  </div>
+                </div>
+                <div>
+                  <img src="./images/news/bitcoin.jpg" alt="Bitcoin news" style={{ width: "128px", height: "72px", objectFit: "cover" }} />
                 </div>
               </div>
-              <div>
-                <img src="./images/news/bitcoin.jpg" alt="Bitcoin news" style={{ width: "128px", height: "72px", objectFit: "cover" }} />
-              </div>
-            </div>
-            <div className="news-item">
-              <div>
-                <div className="news-date">9-17-2025</div>
-                <div className="news-title">
-                  Giant Trump statue holding Bitcoin displayed outside US Capitol to
-                  mark Fed rate decision
+            </Link>
+
+            {/* News Item 3: Trump Statue Bitcoin */}
+            <Link to="/product/details/13" className="remove_blue">
+              <div className="news-item">
+                <div>
+                  <div className="news-date">9-17-2025</div>
+                  <div className="news-title">
+                    Giant Trump statue holding Bitcoin displayed outside US Capitol to
+                    mark Fed rate decision
+                  </div>
                 </div>
+                <img src="./images/news/trump.jpg" alt="Trump statue news" style={{ width: "128px", height: "72px", objectFit: "cover" }} />
               </div>
-              <img src="./images/news/trump.jpg" alt="Trump statue news" style={{ width: "128px", height: "72px", objectFit: "cover" }} />
-              <div></div>
-            </div>
+            </Link>
           </div>
 
           {/* Partners Section */}
@@ -332,6 +346,21 @@ function Home() {
       </div>
 
       <style>{`
+        .remove_blue {
+          text-decoration: none;
+          color: inherit;
+        }
+        
+        .remove_blue:hover {
+          text-decoration: none;
+          color: inherit;
+        }
+        
+        .news-item {
+          cursor: pointer;
+          transition: background-color 0.2s ease;
+        }
+   
         .promo__images { 
             width: 100%;
             object-fit: cover;
