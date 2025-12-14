@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 
 function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [currentAnnouncementIndex, setCurrentAnnouncementIndex] = useState(0);
 
   const slides = [
     './images/slides/1.png',
@@ -10,14 +11,68 @@ function Home() {
     './images/slides/3.png'
   ];
 
+  const announcements = [
+    "Maintenance notice",
+    "Contract server upgrade and maintenance announcement on January 15, 2023",
+    "Binex Options Trading System Maintenance Announcement",
+    "Important! Binex's announcement on the latest client version upgrade",
+    "Binex platform trading latest announcement",
+    "Binex Platform Version Upgrade Optimization Update Announcement",
+    "March 15, 2023 Binex platform contract server upgrade maintenance optimization announcement",
+    "Binex platform options trading system maintenance and optimization announcement",
+    "Binex Platform Important Announcement on the Upgrade and Optimization of the Latest Version of the Client",
+    "Warm reminder about Binex user information security",
+    "Binex platform announcement on the optimization and upgrade of the perpetual contract system",
+    "Announcement on the completion of platform system maintenance and optimization",
+    "Announcement on Bitcoin Withdrawal",
+    "Announcement on the upgrade of some trading currency pairs on the platform",
+    "Announcement on the Platform Ethereum Network (ERC20) Wallet Maintenance",
+    "Announcement on the completion of the hard fork upgrade of ETH",
+    "Announcement on the update of the platform's advanced identity authentication service",
+    "Notice on the issuance of FIL computing power income",
+    "Announcement on the optimization of API order frequency limit",
+    "System Update - Real-time Customer Chat Function",
+    "ETH network upgrade announcement",
+    "Announcement of delisting currencies",
+    "DOT/USDT Trading Launch Announcement",
+    "DEC/USDT Trading Launch Announcement",
+    "USDT Introduction",
+    "Ethereum network maintenance notice",
+    "Binex Project review standards",
+    "Liquidity Mining Upgrade",
+    "Liquidity mining fee adjustment",
+    "Delisting trading pairs",
+    "System temporary maintenance announcement",
+    "Temporary suspension of recharge notice",
+    "Delisting Notification",
+    "Server upgrade announcement",
+    "Server network upgrade announcement",
+    "APP download open notification"
+  ];
+
   // Auto slide functionality
   useEffect(() => {
-    const interval = setInterval(() => {
+    const slideInterval = setInterval(() => {
       setCurrentSlide((prevSlide) => (prevSlide + 1) % slides.length);
     }, 3000); // Change slide every 3 seconds
 
-    return () => clearInterval(interval); // Cleanup on unmount
+    return () => clearInterval(slideInterval); // Cleanup on unmount
   }, [slides.length]);
+
+  // Announcement change functionality
+  useEffect(() => {
+    const announcementInterval = setInterval(() => {
+      setCurrentAnnouncementIndex((prev) => (prev + 1) % announcements.length);
+    }, 4000); // Change announcement every 4 seconds
+
+    return () => clearInterval(announcementInterval); // Cleanup on unmount
+  }, [announcements.length]);
+
+  // Function to truncate text if too long
+  const truncateText = (text, maxLength = 80) => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  };
 
   return (
     <>
@@ -48,12 +103,7 @@ function Home() {
         </div>
         {/* Promo Banner - Auto Slider */}
 
-
         <div style={{ padding: '0px 16px' }}>
-
-
-
-
           <div className="promo-banner">
             <div className="slider-container">
               <div
@@ -87,16 +137,19 @@ function Home() {
             </div>
           </div>
 
-          {/* Announcement Card */}
+          {/* Announcement Card - Single Text that Changes */}
           <div className="announcement-card">
             <div className="announcement-icon">
               <i className="fas fa-bullhorn" />
             </div>
             <div className="announcement-content">
-              <div className="announcement-title">Maintenance notice</div>
-              <div className="announcement-desc">
-                Contract server upgrade and maintenance announcement on January 15,
-                2023
+              <div 
+                className="announcement-text"
+                key={currentAnnouncementIndex}
+              >
+                <div className="announcement-desc">
+                  {truncateText(announcements[currentAnnouncementIndex])}
+                </div>
               </div>
             </div>
           </div>
@@ -442,9 +495,7 @@ function Home() {
         /* Hero Section */
         .hero-section {
             text-align: center;
-        background: linear-gradient(180deg, #0c396c, #0a66ff, #f2f4f7);
-
-
+            background: linear-gradient(180deg, #0c396c, #0a66ff, #f2f4f7);
             padding: 0px 10px;
         }
 
@@ -557,21 +608,23 @@ function Home() {
             border-radius: 3px;
         }
 
-        /* Announcement Card */
+        /* Announcement Card - Single Text Version */
         .announcement-card {
             background: #fff;
-            border-radius: 16px;
-            padding: 16px;
+            border-radius: 10px;
+            padding: 15px;
             margin-bottom: 16px;
             display: flex;
             align-items: center;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            margin-top:10px;
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
         }
 
         .announcement-icon {
-            width: 40px;
-            height: 40px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             background: #f0f7ff;
             display: flex;
@@ -579,22 +632,44 @@ function Home() {
             justify-content: center;
             color: #106cf5;
             margin-right: 12px;
-            font-size: 18px;
+            font-size: 13px;
+            flex-shrink: 0;
+            z-index: 2;
         }
 
         .announcement-content {
             flex: 1;
+            position: relative;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
         }
 
-        .announcement-title {
-            font-weight: 600;
-            font-size: 15px;
-            margin-bottom: 4px;
+        .announcement-text {
+            position: absolute;
+            width: 100%;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .announcement-desc {
             font-size: 13px;
             color: #666;
+            line-height: 1.4;
+            max-height: 36px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
         }
 
         /* Feature Cards */
@@ -966,6 +1041,10 @@ function Home() {
             
             .ai-card, .ai-card2 {
                 height: 400px;
+            }
+            
+            .announcement-desc {
+                font-size: 12px;
             }
         }
         
