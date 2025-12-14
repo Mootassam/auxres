@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   backend:
     build: ./server
@@ -10,12 +8,12 @@ services:
       - upload:/upload
     environment:
       DATABASE_CONNECTION: mongodb://db:27017/grap
-      REDIS_HOST: redis
+      REDIS_URL: redis://:91l3C92VHX9OytcgcV@redis:6379
       REDIS_PORT: 6379
     depends_on:
       - db
       - redis
-    command: ["npm", "start"] # ensure no nodemon / ts-node in prod
+
 
   db:
     image: mongo:4.4
@@ -26,10 +24,33 @@ services:
       - phone:/data/db
 
   redis:
-    image: redis:7.2-alpine
-    ports:
-      - "6379:6379"
+    image: redis:6.2-alpine
     restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    command: >
+      sh -c "
+      mkdir -p /data &&
+      redis-server
+      --appendonly yes
+      --dir /data
+      --requirepass 91l3C92VHX9OytcgcV
+      --protected-mode yes
+      --bind 0.0.0.0
+      --rename-command FLUSHDB ''
+      --rename-command FLUSHALL ''
+      --rename-command CONFIG ''
+      --rename-command SHUTDOWN ''
+      --rename-command DEBUG ''
+      --rename-command SAVE ''
+      --rename-command BGSAVE ''
+      --rename-command SLAVEOF ''
+      --rename-command REPLICAOF ''
+      --rename-command MODULE ''
+      --rename-command PSYNC ''
+      --maxmemory 1gb
+      --maxmemory-policy allkeys-lru
+      "
 
   web:
     build: ./admin
@@ -58,3 +79,4 @@ services:
 volumes:
   phone:
   upload:
+  redis_data:
