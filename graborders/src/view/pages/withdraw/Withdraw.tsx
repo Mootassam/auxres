@@ -62,7 +62,7 @@ const schema = yup.object().shape({
   status: yupFormSchemas.enumerator(i18n("entities.withdraw.fields.status"), {
     options: ["pending", "canceled", "success"],
   }),
-  withdrawPassword: yup.string().required(i18n("pages.withdraw.errors.passwordRequired")),
+
 });
 
 function Withdraw() {
@@ -143,7 +143,7 @@ function Withdraw() {
     acceptTime: "",
     status: "pending",
     withdrawAdress: "",
-    withdrawPassword: "",
+
   };
 
   const form = useForm({
@@ -154,7 +154,6 @@ function Withdraw() {
 
   // Watch fields we need to react to
   const watchedAmount = useWatch({ control: form.control, name: "withdrawAmount" });
-  const watchedPassword = useWatch({ control: form.control, name: "withdrawPassword" });
   const watchedCurrency = useWatch({ control: form.control, name: "currency" });
 
   // parsed numeric values
@@ -266,10 +265,7 @@ function Withdraw() {
       return { disabled: true, label: i18n("pages.withdraw.validation.enterAddress"), reason: "enterAddress" };
     }
 
-    // password required
-    if (!watchedPassword || (typeof watchedPassword === "string" && watchedPassword.trim() === "")) {
-      return { disabled: true, label: i18n("pages.withdraw.validation.enterPassword"), reason: "enterPassword" };
-    }
+
 
     // everything okay
     return { disabled: false, label: i18n("pages.withdraw.confirmWithdrawal"), reason: "ok" };
@@ -327,7 +323,6 @@ function Withdraw() {
     setSelected(symbol);
     form.setValue("currency", symbol);
     form.setValue("withdrawAmount", "");
-    form.setValue("withdrawPassword", "");
     form.setValue("withdrawAdress", "");
     setShowCurrencyDropdown(false);
     setShowNetworkDropdown(false);
@@ -507,7 +502,6 @@ function Withdraw() {
                       type="text"
                       className="address-field"
                       placeholder="Enter your wallet address"
-                      value={address}
                       onChange={(e) => setAddress(e.target.value)}
                     />
                   </div>
@@ -523,22 +517,14 @@ function Withdraw() {
                       type="number"
                       className="amount-field"
                       placeholder="0.0"
-                      step="any"
+          
                     />
                   </div>
                   <div className="balance-text">
                     Available: <span className="balance-amount">{formatNumber(availableBalance, decimals)} {selected}</span>
                   </div>
 
-                  <div className="field-error">
-                    {errors.withdrawAmount?.message && <div>{errors.withdrawAmount?.message}</div>}
-                    {!errors.withdrawAmount?.message && validationState.reason === "belowMin" && (
-                      <div>Minimum withdrawal: {formatNumber(min, decimals)} {selected}</div>
-                    )}
-                    {!errors.withdrawAmount?.message && validationState.reason === "insufficientBalance" && (
-                      <div>Insufficient balance</div>
-                    )}
-                  </div>
+               
                 </div>
 
                 {/* Handling fee section */}
@@ -564,21 +550,7 @@ function Withdraw() {
                 </div>
 
                 {/* Withdrawal password */}
-                <div className="input-field">
-                  <label className="input-label">Withdrawal Password</label>
-                  <div className="input-wrapper">
-                    <FieldFormItem
-                      name="withdrawPassword"
-                      type="password"
-                      className="password-field"
-                      placeholder="Enter your withdrawal password"
-                      disabled={loading}
-                    />
-                  </div>
-                  <div className="field-error">
-                    {errors.withdrawPassword?.message && <div>{errors.withdrawPassword?.message}</div>}
-                  </div>
-                </div>
+               
 
                 {/* Submit button */}
                 <button

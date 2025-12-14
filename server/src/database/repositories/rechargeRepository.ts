@@ -89,13 +89,13 @@ class WithdrawRepository {
   }
 
   // Validate withdrawal password
-  const user = await User(options.database).findById(currentUser.id);
-  if (!user || user.withdrawPassword !== data.withdrawPassword) {
-    throw new Error400(
-      options.language, 
-      "auth.errors.invalidWithdrawPassword"
-    );
-  }
+  // const user = await User(options.database).findById(currentUser.id);
+  // if (!user || user.withdrawPassword !== data.withdrawPassword) {
+  //   throw new Error400(
+  //     options.language, 
+  //     "auth.errors.invalidWithdrawPassword"
+  //   );
+  // }
 
   // Create withdrawal record
   const [record] = await Withdraw(options.database).create(
