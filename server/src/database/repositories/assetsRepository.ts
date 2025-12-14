@@ -881,55 +881,42 @@ static async findAndCountAllMobile(
   }
 
 
- static async FreezeAccount(id, options: IRepositoryOptions) {
+static async FreezeAccount(id, options: IRepositoryOptions) {
   const currentTenant = MongooseRepository.getCurrentTenant(options);
   const currentUser = MongooseRepository.getCurrentUser(options);
 
-  // Find and update in one atomic operation using aggregation pipeline
-  const updatedWallet = await Wallet(options.database).findOneAndUpdate(
-    {
-      _id: id,
-      tenant: currentTenant.id,
-    },
-    [
-      {
-        $set: {
-          // Toggle status
-          status: {
-            $cond: {
-              if: { $eq: ['$status', 'active'] },
-              then: 'freezed',
-              else: 'active',
-            },
-          },
-          // Swap amounts based on current status
-          amount: {
-            $cond: {
-              if: { $eq: ['$status', 'active'] },
-              then: 0,
-              else: { $add: ['$amount', '$amountFreezed'] },
-            },
-          },
-          amountFreezed: {
-            $cond: {
-              if: { $eq: ['$status', 'active'] },
-              then: { $add: ['$amount', '$amountFreezed'] },
-              else: 0,
-            },
-          },
-          updatedBy: currentUser.id,
-        },
-      },
-    ],
-    { new: true } // Return updated document
-  );
+  const WalletModel = Wallet(options.database);
 
-  if (!updatedWallet) {
+  // 1. Fetch wallet
+  const wallet = await WalletModel.findOne({
+    _id: id,
+    tenant: currentTenant.id,
+  });
+
+  if (!wallet) {
     throw new Error('Wallet not found');
   }
 
+  const isActive = wallet.status === 'active';
+
+  // 2. Compute new values in application layer
+  const updateData = {
+    status: isActive ? 'freezed' : 'active',
+    amount: isActive ? 0 : wallet.amount + wallet.amountFreezed,
+    amountFreezed: isActive ? wallet.amount + wallet.amountFreezed : 0,
+    updatedBy: currentUser.id,
+  };
+
+  // 3. Classic update (fully compatible)
+  const updatedWallet = await WalletModel.findOneAndUpdate(
+    { _id: id, tenant: currentTenant.id },
+    { $set: updateData },
+    { new: true }
+  );
+
   return updatedWallet;
 }
+
 
 
 
