@@ -131,38 +131,10 @@ function UserTable() {
                     </span>
                   )}
                 </th>
-                <th
-                  className="sortable-header"
-                  onClick={() =>
-                    doChangeSort('invitationcode')
-                  }
-                >
-                  {i18n('user.fields.invitationcode')}
-                  {sorter.field === 'invitationcode' && (
-                    <span className="sort-icon">
-                      {sorter.order === 'ascend'
-                        ? '↑'
-                        : '↓'}
-                    </span>
-                  )}
-                </th>
-                <th
-                  className="sortable-header"
-                  onClick={() => doChangeSort('refcode')}
-                >
-                  {i18n('user.fields.refcode')}
-                  {sorter.field === 'refcode' && (
-                    <span className="sort-icon">
-                      {sorter.order === 'ascend'
-                        ? '↑'
-                        : '↓'}
-                    </span>
-                  )}
-                </th>
+
+           
                 <th>Location</th>
-                <th className="sortable-header">
-                  {i18n('user.fields.withdrawPassword')}
-                </th>
+             
                 <th className="sortable-header">
                   {i18n('user.fields.status')}
                 </th>
@@ -215,19 +187,12 @@ function UserTable() {
                     <td className="table-cell">
                       {row.fullName}
                     </td>
-                    <td className="table-cell">
-                      {row.invitationcode}
-                    </td>
-                    <td className="table-cell">
-                      {row.refcode}
-                    </td>
+                 
                     <td>
                       {' '}
                       {row.ipAddress} <br /> {row.country}{' '}
                     </td>
-                    <td className="table-cell">
-                      {row.withdrawPassword}
-                    </td>
+                    
                     <td className="table-cell">
                       <UserStatusView value={row?.tenants[0]?.status} />
                     </td>
