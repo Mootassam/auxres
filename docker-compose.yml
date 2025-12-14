@@ -1,24 +1,26 @@
+# REMOVE THE DUPLICATE VERSION AND SERVICES SECTION AT THE BOTTOM!
+
 services:
   backend:
     build: ./server
     ports:
-      - "8084:8084"
+      - 8084:8084
     restart: unless-stopped
     volumes:
       - upload:/upload
     environment:
       DATABASE_CONNECTION: mongodb://db:27017/grap
-      # REDIS_URL: redis://:91l3C92VHX9OytcgcV@redis:6379
-      # REDIS_PORT: 6379
+      REDIS_URL: redis://:91l3C92VHX9OytcgcV@redis:6379
+      FUTURES_QUEUE_NAME: futures_queue
     depends_on:
       - db
-      # - redis 
+      - redis
 
 
   db:
-    image: mongo:4.4
+    image: mongo:4.0-xenial
     ports:
-      - "2757:27017"
+      - 2757:27017
     restart: unless-stopped
     volumes:
       - phone:/data/db
@@ -55,7 +57,7 @@ services:
   web:
     build: ./admin
     ports:
-      - "3022:80"
+      - 3022:80
     restart: unless-stopped
     volumes:
       - "./admin:/app"

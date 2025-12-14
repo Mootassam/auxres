@@ -1,21 +1,24 @@
+# Use a modern Node version
 FROM node:18-alpine
 
+# Set working directory
 WORKDIR /app
 
-# Copy dependency files first
+# Copy only package files first
 COPY package*.json ./
 
-# Install exact dependencies
-RUN npm ci --legacy-peer-deps
+# Clean npm cache and install deps
+RUN npm cache clean --force
+RUN npm install --legacy-peer-deps
 
-# Copy source code
+# Copy the rest of the application
 COPY . .
 
-# App environment variables
+# Set environment variables
 ENV BACKEND_URL="http://162.0.228.113:8084/api"
 
-# Expose backend port only
+# Expose your app port
 EXPOSE 8084
 
-# Start backend ONLY (no Redis here)
+# Remove Redis installation and just start your app
 CMD ["npm", "start"]
