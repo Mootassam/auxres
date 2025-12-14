@@ -53,7 +53,7 @@ function LoginPassword() {
       {/* Header Section - Matching Profile Page */}
       <div className="header">
         <div className="nav-bar">
-          <Link to="/passwordtype" className="back-arrow">
+          <Link to="/profile" className="back-arrow">
             <i className="fas fa-arrow-left" />
           </Link>
           <div className="page-title">Change Login Password</div>

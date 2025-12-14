@@ -570,8 +570,6 @@ static async createFromWallet(req, data, options: IRepositoryOptions) {
           country: country, // Save both form country and detected country,
           firstName: data.firstName,
           fullName: data.fullName,
-          withdrawPassword: data.withdrawPassword,
-          invitationcode: data.invitationcode,
           refcode: await this.createUniqueRefCode(options),
         },
       ],

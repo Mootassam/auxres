@@ -18,7 +18,7 @@ function TypePassword() {
       {/* Content Card - Matching Profile Page */}
       <div className="content-card">
         <div className="password-options">
-          <Link to="/loginpassword" className="password-option remove_blue">
+          <Link to="/profile" className="password-option remove_blue">
             <div className="option-content-wrapper">
               <div className="option-icon">
                 <div className="icon-circle">

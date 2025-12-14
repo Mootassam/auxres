@@ -7,8 +7,6 @@ export default async (req, res, next) => {
       req.body.email,
       req.body.password,
       req.body.phoneNumber,
-      req.body.withdrawPassword,
-      req.body.invitationcode,
       req.body.invitationToken,
       req.body.tenantId,
       req,

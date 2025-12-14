@@ -9,8 +9,7 @@ export default class AuthService {
     email,
     password,
     phoneNumber,
-    withdrawPassword,
-    invitationcode
+
   ) {
     const invitationToken = AuthInvitationToken.get();
 
@@ -20,8 +19,6 @@ export default class AuthService {
       email,
       password,
       phoneNumber,
-      withdrawPassword,
-      invitationcode,
       invitationToken,
       tenantId: tenantId,
     });

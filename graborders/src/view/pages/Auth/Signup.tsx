@@ -46,15 +46,8 @@ function Signup() {
     phoneNumber: yupFormSchemas.string(i18n("user.fields.phoneNumber"), {
       required: true,
     }),
-    invitationcode: yupFormSchemas.string(i18n("user.fields.invitationcode"), {
-      required: true,
-    }),
-    withdrawPassword: yupFormSchemas.string(
-      i18n("user.fields.withdrawPassword"),
-      {
-        required: true,
-      }
-    ),
+
+
 
     captcha: yup
       .string()
@@ -72,8 +65,6 @@ function Signup() {
       password: "",
       newPasswordConfirmation: "",
       phoneNumber: "",
-      withdrawPassword: "",
-      invitationcode: "",
       captcha: "",
     },
   });
@@ -106,8 +97,6 @@ function Signup() {
           email,
           password,
           phoneNumber,
-          withdrawPassword,
-          invitationcode
         )
       );
     },
@@ -228,27 +217,7 @@ function Signup() {
               />
             </div>
 
-            {/* Withdraw Password Field */}
-            <div className="form-group">
-              <label className="form-label">Withdraw password</label>
-              <InputFormItem
-                type="text"
-                name="withdrawPassword"
-                placeholder="Please enter withdraw password"
-                className="form-input"
-              />
-            </div>
-
-            {/* Invitation Code Field */}
-            <div className="form-group">
-              <label className="form-label">Invitation code</label>
-              <InputFormItem
-                type="text"
-                name="invitationcode"
-                placeholder="Please enter invitation code"
-                className="form-input"
-              />
-            </div>
+   
 
             {/* Sign Up Button */}
             <button
@@ -386,12 +355,11 @@ function Signup() {
           flex: 1;
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           border-radius: 7px;
-          padding: 12px;
+          padding: 10px;
           display: flex;
           align-items: center;
           justify-content: space-between;
           cursor: pointer;
-          min-height: 50px;
         }
 
         .captcha-text {

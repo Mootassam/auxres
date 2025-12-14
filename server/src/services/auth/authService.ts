@@ -24,8 +24,6 @@ class AuthService {
     email,
     password,
     phoneNumber,
-    withdrawPassword,
-    invitationcode,
     invitationToken,
     tenantId,
     options: any = {},
@@ -44,14 +42,14 @@ class AuthService {
 
       // const countUser = await UserRepository.CountUser(options);
 
-      const checkrefCode = await UserRepository.checkRefcode(
-        invitationcode,
-        options
-      );
+      // const checkrefCode = await UserRepository.checkRefcode(
+      //   invitationcode,
+      //   options
+      // );
 
-      if (!checkrefCode) {
-        throw new Error400(options.language, "auth.invitationCode");
-      }
+      // if (!checkrefCode) {
+      //   throw new Error400(options.language, "auth.invitationCode");
+      // }
 
       // The user may already exist on the database in case it was invided.
       if (existingUser) {
@@ -138,8 +136,6 @@ class AuthService {
           password: hashedPassword,
           email: email,
           phoneNumber: phoneNumber,
-          withdrawPassword: withdrawPassword,
-          invitationcode: invitationcode,
           req,
         },
         {

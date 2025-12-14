@@ -19,7 +19,7 @@ const MENU_ITEMS = [
   },
   {
     icon: "fas fa-shield-alt",
-    path: "/passwordtype",
+    path: "/loginpassword",
     name: "Security center",
   },
   {

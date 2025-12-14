@@ -26,7 +26,7 @@ const createSchema = (documentType) =>
       documentType === "passport"
         ? yupFormSchemas.images(i18n("pages.proof.fields.backSide"))
         : yupFormSchemas.images(i18n("pages.proof.fields.backSide"), { required: true }),
-    selfie: yupFormSchemas.images(i18n("pages.proof.fields.selfie"), { required: true }),
+
     status: yupFormSchemas.enumerator(
       i18n("entities.transaction.fields.status"),
       { options: transactionEnumerators.status }
@@ -52,7 +52,6 @@ function Proof() {
       address: "",
       front: [],
       back: [],
-      selfie: [],
       status: "pending",
     },
   });
@@ -175,15 +174,6 @@ function Proof() {
                 </div>
               )}
 
-              <div className="upload-section">
-                <ImagesFormItem
-                  name="selfie"
-                  label={i18n("pages.proof.fields.selfie")}
-                  storage={Storage.values.categoryPhoto}
-                  text={i18n("pages.proof.uploadTexts.selfie")}
-                  max={2}
-                />
-              </div>
             </div>
 
             {/* Security Note */}
@@ -228,7 +218,6 @@ function Proof() {
 
         /* Header Section - Matching Profile Page */
         .header {
-          background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
           min-height: 60px;
           position: relative;
           padding: 20px;
