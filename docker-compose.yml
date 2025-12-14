@@ -8,11 +8,11 @@ services:
       - upload:/upload
     environment:
       DATABASE_CONNECTION: mongodb://db:27017/grap
-      REDIS_URL: redis://:91l3C92VHX9OytcgcV@redis:6379
-      REDIS_PORT: 6379
+      # REDIS_URL: redis://:91l3C92VHX9OytcgcV@redis:6379
+      # REDIS_PORT: 6379
     depends_on:
       - db
-      - redis
+      # - redis 
 
 
   db:
