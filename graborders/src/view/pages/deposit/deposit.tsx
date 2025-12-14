@@ -1,15 +1,40 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { QRCodeCanvas } from "qrcode.react";
 import { useForm, FormProvider } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import axios from "axios";
 
 import method from "src/modules/depositMethod/list/depositMethodListActions";
 import selectors from "src/modules/depositMethod/list/depositMethodSelectors";
 import depositActions from "src/modules/deposit/form/depositFormActions";
 import FieldFormItem from "src/shared/form/FieldFormItem";
+
+// Currency configurations
+const CURRENCIES = [
+  "USDT", "ETH", "BTC", "USDC", "DAI",
+  "SHIB", "XRP", "TRX", "SOL", "BNB", "DOGE"
+];
+
+// Minimum deposit in USD
+const MIN_DEPOSIT_USD = 200;
+
+// Decimal places for each currency
+const CURRENCY_DECIMALS = {
+  USDT: 2,
+  ETH: 6,
+  BTC: 8,
+  USDC: 2,
+  DAI: 2,
+  SHIB: 0,
+  XRP: 2,
+  TRX: 2,
+  SOL: 4,
+  BNB: 6,
+  DOGE: 2,
+};
 
 interface CurrencyType {
   _id?: string;
@@ -21,6 +46,45 @@ interface CurrencyType {
   minimumAmount?: number;
   [key: string]: any;
 }
+
+// Helper to format numbers consistently - MOVED TO TOP LEVEL
+const formatNumberHelper = (value: number, symbol?: string, decimals?: number) => {
+  if (typeof value !== "number" || !isFinite(value) || value === 0) {
+    return "0";
+  }
+  
+  const decimalPlaces = decimals !== undefined ? decimals : (CURRENCY_DECIMALS[symbol?.toUpperCase()] || 2);
+  
+  // For very small numbers, show more precision but not scientific notation
+  if (value > 0 && value < 0.000001) {
+    return value.toFixed(decimalPlaces > 8 ? decimalPlaces : 8);
+  }
+  
+  // For regular numbers
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: decimalPlaces,
+  }).format(value);
+};
+
+// Helper to format USD values - MOVED TO TOP LEVEL
+const formatUSDHelper = (value: number) => {
+  if (typeof value !== "number" || !isFinite(value) || value === 0) {
+    return "$0.00";
+  }
+  
+  // For very small USD values, show more precision
+  if (value > 0 && value < 0.01) {
+    return `$${value.toFixed(6)}`;
+  }
+  
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 6,
+  }).format(value);
+};
 
 function Deposit() {
   const dispatch = useDispatch();
@@ -34,29 +98,67 @@ function Deposit() {
   const [copiedText, setCopiedText] = useState("Address copied");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({});
+  const [loadingRates, setLoadingRates] = useState(false);
 
   const [currentAddress, setCurrentAddress] = useState("");
   const [currentCurrency, setCurrentCurrency] = useState<CurrencyType | null>(null);
   const [networkOptions, setNetworkOptions] = useState<Array<{ _id: string; name: string; wallet: string; raw: any }>>([]);
-  const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null); // will store network._id (string)
+  const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null);
   const [minDepositAmount, setMinDepositAmount] = useState(0);
   const [submittedAmount, setSubmittedAmount] = useState("");
 
-  // Known minimums by symbol (fallbacks)
-  const MIN_DEPOSIT_AMOUNTS = {
-    USDT: 10,
-    BTC: 0.001,
-    ETH: 0.01,
-    SOL: 0.1,
-    BNB: 0.01,
-    XRP: 10,
-    ADA: 10,
-    DOGE: 50,
-    LTC: 0.1,
-    TRX: 10,
-  };
+  // Fetch exchange rates
+  useEffect(() => {
+    const fetchExchangeRates = async () => {
+      try {
+        setLoadingRates(true);
+        const response = await axios.get(
+          "https://min-api.cryptocompare.com/data/pricemulti",
+          {
+            params: {
+              fsyms: CURRENCIES.join(","),
+              tsyms: "USD",
+            },
+          }
+        );
+        
+        if (response.data && response.data.Response !== "Error") {
+          const rates: Record<string, number> = {};
+          CURRENCIES.forEach(currency => {
+            if (response.data[currency]?.USD) {
+              rates[currency] = response.data[currency].USD;
+            }
+          });
+          setExchangeRates(rates);
+        }
+      } catch (error) {
+        console.error("Failed to fetch exchange rates:", error);
+      } finally {
+        setLoadingRates(false);
+      }
+    };
 
-  // Dynamic validation schema based on minDepositAmount
+    fetchExchangeRates();
+    // Refresh rates every 5 minutes
+    const interval = setInterval(fetchExchangeRates, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Calculate minimum deposit in selected currency
+  const minInCurrency = useMemo(() => {
+    if (!symbol || !exchangeRates[symbol.toUpperCase()]) return 0;
+    const rate = exchangeRates[symbol.toUpperCase()];
+    return MIN_DEPOSIT_USD / rate;
+  }, [symbol, exchangeRates]);
+
+  // Format minimum amount for display
+  const formattedMinAmount = useMemo(() => {
+    if (minInCurrency === 0) return "0";
+    return formatNumberHelper(minInCurrency, symbol);
+  }, [minInCurrency, symbol]);
+
+  // Dynamic validation schema based on minInCurrency - FIXED: Use formattedMinAmount directly
   const schema = useMemo(() => {
     return yup.object().shape({
       amount: yup
@@ -64,10 +166,10 @@ function Deposit() {
         .typeError("Amount must be a number")
         .positive("Amount must be positive")
         .required("Amount is required")
-        .min(minDepositAmount || 0, `Minimum deposit is ${minDepositAmount}`),
+        .min(minInCurrency || 0, `Minimum deposit is ${formattedMinAmount} ${symbol}`),
       txid: yup.string().required("Transaction ID is required"),
     });
-  }, [minDepositAmount]);
+  }, [minInCurrency, formattedMinAmount, symbol]);
 
   const formMethods = useForm({
     resolver: yupResolver(schema),
@@ -78,6 +180,16 @@ function Deposit() {
     },
   });
 
+  // Memoized version of formatNumber for component use
+  const formatNumber = useCallback((value: number, decimals?: number) => {
+    return formatNumberHelper(value, symbol, decimals);
+  }, [symbol]);
+
+  // Memoized version of formatUSD for component use
+  const formatUSD = useCallback((value: number) => {
+    return formatUSDHelper(value);
+  }, []);
+
   // Fetch deposit methods on mount
   useEffect(() => {
     dispatch(method.doFetch());
@@ -86,10 +198,6 @@ function Deposit() {
   // When listMethod or symbol changes, find currency and setup network options
   useEffect(() => {
     if (!listMethod || !symbol) {
-      // set fallback min if symbol present but no list yet
-      if (symbol) {
-        setMinDepositAmount(MIN_DEPOSIT_AMOUNTS[symbol.toUpperCase()] || 0);
-      }
       return;
     }
 
@@ -105,16 +213,13 @@ function Deposit() {
       setNetworkOptions([]);
       setSelectedNetwork(null);
       setCurrentAddress("");
-      setMinDepositAmount(MIN_DEPOSIT_AMOUNTS[symbol.toUpperCase()] || 0);
       return;
     }
 
     setCurrentCurrency(currency);
 
-    // Determine minimum amount: prefer known map, then currency fields, then 0
-    const minAmount =
-      (MIN_DEPOSIT_AMOUNTS[symbol.toUpperCase()] ?? currency?.minDeposit ?? currency?.minimumAmount ?? 0);
-    setMinDepositAmount(Number(minAmount) || 0);
+    // Update min deposit amount
+    setMinDepositAmount(minInCurrency);
 
     // Normalize networks
     if (Array.isArray(currency.network) && currency.network.length > 0) {
@@ -147,9 +252,9 @@ function Deposit() {
       setSelectedNetwork(null);
       setCurrentAddress("");
     }
-  }, [listMethod, symbol]); // intentionally not including selectedNetwork here
+  }, [listMethod, symbol, minInCurrency]);
 
-  // Update currentAddress when selectedNetwork changes (selectedNetwork holds ID)
+  // Update currentAddress when selectedNetwork changes
   useEffect(() => {
     if (!selectedNetwork) {
       return;
@@ -161,7 +266,7 @@ function Deposit() {
   }, [selectedNetwork, networkOptions]);
 
   // Copy address to clipboard with feedback
-  const copyAddressToClipboard = async () => {
+  const copyAddressToClipboard = useCallback(async () => {
     if (!currentAddress) {
       console.error("No address to copy");
       return;
@@ -177,10 +282,10 @@ function Deposit() {
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3000);
     }
-  };
+  }, [currentAddress]);
 
   // Save QR code as PNG
-  const saveQRCode = () => {
+  const saveQRCode = useCallback(() => {
     const canvas = document.querySelector(".qr-box canvas");
     if (!(canvas instanceof HTMLCanvasElement)) {
       console.error("QR canvas not found");
@@ -204,19 +309,19 @@ function Deposit() {
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3000);
     }
-  };
+  }, [networkOptions, selectedNetwork, symbol]);
 
-  // Handle network selection change (store network._id)
-  const handleNetworkSelect = (event) => {
+  // Handle network selection change
+  const handleNetworkSelect = useCallback((event) => {
     const networkId = event.target.value;
     setSelectedNetwork(networkId);
     // clear amount to avoid mismatched validation if min changes
     formMethods.setValue("amount", "");
     formMethods.clearErrors("amount");
-  };
+  }, [formMethods]);
 
   // Handle form submit
-  const onSubmit = async (data) => {
+  const onSubmit = useCallback(async (data) => {
     if (!selectedNetwork || !currentCurrency || !currentAddress) {
       console.error("Missing required information");
       return;
@@ -234,31 +339,44 @@ function Deposit() {
         orderno,
         amount: data.amount,
         txid: data.txid,
-        rechargechannel: symbol,     // your requested behavior
+        rechargechannel: symbol,
         status: "pending",
         network: selectedNetwork,
-        rechargetime: now.toISOString()// <-- network ID
+        rechargetime: now.toISOString()
       };
 
       setSubmittedAmount(data.amount);
 
-      // dispatch deposit action (assumes this returns a promise)
       await dispatch(depositActions.doCreate(depositData));
 
       setShowSuccessModal(true);
       formMethods.reset();
     } catch (error) {
       console.error("Deposit submission error:", error);
-      // optionally set a toast/error state here
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [selectedNetwork, currentCurrency, currentAddress, symbol, dispatch, formMethods]);
 
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     setShowSuccessModal(false);
     setSubmittedAmount("");
-  };
+  }, []);
+
+  // Get currency icon URL
+  const getCurrencyIcon = useCallback((sym: string) => {
+    const cleanSymbol = sym ? sym.toUpperCase() : "";
+    return `https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/${cleanSymbol}.png`;
+  }, []);
+
+  // Calculate USD value of entered amount
+  const enteredAmount = formMethods.watch("amount");
+  const enteredAmountUSD = useMemo(() => {
+    if (!enteredAmount || !exchangeRates[symbol?.toUpperCase()]) return 0;
+    const amountNum = Number(enteredAmount);
+    if (isNaN(amountNum) || !isFinite(amountNum)) return 0;
+    return amountNum * exchangeRates[symbol.toUpperCase()];
+  }, [enteredAmount, symbol, exchangeRates]);
 
   return (
     <div className="deposit-container">
@@ -269,46 +387,66 @@ function Deposit() {
             <i className="fas fa-arrow-left" />
           </Link>
           <div className="page-title">Deposit {symbol || "..."}</div>
-
-          
         </div>
       </div>
 
       {/* Content */}
       <div className="content-card">
         <div className="deposit-content">
+          {/* Minimum deposit requirement */}
+          {symbol && exchangeRates[symbol.toUpperCase()] && (
+            <div className="info-box">
+              <div className="info-row">
+                <span className="info-label">Minimum deposit:</span>
+                <span className="info-value">
+                  {formattedMinAmount} {symbol} ({formatUSD(MIN_DEPOSIT_USD)})
+                </span>
+              </div>
+              {loadingRates && (
+                <div className="rate-loading">
+                  <i className="fas fa-spinner fa-spin" /> Loading rates...
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Currency display */}
           <div className="section">
             <div className="section-label">Deposit currency</div>
             <div className="currency-display">
               <div className="currency-icon" aria-hidden>
                 <img
-                  src={`https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/${symbol}.png`}
+                  src={getCurrencyIcon(symbol)}
                   alt={symbol}
                   onError={(e) => {
-                    const img = e.target;
-                    if (img && img instanceof HTMLImageElement) {
-                      img.onerror = null;
-                      img.style.display = "none";
-                      const parent = img.parentElement;
-                      if (parent) {
-                        parent.textContent = (symbol && symbol.charAt(0)) || "C";
-                        parent.style.background = "#f0f0f0";
-                        parent.style.color = "#333";
-                        parent.style.fontSize = "12px";
-                        parent.style.fontWeight = "bold";
-                        parent.style.display = "inline-flex";
-                        parent.style.alignItems = "center";
-                        parent.style.justifyContent = "center";
-                        parent.style.width = "36px";
-                        parent.style.height = "36px";
-                        parent.style.borderRadius = "6px";
-                      }
+                    const img = e.target as HTMLImageElement;
+                    img.onerror = null;
+                    img.style.display = "none";
+                    const parent = img.parentElement;
+                    if (parent) {
+                      parent.textContent = (symbol && symbol.charAt(0)) || "C";
+                      parent.style.background = "#f0f0f0";
+                      parent.style.color = "#333";
+                      parent.style.fontSize = "12px";
+                      parent.style.fontWeight = "bold";
+                      parent.style.display = "inline-flex";
+                      parent.style.alignItems = "center";
+                      parent.style.justifyContent = "center";
+                      parent.style.width = "36px";
+                      parent.style.height = "36px";
+                      parent.style.borderRadius = "6px";
                     }
                   }}
                 />
               </div>
-              <div className="currency-name">{currentCurrency?.name || symbol}</div>
+              <div className="currency-details">
+                <div className="currency-name">{currentCurrency?.name || symbol}</div>
+                {exchangeRates[symbol?.toUpperCase()] && (
+                  <div className="currency-rate">
+                    1 {symbol} ≈ {formatUSD(exchangeRates[symbol.toUpperCase()])}
+                  </div>
+                )}
+              </div>
             </div>
             <div className="section-note">Fixed currency - cannot be changed</div>
           </div>
@@ -386,18 +524,22 @@ function Deposit() {
             <FormProvider {...formMethods}>
               <form onSubmit={formMethods.handleSubmit(onSubmit)} className="deposit-form">
                 <div className="section">
-
                   <div className="form-group">
-                    <FieldFormItem
-                      name="amount"
-                      label={`Amount (${symbol})`}
-                      placeholder={`Minimum: ${minDepositAmount} ${symbol}`}
-                      className="form-input"
-                    />
-
-
+                    <div className="input-with-usd">
+                      <FieldFormItem
+                        name="amount"
+                        label={`Amount (${symbol})`}
+                        placeholder={`Minimum: ${formattedMinAmount} ${symbol}`}
+                        className="form-input"
+                      />
+                      {enteredAmountUSD > 0 && (
+                        <div className="usd-value-display">
+                          ≈ {formatUSD(enteredAmountUSD)}
+                        </div>
+                      )}
+                    </div>
                     <div className="min-amount-note">
-                      Minimum deposit: {minDepositAmount} {symbol}
+                      Minimum deposit: {formattedMinAmount} {symbol} ({formatUSD(MIN_DEPOSIT_USD)})
                     </div>
                   </div>
                 </div>
@@ -417,12 +559,16 @@ function Deposit() {
                   <button
                     type="submit"
                     className="submit-btn"
-                    disabled={!formMethods.formState.isValid || isSubmitting}
-                    aria-disabled={!formMethods.formState.isValid || isSubmitting}
+                    disabled={!formMethods.formState.isValid || isSubmitting || loadingRates}
+                    aria-disabled={!formMethods.formState.isValid || isSubmitting || loadingRates}
                   >
                     {isSubmitting ? (
                       <>
                         <i className="fas fa-spinner fa-spin" /> Processing...
+                      </>
+                    ) : loadingRates ? (
+                      <>
+                        <i className="fas fa-spinner fa-spin" /> Loading rates...
                       </>
                     ) : (
                       "Confirm Deposit"
@@ -458,7 +604,9 @@ function Deposit() {
                 1. Send only {symbol} to this deposit address. Sending other currencies may result in permanent loss.
               </div>
               <div className="hint-item">2. Ensure you are using the correct network ({networkOptions.find(n => n._id === selectedNetwork)?.name}).</div>
-              <div className="hint-item">3. Minimum deposit amount: {minDepositAmount} {symbol}</div>
+              <div className="hint-item">
+                3. Minimum deposit amount: {formattedMinAmount} {symbol} (${MIN_DEPOSIT_USD} USD equivalent)
+              </div>
               <div className="hint-item">4. Transactions typically require 1-3 network confirmations before being credited to your account.</div>
               <div className="hint-item">5. Always double-check the address before sending funds.</div>
             </div>
@@ -498,8 +646,6 @@ function Deposit() {
           </div>
         </div>
       )}
-
-
 
       <style>{`
         * {
@@ -569,6 +715,45 @@ function Deposit() {
           width: 100%;
         }
 
+        /* Info Box */
+        .info-box {
+          background: #e8f4ff;
+          border: 1px solid #b6d9ff;
+          border-radius: 8px;
+          padding: 12px;
+          margin-bottom: 16px;
+        }
+
+        .info-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 4px;
+        }
+
+        .info-label {
+          font-size: 12px;
+          color: #106cf5;
+          font-weight: 500;
+        }
+
+        .info-value {
+          font-size: 12px;
+          font-weight: 600;
+          color: #222;
+        }
+
+        .rate-loading {
+          font-size: 11px;
+          color: #666;
+          text-align: center;
+          margin-top: 4px;
+        }
+
+        .rate-loading .fa-spin {
+          margin-right: 6px;
+        }
+
         .section {
           margin-bottom: 14px;
         }
@@ -592,14 +777,15 @@ function Deposit() {
         }
 
         .currency-icon {
-          width: 23px;
-          height: 23px;
+          width: 36px;
+          height: 36px;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
           background: #f8f9fa;
           overflow: hidden;
+          flex-shrink: 0;
         }
 
         .currency-icon img {
@@ -608,10 +794,20 @@ function Deposit() {
           object-fit: contain;
         }
 
+        .currency-details {
+          flex: 1;
+        }
+
         .currency-name {
           font-size: 13px;
           font-weight: 600;
           color: #222;
+          margin-bottom: 2px;
+        }
+
+        .currency-rate {
+          font-size: 11px;
+          color: #666;
         }
 
         .section-note {
@@ -743,16 +939,13 @@ function Deposit() {
           margin-bottom: 16px;
         }
 
-        .amount-input-wrapper {
+        .input-with-usd {
           position: relative;
-          display: flex;
-          align-items: center;
         }
 
-        .amount-input {
+        .form-input {
           width: 100%;
           padding: 14px 16px;
-          padding-right: 60px;
           border: 1px solid #e0e0e0;
           border-radius: 12px;
           font-size: 14px;
@@ -761,25 +954,22 @@ function Deposit() {
           transition: all 0.3s ease;
         }
 
-        .amount-input:focus {
-          outline: none;
-          border-color: #106cf5;
-          box-shadow: 0 0 0 3px rgba(16, 108, 245, 0.1);
-        }
-
-        .amount-suffix {
-          position: absolute;
-          right: 16px;
-          color: #666;
-          font-weight: 600;
-          pointer-events: none;
-        }
-
-
         .form-input:focus {
           outline: none;
           border-color: #106cf5;
           box-shadow: 0 0 0 3px rgba(16, 108, 245, 0.1);
+        }
+
+        .usd-value-display {
+          position: absolute;
+          right: 16px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 12px;
+          color: #666;
+          background: white;
+          padding: 2px 6px;
+          border-radius: 4px;
         }
 
         .error-message {
@@ -1101,7 +1291,7 @@ function Deposit() {
             justify-content: center;
           }
 
-          .amount-input {
+          .form-input {
             padding: 12px 14px;
             font-size: 14px;
           }

@@ -1643,6 +1643,21 @@ const en = {
       },
     },
 
+    deposit : {
+       create: {
+        success: "Deposit Received – Under Review",
+      },
+    },
+        spot : {
+       create: {
+        success: "Success",
+      },
+       update: {
+        success: "Success",
+      },
+    },
+     
+
 
 
   },

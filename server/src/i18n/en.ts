@@ -93,7 +93,7 @@ const en = {
     usdtWalletNotFoundForUser: "USDT wallet not found for user {{userId}}",
     closingPriceExceedLimit: "Closing price cannot exceed $100",
     profitAmountInvalid: "Profit amount is zero or invalid.",
-    amountConditions: 'Futures amount must be at least 30 USDT',
+    amountConditions: 'Futures amount must be at least 200 USDT',
     lossAmountInvalid: "Loss amount is zero or invalid.",
     passwordNotMatching: "Password not matching",
     insufficientBalanceUpgrade: "Insufficient balance. Please upgrade.",

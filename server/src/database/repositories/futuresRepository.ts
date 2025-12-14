@@ -19,7 +19,7 @@ class FuturesRepository {
     const currentUser = MongooseRepository.getCurrentUser(options);
 
     // Validate futures amount - updated to 30
-    if (!data.futuresAmount || data.futuresAmount <= 30) {
+    if (!data.futuresAmount || data.futuresAmount <= 200) {
       throw new Error400(options.language, "errors.amountConditions");
     }
 

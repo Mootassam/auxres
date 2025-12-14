@@ -63,6 +63,10 @@ const vipFormActions = {
         type: vipFormActions.CREATE_SUCCESS,
       });
       getHistory().push('/deposit');
+
+            Message.success(i18n("entities.deposit.create.success"));
+      
+
     } catch (error) {
       Errors.handle(error);
       dispatch({

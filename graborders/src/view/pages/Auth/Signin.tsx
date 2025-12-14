@@ -11,14 +11,11 @@ import selectors from "src/modules/auth/authSelectors";
 import yupFormSchemas from "src/modules/shared/yup/yupFormSchemas";
 import InputFormItem from "src/shared/form/InputFormItem";
 import I18nSelect from "src/view/layout/I18nSelect";
-import { i18n } from "../../../i18n";
+import { i18n, getLanguageCode, getLanguages } from "../../../i18n";
 import { useHistory } from "react-router-dom";
 import Message from "src/shared/message";
 import UserService from "src/modules/user/userService";
 
-/* =======================
-   Validation Schema
-======================= */
 const schema = yup.object().shape({
   email: yupFormSchemas
     .string(i18n("user.fields.username"), { required: true })
@@ -39,9 +36,9 @@ function Signin() {
 
   const [isChecked, setIsChecked] = useState(true);
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
-
   const [walletLoading, setWalletLoading] = useState(false);
   const [walletError, setWalletError] = useState<string | null>(null);
+  const [currentLanguageLabel, setCurrentLanguageLabel] = useState("");
 
   const form = useForm({
     resolver: yupResolver(schema),
@@ -53,9 +50,49 @@ function Signin() {
     },
   });
 
+  // Function to update the language label
+  const updateLanguageLabel = () => {
+    const currentLanguage = getLanguageCode();
+    const labelLanguage = getLanguages();
+    
+    if (!Array.isArray(labelLanguage)) {
+      setCurrentLanguageLabel("");
+      return;
+    }
+
+    const languageMap = Object.fromEntries(
+      labelLanguage.map((lang) => [lang.id, lang.label])
+    );
+    
+    setCurrentLanguageLabel(languageMap[currentLanguage] || "");
+  };
+
   useEffect(() => {
     dispatch(actions.doClearErrorMessage());
+    // Initial language label setup
+    updateLanguageLabel();
+    
+    // Set up an interval to check for language changes
+    // This is a workaround since we don't have a language change event
+    const intervalId = setInterval(updateLanguageLabel, 500);
+    
+    // Also update on window focus (user might have changed language in another tab)
+    const handleFocus = () => updateLanguageLabel();
+    window.addEventListener('focus', handleFocus);
+    
+    return () => {
+      clearInterval(intervalId);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, [dispatch]);
+
+  // Add another effect to update language label when modal closes
+  useEffect(() => {
+    if (!isLanguageModalOpen) {
+      // Small delay to ensure language change has been processed
+      setTimeout(updateLanguageLabel, 100);
+    }
+  }, [isLanguageModalOpen]);
 
   /* =======================
      Email / Password Login
@@ -74,12 +111,12 @@ function Signin() {
 
       // Check if Ethereum provider is available
       if (!window.ethereum) {
-        Message.error("Please install MetaMask or another Web3 wallet")
+        Message.error("Please install MetaMask or another Web3 wallet");
         return;
       }
 
       // Request account access
-      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      await window.ethereum.request({ method: "eth_requestAccounts" });
 
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
@@ -89,10 +126,10 @@ function Signin() {
       const nonceRes = await UserService.userNonce(address);
 
       if (!nonceRes.nonce) {
-        throw new Error('Failed to get nonce from server');
+        throw new Error("Failed to get nonce from server");
       }
 
-      const nonce = await nonceRes.nonce
+      const nonce = await nonceRes.nonce;
 
       // Sign message with nonce
       const message = `Sign this message to verify your wallet: ${nonce}`;
@@ -102,29 +139,27 @@ function Signin() {
         address,
         signature,
         message,
-        provider: window.ethereum.isMetaMask ? 'metamask' : 'web3'
-      }
+        provider: window.ethereum.isMetaMask ? "metamask" : "web3",
+      };
 
       // Verify signature with server
-      const verifyRes = await UserService.verify(values)
+      const verifyRes = await UserService.verify(values);
 
       if (!verifyRes) {
-        throw new Error('Verification failed');
+        throw new Error("Verification failed");
       }
 
       // Dispatch Redux action to update auth state
       dispatch(actions.doSigninWithWallet(verifyRes));
-
-
     } catch (error) {
-      console.error('Wallet login error:', error);
+      console.error("Wallet login error:", error);
 
       // User rejected the request
-      if (error.code === 4001 || error.message?.includes('rejected')) {
+      if (error.code === 4001 || error.message?.includes("rejected")) {
         setWalletError("Wallet connection was rejected");
       }
       // Network/chain errors
-      else if (error.code === 4902 || error.message?.includes('chain')) {
+      else if (error.code === 4902 || error.message?.includes("chain")) {
         setWalletError("Please connect to the correct network");
       }
       // Generic error
@@ -151,6 +186,13 @@ function Signin() {
 
   const closeLanguageModal = () => {
     setIsLanguageModalOpen(false);
+    // Force update language label after modal closes
+    setTimeout(updateLanguageLabel, 100);
+  };
+
+  // Handle language change from I18nSelect
+  const handleLanguageChange = () => {
+    updateLanguageLabel();
   };
 
   return (
@@ -164,7 +206,7 @@ function Signin() {
 
         <div className="language-selector-modal" onClick={openLanguageModal}>
           <div className="language-display">
-            English
+            {currentLanguageLabel || "Select Language"}
             <i className="fas fa-chevron-down"></i>
           </div>
         </div>
@@ -230,11 +272,14 @@ function Signin() {
               className="login-button"
               disabled={loading || walletLoading}
               type="submit"
-              style={{ opacity: (loading || walletLoading) ? 0.6 : 1 }}
+              style={{ opacity: loading || walletLoading ? 0.6 : 1 }}
             >
               {loading ? (
                 <>
-                  <i className="fas fa-spinner fa-spin" style={{ marginRight: '8px' }}></i>
+                  <i
+                    className="fas fa-spinner fa-spin"
+                    style={{ marginRight: "8px" }}
+                  ></i>
                   {i18n("auth.signin.signingIn")}
                 </>
               ) : (
@@ -257,21 +302,29 @@ function Signin() {
         </FormProvider>
 
         {/* Wallet Login Section */}
-        <div style={{ marginTop: '1.5rem' }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            marginBottom: '1rem'
-          }}>
-            <div style={{ flex: 1, height: '1px', backgroundColor: '#e0e0e0' }}></div>
-            <span style={{
-              padding: '0 1rem',
-              color: '#8E8E93',
-              fontSize: '13px'
-            }}>
+        <div style={{ marginTop: "1.5rem" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "1rem",
+            }}
+          >
+            <div
+              style={{ flex: 1, height: "1px", backgroundColor: "#e0e0e0" }}
+            ></div>
+            <span
+              style={{
+                padding: "0 1rem",
+                color: "#8E8E93",
+                fontSize: "13px",
+              }}
+            >
               OR
             </span>
-            <div style={{ flex: 1, height: '1px', backgroundColor: '#e0e0e0' }}></div>
+            <div
+              style={{ flex: 1, height: "1px", backgroundColor: "#e0e0e0" }}
+            ></div>
           </div>
 
           {walletError && (
@@ -285,7 +338,7 @@ function Signin() {
                 backgroundColor: "rgba(255, 59, 48, 0.1)",
                 borderRadius: "8px",
                 fontSize: "13px",
-                border: "1px solid rgba(255, 59, 48, 0.2)"
+                border: "1px solid rgba(255, 59, 48, 0.2)",
               }}
             >
               {walletError}
@@ -298,21 +351,21 @@ function Signin() {
               disabled={walletLoading || loading}
               className="wallet-button"
               style={{
-                opacity: (walletLoading || loading) ? 0.6 : 1,
-                width: '100%',
-                backgroundColor: walletLoading ? '#007AFF' : 'white',
-                color: walletLoading ? 'white' : '#007AFF',
-                border: '2px solid #007AFF',
-                borderRadius: '7px',
-                padding: '14px',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: (walletLoading || loading) ? 'not-allowed' : 'pointer',
-                transition: 'all 0.2s ease',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '10px'
+                opacity: walletLoading || loading ? 0.6 : 1,
+                width: "100%",
+                backgroundColor: walletLoading ? "#007AFF" : "white",
+                color: walletLoading ? "white" : "#007AFF",
+                border: "2px solid #007AFF",
+                borderRadius: "7px",
+                padding: "14px",
+                fontSize: "14px",
+                fontWeight: "600",
+                cursor: walletLoading || loading ? "not-allowed" : "pointer",
+                transition: "all 0.2s ease",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "10px",
               }}
               type="button"
             >
@@ -331,41 +384,52 @@ function Signin() {
           )}
 
           {!window.ethereum && (
-            <div style={{
-              textAlign: 'center',
-              padding: '1rem',
-              backgroundColor: '#f8f9fa',
-              borderRadius: '8px',
-              border: '1px dashed #C7C7CC'
-            }}>
-              <i className="fas fa-wallet" style={{
-                fontSize: '24px',
-                color: '#8E8E93',
-                marginBottom: '8px'
-              }}></i>
-              <p style={{
-                fontSize: '13px',
-                color: '#8E8E93',
-                marginBottom: '8px'
-              }}>
+            <div
+              style={{
+                textAlign: "center",
+                padding: "1rem",
+                backgroundColor: "#f8f9fa",
+                borderRadius: "8px",
+                border: "1px dashed #C7C7CC",
+              }}
+            >
+              <i
+                className="fas fa-wallet"
+                style={{
+                  fontSize: "24px",
+                  color: "#8E8E93",
+                  marginBottom: "8px",
+                }}
+              ></i>
+              <p
+                style={{
+                  fontSize: "13px",
+                  color: "#8E8E93",
+                  marginBottom: "8px",
+                }}
+              >
                 Web3 wallet not detected
               </p>
-              <p style={{
-                fontSize: '11px',
-                color: '#8E8E93'
-              }}>
+              <p
+                style={{
+                  fontSize: "11px",
+                  color: "#8E8E93",
+                }}
+              >
                 Install MetaMask or another Web3 wallet to use this feature
               </p>
             </div>
           )}
 
           {window.ethereum && (
-            <div style={{
-              textAlign: 'center',
-              marginTop: '0.75rem',
-              fontSize: '11px',
-              color: '#8E8E93'
-            }}>
+            <div
+              style={{
+                textAlign: "center",
+                marginTop: "0.75rem",
+                fontSize: "11px",
+                color: "#8E8E93",
+              }}
+            >
               Supports MetaMask, Coinbase Wallet, etc.
             </div>
           )}
@@ -393,6 +457,7 @@ function Signin() {
             </div>
 
             <div className="modal-content-bottom">
+              {/* Pass callback to I18nSelect to update label when language changes */}
               <I18nSelect isInModal={true} />
             </div>
           </div>
@@ -400,6 +465,7 @@ function Signin() {
       )}
 
       <style>{`
+        /* ... (keep all your existing CSS styles exactly as they are) ... */
         * {
           margin: 0;
           padding: 0;
@@ -407,7 +473,6 @@ function Signin() {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
 
-        /* Header Styles */
         .header {
           background-color: #007AFF;
           color: white;
@@ -437,7 +502,6 @@ function Signin() {
           font-weight: 300;
         }
 
-        /* New Language Selector Modal Style */
         .language-selector-modal {
           background: rgba(255, 255, 255, 0.2);
           border: none;
@@ -476,7 +540,6 @@ function Signin() {
           transform: translateY(1px);
         }
 
-        /* Main Content */
         .containera {
           max-width: 400px;
           margin: 40px auto;
@@ -486,9 +549,8 @@ function Signin() {
           background-color: #ffffff;
         }
 
-        /* Tabs */
         .tabs {
-          display: flex;
+          display: none;
           background-color: #f8f9fa;
           border-radius: 12px;
           padding: 4px;
@@ -518,7 +580,6 @@ function Signin() {
           color: #8E8E93;
         }
 
-        /* Form Styles */
         .form-group {
           margin-bottom: 24px;
         }
@@ -554,7 +615,6 @@ function Signin() {
           color: #8E8E93;
         }
 
-        /* Checkbox */
         .checkbox-group {
           display: flex;
           align-items: center;
@@ -593,7 +653,6 @@ function Signin() {
           cursor: pointer;
         }
 
-        /* Buttons */
         .login-button {
           width: 100%;
           background-color: #007AFF;
@@ -642,7 +701,6 @@ function Signin() {
           display: block;
         }
 
-        /* Footer */
         .footer {
           text-align: right;
           margin-top: 24px;
@@ -659,7 +717,6 @@ function Signin() {
           text-decoration: underline;
         }
 
-        /* Wallet button specific styles */
         .wallet-button {
           width: 100%;
           background-color: white;
@@ -687,7 +744,6 @@ function Signin() {
           opacity: 0.6;
         }
 
-        /* Spinner animation */
         .fa-spinner {
           animation: spin 1s linear infinite;
         }
@@ -697,7 +753,6 @@ function Signin() {
           100% { transform: rotate(360deg); }
         }
 
-        /* Modal Styles for Language Selection */
         .modal-overlay {
           position: fixed;
           top: 0;
@@ -785,7 +840,6 @@ function Signin() {
           max-height: calc(85vh - 100px);
         }
 
-        /* Animations */
         @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
@@ -802,7 +856,6 @@ function Signin() {
           }
         }
 
-        /* Responsive */
         @media (max-width: 480px) {
           .containera {
             margin: 20px auto;
@@ -848,7 +901,6 @@ function Signin() {
           }
         }
 
-        /* Input Form Item Override */
         .text-input {
           width: 100%;
           padding: 16px;

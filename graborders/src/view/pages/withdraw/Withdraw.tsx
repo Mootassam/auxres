@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm, FormProvider, useWatch } from "react-hook-form";
@@ -15,20 +15,31 @@ import assetsListActions from "src/modules/assets/list/assetsListActions";
 import SuccessModalComponent from "src/view/shared/modals/sucessModal";
 import method from "src/modules/depositMethod/list/depositMethodListActions";
 import depositMethodselectors from "src/modules/depositMethod/list/depositMethodSelectors";
+import axios from "axios";
 
-// Currency rules: minimum withdrawal and fee per currency
-const withdrawRules = {
-  BTC: { min: 0.00091, fee: 0.00002, decimals: 8 },
-  ETH: { min: 0.0077, fee: 0.0005, decimals: 8 },
-  USDT: { min: 30, fee: 3, decimals: 2 },
-  SOL: { min: 0.01, fee: 0.0005, decimals: 6 },
-  XRP: { min: 1, fee: 0.1, decimals: 6 },
-  BNB: { min: 0.01, fee: 0.0005, decimals: 6 },
-  TRX: { min: 1, fee: 0.1, decimals: 6 },
-  SHIB: { min: 100000, fee: 10000, decimals: 0 },
-  DAI: { min: 30, fee: 3, decimals: 2 },
-  USDC: { min: 30, fee: 3, decimals: 2 },
-  DOGE: { min: 10, fee: 1, decimals: 2 },
+// Currency configurations
+const CURRENCIES = [
+  "USDT", "ETH", "BTC", "USDC", "DAI",
+  "SHIB", "XRP", "TRX", "SOL", "BNB", "DOGE"
+];
+
+// Minimum withdrawal in USD
+const MIN_WITHDRAWAL_USD = 500;
+const WITHDRAWAL_FEE_USD = 5;
+
+// Decimal places for each currency
+const CURRENCY_DECIMALS = {
+  USDT: 2,
+  ETH: 6,
+  BTC: 8,
+  USDC: 2,
+  DAI: 2,
+  SHIB: 0,
+  XRP: 2,
+  TRX: 2,
+  SOL: 4,
+  BNB: 6,
+  DOGE: 2,
 };
 
 const schema = yup.object().shape({
@@ -42,16 +53,6 @@ const schema = yup.object().shape({
       "positive",
       i18n("pages.withdraw.errors.amountPositive"),
       (val) => typeof val === "number" && val > 0
-    )
-    .test(
-      "min-by-currency",
-      i18n("pages.withdraw.errors.amountMin"),
-      function (value) {
-        const { currency } = this.parent || {};
-        if (!currency || !withdrawRules[currency]) return true;
-        if (typeof value !== "number") return false;
-        return value >= withdrawRules[currency].min;
-      }
     ),
   fee: yupFormSchemas.decimal(i18n("entities.withdraw.fields.fee")),
   totalAmount: yupFormSchemas.decimal(
@@ -62,7 +63,6 @@ const schema = yup.object().shape({
   status: yupFormSchemas.enumerator(i18n("entities.withdraw.fields.status"), {
     options: ["pending", "canceled", "success"],
   }),
-
 });
 
 function Withdraw() {
@@ -70,6 +70,9 @@ function Withdraw() {
   const currentUser = useSelector(authSelectors.selectCurrentUser);
   const assets = useSelector(assetsListSelectors.selectRows) || [];
   const selectModal = useSelector(selectors.selectModal);
+  const listMethod = useSelector(depositMethodselectors.selectRows);
+  const loading = useSelector(selectors.selectSaveLoading);
+
   const [amount, setAmount] = useState("");
   const [address, setAddress] = useState("");
   const [selected, setSelected] = useState("");
@@ -77,9 +80,8 @@ function Withdraw() {
   const [item, setItem] = useState<{ symbol: string; amount: number } | null>(null);
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
   const [showNetworkDropdown, setShowNetworkDropdown] = useState(false);
-
-  const listMethod = useSelector(depositMethodselectors.selectRows);
-  const loading = useSelector(selectors.selectSaveLoading);
+  const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({});
+  const [loadingRates, setLoadingRates] = useState(false);
 
   // Fetch assets once
   useEffect(() => {
@@ -91,6 +93,43 @@ function Withdraw() {
     dispatch(method.doFetch());
   }, [dispatch]);
 
+  // Fetch exchange rates
+  useEffect(() => {
+    const fetchExchangeRates = async () => {
+      try {
+        setLoadingRates(true);
+        const response = await axios.get(
+          "https://min-api.cryptocompare.com/data/pricemulti",
+          {
+            params: {
+              fsyms: CURRENCIES.join(","),
+              tsyms: "USD",
+            },
+          }
+        );
+        
+        if (response.data && response.data.Response !== "Error") {
+          const rates: Record<string, number> = {};
+          CURRENCIES.forEach(currency => {
+            if (response.data[currency]?.USD) {
+              rates[currency] = response.data[currency].USD;
+            }
+          });
+          setExchangeRates(rates);
+        }
+      } catch (error) {
+        console.error("Failed to fetch exchange rates:", error);
+      } finally {
+        setLoadingRates(false);
+      }
+    };
+
+    fetchExchangeRates();
+    // Refresh rates every 5 minutes
+    const interval = setInterval(fetchExchangeRates, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   // Set default currency when listMethod loads
   useEffect(() => {
     if (listMethod && listMethod.length > 0 && !selected) {
@@ -99,7 +138,6 @@ function Withdraw() {
       setSelected(symbol);
       form.setValue("currency", symbol);
       
-      // Also set the default network for this currency
       if (defaultCurrency.network && defaultCurrency.network.length > 0) {
         setSelectedNetwork(defaultCurrency.network[0]._id || defaultCurrency.network[0].name);
       }
@@ -114,14 +152,11 @@ function Withdraw() {
       );
       setItem(found || null);
 
-      // Fixed: Safely access wallet address
       const walletAddress = currentUser?.wallet?.[selected]?.address || "";
       setAddress(walletAddress);
 
-      // Update form currency field
       form.setValue("currency", selected);
       
-      // Update withdraw address field if available
       if (walletAddress) {
         form.setValue("withdrawAdress", walletAddress);
       }
@@ -143,7 +178,6 @@ function Withdraw() {
     acceptTime: "",
     status: "pending",
     withdrawAdress: "",
-
   };
 
   const form = useForm({
@@ -156,18 +190,28 @@ function Withdraw() {
   const watchedAmount = useWatch({ control: form.control, name: "withdrawAmount" });
   const watchedCurrency = useWatch({ control: form.control, name: "currency" });
 
-  // parsed numeric values
+  // Parsed numeric values
   const parsedAmount = Number(watchedAmount);
   const isAmountNumber = !Number.isNaN(parsedAmount) && isFinite(parsedAmount);
   const availableBalance = item ? Number(item.amount) || 0 : 0;
 
-  // rules for selected currency
-  const selectedRules = withdrawRules[selected] || { min: 0, fee: 0, decimals: 8 };
-  const fee = selected ? selectedRules.fee : 0;
-  const min = selected ? selectedRules.min : 0;
-  const decimals = selected ? selectedRules.decimals : 8;
+  // Calculate minimum withdrawal and fee in selected currency
+  const { minInCurrency, feeInCurrency } = useMemo(() => {
+    if (!selected || !exchangeRates[selected]) {
+      return { minInCurrency: 0, feeInCurrency: 0 };
+    }
 
-  // Get selected method details - FIXED: Use the correct data structure
+    const rate = exchangeRates[selected];
+    const minInCurrency = MIN_WITHDRAWAL_USD / rate;
+    const feeInCurrency = WITHDRAWAL_FEE_USD / rate;
+
+    return {
+      minInCurrency,
+      feeInCurrency,
+    };
+  }, [selected, exchangeRates]);
+
+  // Get selected method details
   const selectedMethod = useMemo(() => {
     if (!listMethod || !selected) return null;
     return listMethod.find((method) => {
@@ -176,13 +220,12 @@ function Withdraw() {
     });
   }, [listMethod, selected]);
 
-  // Get network list for selected currency - FIXED
+  // Get network list for selected currency
   const networkList = selectedMethod?.network || [];
 
   // Set default network when currency changes
   useEffect(() => {
     if (networkList.length > 0) {
-      // Always reset to first network when currency changes
       const defaultNetwork = networkList[0];
       setSelectedNetwork(defaultNetwork._id || defaultNetwork.name);
       setShowNetworkDropdown(false);
@@ -192,56 +235,85 @@ function Withdraw() {
   }, [selectedMethod, networkList]);
 
   // Receive amount (what user receives after fee)
-  const receiveAmount = isAmountNumber ? Math.max(parsedAmount - (fee || 0), 0) : 0;
+  const receiveAmount = isAmountNumber ? Math.max(parsedAmount - feeInCurrency, 0) : 0;
 
-  // helper to format numbers consistently
-  const formatNumber = (value, d = decimals) => {
-    if (typeof value !== "number" || !isFinite(value)) return "0";
-    return Number(value).toLocaleString("en-US", {
+  // Helper to format numbers consistently - FIXED FOR ZERO AND SMALL VALUES
+  const formatNumber = useCallback((value: number, decimals?: number) => {
+    if (typeof value !== "number" || !isFinite(value) || value === 0) {
+      return "0";
+    }
+    
+    const decimalPlaces = decimals !== undefined ? decimals : (CURRENCY_DECIMALS[selected] || 2);
+    
+    // For very small numbers, show more precision but not scientific notation
+    if (value > 0 && value < 0.000001) {
+      // Format with maximum precision but no scientific notation
+      return value.toFixed(decimalPlaces > 8 ? decimalPlaces : 8);
+    }
+    
+    // For regular numbers
+    return new Intl.NumberFormat('en-US', {
       minimumFractionDigits: 0,
-      maximumFractionDigits: d,
-    });
-  };
+      maximumFractionDigits: decimalPlaces,
+    }).format(value);
+  }, [selected]);
+
+  // Helper to format USD values
+  const formatUSD = useCallback((value: number) => {
+    if (typeof value !== "number" || !isFinite(value) || value === 0) {
+      return "$0.00";
+    }
+    
+    // For very small USD values, show more precision
+    if (value > 0 && value < 0.01) {
+      return `$${value.toFixed(6)}`;
+    }
+    
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 6,
+    }).format(value);
+  }, []);
 
   // Get currency icon URL
-  const getCurrencyIcon = (symbol) => {
+  const getCurrencyIcon = useCallback((symbol: string) => {
     const cleanSymbol = symbol ? symbol.toUpperCase() : "";
     return `https://images.weserv.nl/?url=https://bin.bnbstatic.com/static/assets/logos/${cleanSymbol}.png`;
-  };
+  }, []);
 
   // Handle network selection
-  const handleNetworkSelect = (network) => {
+  const handleNetworkSelect = useCallback((network: any) => {
     setSelectedNetwork(network._id || network.name);
     setShowNetworkDropdown(false);
-  };
+  }, []);
 
-  // Combine multiple validation checks to produce button label + disabled state + inline messages
-  const computeValidationState = () => {
-    // not allowed if currency is not selected
+  // Validation checks
+  const computeValidationState = useCallback(() => {
     if (!selected) {
       return { disabled: true, label: i18n("pages.withdraw.validation.selectCurrency"), reason: "selectCurrency" };
     }
 
-    // Network selection required if multiple networks available
     if (networkList.length > 0 && !selectedNetwork) {
       return { disabled: true, label: i18n("pages.withdraw.validation.selectNetwork"), reason: "selectNetwork" };
     }
 
-    // amount missing or invalid
     if (!isAmountNumber || parsedAmount <= 0) {
       return { disabled: true, label: i18n("pages.withdraw.validation.enterAmount"), reason: "enterAmount" };
     }
 
-    // below minimum for currency
-    if (min && parsedAmount < min) {
+    // Check minimum withdrawal
+    if (parsedAmount < minInCurrency) {
+      const formattedMin = formatNumber(minInCurrency);
       return {
         disabled: true,
-        label: i18n("pages.withdraw.validation.belowMin", formatNumber(min), selected),
+        label: i18n("pages.withdraw.validation.belowMin", formattedMin, selected),
         reason: "belowMin",
       };
     }
 
-    // withdraw amount greater than available balance
+    // Check available balance
     if (parsedAmount > availableBalance) {
       return {
         disabled: true,
@@ -250,8 +322,8 @@ function Withdraw() {
       };
     }
 
-    // ensure fee can be covered too
-    if (parsedAmount + fee > availableBalance) {
+    // Check if fee can be covered
+    if (parsedAmount + feeInCurrency > availableBalance) {
       return {
         disabled: true,
         label: i18n("pages.withdraw.validation.insufficientForFee"),
@@ -259,66 +331,55 @@ function Withdraw() {
       };
     }
 
-    // address required
     const withdrawAddress = form.getValues("withdrawAdress");
     if (!withdrawAddress || withdrawAddress.trim() === "") {
       return { disabled: true, label: i18n("pages.withdraw.validation.enterAddress"), reason: "enterAddress" };
     }
 
-
-
-    // everything okay
     return { disabled: false, label: i18n("pages.withdraw.confirmWithdrawal"), reason: "ok" };
-  };
+  }, [selected, networkList, selectedNetwork, isAmountNumber, parsedAmount, minInCurrency, availableBalance, feeInCurrency, form, formatNumber]);
 
   const validationState = computeValidationState();
 
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     dispatch(actions.doClose());
-    // Reset form after successful withdrawal
     form.reset(initialValues);
     setSelected("");
     setAddress("");
     setAmount("");
     setSelectedNetwork("");
-  };
+  }, [dispatch, form, initialValues]);
 
   // Submit handler
-  const onSubmit = async (values) => {
+  const onSubmit = useCallback(async (values: any) => {
     if (validationState.disabled) return;
 
     try {
-      // ensure we use the selected currency
       values.currency = selected;
 
-      // generate order number: RE + YYYYMMDD + 7 random digits
+      // Generate order number
       const now = new Date();
       const dateStr = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
       const randomDigits = Math.floor(Math.random() * 1e7).toString().padStart(7, "0");
       values.orderNo = `RE${dateStr}${randomDigits}`;
 
-      // numeric values
+      // Set fee and total amount
       const amountNum = Number(values.withdrawAmount) || 0;
-      const feeNum = fee || 0;
-      values.fee = feeNum;
-      values.totalAmount = amountNum - feeNum; // what user receives
+      values.fee = feeInCurrency;
+      values.totalAmount = amountNum - feeInCurrency;
       values.status = "pending";
-
-      // Add selected network to values
       values.network = selectedNetwork;
 
       setAmount(values.totalAmount.toString());
 
-      // Dispatch create action
       await dispatch(actions.doCreate(values));
-
     } catch (error) {
       console.error("Withdrawal submission error:", error);
     }
-  };
+  }, [selected, feeInCurrency, selectedNetwork, validationState.disabled, dispatch]);
 
   // Handle currency selection
-  const handleCurrencySelect = (currency) => {
+  const handleCurrencySelect = useCallback((currency: any) => {
     const symbol = currency.symbol || currency.id;
     setSelected(symbol);
     form.setValue("currency", symbol);
@@ -326,14 +387,56 @@ function Withdraw() {
     form.setValue("withdrawAdress", "");
     setShowCurrencyDropdown(false);
     setShowNetworkDropdown(false);
-  };
+  }, [form]);
 
-  // form errors for inline display
+  // Calculate USD value of withdrawal amount
+  const withdrawalUSDValue = useMemo(() => {
+    if (!isAmountNumber || !exchangeRates[selected]) return 0;
+    return parsedAmount * exchangeRates[selected];
+  }, [parsedAmount, selected, exchangeRates, isAmountNumber]);
+
+  // Calculate USD value of fee
+  const feeUSDValue = useMemo(() => {
+    if (!exchangeRates[selected]) return 0;
+    return feeInCurrency * exchangeRates[selected];
+  }, [feeInCurrency, selected, exchangeRates]);
+
+  // Calculate USD value of receive amount
+  const receiveUSDValue = useMemo(() => {
+    if (!exchangeRates[selected]) return 0;
+    return receiveAmount * exchangeRates[selected];
+  }, [receiveAmount, selected, exchangeRates]);
+
+  // Format available balance with proper handling
+  const formattedAvailableBalance = useMemo(() => {
+    if (availableBalance === 0) return "0";
+    return formatNumber(availableBalance);
+  }, [availableBalance, formatNumber]);
+
+  // Format minimum withdrawal amount
+  const formattedMinAmount = useMemo(() => {
+    if (minInCurrency === 0) return "0";
+    return formatNumber(minInCurrency);
+  }, [minInCurrency, formatNumber]);
+
+  // Format fee amount
+  const formattedFeeAmount = useMemo(() => {
+    if (feeInCurrency === 0) return "0";
+    return formatNumber(feeInCurrency);
+  }, [feeInCurrency, formatNumber]);
+
+  // Format receive amount
+  const formattedReceiveAmount = useMemo(() => {
+    if (receiveAmount === 0) return "0";
+    return formatNumber(receiveAmount);
+  }, [receiveAmount, formatNumber]);
+
+  // Form errors
   const { errors } = form.formState;
 
   return (
     <div className="withdraw-container">
-      {/* Header Section - Matching HelpCenter */}
+      {/* Header Section */}
       <div className="header">
         <div className="nav-bar">
           <Link to="/wallets" className="back-arrow">
@@ -346,10 +449,9 @@ function Withdraw() {
         </div>
       </div>
 
-      {/* Content Card - Matching HelpCenter */}
+      {/* Content Card */}
       <div className="content-card">
         <div className="withdraw-content">
-
           {/* Select currency section */}
           <div className="form-section">
             <div className="input-field">
@@ -366,29 +468,34 @@ function Withdraw() {
                           src={getCurrencyIcon(selected)}
                           alt={selected}
                           onError={(e) => {
-                            const img = e.target;
-                            if (img && img instanceof HTMLImageElement) {
-                              img.onerror = null;
-                              img.style.display = "none";
-                              const parent = img.parentElement;
-                              if (parent) {
-                                parent.textContent = selected.charAt(0);
-                                parent.style.background = "#f0f0f0";
-                                parent.style.color = "#333";
-                                parent.style.fontSize = "14px";
-                                parent.style.fontWeight = "bold";
-                                parent.style.display = "inline-flex";
-                                parent.style.alignItems = "center";
-                                parent.style.justifyContent = "center";
-                                parent.style.width = "24px";
-                                parent.style.height = "24px";
-                                parent.style.borderRadius = "50%";
-                              }
+                            const img = e.target as HTMLImageElement;
+                            img.onerror = null;
+                            img.style.display = "none";
+                            const parent = img.parentElement;
+                            if (parent) {
+                              parent.textContent = selected.charAt(0);
+                              parent.style.background = "#f0f0f0";
+                              parent.style.color = "#333";
+                              parent.style.fontSize = "14px";
+                              parent.style.fontWeight = "bold";
+                              parent.style.display = "inline-flex";
+                              parent.style.alignItems = "center";
+                              parent.style.justifyContent = "center";
+                              parent.style.width = "24px";
+                              parent.style.height = "24px";
+                              parent.style.borderRadius = "50%";
                             }
                           }}
                         />
                       </div>
                       <span className="currency-text">{selected}</span>
+                      {loadingRates ? (
+                        <span className="rate-loading">Loading rates...</span>
+                      ) : exchangeRates[selected] ? (
+                        <span className="currency-rate">
+                          (1 {selected} ≈ {formatUSD(exchangeRates[selected])})
+                        </span>
+                      ) : null}
                     </div>
                   ) : (
                     <span className="placeholder">Select Currency</span>
@@ -399,21 +506,22 @@ function Withdraw() {
                 {showCurrencyDropdown && (
                   <div className="currency-dropdown">
                     {listMethod && listMethod.length > 0 ? (
-                      listMethod.map((currency) => {
-                        const symbol = currency.symbol || currency.id;
-                        return (
-                          <div
-                            key={currency.id || symbol}
-                            className="currency-option"
-                            onClick={() => handleCurrencySelect(currency)}
-                          >
-                            <div className="currency-icon">
-                              <img
-                                src={getCurrencyIcon(symbol)}
-                                alt={symbol}
-                                onError={(e) => {
-                                  const img = e.target;
-                                  if (img && img instanceof HTMLImageElement) {
+                      listMethod
+                        .filter(currency => CURRENCIES.includes(currency.symbol || currency.id))
+                        .map((currency) => {
+                          const symbol = currency.symbol || currency.id;
+                          return (
+                            <div
+                              key={currency.id || symbol}
+                              className="currency-option"
+                              onClick={() => handleCurrencySelect(currency)}
+                            >
+                              <div className="currency-icon">
+                                <img
+                                  src={getCurrencyIcon(symbol)}
+                                  alt={symbol}
+                                  onError={(e) => {
+                                    const img = e.target as HTMLImageElement;
                                     img.onerror = null;
                                     img.style.display = "none";
                                     const parent = img.parentElement;
@@ -430,15 +538,20 @@ function Withdraw() {
                                       parent.style.height = "24px";
                                       parent.style.borderRadius = "50%";
                                     }
-                                  }
-                                }}
-                              />
+                                  }}
+                                />
+                              </div>
+                              <span className="currency-text">{symbol}</span>
+                              {loadingRates ? (
+                                <span className="rate-loading-small">...</span>
+                              ) : exchangeRates[symbol] ? (
+                                <span className="currency-rate-small">
+                                  ({formatUSD(exchangeRates[symbol])})
+                                </span>
+                              ) : null}
                             </div>
-                            <span className="currency-text">{symbol}</span>
-                            {currency.name && <span className="currency-name"> - {currency.name}</span>}
-                          </div>
-                        );
-                      })
+                          );
+                        })
                     ) : (
                       <div className="no-options">No currencies available</div>
                     )}
@@ -447,7 +560,19 @@ function Withdraw() {
               </div>
             </div>
 
-            {/* Withdraw network - Fixed to show dropdown */}
+            {/* Minimum withdrawal requirement */}
+            {selected && exchangeRates[selected] && (
+              <div className="info-box">
+                <div className="info-row">
+                  <span className="info-label">Minimum withdrawal:</span>
+                  <span className="info-value">
+                    {formattedMinAmount} {selected} ({formatUSD(MIN_WITHDRAWAL_USD)})
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Withdraw network */}
             {selected && networkList.length > 0 && (
               <div className="input-field">
                 <label className="input-label">Withdraw network</label>
@@ -487,13 +612,9 @@ function Withdraw() {
               </div>
             )}
 
-            {/* Withdraw address */}
-
-
             <FormProvider {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
-
-
+                {/* Withdraw address */}
                 <div className="input-field">
                   <label className="input-label">Withdraw address</label>
                   <div className="input-wrapper">
@@ -506,8 +627,8 @@ function Withdraw() {
                     />
                   </div>
                   <br />
-
                 </div>
+
                 {/* Amount section */}
                 <div className="input-field">
                   <label className="input-label">Amount of coins withdrawn</label>
@@ -517,25 +638,45 @@ function Withdraw() {
                       type="number"
                       className="amount-field"
                       placeholder="0.0"
-          
+                      step="any"
                     />
                   </div>
-                  <div className="balance-text">
-                    Available: <span className="balance-amount">{formatNumber(availableBalance, decimals)} {selected}</span>
+                  <div className="balance-info">
+                    <div className="balance-text">
+                      Available: <span className="balance-amount">{formattedAvailableBalance} {selected}</span>
+                    </div>
+                    {isAmountNumber && withdrawalUSDValue > 0 && (
+                      <div className="usd-value">
+                        ≈ {formatUSD(withdrawalUSDValue)}
+                      </div>
+                    )}
                   </div>
-
-               
                 </div>
 
-                {/* Handling fee section */}
+                {/* Fee section */}
                 <div className="fee-section">
                   <div className="fee-row">
-                    <div className="fee-label">Handling fee:</div>
-                    <div className="fee-value">{formatNumber(fee, decimals)} {selected}</div>
+                    <div className="fee-label">Withdrawal fee:</div>
+                    <div className="fee-value">
+                      {formattedFeeAmount} {selected}
+                      <span className="fee-usd"> ({formatUSD(feeUSDValue)})</span>
+                    </div>
+                  </div>
+                  <div className="fee-row">
+                    <div className="fee-label">Minimum withdrawal:</div>
+                    <div className="fee-value">
+                      {formattedMinAmount} {selected}
+                      <span className="fee-usd"> ({formatUSD(MIN_WITHDRAWAL_USD)})</span>
+                    </div>
                   </div>
                   <div className="fee-row">
                     <div className="fee-label">You will receive:</div>
-                    <div className="fee-value receive-amount">{formatNumber(receiveAmount, decimals)} {selected}</div>
+                    <div className="fee-value receive-amount">
+                      {formattedReceiveAmount} {selected}
+                      {receiveUSDValue > 0 && (
+                        <span className="receive-usd"> (≈ {formatUSD(receiveUSDValue)})</span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -543,25 +684,28 @@ function Withdraw() {
                 <div className="notice-section">
                   <div className="notice-title">Important notice</div>
                   <div className="notice-content">
-                    <div className="notice-item">1. In order to prevent arbitrage, you can apply for currency withdraw when the transaction volume reaches the quota.</div>
-                    <div className="notice-item">2. After submitting the withdraw application, the money will arrive within 24 hours. If the money does not arrive after the expected withdraw time, please consult the online customer service.</div>
-                    <div className="notice-item">3. After submitting the withdraw application, the funds are frozen because the withdraw is in progress and the funds are temporarily held by the system. This does not mean that you have lost the asset or that there is an abnormality with the asset.</div>
+                    <div className="notice-item">1. Minimum withdrawal amount is ${MIN_WITHDRAWAL_USD} USD equivalent in selected currency.</div>
+                    <div className="notice-item">2. Withdrawal fee is ${WITHDRAWAL_FEE_USD} USD equivalent in selected currency.</div>
+                    <div className="notice-item">3. After submitting the withdraw application, the money will arrive within 24 hours. If the money does not arrive after the expected withdraw time, please consult the online customer service.</div>
+                    <div className="notice-item">4. After submitting the withdraw application, the funds are frozen because the withdraw is in progress and the funds are temporarily held by the system. This does not mean that you have lost the asset or that there is an abnormality with the asset.</div>
                   </div>
                 </div>
-
-                {/* Withdrawal password */}
-               
 
                 {/* Submit button */}
                 <button
                   type="submit"
                   className="withdraw-button"
-                  disabled={validationState.disabled || loading}
+                  disabled={validationState.disabled || loading || loadingRates}
                 >
                   {loading ? (
                     <>
                       <i className="fas fa-spinner fa-spin" style={{ marginRight: '8px' }}></i>
                       Processing...
+                    </>
+                  ) : loadingRates ? (
+                    <>
+                      <i className="fas fa-spinner fa-spin" style={{ marginRight: '8px' }}></i>
+                      Loading rates...
                     </>
                   ) : (
                     validationState.label
@@ -606,7 +750,7 @@ function Withdraw() {
           background: linear-gradient(135deg, #106cf5 0%, #0a4fc4 100%);
         }
 
-        /* Header Section - Matching HelpCenter */
+        /* Header Section */
         .header {
           min-height: 60px;
           position: relative;
@@ -640,7 +784,7 @@ function Withdraw() {
           transform: translateX(-50%);
         }
 
-        /* Content Card - Matching HelpCenter */
+        /* Content Card */
         .content-card {
           background: #f2f4f7;
           border-radius: 40px 40px 0 0;
@@ -697,7 +841,13 @@ function Withdraw() {
           border-color: #106cf5;
         }
 
-        .selected-currency,
+        .selected-currency {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          flex: 1;
+        }
+
         .selected-network {
           display: flex;
           align-items: center;
@@ -712,6 +862,7 @@ function Withdraw() {
           align-items: center;
           justify-content: center;
           overflow: hidden;
+          flex-shrink: 0;
         }
 
         .currency-icon img {
@@ -726,6 +877,32 @@ function Withdraw() {
           font-weight: 500;
         }
 
+        .currency-rate {
+          font-size: 11px;
+          color: #666;
+          margin-left: auto;
+          margin-right: 10px;
+        }
+
+        .currency-rate-small {
+          font-size: 10px;
+          color: #666;
+          margin-left: auto;
+        }
+
+        .rate-loading {
+          font-size: 11px;
+          color: #999;
+          margin-left: auto;
+          margin-right: 10px;
+        }
+
+        .rate-loading-small {
+          font-size: 10px;
+          color: #999;
+          margin-left: auto;
+        }
+
         .network-icon {
           color: #106cf5;
           font-size: 14px;
@@ -737,11 +914,7 @@ function Withdraw() {
           transition: transform 0.3s ease;
         }
 
-        .currency-select-trigger.active .dropdown-arrow {
-          transform: rotate(180deg);
-        }
-
-        /* Currency Dropdown */
+        /* Dropdowns */
         .currency-dropdown,
         .network-dropdown {
           position: absolute;
@@ -778,11 +951,6 @@ function Withdraw() {
           height: 24px;
         }
 
-        .currency-name {
-          font-size: 11px;
-          color: #666;
-        }
-
         .network-icon-small {
           color: #106cf5;
           font-size: 12px;
@@ -799,11 +967,39 @@ function Withdraw() {
           color: #999;
         }
 
+        /* Info Box */
+        .info-box {
+          background: #e8f4ff;
+          border: 1px solid #b6d9ff;
+          border-radius: 8px;
+          padding: 12px;
+          margin: 5px 0;
+        }
+
+        .info-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .info-label {
+          font-size: 12px;
+          color: #106cf5;
+          font-weight: 500;
+        }
+
+        .info-value {
+          font-size: 12px;
+          font-weight: 600;
+          color: #222;
+        }
+
+        /* Input Fields */
         .input-wrapper {
           position: relative;
         }
 
-        .address-field, .amount-field, .password-field {
+        .address-field, .amount-field {
           width: 100%;
           padding: 12px;
           border: 1px solid #e0e0e0;
@@ -814,27 +1010,30 @@ function Withdraw() {
           transition: all 0.3s ease;
         }
 
-        .address-field:disabled {
-          background-color: #f8f9fa;
-          color: #666;
-          cursor: not-allowed;
-        }
-
-        .amount-field:focus, .password-field:focus {
+        .address-field:focus, .amount-field:focus {
           outline: none;
           border-color: #106cf5;
           box-shadow: 0 0 0 3px rgba(16, 108, 245, 0.1);
         }
 
+        .balance-info {
+          margin-top: 8px;
+        }
+
         .balance-text {
           font-size: 14px;
           color: #666;
-          margin-top: 8px;
         }
 
         .balance-amount {
           font-weight: 600;
           color: #106cf5;
+        }
+
+        .usd-value {
+          font-size: 12px;
+          color: #666;
+          margin-top: 2px;
         }
 
         /* Fee Section */
@@ -867,11 +1066,29 @@ function Withdraw() {
           font-size: 15px;
           font-weight: 600;
           color: #222;
+          text-align: right;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+        }
+
+        .fee-usd {
+          font-size: 12px;
+          color: #666;
+          font-weight: normal;
+          margin-top: 2px;
         }
 
         .receive-amount {
           color: #106cf5;
           font-size: 16px;
+        }
+
+        .receive-usd {
+          font-size: 12px;
+          color: #106cf5;
+          font-weight: normal;
+          margin-top: 2px;
         }
 
         /* Notice Section */
@@ -902,20 +1119,6 @@ function Withdraw() {
           line-height: 1.4;
         }
 
-        /* Field Error */
-        .field-error {
-          font-size: 12px;
-          color: #e53935;
-          margin-top: 6px;
-          min-height: 20px;
-        }
-
-        .field-hint {
-          font-size: 12px;
-          color: #ff9800;
-          margin-top: 6px;
-        }
-
         /* Withdraw Button */
         .withdraw-button {
           width: 100%;
@@ -944,7 +1147,7 @@ function Withdraw() {
           box-shadow: none;
         }
 
-        /* Responsive adjustments */
+        /* Responsive */
         @media (max-width: 380px) {
           .withdraw-container {
             padding: 0;
@@ -963,8 +1166,7 @@ function Withdraw() {
           .currency-select-trigger,
           .network-select-trigger,
           .address-field,
-          .amount-field,
-          .password-field {
+          .amount-field {
             padding: 12px;
             font-size: 14px;
           }

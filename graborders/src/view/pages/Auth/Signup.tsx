@@ -7,11 +7,11 @@ import * as yup from "yup";
 
 // Local imports
 import actions from "src/modules/auth/authActions";
-import { i18n } from "../../../i18n";
+import { i18n, getLanguageCode, getLanguages } from "../../../i18n";
 import yupFormSchemas from "src/modules/shared/yup/yupFormSchemas";
 import InputFormItem from "src/shared/form/InputFormItem";
 import selectors from "src/modules/auth/authSelectors";
-import ButtonIcon from "src/shared/ButtonIcon";
+import I18nSelect from "src/view/layout/I18nSelect";
 
 function Signup() {
   const dispatch = useDispatch();
@@ -20,11 +20,55 @@ function Signup() {
   const errorMessage = useSelector(selectors.selectErrorMessage);
   const [showPassword, setShowPassword] = useState(false);
   const [captchaText, setCaptchaText] = useState("");
+  const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
+  const [currentLanguageLabel, setCurrentLanguageLabel] = useState("");
 
-  // Generate initial captcha on component mount
+  // Function to update the language label
+  const updateLanguageLabel = () => {
+    const currentLanguage = getLanguageCode();
+    const labelLanguage = getLanguages();
+    
+    if (!Array.isArray(labelLanguage)) {
+      setCurrentLanguageLabel("");
+      return;
+    }
+
+    const languageMap = Object.fromEntries(
+      labelLanguage.map((lang) => [lang.id, lang.label])
+    );
+    
+    setCurrentLanguageLabel(languageMap[currentLanguage] || "");
+  };
+
+  // Generate initial captcha on component mount and setup language label
   useEffect(() => {
     refreshCaptcha();
+    updateLanguageLabel();
+    
+    // Set up an interval to check for language changes
+    const intervalId = setInterval(updateLanguageLabel, 500);
+    
+    // Also update on window focus
+    const handleFocus = () => updateLanguageLabel();
+    window.addEventListener('focus', handleFocus);
+    
+    return () => {
+      clearInterval(intervalId);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, []);
+
+  // Clear error message on component mount
+  useEffect(() => {
+    dispatch(actions.doClearErrorMessage());
+  }, [dispatch]);
+
+  // Update language label when modal closes
+  useEffect(() => {
+    if (!isLanguageModalOpen) {
+      setTimeout(updateLanguageLabel, 100);
+    }
+  }, [isLanguageModalOpen]);
 
   // Validation schema
   const schema = yup.object().shape({
@@ -46,9 +90,6 @@ function Signup() {
     phoneNumber: yupFormSchemas.string(i18n("user.fields.phoneNumber"), {
       required: true,
     }),
-
-
-
     captcha: yup
       .string()
       .required(i18n("user.fields.captcha"))
@@ -69,11 +110,6 @@ function Signup() {
     },
   });
 
-  // Clear error message on component mount
-  useEffect(() => {
-    dispatch(actions.doClearErrorMessage());
-  }, [dispatch]);
-
   // Generate new captcha
   const refreshCaptcha = useCallback(() => {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -90,8 +126,7 @@ function Signup() {
   const onSubmit = useCallback(
     (data) => {
       // Captcha validation is already handled by yup schema
-      const { email, password, phoneNumber, withdrawPassword, invitationcode } =
-        data;
+      const { email, password, phoneNumber } = data;
       dispatch(
         actions.doRegisterEmailAndPassword(
           email,
@@ -107,9 +142,20 @@ function Signup() {
     history.goBack();
   }, [history]);
 
-  const togglePasswordVisibility = useCallback(() => {
-    setShowPassword(!showPassword);
-  }, [showPassword]);
+  const openLanguageModal = () => {
+    setIsLanguageModalOpen(true);
+  };
+
+  const closeLanguageModal = () => {
+    setIsLanguageModalOpen(false);
+    // Force update language label after modal closes
+    setTimeout(updateLanguageLabel, 100);
+  };
+
+  // Handle language change from I18nSelect
+  const handleLanguageChange = () => {
+    updateLanguageLabel();
+  };
 
   return (
     <div style={{ backgroundColor: "#ffffff", minHeight: "100vh" }}>
@@ -120,12 +166,12 @@ function Signup() {
           <span>{i18n("pages.signup.title")}</span>
         </button>
         
-        <select className="language-selector">
-          <option>English</option>
-          <option>Spanish</option>
-          <option>French</option>
-          <option>German</option>
-        </select>
+        <div className="language-selector-modal" onClick={openLanguageModal}>
+          <div className="language-display">
+            {currentLanguageLabel || "Select Language"}
+            <i className="fas fa-chevron-down"></i>
+          </div>
+        </div>
       </div>
 
       {/* Main Content */}
@@ -197,7 +243,7 @@ function Signup() {
             <div className="form-group">
               <label className="form-label">Password</label>
               <InputFormItem
-                type={showPassword ? "text" : "password"}
+                type="password"
                 name="password"
                 placeholder="Please enter your password"
                 className="form-input"
@@ -216,8 +262,6 @@ function Signup() {
                 autoComplete="new-password"
               />
             </div>
-
-   
 
             {/* Sign Up Button */}
             <button
@@ -241,9 +285,35 @@ function Signup() {
             </div>
           </form>
         </FormProvider>
-
-      
       </div>
+
+      {/* Language Modal */}
+      {isLanguageModalOpen && (
+        <div className="modal-overlay" onClick={closeLanguageModal}>
+          <div
+            className="modal-container-bottom"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header-bottom">
+              <div className="modal-drag-handle"></div>
+              <div className="modal-title-wrapper">
+                <div className="modal-title">Select Language</div>
+                <button
+                  className="modal-close-btn-bottom"
+                  onClick={closeLanguageModal}
+                >
+                  <i className="fas fa-times" />
+                </button>
+              </div>
+            </div>
+
+            <div className="modal-content-bottom">
+              {/* Language selection component */}
+              <I18nSelect isInModal={true} />
+            </div>
+          </div>
+        </div>
+      )}
 
       <style>{`
         * {
@@ -283,7 +353,8 @@ function Signup() {
           font-weight: 300;
         }
 
-        .language-selector {
+        /* New Language Selector Modal Style */
+        .language-selector-modal {
           background: rgba(255, 255, 255, 0.2);
           border: none;
           border-radius: 6px;
@@ -291,15 +362,38 @@ function Signup() {
           color: white;
           font-size: 14px;
           cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          transition: all 0.2s ease;
+          user-select: none;
+          min-width: 80px;
+          justify-content: center;
         }
 
-        .language-selector option {
-          background: white;
-          color: #333;
+        .language-selector-modal:hover {
+          background: rgba(255, 255, 255, 0.3);
+          transform: translateY(-1px);
+        }
+
+        .language-display {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-weight: 500;
+        }
+
+        .language-display i {
+          font-size: 10px;
+          transition: transform 0.2s ease;
+        }
+
+        .language-selector-modal:hover .language-display i {
+          transform: translateY(1px);
         }
 
         /* Main Content */
-       .containera {
+        .containera {
           max-width: 400px;
           margin: 40px auto;
           padding: 0 20px;
@@ -421,7 +515,7 @@ function Signup() {
 
         /* Responsive */
         @media (max-width: 480px) {
-          .container {
+          .containera {
             margin: 20px auto;
           }
           
@@ -444,6 +538,11 @@ function Signup() {
 
           .captcha-display {
             width: 100%;
+          }
+
+          .language-selector-modal {
+            padding: 5px 10px;
+            min-width: 70px;
           }
         }
 
@@ -469,6 +568,131 @@ function Signup() {
 
         .text-input::placeholder {
           color: #8E8E93;
+        }
+
+        /* Modal Styles for Language Selection */
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.5);
+          backdrop-filter: blur(4px);
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
+          z-index: 1000;
+          animation: fadeIn 0.3s ease;
+        }
+
+        .modal-container-bottom {
+          background: white;
+          border-radius: 24px 24px 0 0;
+          width: 100%;
+          max-width: 400px;
+          max-height: 85vh;
+          overflow: hidden;
+          box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15);
+          animation: slideUpFromBottom 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          display: flex;
+          flex-direction: column;
+          margin: 0 auto;
+        }
+
+        .modal-header-bottom {
+          padding: 16px 20px 8px 20px;
+          border-bottom: 1px solid #eef2f7;
+          position: relative;
+        }
+
+        .modal-drag-handle {
+          width: 40px;
+          height: 4px;
+          background: #ddd;
+          border-radius: 2px;
+          margin: 0 auto 12px auto;
+        }
+
+        .modal-title-wrapper {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 8px;
+        }
+
+        .modal-title {
+          font-size: 17px;
+          font-weight: 700;
+          color: #222;
+          flex: 1;
+          padding-right: 10px;
+        }
+
+        .modal-close-btn-bottom {
+          background: #f5f7fa;
+          border: none;
+          color: #666;
+          font-size: 16px;
+          cursor: pointer;
+          padding: 8px;
+          border-radius: 50%;
+          width: 36px;
+          height: 36px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+          flex-shrink: 0;
+        }
+
+        .modal-close-btn-bottom:hover {
+          background: #eef2f7;
+          color: #333;
+        }
+
+        .modal-content-bottom {
+          flex: 1;
+          overflow-y: auto;
+          padding: 0;
+          max-height: calc(85vh - 100px);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        @keyframes slideUpFromBottom {
+          from {
+            opacity: 0;
+            transform: translateY(100%);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @media (max-width: 480px) {
+          .modal-container-bottom {
+            max-height: 90vh;
+          }
+
+          .modal-header-bottom {
+            padding: 12px 16px 6px 16px;
+          }
+
+          .modal-title {
+            font-size: 16px;
+          }
+
+          .modal-drag-handle {
+            width: 36px;
+            height: 3px;
+            margin-bottom: 10px;
+          }
         }
       `}</style>
     </div>
