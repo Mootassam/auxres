@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import authActions from "src/modules/auth/authActions";
 import CurrencyModal from "../currency/Currency";
 import I18nSelect from "src/view/layout/I18nSelect";
+import { i18n } from "../../../i18n";
 
 // Helper function to get/set currency from localStorage
 const getStoredCurrency = () => {
@@ -64,8 +65,8 @@ function Settings() {
   // Color scheme display name
   const colorSchemeDisplayName = useMemo(() => {
     return selectedColorScheme === 'green-rise-red-fall' 
-      ? 'Green rises, Red falls' 
-      : 'Red rises, Green falls';
+      ? i18n("pages.settings.colorSchemes.greenRiseRedFall.name") 
+      : i18n("pages.settings.colorSchemes.redRiseGreenFall.name");
   }, [selectedColorScheme]);
 
   const handleSignOut = () => {
@@ -125,7 +126,7 @@ function Settings() {
           <Link to="/profile" className="back-arrow">
             <i className="fas fa-arrow-left" />
           </Link>
-          <div className="page-title">Settings</div>
+          <div className="page-title">{i18n("pages.settings.title")}</div>
         </div>
       </div>
 
@@ -139,7 +140,7 @@ function Settings() {
                 <i className="fas fa-language" />
               </div>
               <div className="option-content">
-                <div className="option-title">Language</div>
+                <div className="option-title">{i18n("pages.settings.language")}</div>
               </div>
               <div className="option-arrow">
                 <i className="fas fa-chevron-right" />
@@ -154,7 +155,9 @@ function Settings() {
                 <i className="fas fa-dollar-sign" />
               </div>
               <div className="option-content">
-                <div className="option-title">Quotation currency {currencyDisplayName}</div>
+                <div className="option-title">
+                  {i18n("pages.settings.quotationCurrency")} {currencyDisplayName}
+                </div>
               </div>
               <div className="option-arrow">
                 <i className="fas fa-chevron-right" />
@@ -169,7 +172,10 @@ function Settings() {
                 <i className="fas fa-palette" />
               </div>
               <div className="option-content">
-                <div className="option-title">Color configuration <span className="color-scheme-name">({colorSchemeDisplayName})</span></div>
+                <div className="option-title">
+                  {i18n("pages.settings.colorConfiguration")} 
+                  <span className="color-scheme-name"> ({colorSchemeDisplayName})</span>
+                </div>
               </div>
               <div className="option-arrow">
                 <i className="fas fa-chevron-right" />
@@ -183,7 +189,7 @@ function Settings() {
                 <i className="fas fa-info-circle" />
               </div>
               <div className="option-content">
-                <div className="option-title">About us</div>
+                <div className="option-title">{i18n("pages.settings.aboutUs")}</div>
               </div>
               <div className="option-arrow">
                 <i className="fas fa-chevron-right" />
@@ -197,13 +203,13 @@ function Settings() {
                 <i className="fas fa-code-branch" />
               </div>
               <div className="option-content">
-                <div className="option-title">Version number 1.0.0</div>
+                <div className="option-title">
+                  {i18n("pages.settings.versionNumber")} 1.0.0
+                </div>
               </div>
             </div>
           </div>
         </div>
-
-       
       </div>
 
       {/* Currency Selection Modal - Using separate component */}
@@ -222,7 +228,7 @@ function Settings() {
             <div className="modal-header-bottom">
               <div className="modal-drag-handle"></div>
               <div className="modal-title-wrapper">
-                <div className="modal-title">Select Language</div>
+                <div className="modal-title">{i18n("pages.settings.modals.language.title")}</div>
                 <button className="modal-close-btn-bottom" onClick={closeLanguageModal}>
                   <i className="fas fa-times" />
                 </button>
@@ -244,7 +250,7 @@ function Settings() {
             {/* Modal Header */}
             <div className="modal-header">
               <div className="modal-title-wrapper">
-                <div className="modal-title">Color Configuration</div>
+                <div className="modal-title">{i18n("pages.settings.modals.colorConfiguration.title")}</div>
                 <button className="modal-close-btn" onClick={closeColorConfigModal}>
                   <i className="fas fa-times" />
                 </button>
@@ -260,18 +266,20 @@ function Settings() {
                   onClick={() => handleColorSchemeSelect('green-rise-red-fall')}
                 >
                   <div className="color-scheme-preview">
-                
                     <div className="scheme-image">
-                      {/* You can use the image here when you have it */}
-                      <img src="/images/settings/s1.png" alt="Green rises, Red falls" />
+                      <img 
+                        src="/images/settings/s1.png" 
+                        alt={i18n("pages.settings.colorSchemes.greenRiseRedFall.alt")} 
+                      />
                     </div>
                   </div>
                   <div className="color-scheme-info">
-                    <div className="scheme-name">Green rises, Red falls</div>
-                   
+                    <div className="scheme-name">
+                      {i18n("pages.settings.colorSchemes.greenRiseRedFall.name")}
+                    </div>
                     {selectedColorScheme === 'green-rise-red-fall' && (
                       <div className="selected-indicator">
-                        <i className="fas fa-check-circle"></i> Selected
+                        <i className="fas fa-check-circle"></i> {i18n("pages.settings.selected")}
                       </div>
                     )}
                   </div>
@@ -284,14 +292,21 @@ function Settings() {
                 >
                   <div className="color-scheme-preview">
                     <div className="scheme-image">
-                      {/* You can use the image here when you have it */}
-                      <img src="/images/settings/s2.png" alt="Red rises, Green falls" />
+                      <img 
+                        src="/images/settings/s2.png" 
+                        alt={i18n("pages.settings.colorSchemes.redRiseGreenFall.alt")} 
+                      />
                     </div>
                   </div>
                   <div className="color-scheme-info">
-                    <div className="scheme-name">Red rises, Green falls</div>
-                  
-               
+                    <div className="scheme-name">
+                      {i18n("pages.settings.colorSchemes.redRiseGreenFall.name")}
+                    </div>
+                    {selectedColorScheme === 'red-rise-green-fall' && (
+                      <div className="selected-indicator">
+                        <i className="fas fa-check-circle"></i> {i18n("pages.settings.selected")}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

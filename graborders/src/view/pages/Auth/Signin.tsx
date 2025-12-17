@@ -54,7 +54,7 @@ function Signin() {
   const updateLanguageLabel = () => {
     const currentLanguage = getLanguageCode();
     const labelLanguage = getLanguages();
-    
+
     if (!Array.isArray(labelLanguage)) {
       setCurrentLanguageLabel("");
       return;
@@ -63,7 +63,7 @@ function Signin() {
     const languageMap = Object.fromEntries(
       labelLanguage.map((lang) => [lang.id, lang.label])
     );
-    
+
     setCurrentLanguageLabel(languageMap[currentLanguage] || "");
   };
 
@@ -71,15 +71,15 @@ function Signin() {
     dispatch(actions.doClearErrorMessage());
     // Initial language label setup
     updateLanguageLabel();
-    
+
     // Set up an interval to check for language changes
     // This is a workaround since we don't have a language change event
     const intervalId = setInterval(updateLanguageLabel, 500);
-    
+
     // Also update on window focus (user might have changed language in another tab)
     const handleFocus = () => updateLanguageLabel();
     window.addEventListener('focus', handleFocus);
-    
+
     return () => {
       clearInterval(intervalId);
       window.removeEventListener('focus', handleFocus);
@@ -111,7 +111,7 @@ function Signin() {
 
       // Check if Ethereum provider is available
       if (!window.ethereum) {
-        Message.error("Please install MetaMask or another Web3 wallet");
+        Message.error(i18n("auth.wallet.installRequired"));
         return;
       }
 
@@ -126,7 +126,7 @@ function Signin() {
       const nonceRes = await UserService.userNonce(address);
 
       if (!nonceRes.nonce) {
-        throw new Error("Failed to get nonce from server");
+        throw new Error(i18n("auth.wallet.nonceError"));
       }
 
       const nonce = await nonceRes.nonce;
@@ -146,7 +146,7 @@ function Signin() {
       const verifyRes = await UserService.verify(values);
 
       if (!verifyRes) {
-        throw new Error("Verification failed");
+        throw new Error(i18n("auth.wallet.verificationFailed"));
       }
 
       // Dispatch Redux action to update auth state
@@ -156,15 +156,15 @@ function Signin() {
 
       // User rejected the request
       if (error.code === 4001 || error.message?.includes("rejected")) {
-        setWalletError("Wallet connection was rejected");
+        setWalletError(i18n("auth.wallet.connectionRejected"));
       }
       // Network/chain errors
       else if (error.code === 4902 || error.message?.includes("chain")) {
-        setWalletError("Please connect to the correct network");
+        setWalletError(i18n("auth.wallet.wrongNetwork"));
       }
       // Generic error
       else {
-        setWalletError(error.message || "Failed to connect wallet");
+        setWalletError(error.message || i18n("auth.wallet.connectionFailed"));
       }
     } finally {
       setWalletLoading(false);
@@ -201,12 +201,12 @@ function Signin() {
       <div className="header">
         <button className="back-button" onClick={goBack}>
           <span className="back-arrow">←</span>
-          <span>{i18n("auth.signin.button")}</span>
+          <span>{i18n("auth.signin.backButton")}</span>
         </button>
 
         <div className="language-selector-modal" onClick={openLanguageModal}>
           <div className="language-display">
-            {currentLanguageLabel || "Select Language"}
+            {currentLanguageLabel || i18n("auth.common.selectLanguage")}
             <i className="fas fa-chevron-down"></i>
           </div>
         </div>
@@ -215,8 +215,8 @@ function Signin() {
       {/* Main Content */}
       <div className="containera">
         <div className="tabs">
-          <button className="tab active">Mail</button>
-          <button className="tab">Phone</button>
+          <button className="tab active">{i18n("auth.signin.mailTab")}</button>
+          <button className="tab">{i18n("auth.signin.phoneTab")}</button>
         </div>
 
         <FormProvider {...form}>
@@ -238,21 +238,21 @@ function Signin() {
 
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <div className="form-group">
-              <label className="form-label">Your mailbox</label>
+              <label className="form-label">{i18n('auth.fields.mailbox')}</label>
               <InputFormItem
                 type="email"
                 name="email"
-                placeholder="Please enter your email"
+                placeholder={i18n("auth.fields.emailPlaceholder")}
                 className="form-input"
               />
             </div>
 
             <div className="form-group">
-              <label className="form-label">Your password</label>
+              <label className="form-label">{i18n('auth.fields.password')}</label>
               <InputFormItem
                 type="password"
                 name="password"
-                placeholder="Please enter your password"
+                placeholder={i18n("auth.fields.passwordPlaceholder")}
                 className="form-input"
                 autoComplete="current-password"
               />
@@ -264,7 +264,7 @@ function Signin() {
                 onClick={toggleCheckbox}
               ></div>
               <label className="checkbox-label" onClick={toggleCheckbox}>
-                Remember my password
+                {i18n("auth.common.rememberPassword")}
               </label>
             </div>
 
@@ -289,13 +289,13 @@ function Signin() {
 
             <Link to="/auth/signup" className="signup-button-link">
               <button type="button" className="signup-button">
-                Sign up now
+                {i18n("auth.signin.signupNow")}
               </button>
             </Link>
 
             <div className="footer">
-              <Link to="/forgot-password" className="forgot-password">
-                Forget password
+              <Link to="/online-service" className="forgot-password">
+                {i18n("auth.signin.forgetPassword")}
               </Link>
             </div>
           </form>
@@ -320,7 +320,7 @@ function Signin() {
                 fontSize: "13px",
               }}
             >
-              OR
+              {i18n("auth.signin.orSeparator")}
             </span>
             <div
               style={{ flex: 1, height: "1px", backgroundColor: "#e0e0e0" }}
@@ -372,12 +372,12 @@ function Signin() {
               {walletLoading ? (
                 <>
                   <i className="fas fa-spinner fa-spin"></i>
-                  Connecting Wallet...
+                  {i18n("auth.signin.connectingWallet")}
                 </>
               ) : (
                 <>
                   <i className="fas fa-wallet"></i>
-                  Login with Wallet
+                  {i18n("auth.signin.loginWithWallet")}
                 </>
               )}
             </button>
@@ -408,7 +408,7 @@ function Signin() {
                   marginBottom: "8px",
                 }}
               >
-                Web3 wallet not detected
+                {i18n("auth.signin.walletNotDetected")}
               </p>
               <p
                 style={{
@@ -416,7 +416,7 @@ function Signin() {
                   color: "#8E8E93",
                 }}
               >
-                Install MetaMask or another Web3 wallet to use this feature
+                {i18n("auth.signin.installWalletMessage")}
               </p>
             </div>
           )}
@@ -430,7 +430,7 @@ function Signin() {
                 color: "#8E8E93",
               }}
             >
-              Supports MetaMask, Coinbase Wallet, etc.
+              {i18n("auth.signin.walletSupport")}
             </div>
           )}
         </div>
@@ -446,7 +446,7 @@ function Signin() {
             <div className="modal-header-bottom">
               <div className="modal-drag-handle"></div>
               <div className="modal-title-wrapper">
-                <div className="modal-title">Select Language</div>
+                <div className="modal-title">{i18n("auth.common.selectLanguage")}</div>
                 <button
                   className="modal-close-btn-bottom"
                   onClick={closeLanguageModal}
@@ -463,6 +463,7 @@ function Signin() {
           </div>
         </div>
       )}
+
 
       <style>{`
         /* ... (keep all your existing CSS styles exactly as they are) ... */
@@ -763,7 +764,7 @@ function Signin() {
           backdrop-filter: blur(4px);
           display: flex;
           align-items: flex-end;
-          justify-content: center;
+          justify-content: end;
           z-index: 1000;
           animation: fadeIn 0.3s ease;
         }

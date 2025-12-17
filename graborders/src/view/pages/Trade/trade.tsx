@@ -60,7 +60,7 @@ const useWebSocket = (url, onMessage, isEnabled = true) => {
       wsRef.current = ws;
 
       ws.onopen = () => {
-        console.log(`WebSocket connected: ${url}`);
+        console.log(i18n("pages.trade.websocketConnected"), url);
       };
 
       ws.onmessage = (event) => {
@@ -68,16 +68,16 @@ const useWebSocket = (url, onMessage, isEnabled = true) => {
           const data = JSON.parse(event.data);
           onMessageRef.current(data);
         } catch (err) {
-          console.error("Error parsing WebSocket data:", err);
+          console.error(i18n("pages.trade.websocketParseError"), err);
         }
       };
 
       ws.onerror = (error) => {
-        console.error("WebSocket error:", error);
+        console.error(i18n("pages.trade.websocketError"), error);
       };
 
       ws.onclose = () => {
-        console.log("WebSocket closed");
+        console.log(i18n("pages.trade.websocketClosed"));
       };
 
       return () => {
@@ -86,7 +86,7 @@ const useWebSocket = (url, onMessage, isEnabled = true) => {
         }
       };
     } catch (err) {
-      console.error("Error creating WebSocket:", err);
+      console.error(i18n("pages.trade.websocketCreateError"), err);
     }
   }, [url, isEnabled]);
 
@@ -184,7 +184,7 @@ function Trade() {
 
   const formatCurrency = useCallback((num) => {
     const n = Number(num);
-    if (!Number.isFinite(n)) return "$0.00";
+    if (!Number.isFinite(n)) return i18n("common.currencyFormat", "0.00");
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -202,7 +202,7 @@ function Trade() {
         year: 'numeric'
       });
     } catch (e) {
-      return 'Invalid date';
+      return i18n("common.invalidDate");
     }
   }, []);
 
@@ -215,7 +215,7 @@ function Trade() {
         hour12: true
       });
     } catch (e) {
-      return 'Invalid time';
+      return i18n("common.invalidTime");
     }
   }, []);
 
@@ -301,12 +301,12 @@ function Trade() {
   // Balance display text - UPDATED
   const balanceDisplay = useMemo(() => {
     if (type === "trade") {
-      return `Available: ${formatNumber(currentBalance, 2)} USDT`;
+      return `${i18n("pages.trade.available")}: ${formatNumber(currentBalance, 2)} USDT`;
     } else {
       if (activeTab === "buy") {
-        return `Available: ${formatNumber(currentBalance, 2)} USDT`;
+        return `${i18n("pages.trade.available")}: ${formatNumber(currentBalance, 2)} USDT`;
       } else {
-        return `Available: ${formatNumber(currentBalance, 6)} ${baseSymbol}`;
+        return `${i18n("pages.trade.available")}: ${formatNumber(currentBalance, 6)} ${baseSymbol}`;
       }
     }
   }, [type, activeTab, currentBalance, baseSymbol, formatNumber]);
@@ -514,7 +514,7 @@ function Trade() {
       }
       return null;
     } catch (err) {
-      console.error("create error", err);
+      console.error(i18n("pages.trade.errors.createError"), err);
       throw err;
     }
   }, [marketPrice, activeTab, selectedLeverage, selectedCoin, selectedDuration, amountInUSDT, dispatch, activeOrdersTab]);
@@ -537,7 +537,7 @@ function Trade() {
   const generateOrderNumber = useCallback(() => {
     const t = Date.now().toString(36);
     const r = Math.floor(Math.random() * 1e6).toString(36);
-    return `ORD-${t}-${r}`.toUpperCase();
+    return i18n("pages.trade.orderNumberFormat", t, r);
   }, []);
 
   // Place order handler - UPDATED FOR TRADE MODE
@@ -564,7 +564,7 @@ function Trade() {
       try {
         await createTrade();
       } catch (err) {
-        console.error("Trade create error", err);
+        console.error(i18n("pages.trade.errors.createError"), err);
         setErrorMessage(i18n("pages.trade.errors.failedOrder"));
       } finally {
         setPlacing(false);
@@ -635,7 +635,7 @@ function Trade() {
         }
 
       } catch (err) {
-        console.error("Place order error", err);
+        console.error(i18n("pages.trade.errors.placeOrderError"), err);
         setErrorMessage(i18n("pages.trade.errors.failedOrder"));
       } finally {
         setPlacing(false);
@@ -728,36 +728,36 @@ function Trade() {
         config.amountColor = '#627EEA';
     }
     return config;
-  }, [i18n]);
+  }, []);
 
   // Get futures status color and text
   const getFuturesStatusConfig = useCallback((status) => {
     const config = {
       color: '#6c757d',
       bgColor: '#e9ecef',
-      text: status || 'Unknown'
+      text: status || i18n("common.unknown")
     };
 
     switch (status?.toLowerCase()) {
       case 'long':
         config.color = '#37b66a';
         config.bgColor = 'rgba(55, 182, 106, 0.1)';
-        config.text = 'Long';
+        config.text = i18n("pages.trade.futuresStatus.long");
         break;
       case 'short':
         config.color = '#f56c6c';
         config.bgColor = 'rgba(245, 108, 108, 0.1)';
-        config.text = 'Short';
+        config.text = i18n("pages.trade.futuresStatus.short");
         break;
       case 'closed':
         config.color = '#106cf5';
         config.bgColor = 'rgba(16, 108, 245, 0.1)';
-        config.text = 'Closed';
+        config.text = i18n("pages.trade.futuresStatus.closed");
         break;
       case 'liquidated':
         config.color = '#dc3545';
         config.bgColor = 'rgba(220, 53, 69, 0.1)';
-        config.text = 'Liquidated';
+        config.text = i18n("pages.trade.futuresStatus.liquidated");
         break;
     }
     return config;
@@ -803,15 +803,15 @@ function Trade() {
             </div>
             <div>
               <p style={{ fontSize: 10 }}>
-                {type === "trade" ? "Trade" : "Perpetual"}
+                {type === "trade" ? i18n("pages.trade.tradingMode.trade") : i18n("pages.trade.tradingMode.perpetual")}
               </p>
             </div>
           </div>
 
           <div className="header-right">
             <select className="trade-type-select" value={type} onChange={(e) => setType(e.target.value)}>
-              <option value="trade">Trading</option>
-              <option value="perpetual">Perpetual</option>
+              <option value="trade">{i18n("pages.trade.tradingMode.trade")}</option>
+              <option value="perpetual">{i18n("pages.trade.tradingMode.perpetual")}</option>
             </select>
             <Link to={`market/detail/${selectedCoin}`} className="chart-icon">
               <i className="fas fa-chart-line"></i>
@@ -853,7 +853,7 @@ function Trade() {
               <>
                 {/* Trading Period Select */}
                 <div className="input-group">
-                  <div className="input-label">Trading Period</div>
+                  <div className="input-label">{i18n("pages.trade.tradingPeriod")}</div>
                   <select
                     className="order-type-select"
                     value={selectedDuration}
@@ -869,7 +869,7 @@ function Trade() {
 
                 {/* Leverage Select */}
                 <div className="input-group">
-                  <div className="input-label">Leverage</div>
+                  <div className="input-label">{i18n("pages.trade.leverage")}</div>
                   <select
                     className="order-type-select"
                     value={selectedLeverage}
@@ -893,7 +893,7 @@ function Trade() {
                       onChange={handleAmountInUSDTChange}
                       placeholder="0.0"
                       inputMode="decimal"
-                      aria-label="amount in usdt"
+                      aria-label={i18n("pages.trade.amount")}
                     />
                   </div>
                   {/* New Progress Bar for Trade Mode */}
@@ -930,7 +930,7 @@ function Trade() {
                         value={price}
                         onChange={handlePriceChange}
                         inputMode="decimal"
-                        aria-label="price"
+                        aria-label={i18n("pages.trade.price")}
                       />
                     </div>
                   </div>
@@ -946,7 +946,7 @@ function Trade() {
                       onChange={handleAmountInUSDTChange}
                       placeholder="0.0"
                       inputMode="decimal"
-                      aria-label="amount in usdt"
+                      aria-label={i18n("pages.trade.amount")}
                     />
                   </div>
                   {/* Progress Bar for Perpetual Mode */}
@@ -1017,7 +1017,7 @@ function Trade() {
         {/* Orders Tabs */}
         <div className="orders-tabs">
           <div className="orders-tabs-header">
-            {['Positions', 'History orders', 'Transaction history'].map(tab => (
+            {[i18n("pages.trade.tabs.positions"), i18n("pages.trade.tabs.historyOrders"), i18n("pages.trade.tabs.transactionHistory")].map(tab => (
               <div
                 key={tab}
                 className={`orders-tab ${activeOrdersTab === tab ? 'active' : ''}`}
@@ -1040,14 +1040,16 @@ function Trade() {
                 <div className="empty-icon">
                   <i className="fas fa-inbox" />
                 </div>
-                <div className="empty-text">No {activeOrdersTab.toLowerCase()} found</div>
+                <div className="empty-text">
+                  {i18n("pages.trade.noData", activeOrdersTab.toLowerCase())}
+                </div>
                 <div className="empty-subtext">
-                  {activeOrdersTab === "Transaction history"
-                    ? "Your transactions will appear here"
-                    : `Your ${activeOrdersTab.toLowerCase()} will appear here`}
+                  {activeOrdersTab === i18n("pages.trade.tabs.transactionHistory")
+                    ? i18n("pages.trade.noTransactionsText")
+                    : i18n("pages.trade.noOrdersText", activeOrdersTab.toLowerCase())}
                 </div>
               </div>
-            ) : activeOrdersTab === "Transaction history" ? (
+            ) : activeOrdersTab === i18n("pages.trade.tabs.transactionHistory") ? (
               <div className="transactions-list">
                 {getCurrentData.map((transaction) => {
                   const config = getTransactionConfig(transaction.type, transaction.direction, transaction.relatedAsset);
@@ -1104,22 +1106,22 @@ function Trade() {
 
                     <div className="order-details">
                       <div className="order-detail">
-                        <span className="detail-label">Status</span>
+                        <span className="detail-label">{i18n("pages.trade.orderDetails.status")}</span>
                         <span className={`order-status ${String(order.status).toLowerCase()}`}>{order.status}</span>
                       </div>
 
                       <div className="order-detail">
-                        <span className="detail-label">Price</span>
+                        <span className="detail-label">{i18n("pages.trade.orderDetails.price")}</span>
                         <span className="order-price-value">{formatNumber(order.commissionPrice, 4)} USDT</span>
                       </div>
 
                       <div className="order-detail">
-                        <span className="detail-label">Amount</span>
+                        <span className="detail-label">{i18n("pages.trade.orderDetails.amount")}</span>
                         <span className="order-amount-value">{order.orderQuantity} {order?.tradingPair?.split("/")[0]}</span>
                       </div>
 
                       <div className="order-detail">
-                        <span className="detail-label">Total</span>
+                        <span className="detail-label">{i18n("pages.trade.orderDetails.total")}</span>
                         <span className="order-total">{formatNumber(order.entrustedValue)} USDT</span>
                       </div>
                     </div>
@@ -1128,7 +1130,7 @@ function Trade() {
                       {String(order.status).toLowerCase() === "pending" ||
                         String(order.status).toLowerCase() === "partially filled" ? (
                         <button className="cancel-order-btn" onClick={() => updateStatus(order.id, order)}>
-                          Cancel
+                          {i18n("pages.trade.cancel")}
                         </button>
                       ) : (
                         <div className="completed-indicator">
@@ -1151,7 +1153,7 @@ function Trade() {
                     <div key={future.id ?? future._id} className="future-item">
                       <div className="future-header">
                         <div className="future-pair-status">
-                          <span className="future-pair">{future.futureCoin || "Unknown"}</span>
+                          <span className="future-pair">{future.futureCoin || i18n("common.unknown")}</span>
                           <span
                             className="future-status"
                             style={{
@@ -1169,30 +1171,30 @@ function Trade() {
 
                       <div className="future-details">
                         <div className="future-detail-row">
-                          <span className="detail-label">Amount</span>
+                          <span className="detail-label">{i18n("pages.trade.futuresDetails.amount")}</span>
                           <span className="detail-value">{formatCurrency(future.futuresAmount)}</span>
                         </div>
 
                         <div className="future-detail-row">
-                          <span className="detail-label">Duration</span>
+                          <span className="detail-label">{i18n("pages.trade.futuresDetails.duration")}</span>
                           <span className="detail-value">{formatDuration(future.contractDuration)}</span>
                         </div>
 
                         <div className="future-detail-row">
-                          <span className="detail-label">Entry Price</span>
+                          <span className="detail-label">{i18n("pages.trade.futuresDetails.entryPrice")}</span>
                           <span className="detail-value">{formatCurrency(future.openPositionPrice)}</span>
                         </div>
 
                         {future.closePositionPrice && (
                           <div className="future-detail-row">
-                            <span className="detail-label">Exit Price</span>
+                            <span className="detail-label">{i18n("pages.trade.futuresDetails.exitPrice")}</span>
                             <span className="detail-value">{formatCurrency(future.closePositionPrice)}</span>
                           </div>
                         )}
 
                         {(profitLoss !== 0 || future.profitAndLossAmount) && (
                           <div className="future-detail-row">
-                            <span className="detail-label">P&L</span>
+                            <span className="detail-label">{i18n("pages.trade.futuresDetails.pnl")}</span>
                             <span className={`detail-value ${isProfit ? 'profit' : 'loss'}`}>
                               {isProfit ? '+' : ''}{formatCurrency(profitLoss)}
                             </span>
@@ -1202,15 +1204,15 @@ function Trade() {
 
                       <div className="future-footer">
                         <div className="future-timestamp">
-                          <div className="timestamp-label">Opened</div>
+                          <div className="timestamp-label">{i18n("pages.trade.futuresDetails.opened")}</div>
                           <div className="timestamp-value">
-                            {future.openPositionTime ? formatTime(future.openPositionTime) : 'N/A'}
+                            {future.openPositionTime ? formatTime(future.openPositionTime) : i18n("common.na")}
                           </div>
                         </div>
 
                         {future.closePositionTime && (
                           <div className="future-timestamp">
-                            <div className="timestamp-label">Closed</div>
+                            <div className="timestamp-label">{i18n("pages.trade.futuresDetails.closed")}</div>
                             <div className="timestamp-value">
                               {formatTime(future.closePositionTime)}
                             </div>
@@ -1232,7 +1234,7 @@ function Trade() {
         onClose={() => setIsCoinModalOpen(false)}
         selectedCoin={selectedCoin}
         onCoinSelect={handleSelectCoin}
-        title="Select Trading Pair"
+        title={i18n("pages.trade.coinSelector.title")}
       />
 
       <style>{`

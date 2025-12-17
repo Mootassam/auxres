@@ -2,6 +2,20 @@ const en = {
 
 
   common: {
+    timeout: "Request timeout",
+    requestAborted: "Request aborted",
+    fetchError: "Error fetching market data",
+    dateNotAvailable: "Date not available",
+
+    currencyFormat: "${0}",
+    invalidDate: "Invalid date",
+    invalidTime: "Invalid time",
+    unknown: "Unknown",
+    na: "N/A",
+    back: "Back",
+    close: "Close",
+
+
     or: "Or",
     cancel: "Cancel",
     reset: "Reset",
@@ -62,6 +76,149 @@ const en = {
   },
 
   pages: {
+    helpCenter: {
+      title: "Help Center",
+      faq: {
+        aboutAccounts: "About official accounts and demo accounts",
+        transactionVolume: "What is transaction volume?",
+        transferFunds: "Why transfer funds?",
+        whatAreFutures: "What are Futures?",
+        convertedAmountChanges: "Why does the converted amount in assets change?",
+        realNameAuthentication: "Why is real-name authentication required?",
+        frozenAssets: "What are frozen assets?",
+        futuresTradingRules: "What are the rules of futures trading?"
+      }
+    },
+
+      helpCenterDetail: {
+    faqNotFound: "FAQ item not found, redirect needed",
+    
+    questions: {
+      aiQuantification: "Introduction to AI Quantification",
+      exploreNFTs: "Explore NFTs with AureX",
+      bitcoinEnergy: "Elon Musk Says Bitcoin Is Based on Energy, Which Is Impossible to Fake\n10/13/2025, 8:00:00 AM (UTC-8)",
+      bitcoinRecordPrice: "Bitcoin Touches Record Price Above $125,000\n10/4/2025, 8:00:00 AM (UTC-8)",
+      trumpStatueBitcoin: "Giant Trump statue holding Bitcoin displayed outside US Capitol to mark Fed rate decision\n9/16/2025, 8:00:00 AM (UTC-8)"
+    },
+    
+    answers: {
+      aboutAccounts: "Formal accounts can use all online functions of the platform, while demo accounts can only use some of the functions of the platform to a limited extent, cannot use liquidity mining to make profits, and cannot deposit and withdraw coins. (Demo accounts can receive fixed virtual funds once on the 1st of each month)",
+      transactionVolume: "According to the relevant provisions of the Anti-Money Laundering Law, each transaction requires price control, and a certain transaction volume must be completed before the currency can be withdrawn, so as to prevent users from laundering money on the exchange! For example, if you deposit 10,000U, the transaction amount must reach the relevant specified amount!",
+      transferFunds: "In order to ensure the independence of funds between your various accounts and facilitate your reasonable risk control, the accounts of major trading modules are divided Transfer refers to the process of converting assets between various trading accounts.",
+      whatAreFutures: "Futures, also known as futures, are a form of trading that spans time. Buyers and sellers sign a contract to agree to deliver a specified amount of spot goods at a specified time, price and other trading conditions. Futures are usually concentrated in futures exchanges and bought and sold with standardized contracts. The assets traded are usually commodities or financial instruments. The predetermined price that both parties agree to buy and sell an asset is called the forward price.",
+      convertedAmountChanges: "The converted value in assets is the value of the digital currency currently held in USD. It changes due to the price fluctuations of digital assets, but the amount of your digital assets does not change.",
+      realNameAuthentication: "For the safety of your funds, we limit the association of your receiving account with the real-name information of your current account.",
+      frozenAssets: "Frozen assets means that when you perform transactions or withdrawal operations, the process is not fully completed. The current assets are temporarily managed by the system and cannot be freely controlled by you. It does not mean that you have lost the asset or that something is abnormal with the asset. Please rest assured.",
+      futuresTradingRules: "Participate in transactions by estimating the next price trend (up or down) of the current trading pair. The range of the increase or decrease is not calculated during settlement, and only the income is calculated based on the result of the increase or decrease The profit percentages for settlement at different delivery times are different, and the profits will be accurately displayed in the trading interface.",
+      aiQuantification: "An AI quantitative trading robot is an automated trading system that combines artificial intelligence (AI) with quantitative trading techniques. Its primary function is to automatically buy and sell financial products and cryptocurrencies based on market data and specific trading strategies to achieve stable profits or control risks.",
+      exploreNFTs: "Step into the world of NFTs with AureX, your all-in-one digital asset trading wallet. Designed for both beginners and professional traders, AureX lets you explore, buy, sell, and manage high-quality NFTs securely and efficiently.\n\nWith advanced security, real-time tracking, and seamless transactions, AureX keeps you in full control of your digital collectibles. From exclusive art pieces to limited-edition digital assets, discover the future of digital ownership — all in one place, with confidence and ease.",
+      bitcoinEnergy: "Tesla and Spacex CEO Elon Musk said on Oct. 14 on X that bitcoin is based on energy, contrasting it with fiat currencies that governments can inflate. His remark was in response to a Zerohedge post linking the rise in gold, silver, and bitcoin prices to currency debasement driven by government spending on the global artificial intelligence arms race. Zerohedge added that money can be printed but energy cannot. Musk agreed, writing: 'True. That is why bitcoin is based on energy: you can issue fake fiat currency, and every government in history has done so, but it is impossible to fake energy.'\n\nWhat did Elon Musk say about bitcoin and energy?\nElon Musk stated that Bitcoin is based on energy, emphasizing that while governments can print fiat currency, energy cannot be faked or created artificially.\n\nWhy did Elon Musk contrast bitcoin with fiat currencies?\nMusk highlighted that fiat currencies are prone to inflation because governments can issue more of them, while bitcoin's foundation in energy gives it a more tangible and limited value base.\n\nWhat was the context of Musk's comment about bitcoin?\nHis comment responded to a Zerohedge post suggesting that the rising prices of gold, silver, and bitcoin are linked to global government spending and currency debasement caused by the AI arms race.\n\nWhat is the main takeaway from Musk's statement?\nMusk's remark reinforces the idea that bitcoin's value is rooted in the real-world cost of energy, contrasting it with the easily manipulated nature of traditional fiat money.",
+      bitcoinRecordPrice: "Bitcoin nabbed a new high.\n\nThe leading cryptocurrency overnight touched a record, reaching all-time highs around $125,400 to top the old high-water mark, around $124,480, set in August. (It more recently traded closer to $123,000.)\n\nThe latest moves have bitcoin's total market value at about $2.45 trillion, according to CoinMarketCap, and the total value of crypto at around $4.21 trillion. Bitcoin has had a dramatic year, climbing off prices below $80,000 seen in April.\n\nWhile bitcoin bulls generally have seen the continued climb of the currency as inevitable, some have had more specific reasons for foreseeing more upside in late 2025. It has a history of posting new records in the 1,064-day window after bear-market lows, the last of which was on Nov. 21, 2022.\n\nMeanwhile, bitcoin trading volumes on crypto exchanges have been rising since a September-end drawdown. Rising volumes have tended to be good for prices.\n\nSome analysts see reasons to expect bitcoin to keep climbing. JPMorgan analysts in an Oct. 1 note suggested that the 'debasement trade'—in which both retail and institutional investors hedge their bets with gold and bitcoin—to pick up steam amid concerns ranging from heightened geopolitical uncertainty to enduringly high government debt across economies and waning U.S. dollar dominance.\n\nMore broadly, recent developments have suggested that the crypto industry is making continued progress as it seeks to claim more investor dollars and position in the world of finance—among them the launch of several new crypto ETFs and the rise in popularity of crypto treasury stocks.",
+      trumpStatueBitcoin: "WASHINGTON (7News) — A 12-foot golden statue of President Donald Trump holding a Bitcoin was installed outside the U.S. Capitol, coinciding with the Federal Reserve's upcoming interest rate decision on Wednesday.\n\nAt 2 p.m., the Fed announced that it reduced its key interest rate by a quarter-point, marking the first cut since Dec. 2024. The cut will lower the short-term rate to about 4.1% down from 4.3%. Last year, the central bank lowered rates three times due to concerns that job growth was slowing and unemployment was rising.\n\nThe central bank also revealed plans for two more rate cuts this year. However, only one is anticipated in 2026, which might disappoint Wall Street, as they had expected five cuts by next year.\n\nThe temporary piece, located on 3rd Street from 9 a.m. to 4 p.m., was funded by a collective of cryptocurrency investors. Organizers said the piece is intended to provoke debate about the future of digital currency, monetary policy, and the federal government's role in financial markets."
+    }
+  },
+    transfer: {
+      title: "Transfer History",
+      noTransferHistory: "No transfer history available",
+
+      accountTypes: {
+        trade: "Trade Account",
+        perpetual: "Perpetual Account",
+        exchange: "Exchange Account"
+      },
+
+      status: {
+        completed: "Completed"
+      }
+    },
+    settings: {
+      title: "Settings",
+      language: "Language",
+      quotationCurrency: "Quotation currency",
+      colorConfiguration: "Color configuration",
+      aboutUs: "About us",
+      versionNumber: "Version number",
+      selected: "Selected",
+
+      colorSchemes: {
+        greenRiseRedFall: {
+          name: "Green rises, Red falls",
+          alt: "Green rises, Red falls chart color scheme",
+          description: "Traditional trading colors: green for price increases, red for price decreases"
+        },
+        redRiseGreenFall: {
+          name: "Red rises, Green falls",
+          alt: "Red rises, Green falls chart color scheme",
+          description: "Alternative trading colors: red for price increases, green for price decreases"
+        }
+      },
+
+      modals: {
+        language: {
+          title: "Select Language"
+        },
+        colorConfiguration: {
+          title: "Color Configuration"
+        }
+      }
+    },
+
+
+    wallet: {
+      myAssets: "My Assets",
+      assetValuation: "Asset Valuation",
+      myAccount: "My Account",
+      showAmounts: "Show amounts",
+      hideAmounts: "Hide amounts",
+      usdEquivalent: "≈ USD {0}",
+      noAssetsFound: "No assets found",
+
+      quickActions: {
+        withdraw: "Withdraw",
+        deposit: "Deposit",
+        transfer: "Transfer",
+        swap: "Swap"
+      },
+
+      accountTabs: {
+        exchange: "Exchange",
+        trade: "Trade",
+        perpetual: "Perpetual"
+      },
+
+      assetLabels: {
+        availableBalance: "Available balance",
+        frozenAmount: "Frozen amount",
+        valuation: "Valuation"
+      },
+
+      errors: {
+        fetchAssets: "Error fetching assets:"
+      }
+    },
+
+   loginPassword: {
+      title: "Login Password",
+      cardTitle: "CHANGE LOGIN PASSWORD",
+      fields: {
+        oldPassword: "Old Password",
+        newPassword: "New Password",
+        newPasswordConfirmation: "Confirm Password",
+        mailbox: "Your mailbox"
+      },
+      placeholders: {
+        oldPassword: "Enter your current password",
+        newPassword: "Create a new password",
+        confirmPassword: "Confirm your new password"
+      },
+      buttons: {
+        saveChanges: "SAVE CHANGES"
+      },
+      warningMessage: "For the safety of your funds, withdrawals are not allowed within 24 hours after the login password has been changed.",
+      validation: {
+        mustMatch: "Passwords must match"
+      }
+    },
 
     futures: {
       title: "Futures",
@@ -160,26 +317,53 @@ const en = {
       warningMessage: "For the safety of your funds, withdrawals are not allowed within 24 hours after the login password has been changed."
     },
 
-    loginPassword: {
-      title: "Login Password",
-      cardTitle: "CHANGE LOGIN PASSWORD",
-      fields: {
-        oldPassword: "Old Password",
-        newPassword: "New Password",
-        newPasswordConfirmation: "Confirm Password"
+    marketDetail: {
+      stats: {
+        high: "24h High",
+        low: "24h Low",
+        volume: "24h Vol"
       },
-      placeholders: {
-        oldPassword: "Enter your current password",
-        newPassword: "Create a new password",
-        confirmPassword: "Confirm your new password"
+      volume: {
+        billion: "B",
+        million: "M"
       },
-      buttons: {
-        saveChanges: "SAVE CHANGES"
+      actions: {
+        buy: "BUY",
+        sell: "SELL"
       },
-      warningMessage: "For the safety of your funds, withdrawals are not allowed within 24 hours after the login password has been changed.",
-      validation: {
-        mustMatch: "Passwords must match"
-      }
+      recentTrades: {
+        title: "Recent Trades (Live)",
+        price: "Price (USDT)",
+        amount: "Amount",
+        time: "Time"
+      },
+      tabs: {
+        orderBook: "Order",
+        transactions: "Last transaction"
+      },
+      orderBook: {
+        buy: "Buy",
+        sell: "Sell",
+        quantity: "Quantity",
+        price: "Price (USDT)"
+      },
+      coinSelector: {
+        title: "Select Trading Pair"
+      },
+      // Console/debug messages
+      setupWebsockets: "Setting up WebSockets for:",
+      websocketConnected: "WebSocket connected for:",
+      websocketParseError: "Error parsing WebSocket data:",
+      websocketError: "WebSocket error for",
+      websocketClosed: "WebSocket closed for:",
+      websocketCloseError: "Error closing WebSocket:",
+      websocketCreateError: "Error creating WebSocket:",
+      code: "Code:",
+      reconnecting: "Reconnecting WebSocket for:",
+      cleaningUp: "Cleaning up WebSockets for:",
+      initialDataLoaded: "Initial data loaded for:",
+      fetchError: "Error fetching initial data for",
+      selectingCoin: "Selecting new coin:"
     },
 
     passwordType: {
@@ -195,6 +379,390 @@ const en = {
           description: "Change your crypto withdrawal password"
         }
       }
+    },
+
+      profile: {
+      title: "Personal Center",
+      user: "User",
+      userInitial: "U",
+      userId: "ID",
+      status: {
+        verified: "Verified",
+        unverified: "Not Verified"
+      },
+      verification: {
+        kycStatus: "KYC Status:",
+        redirecting: "Redirecting to proof page...",
+        pendingReview: "Verification is pending review...",
+        pendingAlert: "Your verification is pending review. Please wait for approval.",
+        alreadyVerified: "User is already verified",
+        pending: {
+          title: "Verification Pending",
+          description: "Your account verification is in progress. This usually takes 1-3 business days.",
+          status: "Pending Review",
+          button: "Pending"
+        },
+        alert: {
+          title: "Account Not Verified",
+          description: "Verify your account to unlock all features and higher limits",
+          verifyNow: "Verify Now"
+        }
+      },
+      accountInfo: {
+        title: "ACCOUNT INFO",
+        email: "Email",
+        creditScore: "Credit Score",
+        invitationCode: "Invitation Code"
+      },
+      pendingVerifications: {
+        title: "PENDING VERIFICATIONS",
+        identity: {
+          title: "Identity Verification",
+          description: "Submit your government ID"
+        },
+        address: {
+          title: "Address Verification",
+          description: "Verify your residence"
+        },
+        status: {
+          pending: "Pending"
+        }
+      },
+      approvedVerifications: {
+        title: "VERIFICATIONS APPROVED",
+        identity: {
+          title: "Identity Verification"
+        },
+        address: {
+          title: "Address Verification"
+        },
+        status: {
+          completed: "Completed"
+        }
+      },
+      limitations: {
+        title: "Account Limitations",
+        withdrawalLimit: "Withdrawal limit: $1,000 per day",
+        stakingLimited: "Staking options limited",
+        advancedTrading: "Advanced trading features disabled",
+        fiatDeposits: "Fiat currency deposits not available"
+      },
+      menu: {
+        withdrawalAddress: "Account change records",
+        password: "Security center",
+        notifications: "Notifications",
+        myInvitation: "My Invitation",
+        language: "Language",
+        helpcenter: "Help Center",
+        privacyPortal: "Privacy Portal",
+        aboutUs: "Platform introduction",
+        msbApproval: "MSB Approval",
+        customerSupport: "Online service",
+        downloadApp: "Download",
+        logout: "Sign Out",
+        preferences: "Preferences",
+        clearCache: "Clear cache"
+      },
+      cache: {
+        clearing: "Clearing cache...",
+        cleared: "Cache cleared successfully!"
+      },
+      simulatedTrading: {
+        toggle: "Simulated trading {0}"
+      }
+    },
+    trade: {
+      coinSelector: {
+        title: "Select Trading Pair"
+      },
+      title: "SPOT",
+      buy: "BUY",
+      sell: "SELL",
+      long: "BUY LONG",
+      short: "BUY SHORT",
+      limit: "LIMIT",
+      market: "MARKET",
+      orderType: "Order Type",
+      price: "Price (USDT)",
+      amount: "Amount",
+      available: "Available",
+      placing: "Placing...",
+      increasePrice: "increase price",
+      decreasePrice: "decrease price",
+      tradingPeriod: "Trading Period",
+      leverage: "Leverage",
+      tradingMode: {
+        trade: "Trading",
+        perpetual: "Perpetual"
+      },
+      tabs: {
+        positions: "Positions",
+        historyOrders: "History orders",
+        transactionHistory: "Transaction history"
+      },
+      orderDetails: {
+        status: "Status",
+        price: "Price",
+        amount: "Amount",
+        total: "Total"
+      },
+      futuresDetails: {
+        amount: "Amount",
+        duration: "Duration",
+        entryPrice: "Entry Price",
+        exitPrice: "Exit Price",
+        pnl: "P&L",
+        opened: "Opened",
+        closed: "Closed"
+      },
+      futuresStatus: {
+        long: "Long",
+        short: "Short",
+        closed: "Closed",
+        liquidated: "Liquidated"
+      },
+      cancel: "Cancel",
+      errors: {
+        invalidQuantity: "Please enter a valid quantity.",
+        invalidPrice: "Please enter a valid price.",
+        invalidAmount: "Please enter a valid amount.",
+        insufficientUSDT: "Insufficient USDT balance. Available: {0} USDT",
+        insufficientCoin: "Insufficient {1} balance. Available: {0} {1}",
+        failedOrder: "Failed to place order. Please try again.",
+        createError: "Trade create error",
+        placeOrderError: "Place order error"
+      },
+      orderBook: {
+        price: "Price (USDT)",
+        amount: "Amount"
+      },
+      noData: "No {0} found",
+      noTransactionsText: "Your transactions will appear here",
+      noOrdersText: "Your {0} will appear here",
+      // Console/debug messages
+      websocketConnected: "WebSocket connected:",
+      websocketParseError: "Error parsing WebSocket data:",
+      websocketError: "WebSocket error:",
+      websocketClosed: "WebSocket closed",
+      websocketCreateError: "Error creating WebSocket:",
+      orderNumberFormat: "ORD-{0}-{1}"
+    },
+
+    market: {
+      title: "USDT MARKET",
+      noResults: "No cryptocurrencies found",
+      volume: "Vol",
+      search: {
+        placeholder: "Search crypto...",
+        clear: "Clear search"
+      },
+      tableHeaders: {
+        pair: "Trading Pair",
+        latestPrice: "Latest Price",
+        change24h: "24H Change"
+      },
+      // Add these new translations for console messages
+      websocketConnected: "Market WebSocket connected",
+      websocketParseError: "Error parsing WebSocket data",
+      websocketError: "Market WebSocket error",
+      websocketClosed: "Market WebSocket closed, code:",
+      websocketSetupError: "Error setting up WebSocket"
+    },
+    signup: {
+      title: "SIGN UP",
+      creatingAccount: "CREATING...",
+      createAccount: "CREATE ACCOUNT",
+      refresh: "Refresh",
+      captchaMismatch: "Captcha does not match",
+      alreadyHaveAccount: "Already have an account? Log in",
+      terms: {
+        text: "By creating an account, you agree to our",
+        link: "Terms of Service"
+      },
+      labels: {
+        email: "Email",
+        phoneNumber: "Phone Number",
+        captcha: "Graphical Captcha",
+        password: "Password",
+        confirmPassword: "Confirm Password",
+        withdrawPassword: "Withdraw Password",
+        invitationCode: "Invitation Code"
+      },
+      placeholders: {
+        email: "Enter your email",
+        phoneNumber: "Enter your phone number",
+        captcha: "Enter code",
+        password: "Create a password",
+        confirmPassword: "Confirm your password",
+        withdrawPassword: "Enter the withdraw Password",
+        invitationCode: "Enter invitation code"
+      }
+    },
+    home: {
+      logoAlt: "BINEX Logo",
+      headerAlt: "Crypto Trading Platform",
+      slogan: "Profit With Confidence",
+      promoAlt: "Promo banner {0}",
+
+      quickTrade: {
+        highlight: "Quick",
+        title: "Trade",
+        subtitle: "Fast transactions and simple operation",
+      },
+
+      aiTrading: {
+        title: "AI Smart Trading",
+        description: "An AI quantitative trading robot is an automated trading system that combines artificial intelligence (AI) with quantitative trading techniques. Its primary function is to automatically buy and sell financial products and cryptocurrencies based on market data and specific trading strategies to achieve stable profits or control risks.",
+      },
+
+      nftExploration: {
+        title: "Explore NFTs with BINEX",
+        description: "Step into the world of NFTs with BINEX, your all-in-one digital asset trading wallet. Designed for both beginners and professional traders, BINEX lets you explore, buy, sell, and",
+      },
+
+      stats: {
+        title: "Our Impact",
+        users: "30M+",
+        usersLabel: "Number of users",
+        organizations: "6000+",
+        organizationsLabel: "Cooperating organization",
+        liquidity: "7.8B+",
+        liquidityLabel: "Liquidity",
+        orders: "89M",
+        ordersLabel: "Orders processed per second",
+      },
+
+      services: {
+        title: "Our Services",
+        subtitle: "Provide you with comprehensive 24-hour manual customer service specialist services to protect your transactions",
+        highInterest: {
+          title: "High interest rate",
+          desc: "Finance, high return rate",
+          alt: "High interest rate icon",
+        },
+        liquidityMining: {
+          title: "Liquidity mining",
+          desc: "Liquidity makes easy profits",
+          alt: "Liquidity mining icon",
+        },
+        service24h: {
+          title: "24-hour service",
+          desc: "Ready to answer all your questions",
+          alt: "24-hour service icon",
+        },
+        highContract: {
+          title: "High contract",
+          desc: "Small capital high lever, rich easily",
+          alt: "High contract icon",
+        },
+        expertTeam: {
+          title: "Expert team",
+          desc: "Expert technical team at your service",
+          alt: "Expert team icon",
+        },
+        securityProtection: {
+          title: "Security protection",
+          desc: "Powerful cloud data protect your security",
+          alt: "Security protection icon",
+        },
+      },
+
+      demo: {
+        fastSwap: {
+          title: "Fast swap - Swap your coins without any worries",
+          subtitle: "From Bitcoin to Dogecoin, we make buying and selling crypto easy. Protect your crypto with best-in-class cold storage.",
+          alt: "Fast swap demo",
+        },
+        advancedTraders: {
+          title: "For advanced traders - Powerful tools for design",
+          subtitle: "Powerful analytical tools coupled with our security guarantee provide the ultimate trading experience. Take advantage of sophisticated charting capabilities, real-time order books and deep liquidity on hundreds of markets.",
+          alt: "Advanced traders demo",
+        },
+        walletManagement: {
+          title: "Smart asset wallet management - Steady growth in revenue",
+          subtitle: "Powerful analytical tools coupled with our security guarantee provide the ultimate trading experience. Take advantage of sophisticated charting capabilities, real-time order books and deep liquidity on hundreds of markets.",
+          alt: "Wallet management demo",
+        },
+        liquidityMining: {
+          title: "Liquidity mining, AI quantification",
+          subtitle: "More ways to manage your assets, including liquidity mining and AI quantification, give you more choices for managing your assets and keep your assets growing",
+          alt: "Liquidity mining demo",
+        },
+        startTrading: {
+          title: "Start trading cryptocurrency? - Open your cryptocurrency now",
+          subtitle: "Trade anytime and anywhere to meet the trading needs of various scenarios at any time",
+          alt: "Start trading demo",
+        },
+      },
+
+      news: {
+        title: "News from the circle",
+        elonMusk: {
+          date: "10-14-2025",
+          title: "Elon Musk Says Bitcoin Is Based on Energy, Which Is Impossible to Fake",
+          alt: "Elon Musk Bitcoin news",
+        },
+        bitcoinRecord: {
+          date: "10-5-2025",
+          title: "Bitcoin Touches Record Price Above $125,000",
+          alt: "Bitcoin record price news",
+        },
+        trumpStatue: {
+          date: "9-17-2025",
+          title: "Giant Trump statue holding Bitcoin displayed outside US Capitol to mark Fed rate decision",
+          alt: "Trump statue Bitcoin news",
+        },
+      },
+
+      partners: {
+        title: "World Ecological Partner",
+        description: "Build consensus and create a new future for the crypto ecosystem",
+        binance: "Binance",
+        coinbase: "Coinbase",
+        kraken: "Kraken",
+        ftx: "FTX",
+        bitfinex: "Bitfinex",
+        huobi: "Huobi",
+      },
+
+      announcements: {
+        maintenanceNotice: "Maintenance notice",
+        contractServerUpgrade: "Contract server upgrade and maintenance announcement on January 15, 2023",
+        binexOptionsMaintenance: "Binex Options Trading System Maintenance Announcement",
+        clientVersionUpgrade: "Important! Binex's announcement on the latest client version upgrade",
+        platformTradingAnnouncement: "Binex platform trading latest announcement",
+        platformUpgradeOptimization: "Binex Platform Version Upgrade Optimization Update Announcement",
+        march15Upgrade: "March 15, 2023 Binex platform contract server upgrade maintenance optimization announcement",
+        optionsTradingMaintenance: "Binex platform options trading system maintenance and optimization announcement",
+        latestVersionUpgrade: "Binex Platform Important Announcement on the Upgrade and Optimization of the Latest Version of the Client",
+        userSecurityReminder: "Warm reminder about Binex user information security",
+        perpetualContractUpgrade: "Binex platform announcement on the optimization and upgrade of the perpetual contract system",
+        maintenanceCompletion: "Announcement on the completion of platform system maintenance and optimization",
+        bitcoinWithdrawal: "Announcement on Bitcoin Withdrawal",
+        tradingPairsUpgrade: "Announcement on the upgrade of some trading currency pairs on the platform",
+        ethWalletMaintenance: "Announcement on the Platform Ethereum Network (ERC20) Wallet Maintenance",
+        ethHardFork: "Announcement on the completion of the hard fork upgrade of ETH",
+        identityAuthUpdate: "Announcement on the update of the platform's advanced identity authentication service",
+        filIncomeIssuance: "Notice on the issuance of FIL computing power income",
+        apiOrderLimit: "Announcement on the optimization of API order frequency limit",
+        customerChatFunction: "System Update - Real-time Customer Chat Function",
+        ethNetworkUpgrade: "ETH network upgrade announcement",
+        delistingCurrencies: "Announcement of delisting currencies",
+        dotUsdtLaunch: "DOT/USDT Trading Launch Announcement",
+        decUsdtLaunch: "DEC/USDT Trading Launch Announcement",
+        usdtIntroduction: "USDT Introduction",
+        ethereumNetworkMaintenance: "Ethereum network maintenance notice",
+        projectReviewStandards: "Binex Project review standards",
+        liquidityMiningUpgrade: "Liquidity Mining Upgrade",
+        liquidityMiningFee: "Liquidity mining fee adjustment",
+        delistingTradingPairs: "Delisting trading pairs",
+        systemTemporaryMaintenance: "System temporary maintenance announcement",
+        temporaryRechargeSuspension: "Temporary suspension of recharge notice",
+        delistingNotification: "Delisting Notification",
+        serverUpgrade: "Server upgrade announcement",
+        serverNetworkUpgrade: "Server network upgrade announcement",
+        appDownloadOpen: "APP download open notification",
+      },
     },
 
     withdrawAddressForm: {
@@ -481,27 +1049,9 @@ const en = {
         lastUpdated: "Last updated: 6 May 2025"
       }
     },
-    marketDetail: {
-      stats: {
-        high: "24h High",
-        low: "24h Low",
-        volume: "24h Vol"
-      },
-      volume: {
-        billion: "B",
-        million: "M"
-      },
-      actions: {
-        buy: "BUY",
-        sell: "SELL"
-      },
-      recentTrades: {
-        title: "Recent Trades (Live)",
-        price: "Price (USDT)",
-        amount: "Amount",
-        time: "Time"
-      }
-    },
+
+ 
+
     assetsDetail: {
       title: "Asset Details",
       today: "Today",
@@ -693,79 +1243,8 @@ const en = {
         faqLink: "Find answers to common security questions"
       }
     },
-    profile: {
-      title: "Profile",
-      settings: "Settings",
-      status: {
-        verified: "VERIFIED",
-        unverified: "UNVERIFIED"
-      },
-      accountInfo: {
-        title: "ACCOUNT INFO",
-        email: "Email",
-        creditScore: "Credit Score",
-        invitationCode: "Invitation Code"
-      },
-      verification: {
-        pending: {
-          title: "Verification Pending",
-          description: "Your account verification is in progress. This usually takes 1-3 business days."
-        },
-        alert: {
-          title: "Account Not Verified",
-          description: "Verify your account to unlock all features and higher limits",
-          verifyNow: "Verify Now"
-        }
-      },
-      pendingVerifications: {
-        title: "PENDING VERIFICATIONS",
-        identity: {
-          title: "Identity Verification",
-          description: "Submit your government ID"
-        },
-        address: {
-          title: "Address Verification",
-          description: "Verify your residence"
-        },
-        status: {
-          pending: "Pending"
-        }
-      },
-      approvedVerifications: {
-        title: "VERIFICATIONS APPROVED",
-        identity: {
-          title: "Identity Verification"
-        },
-        address: {
-          title: "Address Verification"
-        },
-        status: {
-          completed: "Completed"
-        }
-      },
-      limitations: {
-        title: "Account Limitations",
-        withdrawalLimit: "Withdrawal limit: $1,000 per day",
-        stakingLimited: "Staking options limited",
-        advancedTrading: "Advanced trading features disabled",
-        fiatDeposits: "Fiat currency deposits not available"
-      },
-      menu: {
-        withdrawalAddress: "Withdrawal Address",
-        password: "Security center",
-        notifications: "Notifications",
-        myInvitation: "My Invitation",
-        language: "Language",
-        helpcenter: "Help Center",
-        privacyPortal: "Privacy Portal",
-        aboutUs: "Platform Introduction",
-        msbApproval: "MSB Approval",
-        customerSupport: "Online service",
-        downloadApp: "Download App",
-        logout: "Logout",
-        preferences: " Preferences"
-      }
-    },
+  
+
     notification: {
       title: "Notification",
       loading: "Loading",
@@ -1052,144 +1531,7 @@ const en = {
       unknownNetwork: "Unknown Network"
     },
 
-    wallet: {
-      totalPortfolioValue: "Total Portfolio Value",
-      myAssets: "My Assets",
-      manage: "Manage",
-      noAssets: "No assets found",
-      earningsTrends: " Earnings Trends",
-      todaysEarnings: " Today's Earnings",
-      assetDistribution: "Asset Distribution",
-      myAccount: " My Account",
-      assetValuation: " Asset Valuation",
-      quickActions: {
-        deposit: "Deposit",
-        withdraw: "Withdraw",
-        history: "History",
-        convert: "Convert",
-        staking: "Staking"
-      }
-    },
 
-    transfer: {
-      success: " Transfer Successful ",
-      title: "All Transfers ",
-
-
-    },
-
-    trade: {
-      title: "SPOT",
-      buy: "BUY",
-      sell: "SELL",
-      long: "BUY LONG",
-      short: "BUY SHORT",
-      limit: "LIMIT",
-      market: "MARKET",
-      orderType: "Order Type",
-      price: "Price (USDT)",
-      amount: "Amount",
-      available: "Available",
-      placing: "Placing...",
-      increasePrice: "increase price",
-      decreasePrice: "decrease price",
-      errors: {
-        invalidQuantity: "Please enter a valid quantity.",
-        invalidPrice: "Please enter a valid price.",
-        insufficientUSDT: "Insufficient USDT balance. Available: {0} USDT",
-        insufficientCoin: "Insufficient {1} balance. Available: {0} {1}",
-        failedOrder: "Failed to place order. Please try again."
-      },
-      orderBook: {
-        price: "Price (USDT)",
-        amount: "Amount"
-      },
-      openOrders: {
-        title: "OPEN ORDERS",
-        viewAll: "view all orders",
-        status: "Status",
-        price: "Price",
-        amount: "Amount",
-        total: "Total",
-        cancel: "Cancel",
-        noOrders: "No open orders yet",
-        noOrdersSubtext: "Your open orders will appear here"
-      }
-    },
-
-    market: {
-      title: "USDT MARKET",
-      noResults: "No cryptocurrencies found",
-      volume: "Vol",
-      search: {
-        placeholder: "Search crypto",
-        clear: "Clear search"
-      },
-      tabs: {
-        all: "All",
-        gainers: "Gainers",
-        losers: "Losers",
-        favorites: "Favorites"
-      }
-    },
-    signup: {
-      title: "SIGN UP",
-      creatingAccount: "CREATING...",
-      createAccount: "CREATE ACCOUNT",
-      refresh: "Refresh",
-      captchaMismatch: "Captcha does not match",
-      alreadyHaveAccount: "Already have an account? Log in",
-      terms: {
-        text: "By creating an account, you agree to our",
-        link: "Terms of Service"
-      },
-      labels: {
-        email: "Email",
-        phoneNumber: "Phone Number",
-        captcha: "Graphical Captcha",
-        password: "Password",
-        confirmPassword: "Confirm Password",
-        withdrawPassword: "Withdraw Password",
-        invitationCode: "Invitation Code"
-      },
-      placeholders: {
-        email: "Enter your email",
-        phoneNumber: "Enter your phone number",
-        captcha: "Enter code",
-        password: "Create a password",
-        confirmPassword: "Confirm your password",
-        withdrawPassword: "Enter the withdraw Password",
-        invitationCode: "Enter invitation code"
-      }
-    },
-    home: {
-      quickAccess: {
-        title: "Quick Access",
-        deposit: "Deposit",
-        security: "Security",
-        faqCenter: "FAQ Center",
-        invitation: "Invitation",
-        staking: "Staking"
-      },
-      popularCryptos: "Popular Cryptocurrencies",
-      seeAll: "See all",
-      volume: "Vol",
-      loading: "Loading...",
-      notifications: {
-        btcAlert: "BTC Price Alert",
-        btcReached: "Bitcoin reached $45,000",
-        fiveMinAgo: "5 min ago",
-        depositSuccess: "Deposit Successful",
-        depositConfirmed: "Your deposit of 0.5 ETH is confirmed",
-        oneHourAgo: "1 hour ago",
-        securityUpdate: "Security Update",
-        newSecurityFeatures: "New security features available",
-        twoHoursAgo: "2 hours ago",
-        marketNews: "Market News",
-        ethUpgrade: "Ethereum upgrade completed successfully",
-        fiveHoursAgo: "5 hours ago"
-      }
-    },
     faq: {
       title: "FAQ Center",
       hero: {
@@ -1643,20 +1985,20 @@ const en = {
       },
     },
 
-    deposit : {
-       create: {
+    deposit: {
+      create: {
         success: "Deposit Received – Under Review",
       },
     },
-        spot : {
-       create: {
+    spot: {
+      create: {
         success: "Success",
       },
-       update: {
+      update: {
         success: "Success",
       },
     },
-     
+
 
 
 
@@ -1707,11 +2049,42 @@ const en = {
       orContinueWith: "or continue with",
       downloadApp: "DOWNLOAD OUR APP",
       appDescription: "Get the best crypto experience on your mobile device",
-      googlePlay: "Google Play"
+      googlePlay: "Google Play",
+
+      // New additions from component
+      signupNow: "Sign up now",
+      forgetPassword: "Forget password",
+      orSeparator: "OR",
+      connectingWallet: "Connecting Wallet...",
+      loginWithWallet: "Login with Wallet",
+      walletNotDetected: "Web3 wallet not detected",
+      installWalletMessage: "Install MetaMask or another Web3 wallet to use this feature",
+      walletSupport: "Supports MetaMask, Coinbase Wallet, etc.",
+      mailTab: "Mail",
+      phoneTab: "Phone",
+      backButton: "Back",
     },
     fields: {
-      emailOrPhone: "Email/Phone Number",
-      password: "Password"
+      mailbox: "Your Mailbox",
+      password: "Your Password",
+      // New additions
+      emailPlaceholder: "Please enter your email",
+      passwordPlaceholder: "Please enter your password",
+    },
+
+    wallet: {
+      // New section for wallet errors
+      installRequired: "Please install MetaMask or another Web3 wallet",
+      connectionRejected: "Wallet connection was rejected",
+      wrongNetwork: "Please connect to the correct network",
+      connectionFailed: "Failed to connect wallet",
+      nonceError: "Failed to get nonce from server",
+      verificationFailed: "Verification failed",
+    },
+    common: {
+      // New section for shared UI strings
+      selectLanguage: "Select Language",
+      rememberPassword: "Remember my password",
     },
     tenants: "Workspaces",
     singindesc: "Enter your email and password to sign in",

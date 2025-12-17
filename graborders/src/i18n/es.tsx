@@ -3,6 +3,21 @@ import Withdraw from "src/view/pages/withdraw/Withdraw";
 
 
 const es = {
+
+  common: {
+timeout: "Tiempo de espera agotado",
+requestAborted: "Solicitud cancelada",
+fetchError: "Error al obtener datos del mercado",
+dateNotAvailable: "Fecha no disponible",
+currencyFormat: "${0}",
+invalidDate: "Fecha inválida",
+invalidTime: "Hora inválida",
+unknown: "Desconocido",
+na: "N/D",
+back: "Atrás",
+close: "Cerrar",
+
+  },
   app: {
     title: "Nowspeed"
   },
@@ -24,7 +39,7 @@ const es = {
   },
 
 
-components: {
+  components: {
     bottomNav: {
       home: "Inicio",
       market: "Mercado",
@@ -44,21 +59,49 @@ components: {
   },
 
   auth: {
-    signin: {
-      title: "INICIAR SESIÓN",
-      button: "Iniciar Sesión",
-      signingIn: "Iniciando sesión...",
-      forgotPassword: "¿OLVIDASTE LA CONTRASEÑA?",
-      signUp: "REGISTRARSE",
-      orContinueWith: "o continuar con",
-      downloadApp: "DESCARGA NUESTRA APP",
-      appDescription: "Obtén la mejor experiencia cripto en tu dispositivo móvil",
-      googlePlay: "Google Play"
-    },
-    fields: {
-      emailOrPhone: "Email/Número de Teléfono",
-      password: "Contraseña"
-    },
+signin: {
+  title: "INICIAR SESIÓN",
+  button: "Iniciar sesión",
+  signingIn: "Iniciando sesión...",
+  forgotPassword: "¿OLVIDÓ LA CONTRASEÑA?",
+  signUp: "REGISTRARSE",
+  orContinueWith: "o continuar con",
+  downloadApp: "DESCARGAR NUESTRA APP",
+  appDescription: "Obtén la mejor experiencia cripto en tu dispositivo móvil",
+  googlePlay: "Google Play",
+  signupNow: "Regístrate ahora",
+  forgetPassword: "Olvidé la contraseña",
+  orSeparator: "O",
+  connectingWallet: "Conectando billetera...",
+  loginWithWallet: "Iniciar sesión con billetera",
+  walletNotDetected: "Billetera Web3 no detectada",
+  installWalletMessage: "Instala MetaMask u otra billetera Web3 para usar esta función",
+  walletSupport: "Soporta MetaMask, Coinbase Wallet, etc.",
+  mailTab: "Correo",
+  phoneTab: "Teléfono",
+  backButton: "Atrás",
+},
+ fields: {
+  mailbox: "Tu buzón",
+  password: "Tu contraseña",
+  emailPlaceholder: "Por favor, introduce tu correo electrónico",
+  passwordPlaceholder: "Por favor, introduce tu contraseña",
+},
+
+wallet: {
+  installRequired: "Por favor, instala MetaMask u otra billetera Web3",
+  connectionRejected: "La conexión de la billetera fue rechazada",
+  wrongNetwork: "Por favor, conéctate a la red correcta",
+  connectionFailed: "No se pudo conectar la billetera",
+  nonceError: "No se pudo obtener el nonce del servidor",
+  verificationFailed: "La verificación falló",
+},
+
+common: {
+  selectLanguage: "Seleccionar idioma",
+  rememberPassword: "Recordar mi contraseña",
+},
+
     tenants: "Espacios de Trabajo",
     singindesc: "Ingresa tu email y contraseña para iniciar sesión",
     signupdesc: "Ingresa tu email y contraseña para registrarte",
@@ -234,1209 +277,1555 @@ components: {
 
 
 
-  pages: {
 
+  pages: {
+    helpCenter: {
+      title: "Centro de Ayuda",
+      faq: {
+        aboutAccounts: "Sobre cuentas oficiales y cuentas demo",
+        transactionVolume: "¿Qué es el volumen de transacciones?",
+        transferFunds: "¿Por qué transferir fondos?",
+        whatAreFutures: "¿Qué son los Futuros?",
+        convertedAmountChanges: "¿Por qué cambia el monto convertido en los activos?",
+        realNameAuthentication: "¿Por qué se requiere autenticación de nombre real?",
+        frozenAssets: "¿Qué son los activos congelados?",
+        futuresTradingRules: "¿Cuáles son las reglas del trading de futuros?"
+      }
+    },
+
+    helpCenterDetail: {
+      faqNotFound: "Elemento FAQ no encontrado, se necesita redirección",
+      
+      questions: {
+        aiQuantification: "Introducción a la Cuantificación con IA",
+        exploreNFTs: "Explora NFTs con AureX",
+        bitcoinEnergy: "Elon Musk Dice que Bitcoin Se Basa en Energía, Lo Cual Es Imposible de Falsificar\n13/10/2025, 8:00:00 AM (UTC-8)",
+        bitcoinRecordPrice: "Bitcoin Alcanza Precio Récord Por Encima de $125,000\n4/10/2025, 8:00:00 AM (UTC-8)",
+        trumpStatueBitcoin: "Estatua gigante de Trump sosteniendo Bitcoin exhibida fuera del Capitolio de EE.UU. para marcar decisión de tasas de la Fed\n16/9/2025, 8:00:00 AM (UTC-8)"
+      },
+      
+      answers: {
+        aboutAccounts: "Las cuentas formales pueden usar todas las funciones en línea de la plataforma, mientras que las cuentas demo solo pueden usar algunas funciones de la plataforma de manera limitada, no pueden usar minería de liquidez para obtener ganancias y no pueden depositar y retirar monedas. (Las cuentas demo pueden recibir fondos virtuales fijos una vez el día 1 de cada mes)",
+        transactionVolume: "Según las disposiciones relevantes de la Ley Antilavado de Dinero, cada transacción requiere control de precios, y se debe completar cierto volumen de transacciones antes de que se pueda retirar la moneda, para evitar que los usuarios laven dinero en el exchange. Por ejemplo, si deposita 10,000U, el monto de la transacción debe alcanzar la cantidad especificada relevante.",
+        transferFunds: "Para garantizar la independencia de los fondos entre sus diversas cuentas y facilitar su control de riesgos razonable, las cuentas de los principales módulos de trading están divididas. La transferencia se refiere al proceso de convertir activos entre varias cuentas de trading.",
+        whatAreFutures: "Los futuros, también conocidos como contratos de futuros, son una forma de trading que abarca tiempo. Compradores y vendedores firman un contrato para acordar entregar una cantidad especificada de bienes al contado en un tiempo, precio y otras condiciones de trading especificados. Los futuros generalmente se concentran en exchanges de futuros y se compran y venden con contratos estandarizados. Los activos negociados suelen ser productos básicos o instrumentos financieros. El precio predeterminado que ambas partes acuerdan para comprar y vender un activo se llama precio forward.",
+        convertedAmountChanges: "El valor convertido en activos es el valor de la moneda digital actualmente mantenida en USD. Cambia debido a las fluctuaciones de precios de los activos digitales, pero la cantidad de sus activos digitales no cambia.",
+        realNameAuthentication: "Por la seguridad de sus fondos, limitamos la asociación de su cuenta receptora con la información de nombre real de su cuenta actual.",
+        frozenAssets: "Los activos congelados significan que cuando realiza transacciones u operaciones de retiro, el proceso no está completamente completado. Los activos actuales están temporalmente gestionados por el sistema y no pueden ser controlados libremente por usted. No significa que haya perdido el activo o que algo sea anormal con el activo. Por favor, quede tranquilo.",
+        futuresTradingRules: "Participe en transacciones estimando la siguiente tendencia de precio (alcista o bajista) del par de trading actual. El rango del aumento o disminución no se calcula durante la liquidación, y solo se calcula el ingreso basado en el resultado del aumento o disminución. Los porcentajes de ganancia para la liquidación en diferentes tiempos de entrega son diferentes, y las ganancias se mostrarán con precisión en la interfaz de trading.",
+        aiQuantification: "Un robot de trading cuantitativo con IA es un sistema de trading automatizado que combina inteligencia artificial (IA) con técnicas de trading cuantitativo. Su función principal es comprar y vender automáticamente productos financieros y criptomonedas basándose en datos de mercado y estrategias de trading específicas para lograr ganancias estables o controlar riesgos.",
+        exploreNFTs: "Adéntrate en el mundo de los NFTs con AureX, tu billetera de trading de activos digitales todo en uno. Diseñada tanto para principiantes como para traders profesionales, AureX te permite explorar, comprar, vender y gestionar NFTs de alta calidad de manera segura y eficiente.\n\nCon seguridad avanzada, seguimiento en tiempo real y transacciones fluidas, AureX te mantiene en control total de tus coleccionables digitales. Desde piezas de arte exclusivas hasta activos digitales de edición limitada, descubre el futuro de la propiedad digital — todo en un solo lugar, con confianza y facilidad.",
+        bitcoinEnergy: "El CEO de Tesla y SpaceX, Elon Musk, dijo el 14 de octubre en X que bitcoin se basa en energía, contrastándolo con las monedas fiduciarias que los gobiernos pueden inflar. Su comentario fue en respuesta a una publicación de Zerohedge que vinculaba el aumento en los precios del oro, la plata y bitcoin con la degradación monetaria impulsada por el gasto gubernamental en la carrera armamentista global de inteligencia artificial. Zerohedge agregó que el dinero se puede imprimir pero la energía no. Musk estuvo de acuerdo, escribiendo: 'Verdad. Es por eso que bitcoin se basa en energía: puedes emitir moneda fiduciaria falsa, y todos los gobiernos en la historia lo han hecho, pero es imposible falsificar energía.'\n\n¿Qué dijo Elon Musk sobre bitcoin y energía?\nElon Musk declaró que Bitcoin se basa en energía, enfatizando que mientras los gobiernos pueden imprimir moneda fiduciaria, la energía no se puede falsificar ni crear artificialmente.\n\n¿Por qué Elon Musk contrastó bitcoin con las monedas fiduciarias?\nMusk destacó que las monedas fiduciarias son propensas a la inflación porque los gobiernos pueden emitir más de ellas, mientras que la base de bitcoin en la energía le da una base de valor más tangible y limitada.\n\n¿Cuál fue el contexto del comentario de Musk sobre bitcoin?\nSu comentario respondió a una publicación de Zerohedge que sugería que los precios crecientes del oro, la plata y bitcoin están vinculados al gasto gubernamental global y la degradación monetaria causada por la carrera armamentista de IA.\n\n¿Cuál es la principal conclusión de la declaración de Musk?\nEl comentario de Musk refuerza la idea de que el valor de bitcoin está arraigado en el costo real de la energía, contrastándolo con la naturaleza fácilmente manipulable del dinero fiduciario tradicional.",
+        bitcoinRecordPrice: "Bitcoin alcanzó un nuevo máximo.\n\nLa criptomoneda líder tocó un récord durante la noche, alcanzando máximos históricos alrededor de $125,400 para superar la antigua marca máxima de alrededor de $124,480, establecida en agosto. (Más recientemente se negociaba cerca de $123,000).\n\nLos últimos movimientos tienen el valor total de mercado de bitcoin en aproximadamente $2.45 billones, según CoinMarketCap, y el valor total de cripto en alrededor de $4.21 billones. Bitcoin ha tenido un año dramático, subiendo desde precios por debajo de $80,000 vistos en abril.\n\nSi bien los toros de bitcoin generalmente han visto el ascenso continuo de la moneda como inevitable, algunos han tenido razones más específicas para prever más alza a fines de 2025. Tiene un historial de establecer nuevos récords en la ventana de 1,064 días después de los mínimos del mercado bajista, el último de los cuales fue el 21 de noviembre de 2022.\n\nMientras tanto, los volúmenes de trading de bitcoin en los exchanges de cripto han estado aumentando desde una reducción a fines de septiembre. Los volúmenes crecientes tienden a ser buenos para los precios.\n\nAlgunos analistas ven razones para esperar que bitcoin siga subiendo. Los analistas de JPMorgan en una nota del 1 de octubre sugirieron que el 'trade de degradación' —en el que tanto inversionistas minoristas como institucionales cubren sus apuestas con oro y bitcoin— cobrará impulso en medio de preocupaciones que van desde una mayor incertidumbre geopolítica hasta una deuda gubernamental persistentemente alta en todas las economías y el dominio menguante del dólar estadounidense.\n\nEn términos más generales, los desarrollos recientes han sugerido que la industria cripto está avanzando continuamente mientras busca reclamar más dólares de inversionistas y posición en el mundo de las finanzas—entre ellos el lanzamiento de varios nuevos ETFs de cripto y el aumento en la popularidad de las acciones del tesoro de cripto.",
+        trumpStatueBitcoin: "WASHINGTON (7News) — Una estatua dorada de 12 pies del presidente Donald Trump sosteniendo un Bitcoin fue instalada fuera del Capitolio de EE.UU., coincidiendo con la próxima decisión de tasas de interés de la Reserva Federal del miércoles.\n\nA las 2 p.m., la Fed anunció que redujo su tasa de interés clave en un cuarto de punto, marcando el primer recorte desde diciembre de 2024. El recorte reducirá la tasa a corto plazo a aproximadamente 4.1% desde 4.3%. El año pasado, el banco central redujo las tasas tres veces debido a preocupaciones de que el crecimiento del empleo se desaceleraba y el desempleo aumentaba.\n\nEl banco central también reveló planes para dos recortes más de tasas este año. Sin embargo, solo se anticipa uno en 2026, lo que podría decepcionar a Wall Street, ya que esperaban cinco recortes para el próximo año.\n\nLa pieza temporal, ubicada en la 3ra Calle de 9 a.m. a 4 p.m., fue financiada por un colectivo de inversionistas de criptomonedas. Los organizadores dijeron que la pieza está destinada a provocar debate sobre el futuro de la moneda digital, la política monetaria y el papel del gobierno federal en los mercados financieros."
+      }
+    },
+    
+    transfer: {
+      title: "Historial de Transferencias",
+      noTransferHistory: "No hay historial de transferencias disponible",
+      accountTypes: {
+        trade: "Cuenta de Trading",
+        perpetual: "Cuenta Perpetual",
+        exchange: "Cuenta de Exchange"
+      },
+      status: {
+        completed: "Completado"
+      }
+    },
+    
+    settings: {
+      title: "Configuraciones",
+      language: "Idioma",
+      quotationCurrency: "Moneda de cotización",
+      colorConfiguration: "Configuración de colores",
+      aboutUs: "Sobre nosotros",
+      versionNumber: "Número de versión",
+      selected: "Seleccionado",
+      colorSchemes: {
+        greenRiseRedFall: {
+          name: "Verde sube, Rojo baja",
+          alt: "Esquema de colores de gráfico Verde sube, Rojo baja",
+          description: "Colores tradicionales de trading: verde para aumentos de precio, rojo para disminuciones de precio"
+        },
+        redRiseGreenFall: {
+          name: "Rojo sube, Verde baja",
+          alt: "Esquema de colores de gráfico Rojo sube, Verde baja",
+          description: "Colores alternativos de trading: rojo para aumentos de precio, verde para disminuciones de precio"
+        }
+      },
+      modals: {
+        language: {
+          title: "Seleccionar Idioma"
+        },
+        colorConfiguration: {
+          title: "Configuración de Colores"
+        }
+      }
+    },
+    
+    wallet: {
+      myAssets: "Mis Activos",
+      assetValuation: "Valuación de Activos",
+      myAccount: "Mi Cuenta",
+      showAmounts: "Mostrar montos",
+      hideAmounts: "Ocultar montos",
+      usdEquivalent: "≈ USD {0}",
+      noAssetsFound: "No se encontraron activos",
+      quickActions: {
+        withdraw: "Retirar",
+        deposit: "Depositar",
+        transfer: "Transferir",
+        swap: "Intercambiar"
+      },
+      accountTabs: {
+        exchange: "Exchange",
+        trade: "Trading",
+        perpetual: "Perpetual"
+      },
+      assetLabels: {
+        availableBalance: "Saldo disponible",
+        frozenAmount: "Monto congelado",
+        valuation: "Valuación"
+      },
+      errors: {
+        fetchAssets: "Error al obtener activos:"
+      }
+    },
+    
+    loginPassword: {
+      title: "Contraseña de Inicio de Sesión",
+      cardTitle: "CAMBIAR CONTRASEÑA DE INICIO DE SESIÓN",
+      fields: {
+        oldPassword: "Contraseña Antigua",
+        newPassword: "Nueva Contraseña",
+        newPasswordConfirmation: "Confirmar Contraseña",
+        mailbox: "Su buzón de correo"
+      },
+      placeholders: {
+        oldPassword: "Ingrese su contraseña actual",
+        newPassword: "Cree una nueva contraseña",
+        confirmPassword: "Confirme su nueva contraseña"
+      },
+      buttons: {
+        saveChanges: "GUARDAR CAMBIOS"
+      },
+      warningMessage: "Por la seguridad de sus fondos, los retiros no están permitidos dentro de las 24 horas posteriores al cambio de la contraseña de inicio de sesión.",
+      validation: {
+        mustMatch: "Las contraseñas deben coincidir"
+      }
+    },
+    
     futures: {
-  title: "Futuros",
-  actions: {
-    buyUp: "COMPRAR ALZA",
-    buyDown: "COMPRAR BAJA"
-  },
-  tabs: {
-    openOrders: "Órdenes Abiertas",
-    recentOrders: "Órdenes Recientes"
-  },
-  orderDetails: {
-    title: "Detalles de la Orden",
-    open: "Abierto",
-    closed: "Cerrado",
-    completed: "Completado",
-    futuresAmount: "Monto Futuros:",
-    contractDuration: "Duración del Contrato:",
-    seconds: "Segundos",
-    futuresStatus: "Estado Futuros:",
-    openPositionPrice: "Precio Apertura:",
-    openPositionTime: "Hora Apertura:",
-    closePositionPrice: "Precio Cierre:",
-    closePositionTime: "Hora Cierre:",
-    profitLossAmount: "Monto Ganancia/Pérdida:",
-    leverage: "Apalancamiento:",
-    done: "Hecho"
-  },
-  status: {
-    open: "Abierto",
-    closed: "Cerrado",
-    completed: "Completado"
-  },
-  list: {
-    noOrders: "Sin órdenes"
-  }
-},
+      title: "Futuros",
+      actions: {
+        buyUp: "COMPRAR AL ALZA",
+        buyDown: "COMPRAR A LA BAJA"
+      },
+      tabs: {
+        openOrders: "Órdenes Abiertas",
+        recentOrders: "Órdenes Recientes"
+      },
+      orderDetails: {
+        title: "Detalles de la Orden",
+        open: "Abierta",
+        closed: "Cerrada",
+        completed: "Completada",
+        futuresAmount: "Monto de Futuros:",
+        contractDuration: "Duración del Contrato:",
+        seconds: "Segundos",
+        futuresStatus: "Estado de Futuros:",
+        openPositionPrice: "Precio de Apertura de Posición:",
+        openPositionTime: "Hora de Apertura de Posición:",
+        closePositionPrice: "Precio de Cierre de Posición:",
+        closePositionTime: "Hora de Cierre de Posición:",
+        profitLossAmount: "Monto de Ganancia y Pérdida:",
+        leverage: "Apalancamiento:",
+        done: "Hecho"
+      },
+      status: {
+        open: "Abierta",
+        closed: "Cerrada",
+        completed: "Completada"
+      },
+      list: {
+        noOrders: "Sin órdenes"
+      }
+    },
+    
     proof: {
-      title: "Verificação de Identidade",
-      instructions: "Verifique sua identidade para acessar todos os recursos do BINEX",
+      title: "Verificación de Identidad",
+      instructions: "Verifique su identidad para acceder a todas las funciones de su BINEX",
       sections: {
-        documentInfo: "Informações do Documento",
-        documentUpload: "Upload do Documento"
+        documentInfo: "Información del Documento",
+        documentUpload: "Carga de Documento"
       },
       fields: {
         documentType: "Tipo de Documento",
-        fullName: "Nome Completo",
-        documentNumber: "Número do Documento",
-        address: "Endereço",
-        frontSide: "Frente do Documento",
-        backSide: "Verso do Documento",
-        selfie: "Selfie com Documento"
+        fullName: "Nombre Completo",
+        documentNumber: "Número de Documento",
+        address: "Dirección",
+        frontSide: "Frente del Documento",
+        backSide: "Reverso del Documento",
+        selfie: "Selfie con Documento"
       },
       placeholders: {
-        fullName: "Digite seu nome completo",
-        documentNumber: "Digite o número do documento",
-        address: "Digite seu endereço completo"
+        fullName: "Ingrese su nombre completo",
+        documentNumber: "Ingrese su número de documento",
+        address: "Ingrese su dirección completa"
       },
       uploadTexts: {
-        frontSide: "Faça upload da frente do seu documento",
-        backSide: "Faça upload do verso do seu documento",
-        selfie: "Faça upload de uma selfie segurando seu documento"
+        frontSide: "Cargue el frente de su documento",
+        backSide: "Cargue el reverso de su documento",
+        selfie: "Cargue una selfie sosteniendo su documento"
       },
       documentTypes: {
-        passport: "Passaporte",
-        idCard: "Carteira de Identidade",
-        driversLicense: "Carteira de Motorista"
+        passport: "Pasaporte",
+        idCard: "Cédula de Identidad",
+        driversLicense: "Licencia de Conducir"
       },
       security: {
-        title: "Aviso de Segurança",
-        text: "Suas informações são criptografadas e seguras. Usamos proteção de nível bancário e verificamos manualmente cada documento para sua segurança."
+        title: "Aviso de Seguridad",
+        text: "Su información está encriptada y segura. Usamos protección de nivel bancario y verificamos manualmente cada documento por su seguridad."
       },
       buttons: {
-        validateDocuments: "VALIDAR DOCUMENTOS"
+        validateDocuments: "Validar Documentos"
       },
       footer: {
-        copyright: "© 2025 CryptoWallet. Todos os direitos reservados.",
-        privacyPolicy: "Política de Privacidade"
+        copyright: "© 2025 CryptoWallet. Todos los derechos reservados.",
+        privacyPolicy: "Política de Privacidad"
       }
     },
+    
     withdrawPassword: {
-      title: "Senha de Saque",
-      cardTitle: "ALTERAR SENHA DE SAQUE",
+      title: "Contraseña de Retiro",
+      cardTitle: "CAMBIAR CONTRASEÑA DE RETIRO",
       fields: {
-        currentPassword: "Senha Atual",
-        newPassword: "Nova Senha"
+        currentPassword: "Contraseña Actual",
+        newPassword: "Nueva Contraseña"
       },
       placeholders: {
-        currentPassword: "Digite sua senha antiga",
-        newPassword: "Confirme sua nova senha"
+        currentPassword: "Ingrese su contraseña antigua",
+        newPassword: "Confirme su nueva contraseña"
       },
       buttons: {
-        saveChanges: "SALVAR ALTERAÇÕES"
+        saveChanges: "GUARDAR CAMBIOS"
       },
-      warningMessage: "Para a segurança dos seus fundos, saques não são permitidos dentro de 24 horas após a senha de login ter sido alterada."
+      warningMessage: "Por la seguridad de sus fondos, los retiros no están permitidos dentro de las 24 horas posteriores al cambio de la contraseña de inicio de sesión."
     },
-    loginPassword: {
-      title: "Senha de Login",
-      cardTitle: "ALTERAR SENHA DE LOGIN",
-      fields: {
-        oldPassword: "Senha Antiga",
-        newPassword: "Nova Senha",
-        newPasswordConfirmation: "Confirmar Senha"
-      },
-      placeholders: {
-        oldPassword: "Digite sua senha atual",
-        newPassword: "Crie uma nova senha",
-        confirmPassword: "Confirme sua nova senha"
-      },
-      buttons: {
-        saveChanges: "SALVAR ALTERAÇÕES"
-      },
-      warningMessage: "Para a segurança dos seus fundos, saques não são permitidos dentro de 24 horas após a senha de login ter sido alterada.",
-      validation: {
-        mustMatch: "As senhas devem coincidir"
-      }
-    },
-    passwordType: {
-      title: "Tipo de Senha",
-      cardTitle: "SELECIONAR TIPO DE SENHA",
-      options: {
-        login: {
-          title: "Senha de Login",
-          description: "Altere sua senha de login da conta"
-        },
-        withdrawal: {
-          title: "Senha de Saque",
-          description: "Altere sua senha de saque de criptomoedas"
-        }
-      }
-    },
-    withdrawAddressForm: {
-      title: "Endereço de Saque",
-      currencyType: "TIPO DE MOEDA",
-      withdrawalAddress: "ENDEREÇO DE SAQUE",
-      currencies: {
-        btc: "BTC (Bitcoin)",
-        eth: "ETH (Ethereum)",
-        usdt: "USDT (Tether)",
-        sol: "SOL (Solana)",
-        xrp: "XRP (Ripple)"
-      },
-      fields: {
-        address: "Endereço",
-        password: "Senha de Saque de Criptomoedas"
-      },
-      placeholders: {
-        address: "Digite o endereço da sua carteira",
-        password: "Digite sua senha atual"
-      },
-      buttons: {
-        save: "SALVAR"
-      },
-      notification: {
-        success: "Endereço salvo com sucesso!"
-      }
-    },
-    withdrawAddress: {
-      title: "Endereço de Saque",
-      cardTitle: "TIPO DE MOEDA",
-      currencies: {
-        btc: "BTC (Bitcoin)",
-        eth: "ETH (Ethereum)",
-        usdt: "USDT (Tether)",
-        sol: "SOL (Solana)",
-        xrp: "XRP (Ripple)"
-      }
-    },
-    privacy: {
-      title: "Portal de Privacidade",
-      hero: {
-        title: "Portal de Privacidade BINEX",
-        subtitle: "Protegendo seus dados e privacidade com diretrizes rigorosas, conformidade legal e melhores práticas do setor."
-      },
-      principles: {
-        title: "Nossos Princípios de Privacidade",
-        corePrinciples: "Princípios Fundamentais",
-        transparency: {
-          title: "Transparência",
-          description: "Atualizações regulares e informações claras sobre como lidamos com seus dados."
-        },
-        accountability: {
-          title: "Responsabilidade e Conformidade",
-          description: "Auditorias regulares, certificações e adesão às leis globais de privacidade."
-        },
-        dataSecurity: {
-          title: "Segurança de Dados",
-          description: "Criptografia avançada, controles de acesso rigorosos e protocolos de verificação de identidade."
-        },
-        dataMinimization: {
-          title: "Minimização de Dados e Limitação de Finalidade",
-          description: "Coletamos apenas o necessário para finalidades legítimas específicas."
-        },
-        privacyByDesign: {
-          title: "Privacidade desde a Concepção",
-          description: "A privacidade é incorporada em todos os nossos produtos e serviços desde o início."
-        }
-      },
-      userRights: {
-        title: "Seus Direitos de Privacidade",
-        content: "Você tem ferramentas para acessar e gerenciar seus dados via nosso aplicativo ou formulário web, com informações detalhadas disponíveis em nosso Aviso de Privacidade.",
-        note: "Exerça seus direitos de acessar, corrigir ou excluir suas informações pessoais a qualquer momento."
-      },
-      personalData: {
-        title: "O que são Dados Pessoais?",
-        definition: "Dados pessoais referem-se a qualquer informação que identifique um indivíduo.",
-        examples: "Exemplos incluem: nome, ID BINEX, endereço de e-mail, dados de localização, histórico de transações e informações do dispositivo."
-      },
-      dataUsage: {
-        title: "Como Usamos Seus Dados",
-        accountManagement: {
-          title: "Gerenciamento de Conta",
-          description: "Para criar e manter sua conta, fornecer serviços e comunicar com você."
-        },
-        legalCompliance: {
-          title: "Conformidade Legal",
-          description: "Para cumprir nossas obrigações sob leis aplicáveis, incluindo regulamentos de Combate à Lavagem de Dinheiro (AML)."
-        },
-        securityFraud: {
-          title: "Segurança e Prevenção de Fraude",
-          description: "Para proteger sua conta, detectar e prevenir fraudes e garantir a segurança da plataforma."
-        },
-        customerSupport: {
-          title: "Suporte ao Cliente",
-          description: "Para responder suas consultas e fornecer assistência técnica quando necessário."
-        },
-        marketing: {
-          title: "Marketing e Comunicações",
-          description: "Para enviar atualizações relevantes, informações sobre produtos e materiais promocionais (com seu consentimento)."
-        },
-        transactionProcessing: {
-          title: "Processamento de Transações",
-          description: "Para facilitar transações de criptomoedas e manter registros de transações."
-        }
-      },
-      dataRetention: {
-        title: "Retenção de Dados",
-        content: "Retemos seus dados enquanto necessário para fornecer nossos serviços, cumprir obrigações legais (como requisitos fiscais e AML), resolver disputas e fazer cumprir nossos acordos."
-      },
-      dataSharing: {
-        title: "Compartilhamento de Dados",
-        content: "Podemos compartilhar seus dados com outras entidades BINEX ou terceiros confiáveis sob salvaguardas contratuais rigorosas, apenas quando necessário para os fins delineados em nosso Aviso de Privacidade."
-      },
-      cookies: {
-        title: "Cookies e Rastreamento",
-        content: "Usamos cookies e tecnologias similares para melhorar sua experiência do usuário, fornecer marketing personalizado e analisar como nossos serviços são usados.",
-        link: "Ver nossa Política de Cookies completa"
-      },
-      actionCards: {
-        privacyNotice: {
-          title: "Aviso de Privacidade",
-          description: "Leia nossa política de privacidade completa"
-        },
-        manageData: {
-          title: "Gerenciar Dados",
-          description: "Acesse e controle suas informações"
-        },
-        cookieSettings: {
-          title: "Configurações de Cookies",
-          description: "Ajuste suas preferências de rastreamento"
-        },
-        helpCenter: {
-          title: "Central de Ajuda",
-          description: "Obtenha respostas para questões de privacidade"
-        }
-      },
-      notification: "Ação concluída com sucesso!"
-    },
-    termsOfUse: {
-      title: "Termos de Uso",
-      hero: {
-        title: "Termos de Uso BINEX"
-      },
-      agreement: {
-        title: "Acordo",
-        content: "Este é um acordo vinculativo entre você (o usuário) e BINEX. Ele cobre todos os Serviços BINEX que você acessa ou usa."
-      },
-      riskWarning: {
-        title: "Aviso de Risco",
-        content: "Ativos digitais são voláteis e podem flutuar significativamente em valor. BINEX não é corretor, consultor financeiro ou consultor de investimentos. Você deve realizar sua própria due diligence antes de tomar quaisquer decisões financeiras."
-      },
-      aboutServices: {
-        title: "Sobre Nossos Serviços",
-        aboutBINEX: {
-          title: "Sobre BINEX",
-          content: "BINEX fornece câmbio de ativos digitais, serviços de custódia e serviços financeiros relacionados através de nossa plataforma."
-        },
-        eligibility: {
-          title: "Elegibilidade",
-          content: "Você deve ter pelo menos 18 anos, ser legalmente capaz de celebrar contratos, não ter restrições de usar nossos serviços e não estar localizado em jurisdições proibidas."
-        },
-        communication: {
-          title: "Comunicação",
-          content: "Você deve manter suas informações de contato atualizadas. BINEX entrará em contato com você via e-mail, SMS ou telefone sobre sua conta e nossos serviços."
-        }
-      },
-      services: {
-        title: "Nossos Serviços",
-        servicesProvided: {
-          title: "Serviços Prestados",
-          content: "BINEX oferece negociação de ativos digitais, soluções de custódia seguras e suporte ao cliente através de bots automatizados e representantes humanos. Funcionalidade de chat do usuário também está disponível."
-        },
-        fees: {
-          title: "Taxas",
-          content: "Todas as taxas aplicáveis estão listadas em nossa página Estrutura de Taxas e estão sujeitas a atualizações. Você é responsável por revisar a tabela de taxas atual antes de realizar transações."
-        }
-      },
-      accountManagement: {
-        title: "Gerenciamento de Conta",
-        accountCreation: {
-          title: "Criação de Conta",
-          content: "Você deve abrir uma conta (individual ou corporativa) para acessar nossos serviços. Isso requer completar procedimentos de verificação de identidade (KYC/AML) conforme exigido por lei."
-        },
-        identityVerification: {
-          title: "Verificação de Identidade",
-          content: "Você deve completar nossos processos de verificação Conheça seu Cliente (KYC) e Combate à Lavagem de Dinheiro (AML) antes de usar certos serviços."
-        },
-        accountRecords: {
-          title: "Registros da Conta",
-          content: "Você pode manter registros e criar subcontas sob condições específicas delineadas em nossas políticas de gerenciamento de conta."
-        }
-      },
-      transactions: {
-        title: "Transações",
-        sufficientBalance: {
-          title: "Saldo Suficiente",
-          content: "Você deve manter saldo suficiente em sua conta para quaisquer transações que você iniciar. Transações podem falhar ou incorrer em taxas adicionais se fundos insuficientes estiverem disponíveis."
-        },
-        transactionCancellation: {
-          title: "Cancelamento de Transação",
-          content: "BINEX reserva-se o direito de cancelar ou alterar transações em casos de suspeita de fraude, erros ou violações destes Termos."
-        },
-        unauthorizedTransactions: {
-          title: "Transações Não Autorizadas",
-          content: "Você é responsável por quaisquer transações não autorizadas, a menos que possa provar o contrário através de nosso processo de resolução de disputas."
-        }
-      },
-      digitalAssets: {
-        title: "Ativos Digitais",
-        supportedAssets: {
-          title: "Ativos Suportados",
-          content: "Você só pode transacionar com ativos digitais explicitamente suportados pela BINEX. Tentar depositar ativos não suportados pode resultar em perda permanente."
-        },
-        forksAirdrops: {
-          title: "Forks e Airdrops",
-          content: "BINEX não garante suporte para forks de blockchain, airdrops ou outros eventos similares. Decisões de suporte são feitas a nosso critério exclusivo."
-        }
-      },
-      accountSecurity: {
-        title: "Segurança da Conta",
-        securityRequirements: {
-          title: "Requisitos de Segurança",
-          content: "Você deve usar uma senha forte, habilitar autenticação multifator (MFA), nunca compartilhar credenciais, monitorar atividade da conta regularmente e reportar imediatamente quaisquer violações de segurança."
-        }
-      },
-      privacy: {
-        title: "Privacidade",
-        content: "Sua privacidade é regida pelo Aviso de Privacidade BINEX, que explica como coletamos, usamos e protegemos suas informações pessoais."
-      },
-      termination: {
-        title: "Encerramento de Conta",
-        terminationSuspension: {
-          title: "Encerramento/Suspensão",
-          content: "BINEX pode restringir, suspender ou encerrar contas por fraude, violações legais, atividade suspeita ou violações dos Termos. Usuários podem fechar contas, a menos que congeladas ou inativas."
-        }
-      },
-      prohibitedUse: {
-        title: "Uso Proibido",
-        content: "Você não pode usar serviços BINEX para fraude, manipulação de mercado, atividades ilegais, acesso não autorizado ou qualquer propósito que viole leis aplicáveis ou estes Termos."
-      },
-      liability: {
-        title: "Responsabilidade e Propriedade Intelectual",
-        liability: {
-          title: "Responsabilidade",
-          content: "BINEX não é responsável por perdas, exceto em casos de negligência grave comprovada ou fraude. Não somos responsáveis por flutuações de mercado, problemas técnicos ou ações de terceiros."
-        },
-        intellectualProperty: {
-          title: "Propriedade Intelectual",
-          content: "BINEX retém todos os direitos de propriedade intelectual de nossa plataforma, tecnologia e branding. Usuários recebem uma licença limitada para usar nossos serviços conforme delineado nestes Termos."
-        },
-        indemnity: {
-          title: "Indenização",
-          content: "Você concorda em indenizar e isentar BINEX de quaisquer reclamações, perdas ou danos resultantes de uso indevido de nossos serviços ou violação destes Termos."
-        }
-      },
-      importantNotice: {
-        title: "Aviso Importante",
-        content: "Ao usar serviços BINEX, você reconhece que leu, entendeu e concorda em estar vinculado por estes Termos de Uso. Se você não concorda, deve descontinuar o uso de nossos serviços imediatamente."
-      },
-      actionCards: {
-        security: {
-          title: "Segurança",
-          description: "Mantenha sua conta segura."
-        },
-        helpCenter: {
-          title: "Central de Ajuda",
-          description: "Obtenha respostas para suas perguntas"
-        },
-        privacyPolicy: {
-          title: "Política de Privacidade",
-          description: "Revise nossas práticas de privacidade"
-        },
-        legal: {
-          title: "Jurídico",
-          description: "Ver todos os documentos legais"
-        }
-      },
-      footer: {
-        copyright: "© 2025 BINEX. Todos os direitos reservados.",
-        lastUpdated: "Última atualização: 6 de maio de 2025"
-      }
-    },
+    
     marketDetail: {
       stats: {
-        high: "Máxima 24h",
-        low: "Mínima 24h",
-        volume: "Volume 24h"
+        high: "Máximo 24h",
+        low: "Mínimo 24h",
+        volume: "Volumen 24h"
       },
       volume: {
-        billion: "B",
-        million: "M"
+        billion: "Mil millones",
+        million: "Millones"
       },
       actions: {
         buy: "COMPRAR",
         sell: "VENDER"
       },
       recentTrades: {
-        title: "Negociações Recentes (Ao Vivo)",
-        price: "Preço (USDT)",
-        amount: "Quantidade",
-        time: "Tempo"
+        title: "Transacciones Recientes (En Vivo)",
+        price: "Precio (USDT)",
+        amount: "Cantidad",
+        time: "Hora"
+      },
+      tabs: {
+        orderBook: "Libro de Órdenes",
+        transactions: "Última transacción"
+      },
+      orderBook: {
+        buy: "Comprar",
+        sell: "Vender",
+        quantity: "Cantidad",
+        price: "Precio (USDT)"
+      },
+      coinSelector: {
+        title: "Seleccionar Par de Trading"
+      },
+      setupWebsockets: "Configurando WebSockets para:",
+      websocketConnected: "WebSocket conectado para:",
+      websocketParseError: "Error al analizar datos de WebSocket:",
+      websocketError: "Error de WebSocket para",
+      websocketClosed: "WebSocket cerrado para:",
+      websocketCloseError: "Error al cerrar WebSocket:",
+      websocketCreateError: "Error al crear WebSocket:",
+      code: "Código:",
+      reconnecting: "Reconectando WebSocket para:",
+      cleaningUp: "Limpiando WebSockets para:",
+      initialDataLoaded: "Datos iniciales cargados para:",
+      fetchError: "Error al obtener datos iniciales para",
+      selectingCoin: "Seleccionando nueva moneda:"
+    },
+    
+    passwordType: {
+      title: "Tipo de Contraseña",
+      cardTitle: "SELECCIONAR TIPO DE CONTRASEÑA",
+      options: {
+        login: {
+          title: "Contraseña de Inicio de Sesión",
+          description: "Cambie la contraseña de inicio de sesión de su cuenta"
+        },
+        withdrawal: {
+          title: "Contraseña de Retiro",
+          description: "Cambie su contraseña de retiro de criptomonedas"
+        }
       }
     },
+    
+    profile: {
+      title: "Centro Personal",
+      user: "Usuario",
+      userInitial: "U",
+      userId: "ID",
+      status: {
+        verified: "Verificado",
+        unverified: "No Verificado"
+      },
+      verification: {
+        kycStatus: "Estado KYC:",
+        redirecting: "Redirigiendo a página de verificación...",
+        pendingReview: "La verificación está pendiente de revisión...",
+        pendingAlert: "Su verificación está pendiente de revisión. Por favor, espere la aprobación.",
+        alreadyVerified: "El usuario ya está verificado",
+        pending: {
+          title: "Verificación Pendiente",
+          description: "La verificación de su cuenta está en progreso. Esto generalmente toma 1-3 días hábiles.",
+          status: "Revisión Pendiente",
+          button: "Pendiente"
+        },
+        alert: {
+          title: "Cuenta No Verificada",
+          description: "Verifique su cuenta para desbloquear todas las funciones y límites más altos",
+          verifyNow: "Verificar Ahora"
+        }
+      },
+      accountInfo: {
+        title: "INFORMACIÓN DE LA CUENTA",
+        email: "Correo Electrónico",
+        creditScore: "Puntuación de Crédito",
+        invitationCode: "Código de Invitación"
+      },
+      pendingVerifications: {
+        title: "VERIFICACIONES PENDIENTES",
+        identity: {
+          title: "Verificación de Identidad",
+          description: "Envíe su identificación gubernamental"
+        },
+        address: {
+          title: "Verificación de Domicilio",
+          description: "Verifique su residencia"
+        },
+        status: {
+          pending: "Pendiente"
+        }
+      },
+      approvedVerifications: {
+        title: "VERIFICACIONES APROBADAS",
+        identity: {
+          title: "Verificación de Identidad"
+        },
+        address: {
+          title: "Verificación de Domicilio"
+        },
+        status: {
+          completed: "Completado"
+        }
+      },
+      limitations: {
+        title: "Limitaciones de la Cuenta",
+        withdrawalLimit: "Límite de retiro: $1,000 por día",
+        stakingLimited: "Opciones de staking limitadas",
+        advancedTrading: "Funciones avanzadas de trading deshabilitadas",
+        fiatDeposits: "Depósitos en moneda fiduciaria no disponibles"
+      },
+      menu: {
+        withdrawalAddress: "Registros de cambio de cuenta",
+        password: "Centro de seguridad",
+        notifications: "Notificaciones",
+        myInvitation: "Mi Invitación",
+        language: "Idioma",
+        helpcenter: "Centro de Ayuda",
+        privacyPortal: "Portal de Privacidad",
+        aboutUs: "Introducción a la plataforma",
+        msbApproval: "Aprobación MSB",
+        customerSupport: "Servicio en línea",
+        downloadApp: "Descargar",
+        logout: "Cerrar Sesión",
+        preferences: "Preferencias",
+        clearCache: "Limpiar caché"
+      },
+      cache: {
+        clearing: "Limpiando caché...",
+        cleared: "¡Caché limpiado exitosamente!"
+      },
+      simulatedTrading: {
+        toggle: "Trading simulado {0}"
+      }
+    },
+    
+    trade: {
+      coinSelector: {
+        title: "Seleccionar Par de Trading"
+      },
+      title: "SPOT",
+      buy: "COMPRAR",
+      sell: "VENDER",
+      long: "COMPRAR AL ALZA",
+      short: "COMPRAR A LA BAJA",
+      limit: "LÍMITE",
+      market: "MERCADO",
+      orderType: "Tipo de Orden",
+      price: "Precio (USDT)",
+      amount: "Cantidad",
+      available: "Disponible",
+      placing: "Colocando...",
+      increasePrice: "aumentar precio",
+      decreasePrice: "disminuir precio",
+      tradingPeriod: "Período de Trading",
+      leverage: "Apalancamiento",
+      tradingMode: {
+        trade: "Trading",
+        perpetual: "Perpetual"
+      },
+      tabs: {
+        positions: "Posiciones",
+        historyOrders: "Historial de órdenes",
+        transactionHistory: "Historial de transacciones"
+      },
+      orderDetails: {
+        status: "Estado",
+        price: "Precio",
+        amount: "Cantidad",
+        total: "Total"
+      },
+      futuresDetails: {
+        amount: "Cantidad",
+        duration: "Duración",
+        entryPrice: "Precio de Entrada",
+        exitPrice: "Precio de Salida",
+        pnl: "Ganancia/Pérdida",
+        opened: "Abierta",
+        closed: "Cerrada"
+      },
+      futuresStatus: {
+        long: "Al Alza",
+        short: "A la Baja",
+        closed: "Cerrada",
+        liquidated: "Liquidada"
+      },
+      cancel: "Cancelar",
+      errors: {
+        invalidQuantity: "Por favor ingrese una cantidad válida.",
+        invalidPrice: "Por favor ingrese un precio válido.",
+        invalidAmount: "Por favor ingrese un monto válido.",
+        insufficientUSDT: "Saldo USDT insuficiente. Disponible: {0} USDT",
+        insufficientCoin: "Saldo {1} insuficiente. Disponible: {0} {1}",
+        failedOrder: "Error al colocar la orden. Por favor intente nuevamente.",
+        createError: "Error al crear trade",
+        placeOrderError: "Error al colocar orden"
+      },
+      orderBook: {
+        price: "Precio (USDT)",
+        amount: "Cantidad"
+      },
+      noData: "No se encontró {0}",
+      noTransactionsText: "Sus transacciones aparecerán aquí",
+      noOrdersText: "Sus {0} aparecerán aquí",
+      websocketConnected: "WebSocket conectado:",
+      websocketParseError: "Error al analizar datos de WebSocket:",
+      websocketError: "Error de WebSocket:",
+      websocketClosed: "WebSocket cerrado",
+      websocketCreateError: "Error al crear WebSocket:",
+      orderNumberFormat: "ORD-{0}-{1}"
+    },
+    
+    market: {
+      title: "MERCADO USDT",
+      noResults: "No se encontraron criptomonedas",
+      volume: "Vol",
+      search: {
+        placeholder: "Buscar cripto...",
+        clear: "Limpiar búsqueda"
+      },
+      tableHeaders: {
+        pair: "Par de Trading",
+        latestPrice: "Último Precio",
+        change24h: "Cambio 24H"
+      },
+      websocketConnected: "WebSocket del Mercado conectado",
+      websocketParseError: "Error al analizar datos de WebSocket",
+      websocketError: "Error de WebSocket del Mercado",
+      websocketClosed: "WebSocket del Mercado cerrado, código:",
+      websocketSetupError: "Error al configurar WebSocket"
+    },
+    
+    signup: {
+      title: "REGISTRARSE",
+      creatingAccount: "CREANDO...",
+      createAccount: "CREAR CUENTA",
+      refresh: "Actualizar",
+      captchaMismatch: "El captcha no coincide",
+      alreadyHaveAccount: "¿Ya tienes una cuenta? Inicia sesión",
+      terms: {
+        text: "Al crear una cuenta, aceptas nuestros",
+        link: "Términos de Servicio"
+      },
+      labels: {
+        email: "Correo Electrónico",
+        phoneNumber: "Número de Teléfono",
+        captcha: "Captcha Gráfico",
+        password: "Contraseña",
+        confirmPassword: "Confirmar Contraseña",
+        withdrawPassword: "Contraseña de Retiro",
+        invitationCode: "Código de Invitación"
+      },
+      placeholders: {
+        email: "Ingrese su correo electrónico",
+        phoneNumber: "Ingrese su número de teléfono",
+        captcha: "Ingrese el código",
+        password: "Cree una contraseña",
+        confirmPassword: "Confirme su contraseña",
+        withdrawPassword: "Ingrese la contraseña de retiro",
+        invitationCode: "Ingrese el código de invitación"
+      }
+    },
+    
+    home: {
+      logoAlt: "Logo BINEX",
+      headerAlt: "Plataforma de Trading de Criptomonedas",
+      slogan: "Gana con Confianza",
+      promoAlt: "Banner promocional {0}",
+      quickTrade: {
+        highlight: "Rápido",
+        title: "Trading",
+        subtitle: "Transacciones rápidas y operación simple"
+      },
+      aiTrading: {
+        title: "Trading Inteligente con IA",
+        description: "Un robot de trading cuantitativo con IA es un sistema de trading automatizado que combina inteligencia artificial (IA) con técnicas de trading cuantitativo. Su función principal es comprar y vender automáticamente productos financieros y criptomonedas basándose en datos de mercado y estrategias de trading específicas para lograr ganancias estables o controlar riesgos."
+      },
+      nftExploration: {
+        title: "Explora NFTs con BINEX",
+        description: "Adéntrate en el mundo de los NFTs con BINEX, tu billetera de trading de activos digitales todo en uno. Diseñada tanto para principiantes como para traders profesionales, BINEX te permite explorar, comprar, vender y"
+      },
+      stats: {
+        title: "Nuestro Impacto",
+        users: "30M+",
+        usersLabel: "Número de usuarios",
+        organizations: "6000+",
+        organizationsLabel: "Organización cooperante",
+        liquidity: "7.8B+",
+        liquidityLabel: "Liquidez",
+        orders: "89M",
+        ordersLabel: "Órdenes procesadas por segundo"
+      },
+      services: {
+        title: "Nuestros Servicios",
+        subtitle: "Te proporcionamos servicios especializados de atención al cliente manual 24 horas para proteger tus transacciones",
+        highInterest: {
+          title: "Tasa de interés alta",
+          desc: "Finanzas, alta tasa de retorno",
+          alt: "Icono de tasa de interés alta"
+        },
+        liquidityMining: {
+          title: "Minería de liquidez",
+          desc: "La liquidez genera ganancias fáciles",
+          alt: "Icono de minería de liquidez"
+        },
+        service24h: {
+          title: "Servicio 24 horas",
+          desc: "Listo para responder todas tus preguntas",
+          alt: "Icono de servicio 24 horas"
+        },
+        highContract: {
+          title: "Contrato alto",
+          desc: "Pequeño capital, alto apalancamiento, enriquecerse fácilmente",
+          alt: "Icono de contrato alto"
+        },
+        expertTeam: {
+          title: "Equipo experto",
+          desc: "Equipo técnico experto a su servicio",
+          alt: "Icono de equipo experto"
+        },
+        securityProtection: {
+          title: "Protección de seguridad",
+          desc: "Potentes datos en la nube protegen su seguridad",
+          alt: "Icono de protección de seguridad"
+        }
+      },
+      demo: {
+        fastSwap: {
+          title: "Intercambio rápido - Intercambia tus monedas sin preocupaciones",
+          subtitle: "Desde Bitcoin hasta Dogecoin, hacemos que comprar y vender cripto sea fácil. Protege tu cripto con el mejor almacenamiento en frío.",
+          alt: "Demo de intercambio rápido"
+        },
+        advancedTraders: {
+          title: "Para traders avanzados - Herramientas poderosas para diseño",
+          subtitle: "Herramientas analíticas poderosas combinadas con nuestra garantía de seguridad proporcionan la experiencia de trading definitiva. Aprovecha capacidades sofisticadas de gráficos, libros de órdenes en tiempo real y liquidez profunda en cientos de mercados.",
+          alt: "Demo para traders avanzados"
+        },
+        walletManagement: {
+          title: "Gestión inteligente de billetera de activos - Crecimiento constante en ingresos",
+          subtitle: "Herramientas analíticas poderosas combinadas con nuestra garantía de seguridad proporcionan la experiencia de trading definitiva. Aprovecha capacidades sofisticadas de gráficos, libros de órdenes en tiempo real y liquidez profunda en cientos de mercados.",
+          alt: "Demo de gestión de billetera"
+        },
+        liquidityMining: {
+          title: "Minería de liquidez, cuantificación con IA",
+          subtitle: "Más formas de gestionar tus activos, incluyendo minería de liquidez y cuantificación con IA, te dan más opciones para gestionar tus activos y mantener tus activos creciendo",
+          alt: "Demo de minería de liquidez"
+        },
+        startTrading: {
+          title: "¿Comenzar a operar con criptomonedas? - Abre tu criptomoneda ahora",
+          subtitle: "Opera en cualquier momento y lugar para satisfacer las necesidades de trading de varios escenarios en cualquier momento",
+          alt: "Demo de inicio de trading"
+        }
+      },
+      news: {
+        title: "Noticias del círculo",
+        elonMusk: {
+          date: "14-10-2025",
+          title: "Elon Musk Dice que Bitcoin Se Basa en Energía, Lo Cual Es Imposible de Falsificar",
+          alt: "Noticias de Elon Musk Bitcoin"
+        },
+        bitcoinRecord: {
+          date: "05-10-2025",
+          title: "Bitcoin Alcanza Precio Récord Por Encima de $125,000",
+          alt: "Noticias de precio récord de Bitcoin"
+        },
+        trumpStatue: {
+          date: "17-09-2025",
+          title: "Estatua gigante de Trump sosteniendo Bitcoin exhibida fuera del Capitolio de EE.UU. para marcar decisión de tasas de la Fed",
+          alt: "Noticias de estatua de Trump Bitcoin"
+        }
+      },
+      partners: {
+        title: "Socio Ecológico Mundial",
+        description: "Crear consenso y crear un nuevo futuro para el ecosistema cripto",
+        binance: "Binance",
+        coinbase: "Coinbase",
+        kraken: "Kraken",
+        ftx: "FTX",
+        bitfinex: "Bitfinex",
+        huobi: "Huobi"
+      },
+      announcements: {
+        maintenanceNotice: "Aviso de mantenimiento",
+        contractServerUpgrade: "Actualización del servidor de contratos y anuncio de mantenimiento el 15 de enero de 2023",
+        binexOptionsMaintenance: "Anuncio de mantenimiento del sistema de trading de opciones de Binex",
+        clientVersionUpgrade: "¡Importante! Anuncio de Binex sobre la última actualización de versión del cliente",
+        platformTradingAnnouncement: "Último anuncio de trading de la plataforma Binex",
+        platformUpgradeOptimization: "Anuncio de actualización de optimización de versión de la plataforma Binex",
+        march15Upgrade: "15 de marzo de 2023 Anuncio de optimización de mantenimiento de actualización del servidor de contratos de la plataforma Binex",
+        optionsTradingMaintenance: "Anuncio de mantenimiento y optimización del sistema de trading de opciones de la plataforma Binex",
+        latestVersionUpgrade: "Anuncio importante de la plataforma Binex sobre la actualización y optimización de la última versión del cliente",
+        userSecurityReminder: "Recordatorio sobre la seguridad de la información del usuario de Binex",
+        perpetualContractUpgrade: "Anuncio de la plataforma Binex sobre la optimización y actualización del sistema de contratos perpetuos",
+        maintenanceCompletion: "Anuncio sobre la finalización del mantenimiento y optimización del sistema de la plataforma",
+        bitcoinWithdrawal: "Anuncio sobre retiro de Bitcoin",
+        tradingPairsUpgrade: "Anuncio sobre la actualización de algunos pares de monedas de trading en la plataforma",
+        ethWalletMaintenance: "Anuncio sobre el mantenimiento de la billetera de la red Ethereum (ERC20) de la plataforma",
+        ethHardFork: "Anuncio sobre la finalización de la actualización del hard fork de ETH",
+        identityAuthUpdate: "Anuncio sobre la actualización del servicio avanzado de autenticación de identidad de la plataforma",
+        filIncomeIssuance: "Aviso sobre la emisión de ingresos de poder computacional de FIL",
+        apiOrderLimit: "Anuncio sobre la optimización del límite de frecuencia de órdenes API",
+        customerChatFunction: "Actualización del sistema - Función de chat con el cliente en tiempo real",
+        ethNetworkUpgrade: "Anuncio de actualización de la red ETH",
+        delistingCurrencies: "Anuncio de eliminación de monedas",
+        dotUsdtLaunch: "Anuncio de lanzamiento de trading DOT/USDT",
+        decUsdtLaunch: "Anuncio de lanzamiento de trading DEC/USDT",
+        usdtIntroduction: "Introducción a USDT",
+        ethereumNetworkMaintenance: "Aviso de mantenimiento de la red Ethereum",
+        projectReviewStandards: "Estándares de revisión de proyectos de Binex",
+        liquidityMiningUpgrade: "Actualización de minería de liquidez",
+        liquidityMiningFee: "Ajuste de tarifas de minería de liquidez",
+        delistingTradingPairs: "Eliminación de pares de trading",
+        systemTemporaryMaintenance: "Anuncio de mantenimiento temporal del sistema",
+        temporaryRechargeSuspension: "Aviso de suspensión temporal de recarga",
+        delistingNotification: "Notificación de eliminación",
+        serverUpgrade: "Anuncio de actualización del servidor",
+        serverNetworkUpgrade: "Anuncio de actualización de red del servidor",
+        appDownloadOpen: "Notificación de apertura de descarga de APP"
+      }
+    },
+    
+    withdrawAddressForm: {
+      title: "Dirección de Retiro",
+      currencyType: "TIPO DE MONEDA",
+      withdrawalAddress: "DIRECCIÓN DE RETIRO",
+      currencies: {
+        btc: "BTC (Bitcoin)",
+        eth: "ETH (Ethereum)",
+        usdt: "USDT (Tether)",
+        sol: "SOL (Solana)",
+        xrp: "XRP (Ripple)"
+      },
+      fields: {
+        address: "Dirección",
+        password: "Contraseña de Retiro de Criptomonedas"
+      },
+      placeholders: {
+        address: "Ingrese la dirección de su billetera",
+        password: "Ingrese su contraseña actual"
+      },
+      buttons: {
+        save: "GUARDAR"
+      },
+      notification: {
+        success: "¡Dirección guardada exitosamente!"
+      }
+    },
+    
+    withdrawAddress: {
+      title: "Dirección de Retiro",
+      cardTitle: "TIPO DE MONEDA",
+      currencies: {
+        btc: "BTC (Bitcoin)",
+        eth: "ETH (Ethereum)",
+        usdt: "USDT (Tether)",
+        sol: "SOL (Solana)",
+        xrp: "XRP (Ripple)"
+      }
+    },
+    
+    privacy: {
+      title: "Portal de Privacidad",
+      hero: {
+        title: "Portal de Privacidad BINEX",
+        subtitle: "Protegiendo sus datos y privacidad con pautas estrictas, cumplimiento legal y mejores prácticas de la industria."
+      },
+      principles: {
+        title: "Nuestros Principios de Privacidad",
+        corePrinciples: "Principios Fundamentales",
+        transparency: {
+          title: "Transparencia",
+          description: "Actualizaciones periódicas e información clara sobre cómo manejamos sus datos."
+        },
+        accountability: {
+          title: "Responsabilidad y Cumplimiento",
+          description: "Auditorías periódicas, certificaciones y adherencia a leyes globales de privacidad."
+        },
+        dataSecurity: {
+          title: "Seguridad de Datos",
+          description: "Cifrado avanzado, controles de acceso estrictos y protocolos de verificación de identidad."
+        },
+        dataMinimization: {
+          title: "Minimización de Datos y Limitación de Propósito",
+          description: "Recopilamos solo lo necesario para fines específicos y legítimos."
+        },
+        privacyByDesign: {
+          title: "Privacidad por Diseño",
+          description: "La privacidad está integrada en todos nuestros productos y servicios desde el principio."
+        }
+      },
+      userRights: {
+        title: "Sus Derechos de Privacidad",
+        content: "Tiene herramientas para acceder y gestionar sus datos a través de nuestra aplicación o formulario web, con información detallada disponible en nuestro Aviso de Privacidad.",
+        note: "Ejercite sus derechos para acceder, corregir o eliminar su información personal en cualquier momento."
+      },
+      personalData: {
+        title: "¿Qué son los Datos Personales?",
+        definition: "Los datos personales se refieren a cualquier información que identifique a un individuo.",
+        examples: "Ejemplos incluyen: nombre, ID BINEX, dirección de correo electrónico, datos de ubicación, historial de transacciones e información del dispositivo."
+      },
+      dataUsage: {
+        title: "Cómo Usamos Sus Datos",
+        accountManagement: {
+          title: "Gestión de Cuentas",
+          description: "Para crear y mantener su cuenta, proporcionar servicios y comunicarnos con usted."
+        },
+        legalCompliance: {
+          title: "Cumplimiento Legal",
+          description: "Para cumplir con nuestras obligaciones bajo leyes aplicables, incluyendo regulaciones contra el lavado de dinero (AML)."
+        },
+        securityFraud: {
+          title: "Seguridad y Prevención de Fraude",
+          description: "Para proteger su cuenta, detectar y prevenir fraudes, y garantizar la seguridad de la plataforma."
+        },
+        customerSupport: {
+          title: "Soporte al Cliente",
+          description: "Para responder a sus consultas y proporcionar asistencia técnica cuando sea necesario."
+        },
+        marketing: {
+          title: "Marketing y Comunicaciones",
+          description: "Para enviarle actualizaciones relevantes, información de productos y materiales promocionales (con su consentimiento)."
+        },
+        transactionProcessing: {
+          title: "Procesamiento de Transacciones",
+          description: "Para facilitar transacciones de criptomonedas y mantener registros de transacciones."
+        }
+      },
+      dataRetention: {
+        title: "Retención de Datos",
+        content: "Retenemos sus datos durante el tiempo necesario para proporcionar nuestros servicios, cumplir con obligaciones legales (como requisitos fiscales y AML), resolver disputas y hacer cumplir nuestros acuerdos."
+      },
+      dataSharing: {
+        title: "Compartir Datos",
+        content: "Podemos compartir sus datos con otras entidades de BINEX o terceros confiables bajo estrictas salvaguardas contractuales, solo cuando sea necesario para los fines descritos en nuestro Aviso de Privacidad."
+      },
+      cookies: {
+        title: "Cookies y Seguimiento",
+        content: "Utilizamos cookies y tecnologías similares para mejorar su experiencia de usuario, proporcionar marketing personalizado y analizar cómo se utilizan nuestros servicios.",
+        link: "Ver nuestra política completa de cookies"
+      },
+      actionCards: {
+        privacyNotice: {
+          title: "Aviso de Privacidad",
+          description: "Lea nuestra política de privacidad completa"
+        },
+        manageData: {
+          title: "Gestionar Datos",
+          description: "Acceda y controle su información"
+        },
+        cookieSettings: {
+          title: "Configuración de Cookies",
+          description: "Ajuste sus preferencias de seguimiento"
+        },
+        helpCenter: {
+          title: "Centro de Ayuda",
+          description: "Obtenga respuestas a preguntas sobre privacidad"
+        }
+      },
+      notification: "¡Acción completada exitosamente!"
+    },
+    
+    termsOfUse: {
+      title: "Términos de Uso",
+      hero: {
+        title: "Términos de Uso BINEX"
+      },
+      agreement: {
+        title: "Acuerdo",
+        content: "Este es un acuerdo vinculante entre usted (el usuario) y BINEX. Cubre todos los Servicios BINEX a los que accede o utiliza."
+      },
+      riskWarning: {
+        title: "Advertencia de Riesgo",
+        content: "Los activos digitales son volátiles y pueden fluctuar significativamente en valor. BINEX no es un corredor, asesor financiero o asesor de inversiones. Debe realizar su propia debida diligencia antes de tomar cualquier decisión financiera."
+      },
+      aboutServices: {
+        title: "Acerca de Nuestros Servicios",
+        aboutBINEX: {
+          title: "Acerca de BINEX",
+          content: "BINEX proporciona intercambio de activos digitales, servicios de custodia y servicios financieros relacionados a través de nuestra plataforma."
+        },
+        eligibility: {
+          title: "Elegibilidad",
+          content: "Debe tener al menos 18 años, ser legalmente capaz de celebrar contratos, no estar restringido de usar nuestros servicios y no estar ubicado en jurisdicciones prohibidas."
+        },
+        communication: {
+          title: "Comunicación",
+          content: "Debe mantener su información de contacto actualizada. BINEX lo contactará por correo electrónico, SMS o teléfono con respecto a su cuenta y nuestros servicios."
+        }
+      },
+      services: {
+        title: "Nuestros Servicios",
+        servicesProvided: {
+          title: "Servicios Proporcionados",
+          content: "BINEX ofrece trading de activos digitales, soluciones de custodia segura y soporte al cliente a través de bots automatizados y representantes humanos. También está disponible la funcionalidad de chat de usuario."
+        },
+        fees: {
+          title: "Tarifas",
+          content: "Todas las tarifas aplicables se enumeran en nuestra página de Estructura de Tarifas y están sujetas a actualizaciones. Es responsable de revisar el programa de tarifas actual antes de realizar transacciones."
+        }
+      },
+      accountManagement: {
+        title: "Gestión de Cuentas",
+        accountCreation: {
+          title: "Creación de Cuenta",
+          content: "Debe abrir una cuenta (individual o corporativa) para acceder a nuestros servicios. Esto requiere completar procedimientos de verificación de identidad (KYC/AML) según lo exija la ley."
+        },
+        identityVerification: {
+          title: "Verificación de Identidad",
+          content: "Debe completar nuestros procesos de verificación Conozca a Su Cliente (KYC) y Contra el Lavado de Dinero (AML) antes de usar ciertos servicios."
+        },
+        accountRecords: {
+          title: "Registros de Cuenta",
+          content: "Puede mantener registros y crear subcuentas bajo condiciones específicas descritas en nuestras políticas de gestión de cuentas."
+        }
+      },
+      transactions: {
+        title: "Transacciones",
+        sufficientBalance: {
+          title: "Saldo Suficiente",
+          content: "Debe mantener saldo suficiente en su cuenta para cualquier transacción que inicie. Las transacciones pueden fallar o incurrir en tarifas adicionales si no hay fondos suficientes disponibles."
+        },
+        transactionCancellation: {
+          title: "Cancelación de Transacción",
+          content: "BINEX se reserva el derecho de cancelar o modificar transacciones en casos de sospecha de fraude, errores o violaciones de estos Términos."
+        },
+        unauthorizedTransactions: {
+          title: "Transacciones No Autorizadas",
+          content: "Es responsable de cualquier transacción no autorizada a menos que pueda probar lo contrario a través de nuestro proceso de resolución de disputas."
+        }
+      },
+      digitalAssets: {
+        title: "Activos Digitales",
+        supportedAssets: {
+          title: "Activos Soportados",
+          content: "Solo puede transaccionar con activos digitales explícitamente soportados por BINEX. Intentar depositar activos no soportados puede resultar en pérdida permanente."
+        },
+        forksAirdrops: {
+          title: "Forks y Airdrops",
+          content: "BINEX no garantiza soporte para forks de blockchain, airdrops u otros eventos similares. Las decisiones de soporte se toman a nuestra sola discreción."
+        }
+      },
+      accountSecurity: {
+        title: "Seguridad de la Cuenta",
+        securityRequirements: {
+          title: "Requisitos de Seguridad",
+          content: "Debe usar una contraseña fuerte, habilitar la autenticación multifactor (MFA), nunca compartir credenciales, monitorear la actividad de la cuenta regularmente e informar inmediatamente cualquier violación de seguridad."
+        }
+      },
+      privacy: {
+        title: "Privacidad",
+        content: "Su privacidad se rige por el Aviso de Privacidad de BINEX, que explica cómo recopilamos, usamos y protegemos su información personal."
+      },
+      termination: {
+        title: "Terminación de Cuenta",
+        terminationSuspension: {
+          title: "Terminación/Suspensión",
+          content: "BINEX puede restringir, suspender o terminar cuentas por fraude, violaciones de la ley, actividad sospechosa o violaciones de estos Términos. Los usuarios pueden cerrar cuentas a menos que estén congeladas o inactivas."
+        }
+      },
+      prohibitedUse: {
+        title: "Uso Prohibido",
+        content: "No puede usar los servicios BINEX para fraude, manipulación del mercado, actividades ilegales, acceso no autorizado o cualquier propósito que viole las leyes aplicables o estos Términos."
+      },
+      liability: {
+        title: "Responsabilidad y Propiedad Intelectual",
+        liability: {
+          title: "Responsabilidad",
+          content: "BINEX no es responsable de pérdidas excepto en casos de negligencia grave probada o fraude. No somos responsables por fluctuaciones del mercado, problemas técnicos o acciones de terceros."
+        },
+        intellectualProperty: {
+          title: "Propiedad Intelectual",
+          content: "BINEX conserva todos los derechos de propiedad intelectual sobre nuestra plataforma, tecnología y marca. Los usuarios reciben una licencia limitada para usar nuestros servicios según lo descrito en estos Términos."
+        },
+        indemnity: {
+          title: "Indemnización",
+          content: "Usted acepta indemnizar y mantener indemne a BINEX contra cualquier reclamo, pérdida o daño resultante del uso indebido de nuestros servicios o violación de estos Términos."
+        }
+      },
+      importantNotice: {
+        title: "Aviso Importante",
+        content: "Al usar los servicios de BINEX, reconoce que ha leído, entendido y acepta estar sujeto a estos Términos de Uso. Si no está de acuerdo, debe discontinuar el uso de nuestros servicios inmediatamente."
+      },
+      actionCards: {
+        security: {
+          title: "Seguridad",
+          description: "Mantenga su cuenta segura."
+        },
+        helpCenter: {
+          title: "Centro de Ayuda",
+          description: "Obtenga respuestas a sus preguntas"
+        },
+        privacyPolicy: {
+          title: "Política de Privacidad",
+          description: "Revise nuestras prácticas de privacidad"
+        },
+        legal: {
+          title: "Legal",
+          description: "Ver todos los documentos legales"
+        }
+      },
+      footer: {
+        copyright: "© 2025 BINEX. Todos los derechos reservados.",
+        lastUpdated: "Última actualización: 6 de mayo de 2025"
+      }
+    },
+    
     assetsDetail: {
-      title: "Detalhes do Ativo",
-      today: "Hoje",
-      yesterday: "Ontem",
-      filter: "Filtrar",
+      title: "Detalles de Activos",
+      today: "Hoy",
+      yesterday: "Ayer",
+      filter: "Filtro",
       transactionHistory: {
-        title: "Histórico de Transações"
+        title: "Historial de Transacciones"
       },
       noTransactions: {
-        title: "Nenhuma transação ainda",
-        description: "Seu histórico de transações aparecerá aqui assim que você começar a negociar."
+        title: "Aún No Hay Transacciones",
+        description: "Su historial de transacciones aparecerá aquí una vez que comience a operar."
       },
       status: {
-        completed: "Concluído",
-        pending: "Pendente",
+        completed: "Completado",
+        pending: "Pendiente",
         canceled: "Cancelado"
       },
       filterModal: {
-        title: "Filtrar Transações",
-        status: "Status",
+        title: "Filtrar Transacciones",
+        status: "Estado",
         type: "Tipo",
-        direction: "Direção",
-        startDate: "Data de Início",
-        endDate: "Data de Término",
-        allStatuses: "Todos os Status",
-        allTypes: "Todos os Tipos",
-        bothDirections: "Ambas as Direções",
-        incoming: "Entrada",
-        outgoing: "Saída",
-        completed: "Concluído",
-        pending: "Pendente",
+        direction: "Dirección",
+        startDate: "Fecha de Inicio",
+        endDate: "Fecha de Fin",
+        allStatuses: "Todos los Estados",
+        allTypes: "Todos los Tipos",
+        bothDirections: "Ambas Direcciones",
+        incoming: "Entrante",
+        outgoing: "Saliente",
+        completed: "Completado",
+        pending: "Pendiente",
         canceled: "Cancelado",
-        resetFilters: "Redefinir Filtros",
+        resetFilters: "Restablecer Filtros",
         applyFilters: "Aplicar Filtros"
       },
       actions: {
         deposit: "Depositar",
-        withdraw: "Sacar"
+        withdraw: "Retirar"
       },
       transactionTypes: {
-        transaction: "Transação",
+        transaction: "Transacción",
         deposit: "Depósito",
-        withdrawal: "Saque",
-        convertedFrom: "Convertido de {{asset}}",
-        convertedTo: "Convertido para {{asset}}",
-        conversionIn: "Conversão Entrada",
-        conversionOut: "Conversão Saída",
-        stakedAmount: "Valor em Staking",
+        withdrawal: "Retiro",
+        convertedFrom: "Convertido desde {{asset}}",
+        convertedTo: "Convertido a {{asset}}",
+        conversionIn: "Conversión Entrante",
+        conversionOut: "Conversión Saliente",
+        stakedAmount: "Monto en Staking",
         stakingRewards: "Recompensas de Staking",
-        futuresReserved: "Futuros Reservado",
-        futuresProfit: "Futuros Lucro",
-        futuresLoss: "Futuros Perda",
-        futuresSettlement: "Futuros Liquidação",
-        futuresFee: "Futuros Taxa",
-        futuresRefund: "Futuros Reembolso",
-        futuresBonus: "Futuros Bônus",
-        futuresCommission: "Futuros Comissão",
-        manualProfit: "Lucro Manual",
-        manualLoss: "Perda Manual",
+        futuresReserved: "Futuros Reservados",
+        futuresProfit: "Ganancia de Futuros",
+        futuresLoss: "Pérdida de Futuros",
+        futuresSettlement: "Liquidación de Futuros",
+        futuresFee: "Tarifa de Futuros",
+        futuresRefund: "Reembolso de Futuros",
+        futuresBonus: "Bono de Futuros",
+        futuresCommission: "Comisión de Futuros",
+        manualProfit: "Ganancia Manual",
+        manualLoss: "Pérdida Manual",
         manualAdjustment: "Ajuste Manual",
-        spotTradingProfit: "Spot Trading Lucro",
-        spotTradingLoss: "Spot Trading Perda",
-        referralReward: "Recompensa de Indicação",
-        bonus: "Bônus",
-        referralCommission: "Comissão de Indicação",
-        orderReserved: "Ordem Reservada",
-        orderCancelled: "Ordem Cancelada",
-        orderPartialFill: "Ordem Preenchida Parcialmente",
-        orderCompleted: "Ordem Concluída",
-        feePayment: "Pagamento de Taxa",
+        spotTradingProfit: "Ganancia de Trading Spot",
+        spotTradingLoss: "Pérdida de Trading Spot",
+        referralReward: "Recompensa de Referido",
+        bonus: "Bono",
+        referralCommission: "Comisión de Referido",
+        orderReserved: "Orden Reservada",
+        orderCancelled: "Orden Cancelada",
+        orderPartialFill: "Orden Parcialmente Ejecutada",
+        orderCompleted: "Orden Completada",
+        feePayment: "Pago de Tarifa",
         balanceAdjustment: "Ajuste de Saldo",
-        transfer: "Transferência"
+        transfer: "Transferencia"
       }
     },
+    
     invitation: {
-      title: "Convidar Amigos",
-      earnTogether: "Ganhem Juntos",
-      description: "Convide amigos para se juntarem ao BINEX e ganhe recompensas quando eles se registrarem e começarem a negociar.",
-      yourReferralCode: "SEU CÓDIGO DE INDICAÇÃO",
-      loading: "Carregando...",
-      copied: "COPIADO!",
+      title: "Invitar Amigos",
+      earnTogether: "Ganar Juntos",
+      description: "Invita a amigos a unirse a BINEX y gana recompensas cuando se registren y comiencen a operar.",
+      yourReferralCode: "SU CÓDIGO DE REFERIDO",
+      loading: "Cargando...",
+      copied: "¡COPIADO!",
       copyCode: "COPIAR CÓDIGO",
-      totalEarned: "Total Ganho",
-      allTimeCommission: "Comissão de Todos os Tempos",
-      generationMembers: "Membros da Geração",
-      noGenerationData: "Nenhum dado de geração disponível",
-      approvedMembers: "Membros Aprovados",
-      pendingMembers: "Membros Pendentes",
-      commissionStructure: "Estrutura de Comissão",
-      firstGeneration: "1ª Geração",
-      secondGeneration: "2ª Geração",
-      thirdGeneration: "3ª Geração",
-      firstDepositCommission: "Comissão do Primeiro Depósito",
-      stakingProfitsCommission: "Comissão de Lucros de Staking",
-      howItWorks: "Como Funciona",
+      totalEarned: "Total Ganado",
+      allTimeCommission: "Comisión de Todos los Tiempos",
+      generationMembers: "Miembros por Generación",
+      noGenerationData: "No hay datos de generación disponibles",
+      approvedMembers: "Miembros Aprobados",
+      pendingMembers: "Miembros Pendientes",
+      commissionStructure: "Estructura de Comisiones",
+      firstGeneration: "1ra Generación",
+      secondGeneration: "2da Generación",
+      thirdGeneration: "3ra Generación",
+      firstDepositCommission: "Comisión por Primer Depósito",
+      stakingProfitsCommission: "Comisión por Ganancias de Staking",
+      howItWorks: "Cómo Funciona",
       steps: {
         shareCode: {
-          title: "Compartilhe Seu Código de Indicação",
-          description: "Envie seu código único para amigos ou compartilhe nas redes sociais."
+          title: "Comparta Su Código de Referido",
+          description: "Envíe su código único a amigos o compártalo en redes sociales."
         },
         friendsSignUp: {
-          title: "Amigos se Registram",
-          description: "Seus amigos se registram usando seu código de indicação e verificam suas contas."
+          title: "Amigos Se Registran",
+          description: "Sus amigos se registran usando su código de referido y verifican sus cuentas."
         },
         earnCommissions: {
-          title: "Ganhe Comissões",
-          description: "Ganhe comissões dos primeiros depósitos e lucros de staking de sua rede."
+          title: "Gane Comisiones",
+          description: "Gane comisiones de los primeros depósitos y ganancias de staking de su red."
         }
       },
-      referralCopied: "Código de indicação copiado para a área de transferência!",
-      loadingMembers: "Carregando membros...",
-      approved: "Aprovado",
-      joined: "Entrou",
-      noMembersFound: "Nenhum membro encontrado"
+      referralCopied: "¡Código de referido copiado al portapapeles!",
+      loadingMembers: "Cargando miembros...",
+      approved: "Aprobado",
+      joined: "Se Unió",
+      noMembersFound: "No se encontraron miembros"
     },
+    
     securityTips: {
-      title: "Central de Segurança",
-      essentialTips: "Dicas Essenciais de Segurança",
+      title: "Centro de Seguridad",
+      essentialTips: "Consejos Esenciales de Seguridad",
       categories: {
-        passwordSecurity: "Segurança de Senha",
-        deviceSecurity: "Segurança do Dispositivo",
-        accountSecurity: "Segurança da Conta"
+        passwordSecurity: "Seguridad de Contraseñas",
+        deviceSecurity: "Seguridad del Dispositivo",
+        accountSecurity: "Seguridad de la Cuenta"
       },
       tips: {
         strongPasswords: {
-          title: "Use Senhas Fortes e Únicas",
-          description: "Crie senhas complexas com maiúsculas, minúsculas, números e símbolos."
+          title: "Use Contraseñas Fuertes y Únicas",
+          description: "Cree contraseñas complejas con mayúsculas, minúsculas, números y símbolos."
         },
         enable2FA: {
-          title: "Ative Autenticação de Dois Fatores",
-          description: "Adicione uma camada extra de segurança à sua conta com 2FA."
+          title: "Habilite la Autenticación de Dos Factores",
+          description: "Agregue una capa extra de seguridad a su cuenta con 2FA."
         },
         changePasswords: {
-          title: "Altere Senhas Regularmente",
-          description: "Atualize suas senhas a cada 3-6 meses."
+          title: "Cambie Contraseñas Regularmente",
+          description: "Actualice sus contraseñas cada 3-6 meses."
         },
         softwareUpdated: {
-          title: "Mantenha Software Atualizado",
-          description: "Atualize regularmente seu SO, navegador e software de carteira."
+          title: "Mantenga el Software Actualizado",
+          description: "Actualice regularmente su sistema operativo, navegador y software de billetera."
         },
         antivirus: {
-          title: "Use Proteção Antivírus",
-          description: "Instale software antivírus e anti-malware reputável."
+          title: "Use Protección Antivirus",
+          description: "Instale software antivirus y antimalware confiable."
         },
         publicWifi: {
-          title: "Evite Wi-Fi Público",
-          description: "Nunca acesse sua carteira em redes públicas sem VPN."
+          title: "Evite WiFi Público",
+          description: "Nunca acceda a su billetera en redes públicas sin VPN."
         },
         loginNotifications: {
-          title: "Ative Notificações de Login",
-          description: "Receba alertas para novos logins em sua conta."
+          title: "Habilite Notificaciones de Inicio de Sesión",
+          description: "Reciba alertas para nuevos inicios de sesión en su cuenta."
         },
         reviewActivity: {
-          title: "Revise Atividade da Conta",
-          description: "Verifique regularmente sua conta para atividade suspeita."
+          title: "Revise la Actividad de la Cuenta",
+          description: "Verifique regularmente su cuenta por actividad sospechosa."
         },
         whitelisting: {
-          title: "Use Lista Branca",
-          description: "Adicione endereços de saque confiáveis à lista branca para segurança adicional."
+          title: "Use Lista Blanca",
+          description: "Agregue direcciones de retiro confiables a la lista blanca para seguridad adicional."
         }
       },
       actions: {
-        enable2FA: "Ativar 2FA",
-        enable2FADesc: "Adicione uma camada extra de segurança",
-        activityLog: "Registro de Atividade",
-        activityLogDesc: "Revise a atividade recente da conta",
-        settings: "Configurações",
-        settingsDesc: "Configure preferências de segurança",
-        backupCodes: "Códigos de Backup",
-        backupCodesDesc: "Salve seus códigos de recuperação"
+        enable2FA: "Habilitar 2FA",
+        enable2FADesc: "Agregue una capa extra de seguridad",
+        activityLog: "Registro de Actividad",
+        activityLogDesc: "Revise la actividad reciente de la cuenta",
+        settings: "Configuraciones",
+        settingsDesc: "Configure preferencias de seguridad",
+        backupCodes: "Códigos de Respaldo",
+        backupCodesDesc: "Guarde sus códigos de recuperación"
       },
       emergency: {
-        title: "Procedimentos de Emergência",
-        unauthorizedAccess: "Se você suspeitar de acesso não autorizado à sua conta, altere imediatamente sua senha e ative 2FA se ainda não estiver ativo.",
-        lostDevice: "Se seu dispositivo for perdido ou roubado, revogue imediatamente o acesso da sessão nas configurações da sua conta.",
-        phishing: "Se você foi vítima de uma tentativa de phishing, congele sua conta e contate o suporte imediatamente.",
-        supportTitle: "Suporte de Segurança 24/7",
+        title: "Procedimientos de Emergencia",
+        unauthorizedAccess: "Si sospecha acceso no autorizado a su cuenta, cambie inmediatamente su contraseña y habilite 2FA si aún no está activa.",
+        lostDevice: "Si pierde o le roban su dispositivo, revoque inmediatamente el acceso de sesión desde la configuración de su cuenta.",
+        phishing: "Si ha sido víctima de un intento de phishing, congele su cuenta y contacte al soporte inmediatamente.",
+        supportTitle: "Soporte de Seguridad 24/7",
         supportEmail: "support@BINEX-exchange.com"
       },
       resources: {
-        title: "Recursos de Segurança",
-        securityGuide: "Guia de Segurança",
-        securityGuideLink: "Leia a documentação de segurança completa",
-        learningCenter: "Centro de Aprendizado",
-        learningCenterLink: "Aprenda sobre melhores práticas de segurança cripto",
-        faq: "Perguntas Frequentes",
-        faqLink: "Encontre respostas para perguntas comuns de segurança"
+        title: "Recursos de Seguridad",
+        securityGuide: "Guía de Seguridad",
+        securityGuideLink: "Lea documentación de seguridad integral",
+        learningCenter: "Centro de Aprendizaje",
+        learningCenterLink: "Aprenda sobre mejores prácticas de seguridad cripto",
+        faq: "Preguntas Frecuentes",
+        faqLink: "Encuentre respuestas a preguntas comunes de seguridad"
       }
     },
-    profile: {
-      title: "Perfil",
-      settings: "Configurações",
-      status: {
-        verified: "VERIFICADO",
-        unverified: "NÃO VERIFICADO"
-      },
-      accountInfo: {
-        title: "INFORMAÇÕES DA CONTA",
-        email: "E-mail",
-        creditScore: "Pontuação de Crédito",
-        invitationCode: "Código de Convite"
-      },
-      verification: {
-        pending: {
-          title: "Verificação Pendente",
-          description: "Sua verificação de conta está em andamento. Isso geralmente leva 1-3 dias úteis."
-        },
-        alert: {
-          title: "Conta Não Verificada",
-          description: "Verifique sua conta para desbloquear todos os recursos e limites mais altos",
-          verifyNow: "Verificar Agora"
-        }
-      },
-      pendingVerifications: {
-        title: "VERIFICAÇÕES PENDENTES",
-        identity: {
-          title: "Verificação de Identidade",
-          description: "Envie seu documento de identidade governamental"
-        },
-        address: {
-          title: "Verificação de Endereço",
-          description: "Verifique sua residência"
-        },
-        status: {
-          pending: "Pendente"
-        }
-      },
-      approvedVerifications: {
-        title: "VERIFICAÇÕES APROVADAS",
-        identity: {
-          title: "Verificação de Identidade"
-        },
-        address: {
-          title: "Verificação de Endereço"
-        },
-        status: {
-          completed: "Concluído"
-        }
-      },
-      limitations: {
-        title: "Limitações da Conta",
-        withdrawalLimit: "Limite de saque: $1.000 por dia",
-        stakingLimited: "Opções de staking limitadas",
-        advancedTrading: "Recursos avançados de trading desativados",
-        fiatDeposits: "Depósitos em moeda fiduciária não disponíveis"
-      },
-      menu: {
-        withdrawalAddress: "Endereço de Saque",
-        password: "Senha",
-        notifications: "Notificações",
-        myInvitation: "Meu Convite",
-        language: "Idioma",
-        termsOfUse: "Termos de Uso",
-        privacyPortal: "Portal de Privacidade",
-        aboutUs: "Sobre Nós",
-        msbApproval: "Aprovação MSB",
-        customerSupport: "Suporte ao Cliente",
-        downloadApp: "Baixar App",
-        logout: "Sair"
-      }
-    },
+    
     notification: {
-      title: "Notificação",
-      loading: "Carregando",
+      title: "Notificación",
+      loading: "Cargando",
       filters: {
-        all: "Todos",
-        unread: "Não lidas",
-        read: "Lidas"
+        all: "Todas",
+        unread: "No leídas",
+        read: "Leídas"
       },
       emptyState: {
-        title: "Nenhuma notificação ainda",
-        noNotifications: "Você não tem nenhuma notificação ainda",
-        noFilteredNotifications: "Nenhuma notificação {0} encontrada"
+        title: "Aún no hay notificaciones",
+        noNotifications: "Aún no tienes notificaciones",
+        noFilteredNotifications: "No se encontraron notificaciones {0}"
       },
       types: {
         deposit: {
-          title: "Depósito Recebido",
-          message: "Seu depósito de {0} foi confirmado e creditado em sua carteira."
+          title: "Depósito Recibido",
+          message: "Su depósito de {0} ha sido confirmado y acreditado en su billetera."
         },
         withdraw: {
-          title: "Saque Bem-Sucedido",
-          message: "Seu saque de {0} foi processado com sucesso."
+          title: "Retiro Exitoso",
+          message: "Su retiro de {0} ha sido procesado exitosamente."
         },
         staking: {
-          title: "Lucro de Staking",
-          message: "Você ganhou {0} de suas recompensas de staking."
+          title: "Ganancia de Staking",
+          message: "Ganó {0} de sus recompensas de staking."
         },
         kyc: {
-          title: "Atualização KYC",
-          defaultMessage: "Sua conta foi ativada."
+          title: "Actualización KYC",
+          defaultMessage: "Su cuenta ha sido activada."
         },
         commission: {
-          title: "Comissão Recebida",
-          message: "Você recebeu uma comissão de {0}."
+          title: "Comisión Recibida",
+          message: "Recibió una comisión de {0}."
         },
         futures: {
-          title: "Atualização de Futuros",
-          message: "Sua transação de futuros no valor de {0} foi executada."
+          title: "Actualización de Futuros",
+          message: "Su monto de transacción de futuros {0} ha sido ejecutado."
         },
         accountActivated: {
-          title: "Verificação KYC",
-          message: "Olá {0} seus documentos KYC foram verificados, agora você pode desfrutar de recursos ilimitados no BINEX"
+          title: "Verificación KYC",
+          message: "Hola {0}, sus documentos KYC han sido verificados, ahora puede disfrutar funciones ilimitadas en BINEX"
         },
         custom: {
-          title: "Notificação",
-          defaultMessage: "Você tem uma nova notificação."
+          title: "Notificación",
+          defaultMessage: "Tiene una nueva notificación."
         },
         cancelDeposit: {
           title: "Depósito Cancelado",
-          message: "Seu depósito de {0} foi cancelado."
+          message: "Su depósito de {0} ha sido cancelado."
         },
         cancelWithdraw: {
-          title: "Saque Cancelado",
-          message: "Seu saque de {0} foi cancelado."
+          title: "Retiro Cancelado",
+          message: "Su retiro de {0} ha sido cancelado."
         },
         cancelActivated: {
-          title: "Ativação Cancelada",
-          message: "Seu KYC foi recusado pelo sistema, por favor tente novamente ou contate o Suporte ao Cliente para ajuda"
+          title: "Activación Cancelada",
+          message: "Su KYC fue rechazado por el sistema, por favor intente nuevamente o contacte al Servicio de Atención al Cliente para obtener ayuda"
         }
       }
     },
+    
     staking: {
       title: "Staking",
-      totalStakedBalance: "Saldo Total em Staking",
-      earned: "ganho",
+      totalStakedBalance: "Saldo Total en Staking",
+      earned: "ganado",
       tabs: {
-        options: "Opções",
-        active: "Stakes Ativos",
-        completed: "Concluídos"
+        options: "Opciones",
+        active: "Stakes Activos",
+        completed: "Completados"
       },
-      daily: "Diário",
+      daily: "Diario",
       minimumStake: "Stake Mínimo",
-      unstakingPeriod: "Período de Retirada",
-      days: "dias",
-      stakeButton: "Fazer Stake {0}",
+      unstakingPeriod: "Período de Des-Staking",
+      days: "días",
+      stakeButton: "Hacer stake de {0}",
       status: {
-        active: "ATIVO",
-        completed: "CONCLUÍDO"
+        active: "ACTIVO",
+        completed: "COMPLETADO"
       },
       remaining: "Restante",
-      dailyRate: "Taxa Diária",
-      duration: "Duração",
-      createdAt: "Criado Em",
-      dateFinish: "Data de Término",
-      totalCompletedRewards: "TOTAL DE RECOMPENSAS CONCLUÍDAS",
-      stake: "STAKING",
+      dailyRate: "Tasa Diaria",
+      duration: "Duración",
+      createdAt: "Creado el",
+      dateFinish: "Fecha de finalización",
+      totalCompletedRewards: "RECOMPENSAS TOTALES COMPLETADAS",
+      stake: "HACER STAKE",
       stakes: "STAKES",
-      allRewardsFromCompleted: "Todas as recompensas de stakes concluídos",
-      totalRewardsEarned: "TOTAL DE RECOMPENSAS GANHAS",
+      allRewardsFromCompleted: "Todas las recompensas de stakes completados",
+      totalRewardsEarned: "RECOMPENSAS TOTALES GANADAS",
       balance: "Saldo",
       maximumStake: "Stake Máximo",
-      estimatedTotalRewards: "Recompensas Totais Estimadas",
-      exploreStakingOptions: "Explore Opções de Staking",
-      startStaking: "Começar Staking",
+      estimatedTotalRewards: "Recompensas Totales Estimadas",
+      exploreStakingOptions: "Explorar Opciones de Staking",
+      startStaking: "Comenzar Staking",
       emptyStates: {
         options: {
-          title: "Nenhum Plano de Staking Disponível",
-          message: "Atualmente não há planos de staking disponíveis. Por favor, verifique mais tarde para novas oportunidades de staking."
+          title: "No Hay Planes de Staking Disponibles",
+          message: "Actualmente no hay planes de staking disponibles. Por favor, vuelva más tarde para nuevas oportunidades de staking."
         },
         active: {
-          title: "Nenhum Stake Ativo",
-          message: "Você ainda não tem stakes ativos. Comece a fazer staking para ganhar recompensas em seus ativos cripto."
+          title: "No Hay Stakes Activos",
+          message: "Aún no tienes stakes activos. Comienza a hacer staking para ganar recompensas en tus activos cripto."
         },
         completed: {
-          title: "Nenhum Stake Concluído",
-          message: "Você ainda não concluiu nenhum stake. Seus stakes concluídos aparecerão aqui quando terminarem."
+          title: "No Hay Stakes Completados",
+          message: "Aún no has completado ningún stake. Tus stakes completados aparecerán aquí una vez que terminen."
         }
       },
       stakeModal: {
-        title: "Staking",
-        amountToStake: "Valor para Stake",
-        enterAmount: "Digite o Valor"
+        title: "Hacer Stake",
+        amountToStake: "Monto a Hacer Stake",
+        enterAmount: "Ingrese el Monto"
       }
     },
+    
     conversion: {
-      title: "Converter Criptomoeda",
-      loading: "Carregando preços mais recentes...",
-      youSend: "Você envia",
-      youReceive: "Você recebe",
+      title: "Convertir Criptomonedas",
+      loading: "Cargando últimos precios...",
+      youSend: "Envías",
+      youReceive: "Recibes",
       balance: "Saldo",
       max: "MÁX",
+      enterAmount: "Ingresar monto",
       insufficientBalance: "Saldo insuficiente",
-      estimatedConversion: "Conversão estimada",
-      selectDifferentCurrencies: "Selecione moedas diferentes",
-      convertNow: "Converter Agora",
-      pricesUpdate: "Preços atualizam em tempo real",
-      selectCurrency: "Selecionar Moeda",
-      searchCurrencies: "Pesquisar moedas...",
-      confirmConversion: "Confirmar Conversão",
-      conversionDetails: "Detalhes da Conversão",
-      exchangeRate: "Taxa de Câmbio",
-      networkFee: "Taxa de Rede",
-      estimatedArrival: "Chegada Estimada",
+      estimatedConversion: "Conversión estimada",
+      selectDifferentCurrencies: "Seleccionar diferentes monedas",
+      convertNow: "Convertir Ahora",
+      pricesUpdate: "Los precios se actualizan en tiempo real",
+      selectCurrency: "Seleccionar Moneda",
+      searchCurrencies: "Buscar monedas...",
+      confirmConversion: "Confirmar Conversión",
+      confirmExchange: "Confirmar Intercambio",
+      conversionDetails: "Detalles de Conversión",
+      exchangeRate: "Tipo de Cambio",
+      networkFee: "Tarifa de Red",
+      estimatedArrival: "Llegada Estimada",
       arrivalTime: "~30 segundos",
-      processingConversion: "Processando Conversão...",
+      processingConversion: "Procesando Conversión...",
       cancel: "Cancelar"
     },
+    
     history: {
-      title: "Histórico de Transações",
+      title: "Historial de Transacciones",
       emptyState: {
-        title: "Nenhuma transação encontrada",
-        description: "Tente alterar seus filtros para ver mais transações"
+        title: "No se encontraron transacciones",
+        description: "Intente cambiar sus filtros para ver más transacciones"
       },
       filters: {
-        all: "Todos",
+        all: "Todas",
         deposits: "Depósitos",
-        withdrawals: "Saques",
-        profits: "Lucros",
-        losses: "Perdas",
-        conversions: "Conversões",
-        stacking: "Staking"
+        withdrawals: "Retiros",
+        profits: "Ganancias",
+        losses: "Pérdidas",
+        conversions: "Conversiones",
+        stacking: "Stacking"
       },
       statusFilters: {
-        allStatus: "Todos os Status",
-        completed: "Concluído",
-        pending: "Pendente",
+        allStatus: "Todos los Estados",
+        completed: "Completado",
+        pending: "Pendiente",
         canceled: "Cancelado"
       },
       timeFilters: {
-        allTime: "Todos os Tempos",
-        today: "Hoje",
+        allTime: "Todo el Tiempo",
+        today: "Hoy",
         week: "Semana",
-        month: "Mês",
-        year: "Ano"
+        month: "Mes",
+        year: "Año"
       },
       status: {
-        completed: "Concluído",
-        pending: "Pendente",
+        completed: "Completado",
+        pending: "Pendiente",
         canceled: "Cancelado"
       },
       dateFormats: {
-        today: "Hoje, {0}",
-        yesterday: "Ontem, {0}"
+        today: "Hoy, {0}",
+        yesterday: "Ayer, {0}"
       },
       transactionTypes: {
-        transaction: "Transação",
+        transaction: "Transacción",
         deposit: "Depósito",
-        withdrawal: "Saque",
-        convertedFrom: "Convertido de {0}",
-        convertedTo: "Convertido para {0}",
-        conversionIn: "Conversão Entrada",
-        conversionOut: "Conversão Saída",
-        stakedAmount: "Valor em Staking",
+        withdrawal: "Retiro",
+        convertedFrom: "Convertido desde {0}",
+        convertedTo: "Convertido a {0}",
+        conversionIn: "Conversión Entrante",
+        conversionOut: "Conversión Saliente",
+        stakedAmount: "Monto en Staking",
         stakingRewards: "Recompensas de Staking",
-        futuresReserved: "Futuros Reservado",
-        futuresProfit: "Futuros Lucro",
-        futuresLoss: "Futuros Perda",
-        futuresSettlement: "Futuros Liquidação",
-        futuresFee: "Futuros Taxa",
-        futuresRefund: "Futuros Reembolso",
-        futuresBonus: "Futuros Bônus",
-        futuresCommission: "Futuros Comissão",
-        manualProfit: "Lucro Manual",
-        manualLoss: "Perda Manual",
+        futuresReserved: "Futuros Reservados",
+        futuresProfit: "Ganancia de Futuros",
+        futuresLoss: "Pérdida de Futuros",
+        futuresSettlement: "Liquidación de Futuros",
+        futuresFee: "Tarifa de Futuros",
+        futuresRefund: "Reembolso de Futuros",
+        futuresBonus: "Bono de Futuros",
+        futuresCommission: "Comisión de Futuros",
+        manualProfit: "Ganancia Manual",
+        manualLoss: "Pérdida Manual",
         manualAdjustment: "Ajuste Manual",
-        spotTradingProfit: "Spot Trading Lucro",
-        spotTradingLoss: "Spot Trading Perda",
-        referralReward: "Recompensa de Indicação",
-        bonus: "Bônus",
-        referralCommission: "Comissão de Indicação",
-        orderReserved: "Ordem Reservada",
-        orderCancelled: "Ordem Cancelada",
-        orderPartialFill: "Ordem Preenchida Parcialmente",
-        orderCompleted: "Ordem Concluída",
-        feePayment: "Pagamento de Taxa",
+        spotTradingProfit: "Ganancia de Trading Spot",
+        spotTradingLoss: "Pérdida de Trading Spot",
+        referralReward: "Recompensa de Referido",
+        bonus: "Bono",
+        referralCommission: "Comisión de Referido",
+        orderReserved: "Orden Reservada",
+        orderCancelled: "Orden Cancelada",
+        orderPartialFill: "Orden Parcialmente Ejecutada",
+        orderCompleted: "Orden Completada",
+        feePayment: "Pago de Tarifa",
         balanceAdjustment: "Ajuste de Saldo",
-        transfer: "Transferência"
+        transfer: "Transferencia"
       }
     },
+    
     withdraw: {
-      title: "Sacar Criptomoeda",
-      selectCurrency: "Selecionar Moeda",
-      selectPlaceholder: "Selecione uma moeda",
-      selectHint: "Por favor, selecione uma moeda para continuar",
-      withdrawalAddress: "Endereço de Saque",
-      withdrawalAmount: "Valor do Saque",
-      withdrawalPassword: "Senha de Saque",
-      passwordPlaceholder: "Digite a senha de saque",
-      available: "Disponível",
-      amountWithdrawal: "Valor do saque",
-      minimumWithdrawal: "Saque mínimo",
-      networkFee: "Taxa de rede",
-      youWillReceive: "Você receberá",
-      confirmWithdrawal: "Confirmar Saque",
-      processing: "Processando...",
-      securityVerification: "Verificação de Segurança",
-      securityMessage: "Para sua segurança, saques requerem confirmação de senha e podem estar sujeitos a revisão. Saques para endereços incorretos não podem ser revertidos.",
-      networkInfo: "Rede: {0} ({1})",
-      noWalletAddress: "(Nenhum endereço de carteira)",
+      title: "Retirar Criptomonedas",
+      selectCurrency: "Seleccionar Moneda",
+      selectPlaceholder: "Seleccionar una moneda",
+      selectHint: "Por favor seleccione una moneda para continuar",
+      withdrawalAddress: "Dirección de Retiro",
+      withdrawalAmount: "Monto de Retiro",
+      withdrawalPassword: "Contraseña de Retiro",
+      passwordPlaceholder: "Ingrese la contraseña de retiro",
+      available: "Disponible",
+      amountWithdrawal: "Monto de retiro",
+      minimumWithdrawal: "Retiro mínimo",
+      networkFee: "Tarifa de red",
+      youWillReceive: "Recibirás",
+      confirmWithdrawal: "Confirmar Retiro",
+      processing: "Procesando...",
+      securityVerification: "Verificación de Seguridad",
+      securityMessage: "Para su seguridad, los retiros requieren confirmación de contraseña y pueden estar sujetos a revisión. Los retiros a direcciones incorrectas no pueden revertirse.",
+      networkInfo: "Red: {0} ({1})",
+      noWalletAddress: "(Sin dirección de billetera)",
       noWallet: {
-        title: "Nenhum Endereço de Carteira Encontrado",
-        description: "Você ainda não adicionou nenhum endereço de carteira. Por favor, adicione um endereço de saque para prosseguir com sua transação.",
-        addButton: "Adicionar Endereço de Carteira"
+        title: "No Se Encontró Dirección de Billetera",
+        description: "Aún no has agregado ninguna dirección de billetera. Por favor agregue una dirección de retiro para proceder con su transacción.",
+        addButton: "Agregar Dirección de Billetera"
       },
       security: {
-        title: "Segurança em Primeiro Lugar",
-        description: "Para sua segurança, exigimos um endereço de saque verificado para cada criptomoeda. Isso ajuda a prevenir erros e garante que seus fundos cheguem ao destino correto."
+        title: "Seguridad Primero",
+        description: "Para su seguridad, requerimos una dirección de retiro verificada para cada criptomoneda. Esto ayuda a prevenir errores y asegura que sus fondos lleguen al destino correcto."
       },
       errors: {
-        amountNumber: "O valor do saque deve ser um número",
-        amountRequired: "O valor do saque é obrigatório",
-        amountPositive: "O valor do saque deve ser maior que 0",
-        amountMin: "Valor abaixo do saque mínimo para esta moeda",
-        passwordRequired: "A senha de saque é obrigatória",
-        noWalletAddress: "Nenhum endereço de carteira encontrado para {0}. Por favor, adicione um endereço de carteira primeiro.",
-        minimumWithdraw: "Saque mínimo para {0}: {1} {2}",
-        insufficientForFee: "Saldo insuficiente para cobrir a taxa ({0} {1})"
+        amountNumber: "El monto de retiro debe ser un número",
+        amountRequired: "Se requiere monto de retiro",
+        amountPositive: "El monto de retiro debe ser mayor que 0",
+        amountMin: "El monto está por debajo del retiro mínimo para esta moneda",
+        passwordRequired: "Se requiere contraseña de retiro",
+        noWalletAddress: "No se encontró dirección de billetera para {0}. Por favor agregue una dirección de billetera primero.",
+        minimumWithdraw: "Retiro mínimo para {0}: {1} {2}",
+        insufficientForFee: "No hay saldo suficiente para cubrir la tarifa ({0} {1})"
       },
       validation: {
-        selectCurrency: "Selecionar moeda",
-        enterAmount: "Digitar valor",
-        belowMin: "Abaixo do mínimo ({0} {1})",
+        selectCurrency: "Seleccionar moneda",
+        enterAmount: "Ingresar monto",
+        belowMin: "Por debajo del mínimo ({0} {1})",
         insufficientBalance: "Saldo insuficiente",
-        insufficientForFee: "Saldo insuficiente (incluindo taxa)",
-        enterPassword: "Digitar senha"
+        insufficientForFee: "Saldo insuficiente (incluyendo tarifa)",
+        enterPassword: "Ingresar contraseña"
       }
     },
+    
     deposit: {
-      title: "Depositar Criptomoeda",
-      loading: "Carregando método de depósito ...",
-      selectNetwork: "Selecionar Rede",
-      depositAddress: "Seu endereço de depósito",
-      copyAddress: "Copiar Endereço",
-      amountLabel: "Valor do depósito ({0})",
+      title: "Depositar Criptomonedas",
+      loading: "Método de depósito cargando ...",
+      selectNetwork: "Seleccionar Red",
+      depositAddress: "Su dirección de depósito",
+      copyAddress: "Copiar Dirección",
+      amountLabel: "Monto de depósito ({0})",
       amountPlaceholder: "Mínimo: {0} {1}",
-      txidLabel: "ID da Transação (TXID)",
-      txidPlaceholder: "Digite o TXID",
+      txidLabel: "ID de Transacción (TXID)",
+      txidPlaceholder: "Ingrese el TXID",
       minimumDeposit: "Depósito mínimo",
       importantNotice: "Aviso Importante",
-      warningMessage: "Por favor, certifique-se de selecionar a rede correta para seu depósito. Enviar fundos através da rede errada pode resultar em perda permanente de seus ativos, que não pode ser recuperada.",
+      warningMessage: "Por favor asegúrese de seleccionar la red correcta para su depósito. Enviar fondos a través de la red incorrecta puede resultar en pérdida permanente de sus activos, lo cual no se puede recuperar.",
       confirmDeposit: "Confirmar Depósito",
-      network: "Rede",
-      estimatedArrival: "Chegada estimada",
-      networkConfirmations: "3 confirmações de rede",
-      processingTime: "Tempo de processamento",
+      network: "Red",
+      estimatedArrival: "Llegada estimada",
+      networkConfirmations: "3 confirmaciones de red",
+      processingTime: "Tiempo de procesamiento",
       processingTimeValue: "10-30 minutos",
-      noMethods: "Nenhum método de depósito disponível no momento.",
-      addressCopied: "Endereço copiado para a área de transferência!",
-      unknownNetwork: "Rede Desconhecida"
+      noMethods: "No hay métodos de depósito disponibles en este momento.",
+      addressCopied: "¡Dirección copiada al portapapeles!",
+      unknownNetwork: "Red Desconocida"
     },
-    wallet: {
-      totalPortfolioValue: "Valor Total da Carteira",
-      myAssets: "Meus Ativos",
-      manage: "Gerenciar",
-      noAssets: "Nenhum ativo encontrado",
-      quickActions: {
-        deposit: "Depositar",
-        withdraw: "Sacar",
-        history: "Histórico",
-        convert: "Converter",
-        staking: "Staking"
-      }
-    },
-    trade: {
-      title: "SPOT",
-      buy: "COMPRAR",
-      sell: "VENDER",
-      limit: "LIMITE",
-      market: "MERCADO",
-      orderType: "Tipo de Ordem",
-      price: "Preço (USDT)",
-      amount: "Quantidade",
-      available: "Disponível",
-      placing: "Colocando...",
-      increasePrice: "aumentar preço",
-      decreasePrice: "diminuir preço",
-      errors: {
-        invalidQuantity: "Por favor, insira uma quantidade válida.",
-        invalidPrice: "Por favor, insira um preço válido.",
-        insufficientUSDT: "Saldo USDT insuficiente. Disponível: {0} USDT",
-        insufficientCoin: "Saldo {1} insuficiente. Disponível: {0} {1}",
-        failedOrder: "Falha ao colocar ordem. Por favor, tente novamente."
-      },
-      orderBook: {
-        price: "Preço (USDT)",
-        amount: "Quantidade"
-      },
-      openOrders: {
-        title: "ORDENS ABERTAS",
-        viewAll: "ver todas as ordens",
-        status: "Status",
-        price: "Preço",
-        amount: "Quantidade",
-        total: "Total",
-        cancel: "Cancelar",
-        noOrders: "Nenhuma ordem aberta ainda",
-        noOrdersSubtext: "Suas ordens abertas aparecerão aqui"
-      }
-    },
-    market: {
-      title: "MERCADO USDT",
-      noResults: "Nenhuma criptomoeda encontrada",
-      volume: "Vol",
-      search: {
-        placeholder: "Pesquisar criptomoeda",
-        clear: "Limpar pesquisa"
-      },
-      tabs: {
-        all: "Todos",
-        gainers: "Ganhadores",
-        losers: "Perdedores",
-        favorites: "Favoritos"
-      }
-    },
-    signup: {
-      title: "CADASTRAR-SE",
-      creatingAccount: "CRIANDO...",
-      createAccount: "CRIAR CONTA",
-      refresh: "Atualizar",
-      captchaMismatch: "Captcha não corresponde",
-      alreadyHaveAccount: "Já tem uma conta? Faça login",
-      terms: {
-        text: "Ao criar uma conta, você concorda com nossos",
-        link: "Termos de Serviço"
-      },
-      labels: {
-        email: "E-mail",
-        phoneNumber: "Número de Telefone",
-        captcha: "Captcha Gráfico",
-        password: "Senha",
-        confirmPassword: "Confirmar Senha",
-        withdrawPassword: "Senha de Saque",
-        invitationCode: "Código de Convite"
-      },
-      placeholders: {
-        email: "Digite seu e-mail",
-        phoneNumber: "Digite seu número de telefone",
-        captcha: "Digite o código",
-        password: "Crie uma senha",
-        confirmPassword: "Confirme sua senha",
-        withdrawPassword: "Digite a senha de saque",
-        invitationCode: "Digite o código de convite"
-      }
-    },
-    home: {
-      quickAccess: {
-        title: "Acesso Rápido",
-        deposit: "Depositar",
-        security: "Segurança",
-        faqCenter: "Central de FAQ",
-        invitation: "Convite",
-        staking: "Staking"
-      },
-      popularCryptos: "Criptomoedas Populares",
-      seeAll: "Ver todos",
-      volume: "Vol",
-      loading: "Carregando...",
-      notifications: {
-        btcAlert: "Alerta de Preço BTC",
-        btcReached: "Bitcoin atingiu $45.000",
-        fiveMinAgo: "5 min atrás",
-        depositSuccess: "Depósito Bem-Sucedido",
-        depositConfirmed: "Seu depósito de 0.5 ETH está confirmado",
-        oneHourAgo: "1 hora atrás",
-        securityUpdate: "Atualização de Segurança",
-        newSecurityFeatures: "Novos recursos de segurança disponíveis",
-        twoHoursAgo: "2 horas atrás",
-        marketNews: "Notícias do Mercado",
-        ethUpgrade: "Atualização Ethereum concluída com sucesso",
-        fiveHoursAgo: "5 horas atrás"
-      }
-    },
+    
     faq: {
-      title: "Central de FAQ",
+      title: "Centro de Preguntas Frecuentes",
       hero: {
-        title: "Perguntas Frequentes",
-        subtitle: "Encontre respostas para perguntas comuns sobre como usar o BINEX"
+        title: "Preguntas Frecuentes",
+        subtitle: "Encuentre respuestas a preguntas comunes sobre el uso de BINEX"
       },
       search: {
-        placeholder: "Pesquisar por respostas..."
+        placeholder: "Buscar respuestas..."
       },
       categories: {
-        gettingStarted: "Começando",
-        managingAccount: "Gerenciando Sua Conta"
+        gettingStarted: "Primeros Pasos",
+        managingAccount: "Gestionando Su Cuenta"
       },
       questions: {
-        howToCreateAccount: "Como criar uma conta?",
-        howToCompleteVerification: "Como completar a verificação?",
-        howToBuyCrypto: "Como comprar criptomoeda?",
-        howToTrade: "Como negociar criptomoedas?",
-        howToSendReceive: "Como receber e enviar criptomoeda?",
-        howToBecomeP2PMerchant: "Como me tornar um Merchant P2P?",
-        howStakingWorks: "Como funciona o staking?"
+        howToCreateAccount: "¿Cómo creo una cuenta?",
+        howToCompleteVerification: "¿Cómo completo la verificación?",
+        howToBuyCrypto: "¿Cómo compro criptomoneda?",
+        howToTrade: "¿Cómo opero con criptomonedas?",
+        howToSendReceive: "¿Cómo recibo y envío criptomonedas?",
+        howToBecomeP2PMerchant: "¿Cómo me convierto en un Comerciante P2P?",
+        howStakingWorks: "¿Cómo funciona el staking?"
       },
       answers: {
-        verificationProcess: "Faça upload de um documento de identidade emitido pelo governo e uma foto selfie. A verificação é geralmente aprovada em algumas horas."
+        verificationProcess: "Cargue una identificación gubernamental y una foto selfie. La verificación generalmente se aprueba en unas horas."
       },
       steps: {
-        goToWebsite: "Vá para https://BINEX-exchange.com",
-        clickSignUp: 'Clique em "Cadastrar-se"',
-        enterDetails: "Digite seus detalhes",
-        verifyEmail: "Verifique seu endereço de e-mail",
-        completeVerification: "Complete a verificação primeiro",
-        clickBuyCrypto: 'Clique em "Comprar Criptomoeda"',
-        selectCoinAndPayment: "Selecione a moeda e método de pagamento",
-        confirmTransaction: "Confirme a transação",
-        cryptoInWallet: "A criptomoeda aparecerá em sua carteira",
-        goToTradeMarkets: 'Vá para "Negociar/Mercados"',
-        pickTradingPair: "Escolha um par de negociação (ex: BTC/USDT)",
-        placeOrders: "Coloque ordens a mercado ou limite",
-        receiveCrypto: "Vá para Carteira > Receber → copie endereço ou QR code",
-        sendCrypto: "Vá para Carteira > Enviar → digite endereço/valor → confirme",
-        applyP2P: 'Candidate-se na seção "P2P"',
-        meetCriteria: "Atenda aos critérios de elegibilidade",
-        createOffers: "Uma vez aprovado, crie ofertas e negocie",
-        goToStaking: "Vá para Carteiras > Staking",
-        pickStakingPlan: "Escolha um plano de staking",
-        selectAmount: "Selecione o valor para staking",
-        confirmStaking: "Confirme a transação",
-        rewardsProcessed: "Recompensas processadas automaticamente no final do período"
+        goToWebsite: "Vaya a https://BINEX-exchange.com",
+        clickSignUp: 'Haga clic en "Registrarse"',
+        enterDetails: "Ingrese sus datos",
+        verifyEmail: "Verifique su dirección de correo electrónico",
+        completeVerification: "Complete primero la verificación",
+        clickBuyCrypto: 'Haga clic en "Comprar Cripto"',
+        selectCoinAndPayment: "Seleccione moneda y método de pago",
+        confirmTransaction: "Confirme la transacción",
+        cryptoInWallet: "La criptomoneda aparecerá en su billetera",
+        goToTradeMarkets: 'Vaya a "Trading/Mercados"',
+        pickTradingPair: "Elija un par de trading (ej. BTC/USDT)",
+        placeOrders: "Coloque órdenes de mercado o límite",
+        receiveCrypto: "Vaya a Billetera > Recibir → copie dirección o código QR",
+        sendCrypto: "Vaya a Billetera > Enviar → ingrese dirección/monto → confirme",
+        applyP2P: 'Solicite en la sección "P2P"',
+        meetCriteria: "Cumpla con los criterios de elegibilidad",
+        createOffers: "Una vez aprobado, cree ofertas y opere",
+        goToStaking: "Vaya a Billeteras > Staking",
+        pickStakingPlan: "Elija un plan de staking",
+        selectAmount: "Seleccione el monto para hacer staking",
+        confirmStaking: "Confirme la transacción",
+        rewardsProcessed: "Las recompensas se procesan automáticamente al final del período"
       },
       labels: {
-        toReceive: "Para receber:",
+        toReceive: "Para recibir:",
         toSend: "Para enviar:"
       },
       futures: {
-        title: "Negociação de Futuros Explicada",
-        whatAreFutures: "O que são contratos futuros?",
-        futuresExplanation: "Acordos para comprar ou vender criptomoeda a um preço predeterminado em uma data futura (liquidação em cash).",
-        whatIsLeverage: "O que é alavancagem?",
-        leverageExplanation: "Capacidade de negociar com mais capital do que você tem (ex: alavancagem 10x, 20x, 50x).",
-        longShortPositions: "O que são posições Long e Short?",
-        long: "Long",
-        longExplanation: "= apostando que o preço vai subir",
-        short: "Short",
-        shortExplanation: "= apostando que o preço vai cair",
-        marginLiquidation: "O que são Margem & Liquidação?",
-        marginExplanation: "Risco de liquidação da posição se seu collateral cair muito baixo para manter a posição.",
-        fundingRate: "O que é a Taxa de Funding?",
-        fundingRateExplanation: "Taxa trocada a cada 8 horas entre traders long e short para equilibrar preços de contratos perpétuos com preços spot.",
-        profitLossCalculation: "Como Lucro/Perda é calculado?",
-        profitLossExplanation: "Calculado com base na diferença de preço multiplicada por sua alavancagem e tamanho da posição."
+        title: "Trading de Futuros Explicado",
+        whatAreFutures: "¿Qué son los contratos de futuros?",
+        futuresExplanation: "Acuerdos para comprar o vender criptomonedas a un precio predeterminado en una fecha futura (liquidados en efectivo).",
+        whatIsLeverage: "¿Qué es el apalancamiento?",
+        leverageExplanation: "Capacidad de operar con más capital del que tiene (ej. 10x, 20x, 50x apalancamiento).",
+        longShortPositions: "¿Qué son las posiciones Largo y Corto?",
+        long: "Largo",
+        longExplanation: "= apostar que el precio subirá",
+        short: "Corto",
+        shortExplanation: "= apostar que el precio bajará",
+        marginLiquidation: "¿Qué son el Margen y la Liquidación?",
+        marginExplanation: "Riesgo de liquidación de posición si sus garantías caen demasiado para mantener la posición.",
+        fundingRate: "¿Qué es la Tasa de Financiamiento?",
+        fundingRateExplanation: "Tarifa intercambiada cada 8 horas entre traders largos y cortos para equilibrar los precios de los contratos perpetuos con los precios spot.",
+        profitLossCalculation: "¿Cómo se calcula la Ganancia/Pérdida?",
+        profitLossExplanation: "Calculado basado en la diferencia de precio multiplicada por su apalancamiento y tamaño de posición."
       },
       benefits: {
-        title: "Por que Escolher BINEX Futures?",
-        hedge: "Proteja-se contra a volatilidade do mercado",
-        multiplyProfits: "Multiplique lucros com alavancagem",
-        tradeBothMarkets: "Negocie em mercados em alta e baixa",
-        advancedStrategies: "Implemente estratégias de negociação avançadas"
+        title: "¿Por Qué Elegir Futuros BINEX?",
+        hedge: "Cobertura contra la volatilidad del mercado",
+        multiplyProfits: "Multiplique ganancias con apalancamiento",
+        tradeBothMarkets: "Opere tanto mercados en alza como en baja",
+        advancedStrategies: "Implemente estrategias de trading avanzadas"
       },
       actionCards: {
-        contactSupport: "Contatar Suporte",
-        getHelp: "Obtenha ajuda da nossa equipe",
-        community: "Comunidade",
-        joinDiscussions: "Junte-se às discussões"
+        contactSupport: "Contactar Soporte",
+        getHelp: "Obtenga ayuda de nuestro equipo",
+        community: "Comunidad",
+        joinDiscussions: "Únase a discusiones"
       },
       footer: {
-        copyright: "© 2025 BINEX. Todos os direitos reservados.",
-        needHelp: "Precisa de mais ajuda? Contate support@BINEX-exchange.com"
+        copyright: "© 2025 BINEX. Todos los derechos reservados.",
+        needHelp: "¿Necesita más ayuda? Contacte a support@BINEX-exchange.com"
       }
     },
+    
     tabBottomNavigator: {
-      home: "início",
-      grap: "gráficos",
+      home: "inicio",
+      grap: "gráfico",
       records: "registros",
-      starting: "iniciar"
+      starting: "comenzando"
     },
+    
     language: {
-      title: "Idioma do App",
-      selectLanguage: "Selecionar Idioma",
-      choosePreferred: "Escolha seu idioma preferido",
-      searchPlaceholder: "Pesquisar idiomas...",
-      currentLanguage: "Idioma Atual",
+      title: "Idioma de la App",
+      selectLanguage: "Seleccionar Idioma",
+      choosePreferred: "Elija su idioma preferido",
+      searchPlaceholder: "Buscar idiomas...",
+      currentLanguage: "Idioma Actual",
       languages: {
-        english: "Inglês",
-        french: "Francês",
-        russian: "Russo",
-        german: "Alemão",
-        spanish: "Espanhol"
+        english: "Inglés",
+        french: "Francés",
+        russian: "Ruso",
+        german: "Alemán",
+        spanish: "Español"
       },
       nativeNames: {
         english: "English",
@@ -1446,7 +1835,8 @@ components: {
         spanish: "Español"
       }
     }
-  },
+  }
+,
 
 
 

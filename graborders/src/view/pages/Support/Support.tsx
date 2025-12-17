@@ -1,16 +1,17 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { i18n } from "../../../i18n";
 
 function HelpCenter() {
   const faqItems = [
-    "About official accounts and demo accounts",
-    "What is transaction volume?",
-    "Why transfer funds?",
-    "What are Futures?",
-    "Why does the converted amount in assets change?",
-    "Why is real-name authentication required?",
-    "What are frozen assets?",
-    "What are the rules of futures trading?"
+    i18n("pages.helpCenter.faq.aboutAccounts"),
+    i18n("pages.helpCenter.faq.transactionVolume"),
+    i18n("pages.helpCenter.faq.transferFunds"),
+    i18n("pages.helpCenter.faq.whatAreFutures"),
+    i18n("pages.helpCenter.faq.convertedAmountChanges"),
+    i18n("pages.helpCenter.faq.realNameAuthentication"),
+    i18n("pages.helpCenter.faq.frozenAssets"),
+    i18n("pages.helpCenter.faq.futuresTradingRules")
   ];
 
   return (
@@ -21,7 +22,7 @@ function HelpCenter() {
           <Link to="/profile" className="back-arrow">
             <i className="fas fa-arrow-left" />
           </Link>
-          <div className="page-title">Help Center</div>
+          <div className="page-title">{i18n("pages.helpCenter.title")}</div>
         </div>
       </div>
 

@@ -1,5 +1,3 @@
-
-
 import React, { useMemo, useEffect, useCallback, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,46 +9,44 @@ import { i18n } from "../../../i18n";
 
 // Constants for menu items
 const MENU_ITEMS = [
-
   {
     icon: "fas fa-cog",
     path: "/settings",
-    name: "Preferences",
+    name: i18n("pages.profile.menu.preferences"),
   },
   {
     icon: "fas fa-shield-alt",
     path: "/loginpassword",
-    name: "Security center",
+    name: i18n("pages.profile.menu.password"),
   },
   {
     icon: "fas fa-file-alt",
     path: "/transferAll",
-    name: "Account change records",
+    name: i18n("pages.profile.menu.withdrawalAddress"),
   },
-
   {
     icon: "fas fa-comment-dots",
     path: "/online-service",
-    name: "Online service",
+    name: i18n("pages.profile.menu.customerSupport"),
   },
   {
     icon: "fas fa-building",
     path: "/about",
-    name: "Platform introduction",
+    name: i18n("pages.profile.menu.aboutUs"),
   },
   {
     icon: "fas fa-question-circle",
     path: "/support",
-    name: "Help center",
+    name: i18n("pages.profile.menu.helpcenter"),
   },
   {
     icon: "fas fa-download",
     path: "/download",
-    name: "Download",
+    name: i18n("pages.profile.menu.downloadApp"),
   },
   {
     icon: "fas fa-trash-alt",
-    name: "Clear cache",
+    name: i18n("pages.profile.menu.clearCache"),
     type: "action",
   },
 ];
@@ -91,38 +87,38 @@ function Profile() {
   }, [dispatch]);
 
   const handleClearCache = useCallback(() => {
-    console.log('Clearing cache...');
+    console.log(i18n("pages.profile.cache.clearing"));
     // Add your cache clearing logic here
-    alert('Cache cleared successfully!');
+    alert(i18n("pages.profile.cache.cleared"));
   }, []);
 
   const toggleSimulatedTrading = useCallback(() => {
     setSimulatedTradingEnabled(!simulatedTradingEnabled);
-    console.log(`Simulated trading ${!simulatedTradingEnabled ? 'enabled' : 'disabled'}`);
+    console.log(i18n("pages.profile.simulatedTrading.toggle", !simulatedTradingEnabled ? i18n("common.enabled") : i18n("common.disabled")));
   }, [simulatedTradingEnabled]);
 
   const menuItems = useMemo(
     () =>
       MENU_ITEMS.map((item) => ({
         ...item,
-        disabled: item.requiresKyc && !currentUser?.kyc,
+        disabled: item?.requiresKyc && !currentUser?.kyc,
       })),
     [currentUser?.kyc]
   );
 
   const handleVerifyNow = useCallback(() => {
-    console.log('KYC Status:', kycStatus);
+    console.log(i18n("pages.profile.verification.kycStatus"), kycStatus);
     
     // Only redirect to /proof if user is unverified
     if (kycStatus === VERIFICATION_STATUS.UNVERIFIED) {
-      console.log('Redirecting to proof page...');
+      console.log(i18n("pages.profile.verification.redirecting"));
       history.push('/proof'); // Redirect to proof page
     } else if (kycStatus === VERIFICATION_STATUS.PENDING) {
-      console.log('Verification is pending review...');
+      console.log(i18n("pages.profile.verification.pendingReview"));
       // You might want to show a message here
-      alert('Your verification is pending review. Please wait for approval.');
+      alert(i18n("pages.profile.verification.pendingAlert"));
     } else {
-      console.log('User is already verified');
+      console.log(i18n("pages.profile.verification.alreadyVerified"));
       // No action needed for verified users
     }
   }, [kycStatus, history]);
@@ -133,17 +129,17 @@ function Profile() {
     } else if (currentUser?.email) {
       return currentUser.email.charAt(0).toUpperCase();
     }
-    return "U";
+    return i18n("pages.profile.userInitial");
   };
 
   const getVerificationText = () => {
     switch (kycStatus) {
       case VERIFICATION_STATUS.SUCCESS:
-        return "Verified";
+        return i18n("pages.profile.status.verified");
       case VERIFICATION_STATUS.PENDING:
-        return "Pending Review";
+        return i18n("pages.profile.verification.pending.status");
       default:
-        return "Not Verified";
+        return i18n("pages.profile.status.unverified");
     }
   };
 
@@ -161,11 +157,11 @@ function Profile() {
   const getVerificationButtonText = () => {
     switch (kycStatus) {
       case VERIFICATION_STATUS.SUCCESS:
-        return "Verified";
+        return i18n("pages.profile.status.verified");
       case VERIFICATION_STATUS.PENDING:
-        return "Pending";
+        return i18n("pages.profile.verification.pending.button");
       default:
-        return "Verify Now";
+        return i18n("pages.profile.verification.alert.verifyNow");
     }
   };
 
@@ -246,6 +242,7 @@ function Profile() {
   const handleSignOut = () => {
     dispatch(authActions.doSignout());
   };
+
   return (
     <div className="profile-container">
       {/* Header Section */}
@@ -254,7 +251,7 @@ function Profile() {
           <Link to="/" className="back-arrow">
             <i className="fas fa-arrow-left" />
           </Link>
-          <div className="page-title">Personal Center</div>
+          <div className="page-title">{i18n("pages.profile.title")}</div>
         </div>
 
         <div className="profile-section">
@@ -269,8 +266,8 @@ function Profile() {
             </div>
           </div>
 
-          <div className="username">{currentUser?.fullName || currentUser?.email || 'User'}</div>
-          <div className="user-id">ID: {currentUser?.id || 'N/A'}</div>
+          <div className="username">{currentUser?.fullName || currentUser?.email || i18n("pages.profile.user")}</div>
+          <div className="user-id">{i18n("pages.profile.userId")}: {currentUser?.id || i18n("common.na")}</div>
 
           {/* Certification Status Section */}
           <div className="certification-status">
@@ -289,18 +286,16 @@ function Profile() {
         </div>
       </div>
 
-
-
       {/* Content Section */}
       <div className="content-card">
         <ul className="menu-list">
           {menuItems.map((item, index) => renderMenuItem(item, index))}
         </ul>
 
-          <div className="signout-section">
+        <div className="signout-section">
           <button className="signout-button" onClick={handleSignOut}>
             <i className="fas fa-sign-out-alt" />
-            Sign Out
+            {i18n("pages.profile.menu.logout")}
           </button>
         </div>
       </div>

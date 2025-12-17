@@ -858,7 +858,6 @@ function Deposit() {
         .qr-box {
           display: flex;
           justify-content: center;
-          margin-bottom: 20px;
           padding: 10px;
           background: white;
           border-radius: 8px;

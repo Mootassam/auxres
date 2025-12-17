@@ -14,13 +14,17 @@ import CurrencyModal from "../currency/Currency";
 
 // Constants
 const QUICK_ACTIONS = [
-  { path: "/withdraw", icon: "fas fa-arrow-up", name: "Withdraw" },
-  { path: "/deposit", icon: "fas fa-arrow-down", name: "Deposit" },
-  { path: "/transfer", icon: "fas fa-exchange-alt", name: "Transfer" },
-  { path: "/conversion", icon: "fas fa-sync-alt", name: "Swap" },
+  { path: "/withdraw", icon: "fas fa-arrow-up", name: i18n("pages.wallet.quickActions.withdraw") },
+  { path: "/deposit", icon: "fas fa-arrow-down", name: i18n("pages.wallet.quickActions.deposit") },
+  { path: "/transfer", icon: "fas fa-exchange-alt", name: i18n("pages.wallet.quickActions.transfer") },
+  { path: "/conversion", icon: "fas fa-sync-alt", name: i18n("pages.wallet.quickActions.swap") },
 ];
 
-const ACCOUNT_TABS = ["Exchange", "Trade", "Perpetual"];
+const ACCOUNT_TABS = [
+  i18n("pages.wallet.accountTabs.exchange"),
+  i18n("pages.wallet.accountTabs.trade"),
+  i18n("pages.wallet.accountTabs.perpetual")
+];
 
 // Helper function to get/set currency from localStorage
 const getStoredCurrency = () => {
@@ -131,21 +135,21 @@ const AssetCard = memo(({
       </div>
       <div className="asset-details">
         <div className="asset-column">
-          <div className="asset-label">Available balance:</div>
+          <div className="asset-label">{i18n("pages.wallet.assetLabels.availableBalance")}:</div>
           <div className="asset-value">
-            {hideAmounts ? '****' : asset.amount}
+            {hideAmounts ? i18n("common.hidden") : asset.amount}
           </div>
         </div>
         <div className="asset-column">
-          <div className="asset-label">Frozen amount:</div>
+          <div className="asset-label">{i18n("pages.wallet.assetLabels.frozenAmount")}:</div>
           <div className="asset-value">
-            {hideAmounts ? '****' : asset.amountFreezed}
+            {hideAmounts ? i18n("common.hidden") : asset.amountFreezed}
           </div>
         </div>
         <div className="asset-column">
-          <div className="asset-label">Valuation:</div>
+          <div className="asset-label">{i18n("pages.wallet.assetLabels.valuation")}:</div>
           <div className="asset-value">
-            {hideAmounts ? '****' : `${currencySymbol}${asset.balanceFiat}`}
+            {hideAmounts ? i18n("common.hidden") : `${currencySymbol}${asset.balanceFiat}`}
           </div>
         </div>
       </div>
@@ -185,7 +189,7 @@ function Wallet() {
   const loading = useSelector(assetsListSelectors.selectLoading);
   
   // State
-  const [activeTab, setActiveTab] = useState("Exchange");
+  const [activeTab, setActiveTab] = useState(i18n("pages.wallet.accountTabs.exchange"));
   const [isCurrencyModalOpen, setIsCurrencyModalOpen] = useState(false);
   const [hideAmounts, setHideAmounts] = useState(false);
   
@@ -244,7 +248,7 @@ function Wallet() {
 
   // Calculate approximate equivalent
   const approximateEquivalent = useMemo(() => {
-    if (!selectTotalFiat || hideAmounts) return "****";
+    if (!selectTotalFiat || hideAmounts) return i18n("common.hidden");
     
     // For demo: Calculate equivalent in USD (base currency)
     const equivalent = calculateApproximateEquivalent(
@@ -253,7 +257,7 @@ function Wallet() {
       "USD"
     );
     
-    return `≈ USD ${equivalent}`;
+    return i18n("pages.wallet.usdEquivalent", equivalent);
   }, [selectTotalFiat, selectedCurrency.code, hideAmounts]);
 
   // Initial fetch on mount
@@ -267,7 +271,7 @@ function Wallet() {
         await dispatch(assetsActions.doFetch(activeTab, selectedCurrency.code));
       } catch (error) {
         if (isMounted) {
-          console.error("Error fetching assets:", error);
+          console.error(i18n("pages.wallet.errors.fetchAssets"), error);
         }
       }
     };
@@ -290,7 +294,7 @@ function Wallet() {
         await dispatch(assetsActions.doFetch(activeTab, selectedCurrency.code));
       } catch (error) {
         if (isMounted) {
-          console.error("Error fetching assets:", error);
+          console.error(i18n("pages.wallet.errors.fetchAssets"), error);
         }
       }
     };
@@ -382,20 +386,20 @@ function Wallet() {
           <div className="asset-card">
             <div className="asset-header">
               <div className="asset-icon"></div>
-              <div className="asset-name">No assets found</div>
+              <div className="asset-name">{i18n("pages.wallet.noAssetsFound")}</div>
             </div>
             <div className="asset-details">
               <div className="asset-column">
-                <div className="asset-label">Available balance:</div>
-                <div className="asset-value">{hideAmounts ? '****' : '0.00'}</div>
+                <div className="asset-label">{i18n("pages.wallet.assetLabels.availableBalance")}:</div>
+                <div className="asset-value">{hideAmounts ? i18n("common.hidden") : '0.00'}</div>
               </div>
               <div className="asset-column">
-                <div className="asset-label">Frozen amount:</div>
-                <div className="asset-value">{hideAmounts ? '****' : '0.00'}</div>
+                <div className="asset-label">{i18n("pages.wallet.assetLabels.frozenAmount")}:</div>
+                <div className="asset-value">{hideAmounts ? i18n("common.hidden") : '0.00'}</div>
               </div>
               <div className="asset-column">
-                <div className="asset-label">Valuation:</div>
-                <div className="asset-value">{hideAmounts ? '****' : `${selectedCurrency.symbol}0.00`}</div>
+                <div className="asset-label">{i18n("pages.wallet.assetLabels.valuation")}:</div>
+                <div className="asset-value">{hideAmounts ? i18n("common.hidden") : `${selectedCurrency.symbol}0.00`}</div>
               </div>
             </div>
           </div>
@@ -418,9 +422,7 @@ function Wallet() {
       {/* Header Section */}
       <div className="header">
         <div className="nav-bar">
- 
           <div className="page-title">{i18n("pages.wallet.myAssets")}</div>
-
         </div>
       </div>
 
@@ -435,7 +437,7 @@ function Wallet() {
                   className={`fas ${hideAmounts ? 'fa-eye' : 'fa-eye-slash'}`}
                   onClick={toggleHideAmounts}
                   style={{ cursor: 'pointer' }}
-                  aria-label={hideAmounts ? "Show amounts" : "Hide amounts"}
+                  aria-label={hideAmounts ? i18n("pages.wallet.showAmounts") : i18n("pages.wallet.hideAmounts")}
                 ></i>
                 {i18n("pages.wallet.assetValuation")}
               </div>
@@ -452,7 +454,7 @@ function Wallet() {
               {loading ? (
                 <div className="balance-placeholder placeholder-text"></div>
               ) : hideAmounts ? (
-                '****'
+                i18n("common.hidden")
               ) : (
                 `${selectedCurrency.symbol}${selectTotalFiat}`
               )}
@@ -461,7 +463,7 @@ function Wallet() {
               {loading ? (
                 <div className="equivalent-placeholder placeholder-text"></div>
               ) : hideAmounts ? (
-                '****'
+                i18n("common.hidden")
               ) : (
                 approximateEquivalent
               )}
@@ -506,6 +508,7 @@ function Wallet() {
           onSelectCurrency={handleCurrencySelect}
         />
       )}
+
 
       <style>{`
         .sectionn__assets{ 

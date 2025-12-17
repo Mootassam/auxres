@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { i18n } from '../../../i18n'; // Adjust the import path based on your structure
 
 function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -12,42 +13,42 @@ function Home() {
   ];
 
   const announcements = [
-    "Maintenance notice",
-    "Contract server upgrade and maintenance announcement on January 15, 2023",
-    "Binex Options Trading System Maintenance Announcement",
-    "Important! Binex's announcement on the latest client version upgrade",
-    "Binex platform trading latest announcement",
-    "Binex Platform Version Upgrade Optimization Update Announcement",
-    "March 15, 2023 Binex platform contract server upgrade maintenance optimization announcement",
-    "Binex platform options trading system maintenance and optimization announcement",
-    "Binex Platform Important Announcement on the Upgrade and Optimization of the Latest Version of the Client",
-    "Warm reminder about Binex user information security",
-    "Binex platform announcement on the optimization and upgrade of the perpetual contract system",
-    "Announcement on the completion of platform system maintenance and optimization",
-    "Announcement on Bitcoin Withdrawal",
-    "Announcement on the upgrade of some trading currency pairs on the platform",
-    "Announcement on the Platform Ethereum Network (ERC20) Wallet Maintenance",
-    "Announcement on the completion of the hard fork upgrade of ETH",
-    "Announcement on the update of the platform's advanced identity authentication service",
-    "Notice on the issuance of FIL computing power income",
-    "Announcement on the optimization of API order frequency limit",
-    "System Update - Real-time Customer Chat Function",
-    "ETH network upgrade announcement",
-    "Announcement of delisting currencies",
-    "DOT/USDT Trading Launch Announcement",
-    "DEC/USDT Trading Launch Announcement",
-    "USDT Introduction",
-    "Ethereum network maintenance notice",
-    "Binex Project review standards",
-    "Liquidity Mining Upgrade",
-    "Liquidity mining fee adjustment",
-    "Delisting trading pairs",
-    "System temporary maintenance announcement",
-    "Temporary suspension of recharge notice",
-    "Delisting Notification",
-    "Server upgrade announcement",
-    "Server network upgrade announcement",
-    "APP download open notification"
+    i18n("pages.home.announcements.maintenanceNotice"),
+    i18n("pages.home.announcements.contractServerUpgrade"),
+    i18n("pages.home.announcements.binexOptionsMaintenance"),
+    i18n("pages.home.announcements.clientVersionUpgrade"),
+    i18n("pages.home.announcements.platformTradingAnnouncement"),
+    i18n("pages.home.announcements.platformUpgradeOptimization"),
+    i18n("pages.home.announcements.march15Upgrade"),
+    i18n("pages.home.announcements.optionsTradingMaintenance"),
+    i18n("pages.home.announcements.latestVersionUpgrade"),
+    i18n("pages.home.announcements.userSecurityReminder"),
+    i18n("pages.home.announcements.perpetualContractUpgrade"),
+    i18n("pages.home.announcements.maintenanceCompletion"),
+    i18n("pages.home.announcements.bitcoinWithdrawal"),
+    i18n("pages.home.announcements.tradingPairsUpgrade"),
+    i18n("pages.home.announcements.ethWalletMaintenance"),
+    i18n("pages.home.announcements.ethHardFork"),
+    i18n("pages.home.announcements.identityAuthUpdate"),
+    i18n("pages.home.announcements.filIncomeIssuance"),
+    i18n("pages.home.announcements.apiOrderLimit"),
+    i18n("pages.home.announcements.customerChatFunction"),
+    i18n("pages.home.announcements.ethNetworkUpgrade"),
+    i18n("pages.home.announcements.delistingCurrencies"),
+    i18n("pages.home.announcements.dotUsdtLaunch"),
+    i18n("pages.home.announcements.decUsdtLaunch"),
+    i18n("pages.home.announcements.usdtIntroduction"),
+    i18n("pages.home.announcements.ethereumNetworkMaintenance"),
+    i18n("pages.home.announcements.projectReviewStandards"),
+    i18n("pages.home.announcements.liquidityMiningUpgrade"),
+    i18n("pages.home.announcements.liquidityMiningFee"),
+    i18n("pages.home.announcements.delistingTradingPairs"),
+    i18n("pages.home.announcements.systemTemporaryMaintenance"),
+    i18n("pages.home.announcements.temporaryRechargeSuspension"),
+    i18n("pages.home.announcements.delistingNotification"),
+    i18n("pages.home.announcements.serverUpgrade"),
+    i18n("pages.home.announcements.serverNetworkUpgrade"),
+    i18n("pages.home.announcements.appDownloadOpen")
   ];
 
   // Auto slide functionality
@@ -81,7 +82,7 @@ function Home() {
         <div className="hero-section">
           <div className="header">
             <div className="logo">
-              <img src='./images/logo.png' style={{ height: '32px' }} alt="Logo" />
+              <img src='./images/logo.png' style={{ height: '32px' }} alt={i18n("pages.home.logoAlt")} />
             </div>
             <div className="header-icons">
               <Link to="/notification" className="icon-circle">
@@ -97,9 +98,13 @@ function Home() {
           {/* Hero Section */}
 
           <div className="crypto-illustration">
-            <img src="./images/header.png" alt="Crypto Illustration" style={{ height: '100%', width: '100%', objectFit: 'contain' }} />
+            <img 
+              src="./images/header.png" 
+              alt={i18n("pages.home.headerAlt")} 
+              style={{ height: '100%', width: '100%', objectFit: 'contain' }} 
+            />
           </div>
-          <div className="slogan">Profit With Confidence</div>
+          <div className="slogan">{i18n("pages.home.slogan")}</div>
         </div>
         {/* Promo Banner - Auto Slider */}
 
@@ -117,7 +122,7 @@ function Home() {
                   <div key={index} className="slide">
                     <img
                       src={slide}
-                      alt={`Promo ${index + 1}`}
+                      alt={i18n("pages.home.promoAlt", index + 1)}
                       className='promo__images'
                     />
                   </div>
@@ -160,10 +165,10 @@ function Home() {
               <div className="quick-trade-header">
                 <div>
                   <div className="card-title">
-                    <span className="highlight">Quick</span>Trade
+                    <span className="highlight">{i18n("pages.home.quickTrade.highlight")}</span>{i18n("pages.home.quickTrade.title")}
                   </div>
                   <div className="card-subtitle">
-                    Fast transactions and simple operation
+                    {i18n("pages.home.quickTrade.subtitle")}
                   </div>
                 </div>
                 <div className="arrow-button">
@@ -176,176 +181,168 @@ function Home() {
           {/* AI Trading Card */}
           <Link to="/product/details/9" className="remove_blue">
             <div className="ai-card">
-              <div className="ai-title">AI Smart Trading</div>
+              <div className="ai-title">{i18n("pages.home.aiTrading.title")}</div>
               <div className="ai-description">
-                An AI quantitative trading robot is an automated trading system that
-                combines artificial intelligence (AI) with quantitative trading
-                techniques. Its primary function is to automatically buy and sell
-                financial products and cryptocurrencies based on market data and
-                specific trading strategies to achieve stable profits or control risks.
+                {i18n("pages.home.aiTrading.description")}
               </div>
             </div>
           </Link>
 
           <Link to="/product/details/10" className="remove_blue">
             <div className="ai-card2">
-              <div className="ai-title">Explore NFTs with BINEX</div>
+              <div className="ai-title">{i18n("pages.home.nftExploration.title")}</div>
               <div className="ai-description">
-                Step into the world of NFTs with BINEX, your all-in-one digital asset trading wallet. Designed for both beginners and professional traders, BINEX lets you explore, buy, sell,and
+                {i18n("pages.home.nftExploration.description")}
               </div>
             </div>
           </Link>
 
           {/* Stats Section */}
           <div className="stats-section">
-            <div className="section-title">Our Impact</div>
+            <div className="section-title">{i18n("pages.home.stats.title")}</div>
             <div className="stats-grid">
               <div className="stat-item">
-                <div className="stat-value">30M+</div>
-                <div className="stat-label">Number of users</div>
+                <div className="stat-value">{i18n("pages.home.stats.users")}</div>
+                <div className="stat-label">{i18n("pages.home.stats.usersLabel")}</div>
               </div>
               <div className="stat-item">
-                <div className="stat-value">6000+</div>
-                <div className="stat-label">Cooperating organization</div>
+                <div className="stat-value">{i18n("pages.home.stats.organizations")}</div>
+                <div className="stat-label">{i18n("pages.home.stats.organizationsLabel")}</div>
               </div>
               <div className="stat-item">
-                <div className="stat-value">7.8B+</div>
-                <div className="stat-label">Liquidity</div>
+                <div className="stat-value">{i18n("pages.home.stats.liquidity")}</div>
+                <div className="stat-label">{i18n("pages.home.stats.liquidityLabel")}</div>
               </div>
               <div className="stat-item">
-                <div className="stat-value">89M</div>
-                <div className="stat-label">Orders processed per second</div>
+                <div className="stat-value">{i18n("pages.home.stats.orders")}</div>
+                <div className="stat-label">{i18n("pages.home.stats.ordersLabel")}</div>
               </div>
             </div>
           </div>
 
           {/* Services Section */}
           <div className="services-section">
-            <div className="section-title">Our Services</div>
-            <div className='section-subtitle'>Provide you with comprehensive 24-hour manual customer service specialist services to protect your transactions</div>
+            <div className="section-title">{i18n("pages.home.services.title")}</div>
+            <div className='section-subtitle'>{i18n("pages.home.services.subtitle")}</div>
             <div className="services-grid">
 
               <div className="service-item">
                 <div className="service-icon">
-                  <img src="./images/services/s1.png" className='service__image' alt="High interest rate" />
+                  <img src="./images/services/s1.png" className='service__image' alt={i18n("pages.home.services.highInterest.alt")} />
                 </div>
                 <div className="service__description">
-                  <div className="service-title">High interest rate</div>
-                  <div className="service-desc">Finance, high return rate</div>
+                  <div className="service-title">{i18n("pages.home.services.highInterest.title")}</div>
+                  <div className="service-desc">{i18n("pages.home.services.highInterest.desc")}</div>
                 </div>
               </div>
 
               <div className="service-item">
                 <div className="service-icon">
-                  <img src="./images/services/s2.png" alt="Liquidity mining" className='service__image' />
+                  <img src="./images/services/s2.png" alt={i18n("pages.home.services.liquidityMining.alt")} className='service__image' />
                 </div>
                 <div className="service__description">
-                  <div className="service-title">Liquidity mining</div>
-                  <div className="service-desc">Liquidity makes easy profits</div>
+                  <div className="service-title">{i18n("pages.home.services.liquidityMining.title")}</div>
+                  <div className="service-desc">{i18n("pages.home.services.liquidityMining.desc")}</div>
                 </div>
               </div>
 
               <div className="service-item">
                 <div className="service-icon">
-                  <img src="./images/services/s3.png" alt="24-hour service" className='service__image' />
+                  <img src="./images/services/s3.png" alt={i18n("pages.home.services.service24h.alt")} className='service__image' />
                 </div>
                 <div className="service__description">
-                  <div className="service-title">24-hour service</div>
-                  <div className="service-desc">Ready to answer all your questions</div>
+                  <div className="service-title">{i18n("pages.home.services.service24h.title")}</div>
+                  <div className="service-desc">{i18n("pages.home.services.service24h.desc")}</div>
                 </div>
               </div>
 
               <div className="service-item">
                 <div className="service-icon">
-                  <img src="./images/services/s4.png" alt="High contract" className='service__image' />
+                  <img src="./images/services/s4.png" alt={i18n("pages.home.services.highContract.alt")} className='service__image' />
                 </div>
                 <div className="service__description">
-                  <div className="service-title">High contract</div>
-                  <div className="service-desc">Small capital high lever, rich easily</div>
+                  <div className="service-title">{i18n("pages.home.services.highContract.title")}</div>
+                  <div className="service-desc">{i18n("pages.home.services.highContract.desc")}</div>
                 </div>
               </div>
 
               <div className="service-item">
                 <div className="service-icon">
-                  <img src="./images/services/s5.png" alt="Expert team" className='service__image' />
+                  <img src="./images/services/s5.png" alt={i18n("pages.home.services.expertTeam.alt")} className='service__image' />
                 </div>
                 <div className="service__description">
-                  <div className="service-title">Expert team</div>
-                  <div className="service-desc">Expert technical team at your service</div>
+                  <div className="service-title">{i18n("pages.home.services.expertTeam.title")}</div>
+                  <div className="service-desc">{i18n("pages.home.services.expertTeam.desc")}</div>
                 </div>
               </div>
 
               <div className="service-item">
                 <div className="service-icon">
-                  <img src="./images/services/s6.png" alt="Security protection" className='service__image' />
+                  <img src="./images/services/s6.png" alt={i18n("pages.home.services.securityProtection.alt")} className='service__image' />
                 </div>
                 <div className="service__description">
-                  <div className="service-title">Security protection</div>
-                  <div className="service-desc">Powerful cloud data protect your security</div>
+                  <div className="service-title">{i18n("pages.home.services.securityProtection.title")}</div>
+                  <div className="service-desc">{i18n("pages.home.services.securityProtection.desc")}</div>
                 </div>
               </div>
             </div>
           </div>
+          
           <div className="demo-section">
-            <div className="section-title">Fast swap
-              Swap your coins without any worries</div>
-            <div className='section-subtitle'>From Bitcoin to Dogecoin, we make buying and selling crypto easy. Protect your crypto with best-in-class cold storage.</div>
+            <div className="section-title">{i18n("pages.home.demo.fastSwap.title")}</div>
+            <div className='section-subtitle'>{i18n("pages.home.demo.fastSwap.subtitle")}</div>
             <div className="demo-photo">
-              <img src="./images/demo/phone1.png" alt="Fast swap demo" className='image_demo' />
+              <img src="./images/demo/phone1.png" alt={i18n("pages.home.demo.fastSwap.alt")} className='image_demo' />
             </div>
           </div>
 
           <div className="demo-section">
-            <div className="section-title">For advanced traders
-              Powerful tools for design</div>
-            <div className='section-subtitle'>Powerful analytical tools coupled with our security guarantee provide the ultimate trading experience. Take advantage of sophisticated charting capabilities, real-time order books and deep liquidity on hundreds of markets.</div>
+            <div className="section-title">{i18n("pages.home.demo.advancedTraders.title")}</div>
+            <div className='section-subtitle'>{i18n("pages.home.demo.advancedTraders.subtitle")}</div>
             <div className="demo-photo">
-              <img src="./images/demo/phone2.png" alt="Advanced traders demo" className='image_demo' />
+              <img src="./images/demo/phone2.png" alt={i18n("pages.home.demo.advancedTraders.alt")} className='image_demo' />
             </div>
           </div>
 
           <div className="demo-section">
-            <div className="section-title">Smart asset wallet management
-              Steady growth in revenue</div>
-            <div className='section-subtitle'>Powerful analytical tools coupled with our security guarantee provide the ultimate trading experience. Take advantage of sophisticated charting capabilities, real-time order books and deep liquidity on hundreds of markets.</div>
+            <div className="section-title">{i18n("pages.home.demo.walletManagement.title")}</div>
+            <div className='section-subtitle'>{i18n("pages.home.demo.walletManagement.subtitle")}</div>
             <div className="demo-photo">
-              <img src="./images/demo/phone3.png" alt="Wallet management demo" className='image_demo' />
+              <img src="./images/demo/phone3.png" alt={i18n("pages.home.demo.walletManagement.alt")} className='image_demo' />
             </div>
           </div>
 
           <div className="demo-section">
-            <div className="section-title">Liquidity mining, AI quantification</div>
-            <div className='section-subtitle'>More ways to manage your assets, including liquidity mining and AI quantification, give you more choices for managing your assets and keep your assets growing</div>
+            <div className="section-title">{i18n("pages.home.demo.liquidityMining.title")}</div>
+            <div className='section-subtitle'>{i18n("pages.home.demo.liquidityMining.subtitle")}</div>
             <div className="demo-photo">
-              <img src="./images/demo/phone4.png" alt="Liquidity mining demo" className='image_demo' />
+              <img src="./images/demo/phone4.png" alt={i18n("pages.home.demo.liquidityMining.alt")} className='image_demo' />
             </div>
           </div>
 
           <div className="demo-section">
-            <div className="section-title">Start trading cryptocurrency?
-              Open your cryptocurrency now</div>
-            <div className='section-subtitle'>Trade anytime and anywhere to meet the trading needs of various scenarios at any time
-            </div>
+            <div className="section-title">{i18n("pages.home.demo.startTrading.title")}</div>
+            <div className='section-subtitle'>{i18n("pages.home.demo.startTrading.subtitle")}</div>
             <div className="demo-photo">
-              <img src="./images/demo/phone5.png" alt="Start trading demo" className='image_demo' />
+              <img src="./images/demo/phone5.png" alt={i18n("pages.home.demo.startTrading.alt")} className='image_demo' />
             </div>
           </div>
 
           {/* News Section */}
           <div className="news-section">
-            <div className="section-title">News from the circle</div>
+            <div className="section-title">{i18n("pages.home.news.title")}</div>
 
             {/* News Item 1: Elon Musk Bitcoin News */}
             <Link to="/product/details/11" className="remove_blue">
               <div className="news-item">
                 <div>
-                  <div className="news-date">10-14-2025</div>
+                  <div className="news-date">{i18n("pages.home.news.elonMusk.date")}</div>
                   <div className="news-title">
-                    Elon Musk Says Bitcoin Is Based on Energy, Which Is Impossible to Fake
+                    {i18n("pages.home.news.elonMusk.title")}
                   </div>
                 </div>
                 <div>
-                  <img src="./images/news/elon.jpg" alt="Elon Musk news" style={{ width: "128px", height: "72px", objectFit: "cover" }} />
+                  <img src="./images/news/elon.jpg" alt={i18n("pages.home.news.elonMusk.alt")} style={{ width: "128px", height: "72px", objectFit: "cover" }} />
                 </div>
               </div>
             </Link>
@@ -354,13 +351,13 @@ function Home() {
             <Link to="/product/details/12" className="remove_blue">
               <div className="news-item">
                 <div>
-                  <div className="news-date">10-5-2025</div>
+                  <div className="news-date">{i18n("pages.home.news.bitcoinRecord.date")}</div>
                   <div className="news-title">
-                    Bitcoin Touches Record Price Above $125,000
+                    {i18n("pages.home.news.bitcoinRecord.title")}
                   </div>
                 </div>
                 <div>
-                  <img src="./images/news/bitcoin.jpg" alt="Bitcoin news" style={{ width: "128px", height: "72px", objectFit: "cover" }} />
+                  <img src="./images/news/bitcoin.jpg" alt={i18n("pages.home.news.bitcoinRecord.alt")} style={{ width: "128px", height: "72px", objectFit: "cover" }} />
                 </div>
               </div>
             </Link>
@@ -369,34 +366,34 @@ function Home() {
             <Link to="/product/details/13" className="remove_blue">
               <div className="news-item">
                 <div>
-                  <div className="news-date">9-17-2025</div>
+                  <div className="news-date">{i18n("pages.home.news.trumpStatue.date")}</div>
                   <div className="news-title">
-                    Giant Trump statue holding Bitcoin displayed outside US Capitol to
-                    mark Fed rate decision
+                    {i18n("pages.home.news.trumpStatue.title")}
                   </div>
                 </div>
-                <img src="./images/news/trump.jpg" alt="Trump statue news" style={{ width: "128px", height: "72px", objectFit: "cover" }} />
+                <img src="./images/news/trump.jpg" alt={i18n("pages.home.news.trumpStatue.alt")} style={{ width: "128px", height: "72px", objectFit: "cover" }} />
               </div>
             </Link>
           </div>
 
           {/* Partners Section */}
           <div className="partners-section">
-            <div className="partners-title">World Ecological Partner</div>
+            <div className="partners-title">{i18n("pages.home.partners.title")}</div>
             <p className='description__t'>
-              Build consensus and create a new future for the crypto ecosystem
+              {i18n("pages.home.partners.description")}
             </p>
             <div className="partners-grid">
-              <div className="partner-item">Binance</div>
-              <div className="partner-item">Coinbase</div>
-              <div className="partner-item">Kraken</div>
-              <div className="partner-item">FTX</div>
-              <div className="partner-item">Bitfinex</div>
-              <div className="partner-item">Huobi</div>
+              <div className="partner-item">{i18n("pages.home.partners.binance")}</div>
+              <div className="partner-item">{i18n("pages.home.partners.coinbase")}</div>
+              <div className="partner-item">{i18n("pages.home.partners.kraken")}</div>
+              <div className="partner-item">{i18n("pages.home.partners.ftx")}</div>
+              <div className="partner-item">{i18n("pages.home.partners.bitfinex")}</div>
+              <div className="partner-item">{i18n("pages.home.partners.huobi")}</div>
             </div>
           </div>
         </div>
       </div>
+
 
       <style>{`
         .remove_blue {

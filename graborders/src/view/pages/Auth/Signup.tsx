@@ -72,27 +72,27 @@ function Signup() {
 
   // Validation schema
   const schema = yup.object().shape({
-    email: yupFormSchemas.string(i18n("user.fields.username"), {
+    email: yupFormSchemas.string(i18n("pages.signup.labels.email"), {
       required: true,
     }),
-    password: yupFormSchemas.string(i18n("user.fields.password"), {
+    password: yupFormSchemas.string(i18n("pages.signup.labels.password"), {
       required: true,
       min: 8,
     }),
     newPasswordConfirmation: yupFormSchemas
-      .string(i18n("user.fields.newPasswordConfirmation"), {
+      .string(i18n("pages.signup.labels.confirmPassword"), {
         required: true,
       })
       .oneOf(
         [yup.ref("password"), null],
         i18n("auth.passwordChange.mustMatch")
       ),
-    phoneNumber: yupFormSchemas.string(i18n("user.fields.phoneNumber"), {
+    phoneNumber: yupFormSchemas.string(i18n("pages.signup.labels.phoneNumber"), {
       required: true,
     }),
     captcha: yup
       .string()
-      .required(i18n("user.fields.captcha"))
+      .required(i18n("pages.signup.labels.captcha"))
       .test("captcha-match", i18n("pages.signup.captchaMismatch"), function (value) {
         return value === captchaText;
       }),
@@ -168,7 +168,7 @@ function Signup() {
         
         <div className="language-selector-modal" onClick={openLanguageModal}>
           <div className="language-display">
-            {currentLanguageLabel || "Select Language"}
+            {currentLanguageLabel || i18n("common.selectLanguage")}
             <i className="fas fa-chevron-down"></i>
           </div>
         </div>
@@ -197,11 +197,11 @@ function Signup() {
           <form onSubmit={form.handleSubmit(onSubmit)}>
             {/* Email Field */}
             <div className="form-group">
-              <label className="form-label">Your mailbox</label>
+              <label className="form-label">{i18n("pages.signup.labels.email")}</label>
               <InputFormItem
                 type="email"
                 name="email"
-                placeholder="Please enter your email"
+                placeholder={i18n("pages.signup.placeholders.email")}
                 className="form-input"
                 externalErrorMessage={null}
                 autoComplete="email"
@@ -210,11 +210,11 @@ function Signup() {
 
             {/* Phone Number Field */}
             <div className="form-group">
-              <label className="form-label">Phone number</label>
+              <label className="form-label">{i18n("pages.signup.labels.phoneNumber")}</label>
               <InputFormItem
                 type="tel"
                 name="phoneNumber"
-                placeholder="Please enter your phone number"
+                placeholder={i18n("pages.signup.placeholders.phoneNumber")}
                 className="form-input"
                 autoComplete="tel"
               />
@@ -222,18 +222,19 @@ function Signup() {
 
             {/* Graphical Captcha */}
             <div className="form-group">
-              <label className="form-label">Verification code</label>
+              <label className="form-label">{i18n("pages.signup.labels.captcha")}</label>
               <div className="captcha-container">
                 <div className="captcha-display" onClick={refreshCaptcha}>
                   <div className="captcha-text">{captchaText}</div>
                   <div className="refresh-captcha">
                     <i className="fas fa-sync-alt" />
+                    <span className="refresh-text">{i18n("pages.signup.refresh")}</span>
                   </div>
                 </div>
                 <InputFormItem
                   type="text"
                   name="captcha"
-                  placeholder="Enter verification code"
+                  placeholder={i18n("pages.signup.placeholders.captcha")}
                   className="form-input"
                 />
               </div>
@@ -241,11 +242,11 @@ function Signup() {
 
             {/* Password Field */}
             <div className="form-group">
-              <label className="form-label">Password</label>
+              <label className="form-label">{i18n("pages.signup.labels.password")}</label>
               <InputFormItem
                 type="password"
                 name="password"
-                placeholder="Please enter your password"
+                placeholder={i18n("pages.signup.placeholders.password")}
                 className="form-input"
                 autoComplete="new-password"
               />
@@ -253,11 +254,11 @@ function Signup() {
 
             {/* Confirm Password Field */}
             <div className="form-group">
-              <label className="form-label">Confirm password</label>
+              <label className="form-label">{i18n("pages.signup.labels.confirmPassword")}</label>
               <InputFormItem
                 type="password"
                 name="newPasswordConfirmation"
-                placeholder="Please confirm your password"
+                placeholder={i18n("pages.signup.placeholders.confirmPassword")}
                 className="form-input"
                 autoComplete="new-password"
               />
@@ -271,7 +272,13 @@ function Signup() {
               style={{ opacity: loading ? 0.6 : 1 }}
             >
               {loading ? (
-                <span>{i18n("pages.signup.creatingAccount")}</span>
+                <span>
+                  <i
+                    className="fas fa-spinner fa-spin"
+                    style={{ marginRight: "8px" }}
+                  ></i>
+                  {i18n("pages.signup.creatingAccount")}
+                </span>
               ) : (
                 <span>{i18n("pages.signup.createAccount")}</span>
               )}
@@ -280,8 +287,24 @@ function Signup() {
             {/* Already have account link */}
             <div className="footer">
               <Link to="/auth/signin" className="forgot-password">
-                Already have an account? Sign in
+                {i18n("pages.signup.alreadyHaveAccount")}
               </Link>
+            </div>
+
+            {/* Terms and Conditions */}
+            <div className="terms-section" style={{
+              textAlign: 'center',
+              marginTop: '20px',
+              padding: '0 16px',
+              color: '#666',
+              fontSize: '12px'
+            }}>
+              <p>
+                {i18n("pages.signup.terms.text")}{' '}
+                <Link to="/terms" style={{ color: '#106cf5', textDecoration: 'none' }}>
+                  {i18n("pages.signup.terms.link")}
+                </Link>
+              </p>
             </div>
           </form>
         </FormProvider>
@@ -297,7 +320,7 @@ function Signup() {
             <div className="modal-header-bottom">
               <div className="modal-drag-handle"></div>
               <div className="modal-title-wrapper">
-                <div className="modal-title">Select Language</div>
+                <div className="modal-title">{i18n("common.selectLanguage")}</div>
                 <button
                   className="modal-close-btn-bottom"
                   onClick={closeLanguageModal}

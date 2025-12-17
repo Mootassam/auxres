@@ -6,6 +6,20 @@ const tr = {
   app: {
     title: "Nowspeed"
   },
+
+  common: {
+    timeout: "İstek zaman aşımı",
+    requestAborted: "İstek iptal edildi",
+    fetchError: "Piyasa verileri alınırken hata",
+    dateNotAvailable: "Tarih mevcut değil",
+    currencyFormat: "${0}",
+    invalidDate: "Geçersiz tarih",
+    invalidTime: "Geçersiz saat",
+    unknown: "Bilinmeyen",
+    na: "Mevcut değil",
+    back: "Geri",
+    close: "Kapat",
+  },
   inputs: {
     username: "Kullanıcı Adı",
     password: "Şifre",
@@ -17,7 +31,7 @@ const tr = {
 
 
   },
-    stake: {
+  stake: {
     enterAmount: "Bir miktar girin",
     insufficientBalance: "Yetersiz bakiye",
     minAmount: "Min: {{min}}",
@@ -26,7 +40,7 @@ const tr = {
   },
 
 
-components: {
+  components: {
     bottomNav: {
       home: "Ana Sayfa",
       market: "Pazar",
@@ -46,21 +60,48 @@ components: {
   },
 
   auth: {
-    signin: {
-      title: "GİRİŞ YAP",
-      button: "Giriş Yap",
-      signingIn: "Giriş yapılıyor...",
-      forgotPassword: "ŞİFREMİ UNUTTUM?",
-      signUp: "KAYIT OL",
-      orContinueWith: "veya ile devam et",
-      downloadApp: "UYGULAMAMIZI İNDİR",
-      appDescription: "Mobil cihazınızda en iyi kripto deneyimini elde edin",
-      googlePlay: "Google Play"
-    },
-    fields: {
-      emailOrPhone: "E-posta/Telefon Numarası",
-      password: "Şifre"
-    },
+signin: {
+  title: "GİRİŞ YAP",
+  button: "Giriş Yap",
+  signingIn: "Giriş yapılıyor...",
+  forgotPassword: "ŞİFREMİ UNUTTUM?",
+  signUp: "KAYIT OL",
+  orContinueWith: "veya ile devam et",
+  downloadApp: "UYGULAMAMIZI İNDİRİN",
+  appDescription: "Mobil cihazınızda en iyi kripto deneyimini edinin",
+  googlePlay: "Google Play",
+  signupNow: "Şimdi kaydolun",
+  forgetPassword: "Şifremi unuttum",
+  orSeparator: "VEYA",
+  connectingWallet: "Cüzdan bağlanıyor...",
+  loginWithWallet: "Cüzdan ile giriş yap",
+  walletNotDetected: "Web3 cüzdanı tespit edilmedi",
+  installWalletMessage: "Bu özelliği kullanmak için MetaMask veya başka bir Web3 cüzdanı yükleyin",
+  walletSupport: "MetaMask, Coinbase Wallet vb. destekler",
+  mailTab: "Mail",
+  phoneTab: "Telefon",
+  backButton: "Geri",
+},fields: {
+  mailbox: "Posta kutunuz",
+  password: "Şifreniz",
+  emailPlaceholder: "Lütfen e-posta adresinizi girin",
+  passwordPlaceholder: "Lütfen şifrenizi girin",
+},
+
+wallet: {
+  installRequired: "Lütfen MetaMask veya başka bir Web3 cüzdanı yükleyin",
+  connectionRejected: "Cüzdan bağlantısı reddedildi",
+  wrongNetwork: "Lütfen doğru ağa bağlanın",
+  connectionFailed: "Cüzdan bağlantısı başarısız oldu",
+  nonceError: "Sunucudan nonce alınamadı",
+  verificationFailed: "Doğrulama başarısız oldu",
+},
+
+common: {
+  selectLanguage: "Dil seç",
+  rememberPassword: "Şifremi hatırla",
+},
+
     tenants: "Çalışma Alanları",
     singindesc: "Giriş yapmak için e-posta ve şifrenizi girin",
     signupdesc: "Kayıt olmak için e-posta ve şifrenizi girin",
@@ -236,1220 +277,1564 @@ components: {
 
 
 
-pages: {
+  pages: {
+    helpCenter: {
+      title: "Yardım Merkezi",
+      faq: {
+        aboutAccounts: "Resmi hesaplar ve demo hesaplar hakkında",
+        transactionVolume: "İşlem hacmi nedir?",
+        transferFunds: "Neden fon transferi yapılır?",
+        whatAreFutures: "Futures nedir?",
+        convertedAmountChanges: "Varlıklardaki dönüştürülen miktar neden değişir?",
+        realNameAuthentication: "Neden gerçek ad doğrulaması gereklidir?",
+        frozenAssets: "Dondurulmuş varlıklar nedir?",
+        futuresTradingRules: "Futures işlem kuralları nelerdir?"
+      }
+    },
 
-
-  futures: {
-  title: "Futures",
-  actions: {
-    buyUp: "YUKARI AL",
-    buyDown: "AŞAĞI AL"
-  },
-  tabs: {
-    openOrders: "Açık Emirler",
-    recentOrders: "Son Emirler"
-  },
-  orderDetails: {
-    title: "Emir Detayları",
-    open: "Açık",
-    closed: "Kapalı",
-    completed: "Tamamlandı",
-    futuresAmount: "Futures Miktarı:",
-    contractDuration: "Sözleşme Süresi:",
-    seconds: "Saniye",
-    futuresStatus: "Futures Durumu:",
-    openPositionPrice: "Pozisyon Açılış Fiyatı:",
-    openPositionTime: "Pozisyon Açılış Zamanı:",
-    closePositionPrice: "Pozisyon Kapanış Fiyatı:",
-    closePositionTime: "Pozisyon Kapanış Zamanı:",
-    profitLossAmount: "Kar/Zarar Miktarı:",
-    leverage: "Kaldıraç:",
-    done: "Tamamlandı"
-  },
-  status: {
-    open: "Açık",
-    closed: "Kapalı",
-    completed: "Tamamlandı"
-  },
-  list: {
-    noOrders: "Emir yok"
-  }
-},
-    proof: {
-        title: "Kimlik Doğrulama",
-        instructions: "BINEX'in tüm özelliklerine erişmek için kimliğinizi doğrulayın",
-        sections: {
-            documentInfo: "Belge Bilgileri",
-            documentUpload: "Belge Yükleme"
+    helpCenterDetail: {
+      faqNotFound: "SSS öğesi bulunamadı, yönlendirme gerekli",
+      
+      questions: {
+        aiQuantification: "AI Kantifikasyonuna Giriş",
+        exploreNFTs: "AureX ile NFT'leri Keşfedin",
+        bitcoinEnergy: "Elon Musk Bitcoin'in Enerjiye Dayalı Olduğunu Söylüyor, Sahtesi Yapılamaz\n13/10/2025, 08:00:00 (UTC-8)",
+        bitcoinRecordPrice: "Bitcoin Rekor Fiyatın Üzerinde 125.000$'a Dokundu\n4/10/2025, 08:00:00 (UTC-8)",
+        trumpStatueBitcoin: "Fed faiz kararını işaretlemek için ABD Capitol'ü önünde Bitcoin tutan dev Trump heykeli sergilendi\n16/9/2025, 08:00:00 (UTC-8)"
+      },
+      
+      answers: {
+        aboutAccounts: "Resmi hesaplar platformun tüm çevrimiçi işlevlerini kullanabilirken, demo hesaplar platformun yalnızca bazı işlevlerini sınırlı olarak kullanabilir, likidite madenciliği ile kâr elde edemez ve para yatırıp çekemez. (Demo hesaplar her ayın 1'inde sabit sanal fonlar alabilir)",
+        transactionVolume: "Kara Para Aklamanın Önlenmesi Yasası'nın ilgili hükümlerine göre, her işlem fiyat kontrolü gerektirir ve para çekilebilmesi için belirli bir işlem hacminin tamamlanması gerekir, böylece kullanıcıların borsada para aklaması önlenir! Örneğin, 10.000U yatırırsanız, işlem tutarı ilgili belirtilen tutara ulaşmalıdır!",
+        transferFunds: "Çeşitli hesaplarınız arasındaki fon bağımsızlığını sağlamak ve makul risk kontrolünüzü kolaylaştırmak için ana ticaret modüllerinin hesapları ayrılmıştır. Transfer, çeşitli ticaret hesapları arasında varlıkların dönüştürülme sürecini ifade eder.",
+        whatAreFutures: "Futures, zamanı kapsayan bir ticaret şeklidir. Alıcılar ve satıcılar, belirli bir zamanda, fiyatta ve diğer ticaret koşullarında belirtilen miktarda spot mal teslim etmeyi kabul etmek için bir sözleşme imzalarlar. Futures genellikle futures borsalarında yoğunlaşır ve standartlaştırılmış sözleşmelerle alınıp satılır. İşlem gören varlıklar genellikle emtialar veya finansal araçlardır. Tarafların bir varlığı alıp satmayı kabul ettiği önceden belirlenmiş fiyata forward fiyatı denir.",
+        convertedAmountChanges: "Varlıklardaki dönüştürülmüş değer, şu anda tutulan dijital para biriminin USD cinsinden değeridir. Dijital varlıkların fiyat dalgalanmaları nedeniyle değişir, ancak dijital varlıklarınızın miktarı değişmez.",
+        realNameAuthentication: "Fonlarınızın güvenliği için, alıcı hesabınızın mevcut hesabınızın gerçek ad bilgileriyle ilişkilendirilmesini sınırlıyoruz.",
+        frozenAssets: "Dondurulmuş varlıklar, işlem veya para çekme işlemleri gerçekleştirdiğinizde sürecin tam olarak tamamlanmadığı anlamına gelir. Mevcut varlıklar geçici olarak sistem tarafından yönetilir ve sizin tarafınızdan serbestçe kontrol edilemez. Varlığı kaybettiğiniz veya varlıkta bir anormallik olduğu anlamına gelmez. Lütfen içiniz rahat olsun.",
+        futuresTradingRules: "Mevcut ticaret çiftinin bir sonraki fiyat trendini (yukarı veya aşağı) tahmin ederek işlemlere katılın. Artış veya azalışın aralığı yerleştirme sırasında hesaplanmaz ve yalnızca gelir, artış veya azalışın sonucuna göre hesaplanır. Farklı teslimat zamanları için yerleştirme kâr yüzdeleri farklıdır ve kârlar ticaret arayüzünde doğru şekilde görüntülenecektir.",
+        aiQuantification: "Bir AI kantitatif ticaret robotu, yapay zeka (AI) ile kantitatif ticaret tekniklerini birleştiren otomatik bir ticaret sistemidir. Temel işlevi, istikrarlı kârlar elde etmek veya riskleri kontrol etmek için piyasa verilerine ve belirli ticaret stratejilerine dayalı olarak finansal ürünleri ve kripto para birimlerini otomatik olarak alıp satmaktır.",
+        exploreNFTs: "AureX ile NFT'lerin dünyasına adım atın, tümü bir arada dijital varlık ticaret cüzdanınız. Hem yeni başlayanlar hem de profesyonel tüccarlar için tasarlanmış AureX, yüksek kaliteli NFT'leri güvenli ve verimli bir şekilde keşfetmenize, satın almanıza, satmanıza ve yönetmenize olanak tanır.\n\nGelişmiş güvenlik, gerçek zamanlı takip ve sorunsuz işlemlerle AureX, dijital koleksiyonlarınız üzerinde tam kontrole sahip olmanızı sağlar. Özel sanat eserlerinden sınırlı sayıdaki dijital varlıklara kadar, dijital mülkiyetin geleceğini keşfedin — hepsi tek bir yerde, güvenle ve kolayca.",
+        bitcoinEnergy: "Tesla ve Spacex CEO'su Elon Musk, 14 Ekim'de X'te bitcoin'in enerjiye dayalı olduğunu söyledi ve bunu hükümetlerin şişirebileceği itibari para birimleriyle karşılaştırdı. Sözü, altın, gümüş ve bitcoin fiyatlarındaki artışı, küresel yapay zeka silahlanma yarışına hükümet harcamalarının neden olduğu para birimi değer kaybına bağlayan bir Zerohedge gönderisine yanıttı. Zerohedge, paranın basılabileceğini ancak enerjinin basılamayacağını ekledi. Musk katılarak şunu yazdı: 'Doğru. Bu yüzden bitcoin enerjiye dayalı: sahte itibari para birimi çıkarabilirsiniz ve tarihteki her hükümet bunu yapmıştır, ancak enerjinin sahtesi yapılamaz.'\n\nElon Musk bitcoin ve enerji hakkında ne dedi?\nElon Musk, Bitcoin'in enerjiye dayalı olduğunu belirterek, hükümetler itibari para basabilirken enerjinin sahtesinin yapılamayacağını veya yapay olarak yaratılamayacağını vurguladı.\n\nElon Musk neden bitcoin'i itibari para birimleriyle karşılaştırdı?\nMusk, itibari para birimlerinin hükümetler daha fazlasını çıkarabildiği için enflasyona yatkın olduğunu, bitcoin'in enerjiye dayalı olmasının ise ona daha somut ve sınırlı bir değer temeli verdiğini vurguladı.\n\nMusk'ın bitcoin hakkındaki yorumunun bağlamı neydi?\nYorumu, altın, gümüş ve bitcoin fiyatlarındaki artışın küresel hükümet harcamaları ve yapay zeka silahlanma yarışının neden olduğu para birimi değer kaybıyla bağlantılı olduğunu öne süren bir Zerohedge gönderisine yanıttı.\n\nMusk'ın açıklamasından çıkarılacak ana fikir nedir?\nMusk'ın sözü, bitcoin'in değerinin gerçek dünya enerji maliyetine dayandığı fikrini güçlendirerek, bunu geleneksel itibari paranın kolayca manipüle edilebilen doğasıyla karşılaştırdı.",
+        bitcoinRecordPrice: "Bitcoin yeni bir zirve yaptı.\n\nÖnde gelen kripto para birimi gece boyunca bir rekor seviyeye dokundu, Ağustos'ta belirlenen yaklaşık 124.480$'lık eski en yüksek seviyeyi aşarak yaklaşık 125.400$ civarında tüm zamanların en yüksek seviyelerine ulaştı. (Daha yakın zamanda 123.000$'a daha yakın işlem gördü.)\n\nCoinMarketCap'a göre son hareketler, bitcoin'in toplam piyasa değerini yaklaşık 2,45 trilyon $ ve kriptonun toplam değerini yaklaşık 4,21 trilyon $'a getirdi. Bitcoin, Nisan'da görülen 80.000$'ın altındaki fiyatlardan çıkarak çarpıcı bir yıl geçirdi.\n\nBitcoin boğaları genellikle paranın sürekli yükselişini kaçınılmaz olarak görse de, bazıları 2025 sonunda daha fazla yükseliş öngörmek için daha spesifik nedenlere sahipti. Ayı piyasası dip seviyelerinden sonraki 1.064 günlük pencerede yeni rekorlar koyma geçmişi vardır, bunlardan sonuncusu 21 Kasım 2022'deydi.\n\nBu arada, kripto borsalarındaki bitcoin işlem hacimleri Eylül sonundaki bir düşüşten bu yana artıyor. Artan hacimler genellikle fiyatlar için iyi olma eğilimindedir.\n\nBazı analistler bitcoin'in yükselmeye devam etmesini beklemek için nedenler görüyor. JPMorgan analistleri 1 Ekim'deki bir notta, hem perakende hem de kurumsal yatırımcıların bahislerini altın ve bitcoin ile koruduğu 'değer kaybı ticareti'nin, artan jeopolitik belirsizlikten ekonomiler arasında kalıcı olarak yüksek hükümet borcuna ve azalan ABD doları hakimiyetine kadar uzanan endişeler arasında hız kazanacağını öne sürdü.\n\nDaha geniş anlamda, son gelişmeler, kripto endüstrisinin daha fazla yatırımcı doları talep ederken ve finans dünyasında konum edinmeye çalışırken sürekli ilerleme kaydettiğini gösterdi—bunlar arasında birkaç yeni kripto ETF'nin lansmanı ve kripto hazine hisselerinin popülaritesindeki artış yer alıyor.",
+        trumpStatueBitcoin: "WASHINGTON (7News) — Başkan Donald Trump'ın bir Bitcoin tutan 12 fitlik altın heykeli, Çarşamba günkü Federal Rezerv'in yaklaşan faiz oranı kararıyla aynı zamana denk gelecek şekilde ABD Capitol'ü önüne yerleştirildi.\n\nSaat 14:00'te Fed, Aralık 2024'ten bu yana ilk indirimi işaret ederek kilit faiz oranını çeyrek puan düşürdüğünü açıkladı. İndirim, kısa vadeli oranı %4,3'ten yaklaşık %4,1'e düşürecek. Geçen yıl, merkez bankası iş büyümesinin yavaşladığı ve işsizliğin arttığı endişeleri nedeniyle faiz oranlarını üç kez düşürdü.\n\nMerkez bankası ayrıca bu yıl iki faiz indirimi daha planını açıkladı. Ancak, 2026'da yalnızca bir indirim bekleniyor ve bu Wall Street'i hayal kırıklığına uğratabilir, çünkü gelecek yıla kadar beş indirim bekliyorlardı.\n\nSabah 9'dan akşam 4'e kadar 3. Cadde'de bulunan geçici eser, bir kripto para yatırımcısı kolektifi tarafından finanse edildi. Organizatörler, parçanın dijital para biriminin geleceği, para politikası ve federal hükümetin finansal piyasalardaki rolü hakkında tartışma başlatmayı amaçladığını söyledi."
+      }
+    },
+    
+    transfer: {
+      title: "Transfer Geçmişi",
+      noTransferHistory: "Transfer geçmişi mevcut değil",
+      accountTypes: {
+        trade: "Ticaret Hesabı",
+        perpetual: "Perpetual Hesap",
+        exchange: "Borsa Hesabı"
+      },
+      status: {
+        completed: "Tamamlandı"
+      }
+    },
+    
+    settings: {
+      title: "Ayarlar",
+      language: "Dil",
+      quotationCurrency: "Kotasyon para birimi",
+      colorConfiguration: "Renk yapılandırması",
+      aboutUs: "Hakkımızda",
+      versionNumber: "Versiyon numarası",
+      selected: "Seçildi",
+      colorSchemes: {
+        greenRiseRedFall: {
+          name: "Yeşil yükselir, Kırmızı düşer",
+          alt: "Yeşil yükselir, Kırmızı düşer grafik renk şeması",
+          description: "Geleneksel ticaret renkleri: yeşil fiyat artışları için, kırmızı fiyat düşüşleri için"
         },
-        fields: {
-            documentType: "Belge Türü",
-            fullName: "Tam Adı",
-            documentNumber: "Belge Numarası",
-            address: "Adres",
-            frontSide: "Belgenin Ön Yüzü",
-            backSide: "Belgenin Arka Yüzü",
-            selfie: "Belge ile Selfie"
-        },
-        placeholders: {
-            fullName: "Tam adınızı girin",
-            documentNumber: "Belge numaranızı girin",
-            address: "Tam adresinizi girin"
-        },
-        uploadTexts: {
-            frontSide: "Belgenizin ön yüzünü yükleyin",
-            backSide: "Belgenizin arka yüzünü yükleyin",
-            selfie: "Belgenizi tuttuğunuz bir selfie yükleyin"
-        },
-        documentTypes: {
-            passport: "Pasaport",
-            idCard: "Kimlik Kartı",
-            driversLicense: "Sürücü Belgesi"
-        },
-        security: {
-            title: "Güvenlik Bildirimi",
-            text: "Bilgileriniz şifrelenmiş ve güvendedir. Güvenliğiniz için banka düzeyinde koruma kullanıyoruz ve her belgiyi manuel olarak doğruluyoruz."
-        },
-        buttons: {
-            validateDocuments: "BELGELERİ DOĞRULA"
-        },
-        footer: {
-            copyright: "© 2025 CryptoWallet. Tüm hakları saklıdır.",
-            privacyPolicy: "Gizlilik Politikası"
+        redRiseGreenFall: {
+          name: "Kırmızı yükselir, Yeşil düşer",
+          alt: "Kırmızı yükselir, Yeşil düşer grafik renk şeması",
+          description: "Alternatif ticaret renkleri: kırmızı fiyat artışları için, yeşil fiyat düşüşleri için"
         }
-    },
-    withdrawPassword: {
-        title: "Para Çekme Şifresi",
-        cardTitle: "PARA ÇEKME ŞİFRESİNİ DEĞİŞTİR",
-        fields: {
-            currentPassword: "Mevcut Şifre",
-            newPassword: "Yeni Şifre"
+      },
+      modals: {
+        language: {
+          title: "Dil Seçin"
         },
-        placeholders: {
-            currentPassword: "Mevcut şifrenizi girin",
-            newPassword: "Yeni şifrenizi onaylayın"
-        },
-        buttons: {
-            saveChanges: "DEĞİŞİKLİKLERİ KAYDET"
-        },
-        warningMessage: "Fonlarınızın güvenliği için, giriş şifresi değiştirildikten sonra 24 saat boyunca para çekme işlemine izin verilmez."
-    },
-    loginPassword: {
-        title: "Giriş Şifresi",
-        cardTitle: "GİRİŞ ŞİFRESİNİ DEĞİŞTİR",
-        fields: {
-            oldPassword: "Eski Şifre",
-            newPassword: "Yeni Şifre",
-            newPasswordConfirmation: "Şifreyi Onayla"
-        },
-        placeholders: {
-            oldPassword: "Mevcut şifrenizi girin",
-            newPassword: "Yeni bir şifre oluşturun",
-            confirmPassword: "Yeni şifrenizi onaylayın"
-        },
-        buttons: {
-            saveChanges: "DEĞİŞİKLİKLERİ KAYDET"
-        },
-        warningMessage: "Fonlarınızın güvenliği için, giriş şifresi değiştirildikten sonra 24 saat boyunca para çekme işlemine izin verilmez.",
-        validation: {
-            mustMatch: "Şifreler eşleşmeli"
+        colorConfiguration: {
+          title: "Renk Yapılandırması"
         }
+      }
     },
-    passwordType: {
-        title: "Şifre Türü",
-        cardTitle: "ŞİFRE TÜRÜNÜ SEÇİN",
-        options: {
-            login: {
-                title: "Giriş Şifresi",
-                description: "Hesap giriş şifrenizi değiştirin"
-            },
-            withdrawal: {
-                title: "Para Çekme Şifresi",
-                description: "Kripto para çekme şifrenizi değiştirin"
-            }
-        }
-    },
-    withdrawAddressForm: {
-        title: "Para Çekme Adresi",
-        currencyType: "PARA BİRİMİ TÜRÜ",
-        withdrawalAddress: "PARA ÇEKME ADRESİ",
-        currencies: {
-            btc: "BTC (Bitcoin)",
-            eth: "ETH (Ethereum)",
-            usdt: "USDT (Tether)",
-            sol: "SOL (Solana)",
-            xrp: "XRP (Ripple)"
-        },
-        fields: {
-            address: "Adres",
-            password: "Kripto Para Çekme Şifresi"
-        },
-        placeholders: {
-            address: "Cüzdan adresinizi girin",
-            password: "Mevcut şifrenizi girin"
-        },
-        buttons: {
-            save: "KAYDET"
-        },
-        notification: {
-            success: "Adres başarıyla kaydedildi!"
-        }
-    },
-    withdrawAddress: {
-        title: "Para Çekme Adresi",
-        cardTitle: "PARA BİRİMİ TÜRÜ",
-        currencies: {
-            btc: "BTC (Bitcoin)",
-            eth: "ETH (Ethereum)",
-            usdt: "USDT (Tether)",
-            sol: "SOL (Solana)",
-            xrp: "XRP (Ripple)"
-        }
-    },
-    privacy: {
-        title: "Gizlilik Portalı",
-        hero: {
-            title: "BINEX Gizlilik Portalı",
-            subtitle: "Verilerinizi ve gizliliğinizi katı kurallar, yasal uyumluluk ve sektör en iyi uygulamaları ile koruyoruz."
-        },
-        principles: {
-            title: "Gizlilik İlkelerimiz",
-            corePrinciples: "Temel İlkeler",
-            transparency: {
-                title: "Şeffaflık",
-                description: "Verilerinizi nasıl işlediğimiz hakkında düzenli güncellemeler ve net bilgiler."
-            },
-            accountability: {
-                title: "Sorumluluk ve Uyumluluk",
-                description: "Düzenli denetimler, sertifikalar ve küresel gizlilik yasalarına uyum."
-            },
-            dataSecurity: {
-                title: "Veri Güvenliği",
-                description: "Gelişmiş şifreleme, katı erişim kontrolleri ve kimlik doğrulama protokolleri."
-            },
-            dataMinimization: {
-                title: "Veri Minimizasyonu ve Amaç Sınırlaması",
-                description: "Yalnızca belirli, meşru amaçlar için gerekli olanı topluyoruz."
-            },
-            privacyByDesign: {
-                title: "Tasarımda Gizlilik",
-                description: "Gizlilik, ürün ve hizmetlerimize en başından itibaren entegre edilmiştir."
-            }
-        },
-        userRights: {
-            title: "Gizlilik Haklarınız",
-            content: "Kişisel bilgilerinize erişmek ve yönetmek için uygulamamız veya web formumuz aracılığıyla araçlara sahipsiniz; detaylı bilgi Gizlilik Bildirimimizde mevcuttur.",
-            note: "Kişisel bilgilerinize erişme, düzeltme veya silme haklarınızı istediğiniz zaman kullanın."
-        },
-        personalData: {
-            title: "Kişisel Veri Nedir?",
-            definition: "Kişisel veri, bir bireyi tanımlayan her türlü bilgiyi ifade eder.",
-            examples: "Örnekler: isim, BINEX ID, e-posta adresi, konum verileri, işlem geçmişi ve cihaz bilgisi."
-        },
-        dataUsage: {
-            title: "Verilerinizi Nasıl Kullanıyoruz?",
-            accountManagement: {
-                title: "Hesap Yönetimi",
-                description: "Hesabınızı oluşturmak ve sürdürmek, hizmet sağlamak ve sizinle iletişim kurmak için."
-            },
-            legalCompliance: {
-                title: "Yasal Uyumluluk",
-                description: "Kara Para Aklamanın Önlenmesi (AML) düzenlemeleri de dahil olmak üzere uygulanabilir yasalar kapsamındaki yükümlülüklerimizi yerine getirmek için."
-            },
-            securityFraud: {
-                title: "Güvenlik ve Dolandırıcılık Önleme",
-                description: "Hesabınızı korumak, dolandırıcılığı tespit etmek ve önlemek ve platform güvenliğini sağlamak için."
-            },
-            customerSupport: {
-                title: "Müşteri Desteği",
-                description: "Sorularınıza yanıt vermek ve ihtiyaç duyulduğunda teknik yardım sağlamak için."
-            },
-            marketing: {
-                title: "Pazarlama ve İletişim",
-                description: "Size ilgili güncellemeler, ürün bilgileri ve promosyon materyalleri göndermek için (izin verirseniz)."
-            },
-            transactionProcessing: {
-                title: "İşlem İşleme",
-                description: "Kripto para işlemlerini kolaylaştırmak ve işlem kayıtlarını tutmak için."
-            }
-        },
-        dataRetention: {
-            title: "Veri Saklama",
-            content: "Hizmetlerimizi sağlamak, yasal yükümlülüklere uymak (vergi ve AML gereklilikleri gibi), anlaşmazlıkları çözmek ve sözleşmelerimizi uygulamak için verilerinizi gerekli olduğu sürece saklarız."
-        },
-        dataSharing: {
-            title: "Veri Paylaşımı",
-            content: "Verilerinizi, Gizlilik Bildirimimizde belirtilen amaçlar için yalnızca gerekli olduğunda, katı sözleşmesel güvenceler altında diğer BINEX birimleri veya güvenilir üçüncü taraflarla paylaşabiliriz."
-        },
-        cookies: {
-            title: "Çerezler ve İzleme",
-            content: "Kullanıcı deneyiminizi geliştirmek, kişiselleştirilmiş pazarlama sağlamak ve hizmetlerimizin nasıl kullanıldığını analiz etmek için çerezler ve benzer teknolojiler kullanıyoruz.",
-            link: "Tam Çerez Politikamızı görüntüleyin"
-        },
-        actionCards: {
-            privacyNotice: {
-                title: "Gizlilik Bildirimi",
-                description: "Tam gizlilik politikamızı okuyun"
-            },
-            manageData: {
-                title: "Verileri Yönetin",
-                description: "Bilgilerinize erişin ve kontrol edin"
-            },
-            cookieSettings: {
-                title: "Çerez Ayarları",
-                description: "İzleme tercihlerinizi ayarlayın"
-            },
-            helpCenter: {
-                title: "Yardım Merkezi",
-                description: "Gizlilik sorularına yanıt alın"
-            }
-        },
-        notification: "İşlem başarıyla tamamlandı!"
-    },
-    termsOfUse: {
-        title: "Kullanım Koşulları",
-        hero: {
-            title: "BINEX Kullanım Koşulları"
-        },
-        agreement: {
-            title: "Anlaşma",
-            content: "Bu, sizin (kullanıcı) ile BINEX arasında bağlayıcı bir anlaşmadır. Eriştiğiniz veya kullandığınız tüm BINEX Hizmetlerini kapsar."
-        },
-        riskWarning: {
-            title: "Risk Uyarısı",
-            content: "Dijital varlıklar oynaktır ve değerleri önemli ölçüde dalgalanabilir. BINEX bir aracı, finansal danışman veya yatırım danışmanı değildir. Herhangi bir finansal karar vermeden önce kendi due diligence'inizi yapmalısınız."
-        },
-        aboutServices: {
-            title: "Hizmetlerimiz Hakkında",
-            aboutBINEX: {
-                title: "BINEX Hakkında",
-                content: "BINEX, platformumuz aracılığıyla dijital varlık değişimi, saklama hizmetleri ve ilgili finansal hizmetler sağlar."
-            },
-            eligibility: {
-                title: "Uygunluk",
-                content: "En az 18 yaşında, yasal olarak sözleşme yapabilme ehliyetine sahip, hizmetlerimizi kullanmaktan kısıtlanmamış ve yasaklı yargı bölgelerinde bulunmuyor olmalısınız."
-            },
-            communication: {
-                title: "İletişim",
-                content: "İletişim bilgilerinizi güncel tutmalısınız. BINEX, hesabınız ve hizmetlerimiz hakkında sizinle e-posta, SMS veya telefon yoluyla iletişime geçecektir."
-            }
-        },
-        services: {
-            title: "Hizmetlerimiz",
-            servicesProvided: {
-                title: "Sağlanan Hizmetler",
-                content: "BINEX, hem otomatik botlar hem de insan temsilciler aracılığıyla dijital varlık ticareti, güvenli saklama çözümleri ve müşteri desteği sunar. Kullanıcı sohbet işlevselliği de mevcuttur."
-            },
-            fees: {
-                title: "Ücretler",
-                content: "Tüm uygulanabilir ücretler Ücret Yapısı sayfamızda listelenmiştir ve güncellemelere tabidir. İşlem yapmadan önce güncel ücret tarifesini incelemek sizin sorumluluğunuzdadır."
-            }
-        },
-        accountManagement: {
-            title: "Hesap Yönetimi",
-            accountCreation: {
-                title: "Hesap Oluşturma",
-                content: "Hizmetlerimize erişmek için bir hesap (bireysel veya kurumsal) açmalısınız. Bu, yasa gereği gerekli olan kimlik doğrulama prosedürlerini (KYC/AML) tamamlamayı gerektirir."
-            },
-            identityVerification: {
-                title: "Kimlik Doğrulama",
-                content: "Belirli hizmetleri kullanmadan önce Müşterinizi Tanıyın (KYC) ve Kara Para Aklamayı Önleme (AML) doğrulama süreçlerimizi tamamlamalısınız."
-            },
-            accountRecords: {
-                title: "Hesap Kayıtları",
-                content: "Hesap yönetimi politikalarımızda belirtilen belirli koşullar altında kayıtları tutabilir ve alt hesaplar oluşturabilirsiniz."
-            }
-        },
-        transactions: {
-            title: "İşlemler",
-            sufficientBalance: {
-                title: "Yeterli Bakiye",
-                content: "Başlattığınız işlemler için hesabınızda yeterli bakiye bulundurmalısınız. Yetersiz fon durumunda işlemler başarısız olabilir veya ek ücretlere tabi olabilir."
-            },
-            transactionCancellation: {
-                title: "İşlem İptali",
-                content: "BINEX, şüpheli dolandırıcılık, hatalar veya bu Koşulların ihlali durumlarında işlemleri iptal etme veya değiştirme hakkını saklı tutar."
-            },
-            unauthorizedTransactions: {
-                title: "Yetkisiz İşlemler",
-                content: "Aksini ispatlayamadığınız sürece, yetkisiz işlemlerden siz sorumlusunuz."
-            }
-        },
-        digitalAssets: {
-            title: "Dijital Varlıklar",
-            supportedAssets: {
-                title: "Desteklenen Varlıklar",
-                content: "Yalnızca BINEX tarafından açıkça desteklenen dijital varlıklarla işlem yapabilirsiniz. Desteklenmeyen varlıkları yatırmaya çalışmak, varlıklarınızın kalıcı kaybına neden olabilir."
-            },
-            forksAirdrops: {
-                title: "Fork'lar ve Airdrop'lar",
-                content: "BINEX, blok zinciri fork'ları, airdrop'lar veya benzer diğer etkinlikler için destek garanti etmez. Destek kararları tamamen kendi takdirimize bağlı olarak verilir."
-            }
-        },
-        accountSecurity: {
-            title: "Hesap Güvenliği",
-            securityRequirements: {
-                title: "Güvenlik Gereksinimleri",
-                content: "Güçlü bir şifre kullanmalı, çok faktörlü kimlik doğrulamayı (MFA) etkinleştirmeli, kimlik bilgilerinizi asla paylaşmamalı, hesap aktivitesini düzenli olarak izlemeli ve herhangi bir güvenlik ihlalini derhal bildirmelisiniz."
-            }
-        },
-        privacy: {
-            title: "Gizlilik",
-            content: "Gizliliğiniz, kişisel bilgilerinizi nasıl topladığımızı, kullandığımızı ve koruduğumuzu açıklayan BINEX Gizlilik Bildirimi tarafından yönetilir."
-        },
-        termination: {
-            title: "Hesap Sonlandırma",
-            terminationSuspension: {
-                title: "Sonlandırma/Askıya Alma",
-                content: "BINEX, dolandırıcılık, yasa ihlalleri, şüpheli aktivite veya Koşul ihlalleri nedeniyle hesapları kısıtlayabilir, askıya alabilir veya sonlandırabilir. Kullanıcılar, dondurulmamış veya etkin olmayan hesaplar dışında hesaplarını kapatabilir."
-            }
-        },
-        prohibitedUse: {
-            title: "Yasaklanmış Kullanım",
-            content: "BINEX hizmetlerini dolandırıcılık, piyasa manipülasyonu, yasa dışı faaliyetler, yetkisiz erişim veya uygulanabilir yasaları veya bu Koşulları ihlal eden herhangi bir amaç için kullanamazsınız."
-        },
-        liability: {
-            title: "Sorumluluk ve Fikri Mülkiyet",
-            liability: {
-                title: "Sorumluluk",
-                content: "BINEX, kanıtlanmış ağır ihmal veya dolandırıcılık durumları dışındaki kayıplardan sorumlu değildir. Piyasa dalgalanmaları, teknik sorunlar veya üçüncü taraf eylemlerinden sorumlu değiliz."
-            },
-            intellectualProperty: {
-                title: "Fikri Mülkiyet",
-                content: "BINEX, platformumuz, teknolojimiz ve markalaşmamız üzerindeki tüm fikri mülkiyet haklarını saklı tutar. Kullanıcılar, bu Koşullarda belirtildiği şekilde hizmetlerimizi kullanmak için sınırlı bir lisans alır."
-            },
-            indemnity: {
-                title: "Tazminat",
-                content: "Hizmetlerimizi kötüye kullanmanız veya bu Koşulları ihlal etmenizden kaynaklanan herhangi bir talep, kayıp veya zarara karşı BINEX'u tazmin etmeyi kabul edersiniz."
-            }
-        },
-        importantNotice: {
-            title: "Önemli Bildirim",
-            content: "BINEX hizmetlerini kullanarak, bu Kullanım Koşullarını okuduğunuzu, anladığınızı ve bunlara bağlı kalacağınızı kabul etmiş olursunuz. Kabul etmiyorsanız, hizmetlerimizi kullanmayı derhal bırakmalısınız."
-        },
-        actionCards: {
-            security: {
-                title: "Güvenlik",
-                description: "Hesabınızı güvende tutun."
-            },
-            helpCenter: {
-                title: "Yardım Merkezi",
-                description: "Sorularınıza yanıt alın"
-            },
-            privacyPolicy: {
-                title: "Gizlilik Politikası",
-                description: "Gizlilik uygulamalarımızı inceleyin"
-            },
-            legal: {
-                title: "Yasal",
-                description: "Tüm yasal belgeleri görüntüleyin"
-            }
-        },
-        footer: {
-            copyright: "© 2025 BINEX. Tüm hakları saklıdır.",
-            lastUpdated: "Son güncelleme: 6 Mayıs 2025"
-        }
-    },
-    marketDetail: {
-        stats: {
-            high: "24s Yüksek",
-            low: "24s Düşük",
-            volume: "24s Hacim"
-        },
-        volume: {
-            billion: "Mrd",
-            million: "Mn"
-        },
-        actions: {
-            buy: "AL",
-            sell: "SAT"
-        },
-        recentTrades: {
-            title: "Son İşlemler (Canlı)",
-            price: "Fiyat (USDT)",
-            amount: "Miktar",
-            time: "Zaman"
-        }
-    },
-    assetsDetail: {
-        title: "Varlık Detayları",
-        today: "Bugün",
-        yesterday: "Dün",
-        filter: "Filtre",
-        transactionHistory: {
-            title: "İşlem Geçmişi"
-        },
-        noTransactions: {
-            title: "Henüz İşlem Yok",
-            description: "İşlem yapmaya başladığınızda işlem geçmişiniz burada görünecek."
-        },
-        status: {
-            completed: "Tamamlandı",
-            pending: "Beklemede",
-            canceled: "İptal Edildi"
-        },
-        filterModal: {
-            title: "İşlemleri Filtrele",
-            status: "Durum",
-            type: "Tür",
-            direction: "Yön",
-            startDate: "Başlangıç Tarihi",
-            endDate: "Bitiş Tarihi",
-            allStatuses: "Tüm Durumlar",
-            allTypes: "Tüm Türler",
-            bothDirections: "Her İki Yön",
-            incoming: "Gelen",
-            outgoing: "Giden",
-            completed: "Tamamlandı",
-            pending: "Beklemede",
-            canceled: "İptal Edildi",
-            resetFilters: "Filtreleri Sıfırla",
-            applyFilters: "Filtreleri Uygula"
-        },
-        actions: {
-            deposit: "Yatırma",
-            withdraw: "Çekme"
-        },
-        transactionTypes: {
-            transaction: "İşlem",
-            deposit: "Yatırma",
-            withdrawal: "Çekme",
-            convertedFrom: "{asset}'den dönüştürüldü",
-            convertedTo: "{asset}'ye dönüştürüldü",
-            conversionIn: "Dönüşüm Girişi",
-            conversionOut: "Dönüşüm Çıkışı",
-            stakedAmount: "Stake Edilen Miktar",
-            stakingRewards: "Stake Ödülleri",
-            futuresReserved: "Vadeli İşlem Rezervi",
-            futuresProfit: "Vadeli İşlem Karı",
-            futuresLoss: "Vadeli İşlem Zararı",
-            futuresSettlement: "Vadeli İşlem Kapatma",
-            futuresFee: "Vadeli İşlem Ücreti",
-            futuresRefund: "Vadeli İşlem İadesi",
-            futuresBonus: "Vadeli İşlem Bonusu",
-            futuresCommission: "Vadeli İşlem Komisyonu",
-            manualProfit: "Manuel Kar",
-            manualLoss: "Manuel Zarar",
-            manualAdjustment: "Manuel Ayarlama",
-            spotTradingProfit: "Spot İşlem Karı",
-            spotTradingLoss: "Spot İşlem Zararı",
-            referralReward: "Referans Ödülü",
-            bonus: "Bonus",
-            referralCommission: "Referans Komisyonu",
-            orderReserved: "Sipariş Rezervi",
-            orderCancelled: "Sipariş İptal Edildi",
-            orderPartialFill: "Sipariş Kısmi Dolumu",
-            orderCompleted: "Sipariş Tamamlandı",
-            feePayment: "Ücret Ödemesi",
-            balanceAdjustment: "Bakiye Ayarlaması",
-            transfer: "Transfer"
-        }
-    },
-    invitation: {
-        title: "Arkadaşlarını Davet Et",
-        earnTogether: "Birlikte Kazanın",
-        description: "Arkadaşlarınızı BINEX'a katılmaya davet edin, kaydolup işlem yapmaya başladıklarında ödüller kazanın.",
-        yourReferralCode: "REFERANS KODUNUZ",
-        loading: "Yükleniyor...",
-        copied: "KOPYALANDI!",
-        copyCode: "KODU KOPYALA",
-        totalEarned: "Toplam Kazanç",
-        allTimeCommission: "Tüm Zamanlar Komisyonu",
-        generationMembers: "Kuşak Üyeleri",
-        noGenerationData: "Kuşak verisi mevcut değil",
-        approvedMembers: "Onaylanmış Üyeler",
-        pendingMembers: "Bekleyen Üyeler",
-        commissionStructure: "Komisyon Yapısı",
-        firstGeneration: "1. Kuşak",
-        secondGeneration: "2. Kuşak",
-        thirdGeneration: "3. Kuşak",
-        firstDepositCommission: "İlk Yatırım Komisyonu",
-        stakingProfitsCommission: "Stake Karı Komisyonu",
-        howItWorks: "Nasıl Çalışır?",
-        steps: {
-            shareCode: {
-                title: "Referans Kodunuzu Paylaşın",
-                description: "Benzersiz kodunuzu arkadaşlarınıza gönderin veya sosyal medyada paylaşın."
-            },
-            friendsSignUp: {
-                title: "Arkadaşlarınız Kaydolur",
-                description: "Arkadaşlarınız referans kodunuzu kullanarak kaydolur ve hesaplarını doğrular."
-            },
-            earnCommissions: {
-                title: "Komisyon Kazanın",
-                description: "Ağınızın ilk yatırımları ve stake karlarından komisyon kazanın."
-            }
-        },
-        referralCopied: "Referans kodu panoya kopyalandı!",
-        loadingMembers: "Üyeler yükleniyor...",
-        approved: "Onaylandı",
-        joined: "Katıldı",
-        noMembersFound: "Üye bulunamadı"
-    },
-    securityTips: {
-        title: "Güvenlik Merkezi",
-        essentialTips: "Temel Güvenlik İpuçları",
-        categories: {
-            passwordSecurity: "Şifre Güvenliği",
-            deviceSecurity: "Cihaz Güvenliği",
-            accountSecurity: "Hesap Güvenliği"
-        },
-        tips: {
-            strongPasswords: {
-                title: "Güçlü, Benzersiz Şifreler Kullanın",
-                description: "Büyük/küçük harf, sayı ve semboller içeren karmaşık şifreler oluşturun."
-            },
-            enable2FA: {
-                title: "İki Faktörlü Kimlik Doğrulamayı Etkinleştirin",
-                description: "Hesabınıza 2FA ile ekstra bir güvenlik katmanı ekleyin."
-            },
-            changePasswords: {
-                title: "Şifreleri Düzenli Olarak Değiştirin",
-                description: "Şifrelerinizi her 3-6 ayda bir güncelleyin."
-            },
-            softwareUpdated: {
-                title: "Yazılımı Güncel Tutun",
-                description: "İşletim sisteminizi, tarayıcınızı ve cüzdan yazılımınızı düzenli olarak güncelleyin."
-            },
-            antivirus: {
-                title: "Antivirüs Koruması Kullanın",
-                description: "Saygın bir antivirüs ve anti-malware yazılımı yükleyin."
-            },
-            publicWifi: {
-                title: "Herkese Açık Wi-Fi'dan Kaçının",
-                description: "VPN olmadan herkese açık ağlarda cüzdanınıza asla erişmeyin."
-            },
-            loginNotifications: {
-                title: "Giriş Bildirimlerini Etkinleştirin",
-                description: "Hesabınıza yeni girişler için uyarı alın."
-            },
-            reviewActivity: {
-                title: "Hesap Aktivitesini İnceleyin",
-                description: "Hesabınızı şüpheli aktiviteler için düzenli olarak kontrol edin."
-            },
-            whitelisting: {
-                title: "Beyaz Liste Kullanın",
-                description: "Ek güvenlik için güvenilen para çekme adreslerini beyaz listeye alın."
-            }
-        },
-        actions: {
-            enable2FA: "2FA'yı Etkinleştir",
-            enable2FADesc: "Ekstra bir güvenlik katmanı ekleyin",
-            activityLog: "Aktivite Günlüğü",
-            activityLogDesc: "Son hesap aktivitesini inceleyin",
-            settings: "Ayarlar",
-            settingsDesc: "Güvenlik tercihlerini yapılandırın",
-            backupCodes: "Yedek Kodlar",
-            backupCodesDesc: "Kurtarma kodlarınızı kaydedin"
-        },
-        emergency: {
-            title: "Acil Durum Prosedürleri",
-            unauthorizedAccess: "Hesabınıza yetkisiz erişim şüphesi duyuyorsanız, derhal şifrenizi değiştirin ve henüz etkin değilse 2FA'yı etkinleştirin.",
-            lostDevice: "Cihazınız kaybolursa veya çalınırsa, hesap ayarlarından oturum erişimini derhal iptal edin.",
-            phishing: "Bir oltalama saldırısının kurbanı olduysanız, hesabınızı dondurun ve derhal destekle iletişime geçin.",
-            supportTitle: "7/24 Güvenlik Desteği",
-            supportEmail: "support@BINEX-exchange.com"
-        },
-        resources: {
-            title: "Güvenlik Kaynakları",
-            securityGuide: "Güvenlik Rehberi",
-            securityGuideLink: "Kapsamlı güvenlik dokümantasyonunu okuyun",
-            learningCenter: "Öğrenme Merkezi",
-            learningCenterLink: "Kripto güvenliği en iyi uygulamaları hakkında bilgi edinin",
-            faq: "SSS",
-            faqLink: "Yaygın güvenlik sorularının yanıtlarını bulun"
-        }
-    },
-    profile: {
-        title: "Profil",
-        settings: "Ayarlar",
-        status: {
-            verified: "DOĞRULANDI",
-            unverified: "DOĞRULANMADI"
-        },
-        accountInfo: {
-            title: "HESAP BİLGİSİ",
-            email: "E-posta",
-            creditScore: "Kredi Skoru",
-            invitationCode: "Davet Kodu"
-        },
-        verification: {
-            pending: {
-                title: "Doğrulama Bekliyor",
-                description: "Hesap doğrulamanız devam ediyor. Bu genellikle 1-3 iş günü sürer."
-            },
-            alert: {
-                title: "Hesap Doğrulanmadı",
-                description: "Tüm özelliklerin kilidini açmak ve daha yüksek limitler için hesabınızı doğrulayın",
-                verifyNow: "Şimdi Doğrula"
-            }
-        },
-        pendingVerifications: {
-            title: "BEKLEYEN DOĞRULAMALAR",
-            identity: {
-                title: "Kimlik Doğrulama",
-                description: "Resmi kimliğinizi gönderin"
-            },
-            address: {
-                title: "Adres Doğrulama",
-                description: "İkamet yerinizi doğrulayın"
-            },
-            status: {
-                pending: "Beklemede"
-            }
-        },
-        approvedVerifications: {
-            title: "DOĞRULAMALAR ONAYLANDI",
-            identity: {
-                title: "Kimlik Doğrulama"
-            },
-            address: {
-                title: "Adres Doğrulama"
-            },
-            status: {
-                completed: "Tamamlandı"
-            }
-        },
-        limitations: {
-            title: "Hesap Kısıtlamaları",
-            withdrawalLimit: "Para çekme limiti: günde $1,000",
-            stakingLimited: "Stake seçenekleri kısıtlı",
-            advancedTrading: "Gelişmiş işlem özellikleri devre dışı",
-            fiatDeposits: "Fiat para yatırma mevcut değil"
-        },
-        menu: {
-            withdrawalAddress: "Para Çekme Adresi",
-            password: "Şifre",
-            notifications: "Bildirimler",
-            myInvitation: "Davetiyem",
-            language: "Dil",
-            termsOfUse: "Kullanım Koşulları",
-            privacyPortal: "Gizlilik Portalı",
-            aboutUs: "Hakkımızda",
-            msbApproval: "MSB Onayı",
-            customerSupport: "Müşteri Desteği",
-            downloadApp: "Uygulamayı İndir",
-            logout: "Çıkış Yap"
-        }
-    },
-    notification: {
-        title: "Bildirim",
-        loading: "Yükleniyor",
-        filters: {
-            all: "Tümü",
-            unread: "Okunmamış",
-            read: "Okundu"
-        },
-        emptyState: {
-            title: "Henüz bildirim yok",
-            noNotifications: "Henüz hiç bildiriminiz yok",
-            noFilteredNotifications: "{0} bildirim bulunamadı"
-        },
-        types: {
-            deposit: {
-                title: "Yatırma Alındı",
-                message: "{0} tutarındaki yatırmanız onaylandı ve cüzdanınıza yatırıldı."
-            },
-            withdraw: {
-                title: "Para Çekme Başarılı",
-                message: "{0} tutarındaki para çekme işleminiz başarıyla gerçekleştirildi."
-            },
-            staking: {
-                title: "Stake Karı",
-                message: "Stake ödüllerinizden {0} kazandınız."
-            },
-            kyc: {
-                title: "KYC Güncellemesi",
-                defaultMessage: "Hesabınız etkinleştirildi."
-            },
-            commission: {
-                title: "Komisyon Alındı",
-                message: "{0} tutarında komisyon aldınız."
-            },
-            futures: {
-                title: "Vadeli İşlem Güncellemesi",
-                message: "{0} tutarındaki vadeli işlem işleminiz gerçekleştirildi."
-            },
-            accountActivated: {
-                title: "KYC Doğrulama",
-                message: "Merhaba {0}, KYC belgeleriniz doğrulandı, artık BINEX'de sınırsız özelliklerin keyfini çıkarabilirsiniz"
-            },
-            custom: {
-                title: "Bildirim",
-                defaultMessage: "Yeni bir bildiriminiz var."
-            },
-            cancelDeposit: {
-                title: "Yatırma İptal Edildi",
-                message: "{0} tutarındaki yatırmanız iptal edildi."
-            },
-            cancelWithdraw: {
-                title: "Para Çekme İptal Edildi",
-                message: "{0} tutarındaki para çekme işleminiz iptal edildi."
-            },
-            cancelActivated: {
-                title: "Aktivasyon İptal Edildi",
-                message: "KYC'niz sistem tarafından reddedildi, lütfen tekrar deneyin veya yardım için Müşteri Desteği ile iletişime geçin"
-            }
-        }
-    },
-    staking: {
-        title: "Staking",
-        totalStakedBalance: "Toplam Stake Edilen Bakiye",
-        earned: "kazanılan",
-        tabs: {
-            options: "Seçenekler",
-            active: "Aktif Stakeler",
-            completed: "Tamamlananlar"
-        },
-        daily: "Günlük",
-        minimumStake: "Minimum Stake",
-        unstakingPeriod: "Stake Çözme Süresi",
-        days: "gün",
-        stakeButton: "{0} Stake Et",
-        status: {
-            active: "AKTİF",
-            completed: "TAMAMLANDI"
-        },
-        remaining: "Kalan",
-        dailyRate: "Günlük Oran",
-        duration: "Süre",
-        createdAt: "Oluşturulma Tarihi",
-        dateFinish: "Bitiş Tarihi",
-        totalCompletedRewards: "TOPLAM TAMAMLANAN ÖDÜLLER",
-        stake: "STAKE ET",
-        stakes: "STAKELER",
-        allRewardsFromCompleted: "Tamamlanan stakelerden tüm ödüller",
-        totalRewardsEarned: "TOPLAM KAZANILAN ÖDÜLLER",
-        balance: "Bakiye",
-        maximumStake: "Maksimum Stake",
-        estimatedTotalRewards: "Tahmini Toplam Ödüller",
-        exploreStakingOptions: "Staking Seçeneklerini Keşfedin",
-        startStaking: "Staking'e Başlayın",
-        emptyStates: {
-            options: {
-                title: "Staking Planı Mevcut Değil",
-                message: "Şu anda mevcut bir staking planı bulunmuyor. Lütfen yeni staking fırsatları için daha sonra tekrar kontrol edin."
-            },
-            active: {
-                title: "Aktif Stake Yok",
-                message: "Henüz aktif stakeniz yok. Kripto varlıklarınız üzerinden ödül kazanmak için staking'e başlayın."
-            },
-            completed: {
-                title: "Tamamlanan Stake Yok",
-                message: "Henüz hiç stake tamamlamadınız. Tamamlanan stakeleriniz bittiğinde burada görünecek."
-            }
-        },
-        stakeModal: {
-            title: "Stake Et",
-            amountToStake: "Stake Edilecek Miktar",
-            enterAmount: "Miktarı Girin"
-        }
-    },
-    conversion: {
-        title: "Kripto Dönüştür",
-        loading: "Son fiyatlar yükleniyor...",
-        youSend: "Gönderiyorsunuz",
-        youReceive: "Alıyorsunuz",
-        balance: "Bakiye",
-        max: "MAKS",
-        insufficientBalance: "Yetersiz bakiye",
-        estimatedConversion: "Tahmini dönüşüm",
-        selectDifferentCurrencies: "Farklı para birimleri seçin",
-        convertNow: "Şimdi Dönüştür",
-        pricesUpdate: "Fiyatlar gerçek zamanlı güncellenir",
-        selectCurrency: "Para Birimi Seçin",
-        searchCurrencies: "Para birimlerinde ara...",
-        confirmConversion: "Dönüşümü Onayla",
-        conversionDetails: "Dönüşüm Detayları",
-        exchangeRate: "Döviz Kuru",
-        networkFee: "Ağ Ücreti",
-        estimatedArrival: "Tahmini Varış",
-        arrivalTime: "~30 saniye",
-        processingConversion: "Dönüşüm İşleniyor...",
-        cancel: "İptal"
-    },
-    history: {
-        title: "İşlem Geçmişi",
-        emptyState: {
-            title: "İşlem bulunamadı",
-            description: "Daha fazla işlem görmek için filtrelerinizi değiştirmeyi deneyin"
-        },
-        filters: {
-            all: "Tümü",
-            deposits: "Yatırmalar",
-            withdrawals: "Çekmeler",
-            profits: "Karlar",
-            losses: "Zararlar",
-            conversions: "Dönüşümler",
-            stacking: "Staking"
-        },
-        statusFilters: {
-            allStatus: "Tüm Durumlar",
-            completed: "Tamamlandı",
-            pending: "Beklemede",
-            canceled: "İptal Edildi"
-        },
-        timeFilters: {
-            allTime: "Tüm Zamanlar",
-            today: "Bugün",
-            week: "Hafta",
-            month: "Ay",
-            year: "Yıl"
-        },
-        status: {
-            completed: "Tamamlandı",
-            pending: "Beklemede",
-            canceled: "İptal Edildi"
-        },
-        dateFormats: {
-            today: "Bugün, {0}",
-            yesterday: "Dün, {0}"
-        },
-        transactionTypes: {
-            transaction: "İşlem",
-            deposit: "Yatırma",
-            withdrawal: "Çekme",
-            convertedFrom: "{0}'den dönüştürüldü",
-            convertedTo: "{0}'ye dönüştürüldü",
-            conversionIn: "Dönüşüm Girişi",
-            conversionOut: "Dönüşüm Çıkışı",
-            stakedAmount: "Stake Edilen Miktar",
-            stakingRewards: "Stake Ödülleri",
-            futuresReserved: "Vadeli İşlem Rezervi",
-            futuresProfit: "Vadeli İşlem Karı",
-            futuresLoss: "Vadeli İşlem Zararı",
-            futuresSettlement: "Vadeli İşlem Kapatma",
-            futuresFee: "Vadeli İşlem Ücreti",
-            futuresRefund: "Vadeli İşlem İadesi",
-            futuresBonus: "Vadeli İşlem Bonusu",
-            futuresCommission: "Vadeli İşlem Komisyonu",
-            manualProfit: "Manuel Kar",
-            manualLoss: "Manuel Zarar",
-            manualAdjustment: "Manuel Ayarlama",
-            spotTradingProfit: "Spot İşlem Karı",
-            spotTradingLoss: "Spot İşlem Zararı",
-            referralReward: "Referans Ödülü",
-            bonus: "Bonus",
-            referralCommission: "Referans Komisyonu",
-            orderReserved: "Sipariş Rezervi",
-            orderCancelled: "Sipariş İptal Edildi",
-            orderPartialFill: "Sipariş Kısmi Dolumu",
-            orderCompleted: "Sipariş Tamamlandı",
-            feePayment: "Ücret Ödemesi",
-            balanceAdjustment: "Bakiye Ayarlaması",
-            transfer: "Transfer"
-        }
-    },
-    withdraw: {
-        title: "Kripto Çek",
-        selectCurrency: "Para Birimi Seçin",
-        selectPlaceholder: "Bir para birimi seçin",
-        selectHint: "Lütfen devam etmek için bir para birimi seçin",
-        withdrawalAddress: "Para Çekme Adresi",
-        withdrawalAmount: "Para Çekme Miktarı",
-        withdrawalPassword: "Para Çekme Şifresi",
-        passwordPlaceholder: "Para çekme şifresini girin",
-        available: "Kullanılabilir",
-        amountWithdrawal: "Çekilecek miktar",
-        minimumWithdrawal: "Minimum çekim",
-        networkFee: "Ağ ücreti",
-        youWillReceive: "Alacaksınız",
-        confirmWithdrawal: "Para Çekmeyi Onayla",
-        processing: "İşleniyor...",
-        securityVerification: "Güvenlik Doğrulaması",
-        securityMessage: "Güvenliğiniz için, para çekme işlemleri şifre onayı gerektirir ve incelemeye tabi olabilir. Yanlış adreslere yapılan para çekme işlemleri geri alınamaz.",
-        networkInfo: "Ağ: {0} ({1})",
-        noWalletAddress: "(Cüzdan adresi yok)",
-        noWallet: {
-            title: "Cüzdan Adresi Bulunamadı",
-            description: "Henüz herhangi bir cüzdan adresi eklemediniz. Lütfen işleminize devam etmek için bir para çekme adresi ekleyin.",
-            addButton: "Cüzdan Adresi Ekle"
-        },
-        security: {
-            title: "Önce Güvenlik",
-            description: "Güvenliğiniz için, her kripto para birimi için doğrulanmış bir para çekme adresi gerektiriyoruz. Bu, hataları önlemeye ve fonlarınızın doğru yere ulaşmasını sağlamaya yardımcı olur."
-        },
-        errors: {
-            amountNumber: "Para çekme miktarı bir sayı olmalıdır",
-            amountRequired: "Para çekme miktarı gereklidir",
-            amountPositive: "Para çekme miktarı 0'dan büyük olmalıdır",
-            amountMin: "Miktar bu para birimi için minimum para çekme tutarının altında",
-            passwordRequired: "Para çekme şifresi gereklidir",
-            noWalletAddress: "{0} için cüzdan adresi bulunamadı. Lütfen önce bir cüzdan adresi ekleyin.",
-            minimumWithdraw: "{0} için minimum çekim: {1} {2}",
-            insufficientForFee: "Ücreti karşılayacak yeterli bakiye yok ({0} {1})"
-        },
-        validation: {
-            selectCurrency: "Para birimi seçin",
-            enterAmount: "Miktarı girin",
-            belowMin: "Minimumun altında ({0} {1})",
-            insufficientBalance: "Yetersiz bakiye",
-            insufficientForFee: "Yetersiz bakiye (ücret dahil)",
-            enterPassword: "Şifreyi girin"
-        }
-    },
-    deposit: {
-        title: "Kripto Yatır",
-        loading: "Yatırma yöntemi yükleniyor ...",
-        selectNetwork: "Ağ Seçin",
-        depositAddress: "Yatırma adresiniz",
-        copyAddress: "Adresi Kopyala",
-        amountLabel: "Yatırma miktarı ({0})",
-        amountPlaceholder: "Minimum: {0} {1}",
-        txidLabel: "İşlem Kimliği (TXID)",
-        txidPlaceholder: "TXID'yi Girin",
-        minimumDeposit: "Minimum yatırma",
-        importantNotice: "Önemli Uyarı",
-        warningMessage: "Lütfen yatırma işleminiz için doğru ağı seçtiğinizden emin olun. Yanlış ağ üzerinden fon göndermek, varlıklarınızın kalıcı kaybına neden olabilir ve bu geri alınamaz.",
-        confirmDeposit: "Yatırmayı Onayla",
-        network: "Ağ",
-        estimatedArrival: "Tahmini varış",
-        networkConfirmations: "3 ağ onayı",
-        processingTime: "İşlem süresi",
-        processingTimeValue: "10-30 dakika",
-        noMethods: "Şu anda mevcut yatırma yöntemi yok.",
-        addressCopied: "Adres panoya kopyalandı!",
-        unknownNetwork: "Bilinmeyen Ağ"
-    },
+    
     wallet: {
-        totalPortfolioValue: "Toplam Portföy Değeri",
-        myAssets: "Varlıklarım",
-        manage: "Yönet",
-        noAssets: "Varlık bulunamadı",
-        quickActions: {
-            deposit: "Yatırma",
-            withdraw: "Çekme",
-            history: "Geçmiş",
-            convert: "Dönüştür",
-            staking: "Staking"
-        }
+      myAssets: "Varlıklarım",
+      assetValuation: "Varlık Değerlemesi",
+      myAccount: "Hesabım",
+      showAmounts: "Tutarı göster",
+      hideAmounts: "Tutarı gizle",
+      usdEquivalent: "≈ USD {0}",
+      noAssetsFound: "Varlık bulunamadı",
+      quickActions: {
+        withdraw: "Çek",
+        deposit: "Yatır",
+        transfer: "Transfer",
+        swap: "Takas"
+      },
+      accountTabs: {
+        exchange: "Borsa",
+        trade: "Ticaret",
+        perpetual: "Perpetual"
+      },
+      assetLabels: {
+        availableBalance: "Kullanılabilir bakiye",
+        frozenAmount: "Dondurulmuş miktar",
+        valuation: "Değerleme"
+      },
+      errors: {
+        fetchAssets: "Varlıklar alınırken hata:"
+      }
     },
-    trade: {
-        title: "SPOT",
+    
+    loginPassword: {
+      title: "Giriş Şifresi",
+      cardTitle: "GİRİŞ ŞİFRESİNİ DEĞİŞTİR",
+      fields: {
+        oldPassword: "Eski Şifre",
+        newPassword: "Yeni Şifre",
+        newPasswordConfirmation: "Şifreyi Onayla",
+        mailbox: "E-posta kutunuz"
+      },
+      placeholders: {
+        oldPassword: "Mevcut şifrenizi girin",
+        newPassword: "Yeni bir şifre oluşturun",
+        confirmPassword: "Yeni şifrenizi onaylayın"
+      },
+      buttons: {
+        saveChanges: "DEĞİŞİKLİKLERİ KAYDET"
+      },
+      warningMessage: "Fonlarınızın güvenliği için, giriş şifresi değiştirildikten sonra 24 saat içinde para çekmeye izin verilmez.",
+      validation: {
+        mustMatch: "Şifreler eşleşmelidir"
+      }
+    },
+    
+    futures: {
+      title: "Futures",
+      actions: {
+        buyUp: "AL YUKARI",
+        buyDown: "AL AŞAĞI"
+      },
+      tabs: {
+        openOrders: "Açık Emirler",
+        recentOrders: "Son Emirler"
+      },
+      orderDetails: {
+        title: "Emir Detayları",
+        open: "Açık",
+        closed: "Kapalı",
+        completed: "Tamamlandı",
+        futuresAmount: "Futures Miktarı:",
+        contractDuration: "Sözleşme Süresi:",
+        seconds: "Saniye",
+        futuresStatus: "Futures Durumu:",
+        openPositionPrice: "Pozisyon Açma Fiyatı:",
+        openPositionTime: "Pozisyon Açma Zamanı:",
+        closePositionPrice: "Pozisyon Kapatma Fiyatı:",
+        closePositionTime: "Pozisyon Kapatma Zamanı:",
+        profitLossAmount: "Kâr ve Zarar Miktarı:",
+        leverage: "Kaldıraç:",
+        done: "Tamam"
+      },
+      status: {
+        open: "Açık",
+        closed: "Kapalı",
+        completed: "Tamamlandı"
+      },
+      list: {
+        noOrders: "Emir yok"
+      }
+    },
+    
+    proof: {
+      title: "Kimlik Doğrulama",
+      instructions: "BINEX'inizin tüm özelliklerine erişmek için kimliğinizi doğrulayın",
+      sections: {
+        documentInfo: "Belge Bilgileri",
+        documentUpload: "Belge Yükleme"
+      },
+      fields: {
+        documentType: "Belge Türü",
+        fullName: "Tam Ad",
+        documentNumber: "Belge Numarası",
+        address: "Adres",
+        frontSide: "Belgenin Ön Yüzü",
+        backSide: "Belgenin Arka Yüzü",
+        selfie: "Belge ile Selfie"
+      },
+      placeholders: {
+        fullName: "Tam adınızı girin",
+        documentNumber: "Belge numaranızı girin",
+        address: "Tam adresinizi girin"
+      },
+      uploadTexts: {
+        frontSide: "Belgenizin ön yüzünü yükleyin",
+        backSide: "Belgenizin arka yüzünü yükleyin",
+        selfie: "Belgenizi tutan bir selfie yükleyin"
+      },
+      documentTypes: {
+        passport: "Pasaport",
+        idCard: "Kimlik Kartı",
+        driversLicense: "Sürücü Belgesi"
+      },
+      security: {
+        title: "Güvenlik Bildirimi",
+        text: "Bilgileriniz şifrelenmiş ve güvenlidir. Banka düzeyinde koruma kullanıyoruz ve güvenliğiniz için her belgeyi manuel olarak doğruluyoruz."
+      },
+      buttons: {
+        validateDocuments: "Belgeleri Doğrula"
+      },
+      footer: {
+        copyright: "© 2025 CryptoWallet. Tüm hakları saklıdır.",
+        privacyPolicy: "Gizlilik Politikası"
+      }
+    },
+    
+    withdrawPassword: {
+      title: "Para Çekme Şifresi",
+      cardTitle: "PARA ÇEKME ŞİFRESİNİ DEĞİŞTİR",
+      fields: {
+        currentPassword: "Mevcut Şifre",
+        newPassword: "Yeni Şifre"
+      },
+      placeholders: {
+        currentPassword: "Eski şifrenizi girin",
+        newPassword: "Yeni şifrenizi onaylayın"
+      },
+      buttons: {
+        saveChanges: "DEĞİŞİKLİKLERİ KAYDET"
+      },
+      warningMessage: "Fonlarınızın güvenliği için, giriş şifresi değiştirildikten sonra 24 saat içinde para çekmeye izin verilmez."
+    },
+    
+    marketDetail: {
+      stats: {
+        high: "24s Yüksek",
+        low: "24s Düşük",
+        volume: "24s Hacim"
+      },
+      volume: {
+        billion: "Milyar",
+        million: "Milyon"
+      },
+      actions: {
         buy: "AL",
-        sell: "SAT",
-        limit: "LİMİT",
-        market: "PİYASA",
-        orderType: "Emir Türü",
+        sell: "SAT"
+      },
+      recentTrades: {
+        title: "Son İşlemler (Canlı)",
         price: "Fiyat (USDT)",
         amount: "Miktar",
-        available: "Kullanılabilir",
-        placing: "Veriliyor...",
-        increasePrice: "fiyatı artır",
-        decreasePrice: "fiyatı düşür",
-        errors: {
-            invalidQuantity: "Lütfen geçerli bir miktar girin.",
-            invalidPrice: "Lütfen geçerli bir fiyat girin.",
-            insufficientUSDT: "Yetersiz USDT bakiyesi. Kullanılabilir: {0} USDT",
-            insufficientCoin: "Yetersiz {1} bakiyesi. Kullanılabilir: {0} {1}",
-            failedOrder: "Emir verilemedi. Lütfen tekrar deneyin."
-        },
-        orderBook: {
-            price: "Fiyat (USDT)",
-            amount: "Miktar"
-        },
-        openOrders: {
-            title: "AÇIK EMİRLER",
-            viewAll: "tüm emirleri görüntüle",
-            status: "Durum",
-            price: "Fiyat",
-            amount: "Miktar",
-            total: "Toplam",
-            cancel: "İptal Et",
-            noOrders: "Henüz açık emir yok",
-            noOrdersSubtext: "Açık emirleriniz burada görünecek"
-        }
+        time: "Zaman"
+      },
+      tabs: {
+        orderBook: "Emir Defteri",
+        transactions: "Son işlem"
+      },
+      orderBook: {
+        buy: "Al",
+        sell: "Sat",
+        quantity: "Miktar",
+        price: "Fiyat (USDT)"
+      },
+      coinSelector: {
+        title: "İşlem Çifti Seçin"
+      },
+      setupWebsockets: "WebSockets ayarlanıyor:",
+      websocketConnected: "WebSocket bağlandı:",
+      websocketParseError: "WebSocket verileri ayrıştırılırken hata:",
+      websocketError: "WebSocket hatası",
+      websocketClosed: "WebSocket kapandı:",
+      websocketCloseError: "WebSocket kapatılırken hata:",
+      websocketCreateError: "WebSocket oluşturulurken hata:",
+      code: "Kod:",
+      reconnecting: "WebSocket yeniden bağlanıyor:",
+      cleaningUp: "WebSocket'ler temizleniyor:",
+      initialDataLoaded: "İlk veriler yüklendi:",
+      fetchError: "İlk veriler alınırken hata:",
+      selectingCoin: "Yeni coin seçiliyor:"
     },
+    
+    passwordType: {
+      title: "Şifre Türü",
+      cardTitle: "ŞİFRE TÜRÜNÜ SEÇİN",
+      options: {
+        login: {
+          title: "Giriş Şifresi",
+          description: "Hesap giriş şifrenizi değiştirin"
+        },
+        withdrawal: {
+          title: "Para Çekme Şifresi",
+          description: "Kripto para çekme şifrenizi değiştirin"
+        }
+      }
+    },
+    
+    profile: {
+      title: "Kişisel Merkez",
+      user: "Kullanıcı",
+      userInitial: "K",
+      userId: "ID",
+      status: {
+        verified: "Doğrulanmış",
+        unverified: "Doğrulanmamış"
+      },
+      verification: {
+        kycStatus: "KYC Durumu:",
+        redirecting: "Doğrulama sayfasına yönlendiriliyor...",
+        pendingReview: "Doğrulama inceleme bekliyor...",
+        pendingAlert: "Doğrulamanız inceleme bekliyor. Lütfen onay için bekleyin.",
+        alreadyVerified: "Kullanıcı zaten doğrulanmış",
+        pending: {
+          title: "Doğrulama Bekliyor",
+          description: "Hesap doğrulamanız devam ediyor. Bu genellikle 1-3 iş günü sürer.",
+          status: "İnceleme Bekliyor",
+          button: "Bekliyor"
+        },
+        alert: {
+          title: "Hesap Doğrulanmamış",
+          description: "Tüm özellikleri ve daha yüksek limitleri açmak için hesabınızı doğrulayın",
+          verifyNow: "Şimdi Doğrula"
+        }
+      },
+      accountInfo: {
+        title: "HESAP BİLGİLERİ",
+        email: "E-posta",
+        creditScore: "Kredi Puanı",
+        invitationCode: "Davet Kodu"
+      },
+      pendingVerifications: {
+        title: "BEKLEYEN DOĞRULAMALAR",
+        identity: {
+          title: "Kimlik Doğrulama",
+          description: "Resmi kimliğinizi gönderin"
+        },
+        address: {
+          title: "Adres Doğrulama",
+          description: "İkametgâhınızı doğrulayın"
+        },
+        status: {
+          pending: "Bekliyor"
+        }
+      },
+      approvedVerifications: {
+        title: "ONAYLANAN DOĞRULAMALAR",
+        identity: {
+          title: "Kimlik Doğrulama"
+        },
+        address: {
+          title: "Adres Doğrulama"
+        },
+        status: {
+          completed: "Tamamlandı"
+        }
+      },
+      limitations: {
+        title: "Hesap Kısıtlamaları",
+        withdrawalLimit: "Günlük para çekme limiti: 1.000$",
+        stakingLimited: "Staking seçenekleri sınırlı",
+        advancedTrading: "Gelişmiş ticaret özellikleri devre dışı",
+        fiatDeposits: "İtibari para yatırma mevcut değil"
+      },
+      menu: {
+        withdrawalAddress: "Hesap değişim kayıtları",
+        password: "Güvenlik merkezi",
+        notifications: "Bildirimler",
+        myInvitation: "Davetim",
+        language: "Dil",
+        helpcenter: "Yardım Merkezi",
+        privacyPortal: "Gizlilik Portalı",
+        aboutUs: "Platform tanıtımı",
+        msbApproval: "MSB Onayı",
+        customerSupport: "Çevrimiçi hizmet",
+        downloadApp: "İndir",
+        logout: "Çıkış Yap",
+        preferences: "Tercihler",
+        clearCache: "Önbelleği temizle"
+      },
+      cache: {
+        clearing: "Önbellek temizleniyor...",
+        cleared: "Önbellek başarıyla temizlendi!"
+      },
+      simulatedTrading: {
+        toggle: "Simülasyon ticareti {0}"
+      }
+    },
+    
+    trade: {
+      coinSelector: {
+        title: "İşlem Çifti Seçin"
+      },
+      title: "SPOT",
+      buy: "AL",
+      sell: "SAT",
+      long: "UZUN AL",
+      short: "KISA AL",
+      limit: "LİMİT",
+      market: "PİYASA",
+      orderType: "Emir Türü",
+      price: "Fiyat (USDT)",
+      amount: "Miktar",
+      available: "Mevcut",
+      placing: "Yerleştiriliyor...",
+      increasePrice: "fiyatı artır",
+      decreasePrice: "fiyatı düşür",
+      tradingPeriod: "Ticaret Periyodu",
+      leverage: "Kaldıraç",
+      tradingMode: {
+        trade: "Ticaret",
+        perpetual: "Perpetual"
+      },
+      tabs: {
+        positions: "Pozisyonlar",
+        historyOrders: "Emir geçmişi",
+        transactionHistory: "İşlem geçmişi"
+      },
+      orderDetails: {
+        status: "Durum",
+        price: "Fiyat",
+        amount: "Miktar",
+        total: "Toplam"
+      },
+      futuresDetails: {
+        amount: "Miktar",
+        duration: "Süre",
+        entryPrice: "Giriş Fiyatı",
+        exitPrice: "Çıkış Fiyatı",
+        pnl: "Kâr/Zarar",
+        opened: "Açık",
+        closed: "Kapalı"
+      },
+      futuresStatus: {
+        long: "Uzun",
+        short: "Kısa",
+        closed: "Kapalı",
+        liquidated: "Tasfiye Edildi"
+      },
+      cancel: "İptal",
+      errors: {
+        invalidQuantity: "Lütfen geçerli bir miktar girin.",
+        invalidPrice: "Lütfen geçerli bir fiyat girin.",
+        invalidAmount: "Lütfen geçerli bir miktar girin.",
+        insufficientUSDT: "Yetersiz USDT bakiyesi. Mevcut: {0} USDT",
+        insufficientCoin: "Yetersiz {1} bakiyesi. Mevcut: {0} {1}",
+        failedOrder: "Emir yerleştirilemedi. Lütfen tekrar deneyin.",
+        createError: "Ticaret oluşturma hatası",
+        placeOrderError: "Emir yerleştirme hatası"
+      },
+      orderBook: {
+        price: "Fiyat (USDT)",
+        amount: "Miktar"
+      },
+      noData: "{0} bulunamadı",
+      noTransactionsText: "İşlemleriniz burada görünecek",
+      noOrdersText: "{0} burada görünecek",
+      websocketConnected: "WebSocket bağlandı:",
+      websocketParseError: "WebSocket verileri ayrıştırılırken hata:",
+      websocketError: "WebSocket hatası:",
+      websocketClosed: "WebSocket kapandı",
+      websocketCreateError: "WebSocket oluşturulurken hata:",
+      orderNumberFormat: "EMR-{0}-{1}"
+    },
+    
     market: {
-        title: "USDT PİYASASI",
-        noResults: "Kripto para bulunamadı",
-        volume: "Hacim",
-        search: {
-            placeholder: "Kripto ara",
-            clear: "Aramayı temizle"
-        },
-        tabs: {
-            all: "Tümü",
-            gainers: "Yükselenler",
-            losers: "Düşenler",
-            favorites: "Favoriler"
-        }
+      title: "USDT PİYASASI",
+      noResults: "Kripto para bulunamadı",
+      volume: "Hacim",
+      search: {
+        placeholder: "Kripto ara...",
+        clear: "Aramayı temizle"
+      },
+      tableHeaders: {
+        pair: "İşlem Çifti",
+        latestPrice: "Son Fiyat",
+        change24h: "24s Değişim"
+      },
+      websocketConnected: "Piyasa WebSocket bağlandı",
+      websocketParseError: "WebSocket verileri ayrıştırılırken hata",
+      websocketError: "Piyasa WebSocket hatası",
+      websocketClosed: "Piyasa WebSocket kapandı, kod:",
+      websocketSetupError: "WebSocket kurulurken hata"
     },
+    
     signup: {
-        title: "KAYIT OL",
-        creatingAccount: "OLUŞTURULUYOR...",
-        createAccount: "HESAP OLUŞTUR",
-        refresh: "Yenile",
-        captchaMismatch: "Captcha eşleşmiyor",
-        alreadyHaveAccount: "Zaten hesabınız var mı? Giriş yapın",
-        terms: {
-            text: "Hesap oluşturarak",
-            link: "Hizmet Koşullarımızı"
-        },
-        labels: {
-            email: "E-posta",
-            phoneNumber: "Telefon Numarası",
-            captcha: "Grafik Captcha",
-            password: "Şifre",
-            confirmPassword: "Şifreyi Onayla",
-            withdrawPassword: "Para Çekme Şifresi",
-            invitationCode: "Davet Kodu"
-        },
-        placeholders: {
-            email: "E-posta adresinizi girin",
-            phoneNumber: "Telefon numaranızı girin",
-            captcha: "Kodu girin",
-            password: "Bir şifre oluşturun",
-            confirmPassword: "Şifrenizi onaylayın",
-            withdrawPassword: "Para çekme şifresini girin",
-            invitationCode: "Davet kodunu girin"
-        }
+      title: "KAYIT OL",
+      creatingAccount: "OLUŞTURULUYOR...",
+      createAccount: "HESAP OLUŞTUR",
+      refresh: "Yenile",
+      captchaMismatch: "Captcha eşleşmiyor",
+      alreadyHaveAccount: "Zaten bir hesabınız var mı? Giriş yapın",
+      terms: {
+        text: "Hesap oluşturarak şunu kabul edersiniz",
+        link: "Hizmet Şartları"
+      },
+      labels: {
+        email: "E-posta",
+        phoneNumber: "Telefon Numarası",
+        captcha: "Grafik Captcha",
+        password: "Şifre",
+        confirmPassword: "Şifreyi Onayla",
+        withdrawPassword: "Para Çekme Şifresi",
+        invitationCode: "Davet Kodu"
+      },
+      placeholders: {
+        email: "E-posta adresinizi girin",
+        phoneNumber: "Telefon numaranızı girin",
+        captcha: "Kodu girin",
+        password: "Şifre oluşturun",
+        confirmPassword: "Şifrenizi onaylayın",
+        withdrawPassword: "Para çekme şifresini girin",
+        invitationCode: "Davet kodunu girin"
+      }
     },
+    
     home: {
-        quickAccess: {
-            title: "Hızlı Erişim",
-            deposit: "Yatırma",
-            security: "Güvenlik",
-            faqCenter: "SSS Merkezi",
-            invitation: "Davet",
-            staking: "Staking"
+      logoAlt: "BINEX Logosu",
+      headerAlt: "Kripto Ticaret Platformu",
+      slogan: "Güvenle Kâr Edin",
+      promoAlt: "Promosyon banner {0}",
+      quickTrade: {
+        highlight: "Hızlı",
+        title: "Ticaret",
+        subtitle: "Hızlı işlemler ve basit işlem"
+      },
+      aiTrading: {
+        title: "AI Akıllı Ticaret",
+        description: "Bir AI kantitatif ticaret robotu, yapay zeka (AI) ile kantitatif ticaret tekniklerini birleştiren otomatik bir ticaret sistemidir. Temel işlevi, istikrarlı kârlar elde etmek veya riskleri kontrol etmek için piyasa verilerine ve belirli ticaret stratejilerine dayalı olarak finansal ürünleri ve kripto para birimlerini otomatik olarak alıp satmaktır."
+      },
+      nftExploration: {
+        title: "BINEX ile NFT'leri Keşfedin",
+        description: "BINEX ile NFT'lerin dünyasına adım atın, tümü bir arada dijital varlık ticaret cüzdanınız. Hem yeni başlayanlar hem de profesyonel tüccarlar için tasarlanmış BINEX, NFT'leri keşfetmenize, satın almanıza, satmanıza ve"
+      },
+      stats: {
+        title: "Etkimiz",
+        users: "30M+",
+        usersLabel: "Kullanıcı sayısı",
+        organizations: "6000+",
+        organizationsLabel: "İşbirliği yapan organizasyon",
+        liquidity: "7,8 Milyar+",
+        liquidityLabel: "Likidite",
+        orders: "89M",
+        ordersLabel: "Saniyede işlenen emirler"
+      },
+      services: {
+        title: "Hizmetlerimiz",
+        subtitle: "Size kapsamlı 24 saat manuel müşteri hizmetleri uzman hizmetleri sunarak işlemlerinizi korur",
+        highInterest: {
+          title: "Yüksek faiz oranı",
+          desc: "Finans, yüksek getiri oranı",
+          alt: "Yüksek faiz oranı simgesi"
         },
-        popularCryptos: "Popüler Kriptoparalar",
-        seeAll: "Tümünü gör",
-        volume: "Hacim",
-        loading: "Yükleniyor...",
-        notifications: {
-            btcAlert: "BTC Fiyat Uyarısı",
-            btcReached: "Bitcoin $45.000'a ulaştı",
-            fiveMinAgo: "5 dakika önce",
-            depositSuccess: "Yatırma Başarılı",
-            depositConfirmed: "0.5 ETH tutarındaki yatırmanız onaylandı",
-            oneHourAgo: "1 saat önce",
-            securityUpdate: "Güvenlik Güncellemesi",
-            newSecurityFeatures: "Yeni güvenlik özellikleri mevcut",
-            twoHoursAgo: "2 saat önce",
-            marketNews: "Piyasa Haberleri",
-            ethUpgrade: "Ethereum yükseltmesi başarıyla tamamlandı",
-            fiveHoursAgo: "5 saat önce"
+        liquidityMining: {
+          title: "Likidite madenciliği",
+          desc: "Likidite kolay kârlar sağlar",
+          alt: "Likidite madenciliği simgesi"
+        },
+        service24h: {
+          title: "24 saat hizmet",
+          desc: "Tüm sorularınızı yanıtlamaya hazır",
+          alt: "24 saat hizmet simgesi"
+        },
+        highContract: {
+          title: "Yüksek kontrat",
+          desc: "Küçük sermaye yüksek kaldıraç, kolayca zengin olun",
+          alt: "Yüksek kontrat simgesi"
+        },
+        expertTeam: {
+          title: "Uzman ekip",
+          desc: "Uzman teknik ekip hizmetinizde",
+          alt: "Uzman ekip simgesi"
+        },
+        securityProtection: {
+          title: "Güvenlik koruması",
+          desc: "Güçlü bulut verileri güvenliğinizi korur",
+          alt: "Güvenlik koruması simgesi"
         }
+      },
+      demo: {
+        fastSwap: {
+          title: "Hızlı takas - Coin'lerinizi endişesiz takas edin",
+          subtitle: "Bitcoin'den Dogecoin'e, kripto alıp satmayı kolaylaştırıyoruz. Kriptonuzu en iyi cold storage ile koruyun.",
+          alt: "Hızlı takas demo"
+        },
+        advancedTraders: {
+          title: "Gelişmiş tüccarlar için - Tasarım için güçlü araçlar",
+          subtitle: "Güçlü analitik araçlarımız güvenlik garantimizle birleşerek nihai ticaret deneyimini sunar. Sofistike grafik özelliklerinden, gerçek zamanlı emir defterlerinden ve yüzlerce piyasadaki derin likiditeden yararlanın.",
+          alt: "Gelişmiş tüccarlar demo"
+        },
+        walletManagement: {
+          title: "Akıllı varlık cüzdan yönetimi - Gelirde istikrarlı büyüme",
+          subtitle: "Güçlü analitik araçlarımız güvenlik garantimizle birleşerek nihai ticaret deneyimini sunar. Sofistike grafik özelliklerinden, gerçek zamanlı emir defterlerinden ve yüzlerce piyasadaki derin likiditeden yararlanın.",
+          alt: "Cüzdan yönetimi demo"
+        },
+        liquidityMining: {
+          title: "Likidite madenciliği, AI kantifikasyonu",
+          subtitle: "Likidite madenciliği ve AI kantifikasyonu dahil olmak üzere varlıklarınızı yönetmenin daha fazla yolu, varlıklarınızı yönetmek için daha fazla seçenek sunar ve varlıklarınızın büyümesini sağlar",
+          alt: "Likidite madenciliği demo"
+        },
+        startTrading: {
+          title: "Kripto ticareti yapmaya başlamak? - Kriptonuzu şimdi açın",
+          subtitle: "Herhangi bir zamanda ve herhangi bir yerde ticaret yaparak çeşitli senaryoların ticaret ihtiyaçlarını karşılayın",
+          alt: "Ticaret başlangıç demo"
+        }
+      },
+      news: {
+        title: "Sektörden haberler",
+        elonMusk: {
+          date: "14-10-2025",
+          title: "Elon Musk Bitcoin'in Enerjiye Dayalı Olduğunu Söylüyor, Sahtesi Yapılamaz",
+          alt: "Elon Musk Bitcoin haberleri"
+        },
+        bitcoinRecord: {
+          date: "05-10-2025",
+          title: "Bitcoin Rekor Fiyatın Üzerinde 125.000$'a Dokundu",
+          alt: "Bitcoin rekor fiyat haberleri"
+        },
+        trumpStatue: {
+          date: "17-09-2025",
+          title: "Fed faiz kararını işaretlemek için ABD Capitol'ü önünde Bitcoin tutan dev Trump heykeli sergilendi",
+          alt: "Trump heykeli Bitcoin haberleri"
+        }
+      },
+      partners: {
+        title: "Dünya Ekolojik Partneri",
+        description: "Fikir birliği oluşturun ve kripto ekosistemi için yeni bir gelecek yaratın",
+        binance: "Binance",
+        coinbase: "Coinbase",
+        kraken: "Kraken",
+        ftx: "FTX",
+        bitfinex: "Bitfinex",
+        huobi: "Huobi"
+      },
+      announcements: {
+        maintenanceNotice: "Bakım bildirimi",
+        contractServerUpgrade: "15 Ocak 2023 kontrat sunucusu yükseltme ve bakım duyurusu",
+        binexOptionsMaintenance: "Binex Opsiyon Ticaret Sistemi Bakım Duyurusu",
+        clientVersionUpgrade: "Önemli! Binex'in en son istemci sürüm yükseltmesi hakkında duyurusu",
+        platformTradingAnnouncement: "Binex platform ticaret en son duyurusu",
+        platformUpgradeOptimization: "Binex Platform Sürüm Yükseltme Optimizasyon Güncelleme Duyurusu",
+        march15Upgrade: "15 Mart 2023 Binex platform kontrat sunucusu yükseltme bakım optimizasyon duyurusu",
+        optionsTradingMaintenance: "Binex platform opsiyon ticaret sistemi bakım ve optimizasyon duyurusu",
+        latestVersionUpgrade: "Binex Platform İstemcinin En Son Sürümünün Yükseltilmesi ve Optimizasyonu Hakkında Önemli Duyuru",
+        userSecurityReminder: "Binex kullanıcı bilgi güvenliği hakkında hatırlatma",
+        perpetualContractUpgrade: "Binex platform sürekli kontrat sisteminin optimizasyonu ve yükseltilmesi hakkında duyuru",
+        maintenanceCompletion: "Platform sistem bakımı ve optimizasyonunun tamamlanması hakkında duyuru",
+        bitcoinWithdrawal: "Bitcoin Para Çekme Hakkında Duyuru",
+        tradingPairsUpgrade: "Platformdaki bazı ticaret para çiftlerinin yükseltilmesi hakkında duyuru",
+        ethWalletMaintenance: "Platform Ethereum Ağı (ERC20) Cüzdan Bakımı Hakkında Duyuru",
+        ethHardFork: "ETH hard fork yükseltmesinin tamamlanması hakkında duyuru",
+        identityAuthUpdate: "Platformun gelişmiş kimlik doğrulama servisinin güncellenmesi hakkında duyuru",
+        filIncomeIssuance: "FIL hesaplama gücü gelirinin dağıtımı hakkında bildirim",
+        apiOrderLimit: "API emir frekans limitinin optimizasyonu hakkında duyuru",
+        customerChatFunction: "Sistem Güncellemesi - Gerçek Zamanlı Müşteri Sohbet Fonksiyonu",
+        ethNetworkUpgrade: "ETH ağ yükseltme duyurusu",
+        delistingCurrencies: "Para birimlerinin listeden çıkarılması duyurusu",
+        dotUsdtLaunch: "DOT/USDT Ticaret Başlatma Duyurusu",
+        decUsdtLaunch: "DEC/USDT Ticaret Başlatma Duyurusu",
+        usdtIntroduction: "USDT Tanıtımı",
+        ethereumNetworkMaintenance: "Ethereum ağ bakım bildirimi",
+        projectReviewStandards: "Binex Proje inceleme standartları",
+        liquidityMiningUpgrade: "Likidite Madenciliği Yükseltmesi",
+        liquidityMiningFee: "Likidite madenciliği ücret ayarlaması",
+        delistingTradingPairs: "Ticaret çiftlerini listeden çıkarma",
+        systemTemporaryMaintenance: "Sistem geçici bakım duyurusu",
+        temporaryRechargeSuspension: "Geçici şarj askıya alma bildirimi",
+        delistingNotification: "Listeden Çıkarma Bildirimi",
+        serverUpgrade: "Sunucu yükseltme duyurusu",
+        serverNetworkUpgrade: "Sunucu ağ yükseltme duyurusu",
+        appDownloadOpen: "APP indirme açılış bildirimi"
+      }
     },
-    faq: {
-        title: "SSS Merkezi",
-        hero: {
-            title: "Sıkça Sorulan Sorular",
-            subtitle: "BINEX kullanımı hakkında yaygın soruların yanıtlarını bulun"
+    
+    withdrawAddressForm: {
+      title: "Para Çekme Adresi",
+      currencyType: "PARA BİRİMİ TÜRÜ",
+      withdrawalAddress: "PARA ÇEKME ADRESİ",
+      currencies: {
+        btc: "BTC (Bitcoin)",
+        eth: "ETH (Ethereum)",
+        usdt: "USDT (Tether)",
+        sol: "SOL (Solana)",
+        xrp: "XRP (Ripple)"
+      },
+      fields: {
+        address: "Adres",
+        password: "Kripto Para Çekme Şifresi"
+      },
+      placeholders: {
+        address: "Cüzdan adresinizi girin",
+        password: "Mevcut şifrenizi girin"
+      },
+      buttons: {
+        save: "KAYDET"
+      },
+      notification: {
+        success: "Adres başarıyla kaydedildi!"
+      }
+    },
+    
+    withdrawAddress: {
+      title: "Para Çekme Adresi",
+      cardTitle: "PARA BİRİMİ TÜRÜ",
+      currencies: {
+        btc: "BTC (Bitcoin)",
+        eth: "ETH (Ethereum)",
+        usdt: "USDT (Tether)",
+        sol: "SOL (Solana)",
+        xrp: "XRP (Ripple)"
+      }
+    },
+    
+    privacy: {
+      title: "Gizlilik Portalı",
+      hero: {
+        title: "BINEX Gizlilik Portalı",
+        subtitle: "Verilerinizi ve gizliliğinizi katı kurallar, yasal uyum ve sektörün en iyi uygulamaları ile korumak."
+      },
+      principles: {
+        title: "Gizlilik İlkelerimiz",
+        corePrinciples: "Temel İlkeler",
+        transparency: {
+          title: "Şeffaflık",
+          description: "Verilerinizi nasıl işlediğimiz hakkında düzenli güncellemeler ve açık bilgiler."
         },
-        search: {
-            placeholder: "Yanıtlar için ara..."
+        accountability: {
+          title: "Sorumluluk ve Uyum",
+          description: "Düzenli denetimler, sertifikalar ve küresel gizlilik yasalarına uyum."
         },
-        categories: {
-            gettingStarted: "Başlarken",
-            managingAccount: "Hesabınızı Yönetme"
+        dataSecurity: {
+          title: "Veri Güvenliği",
+          description: "Gelişmiş şifreleme, katı erişim kontrolleri ve kimlik doğrulama protokolleri."
         },
-        questions: {
-            howToCreateAccount: "Nasıl hesap oluşturabilirim?",
-            howToCompleteVerification: "Doğrulamayı nasıl tamamlarım?",
-            howToBuyCrypto: "Nasıl kripto para satın alabilirim?",
-            howToTrade: "Kripto paraları nasıl işlem yapabilirim?",
-            howToSendReceive: "Kripto nasıl alır ve gönderirim?",
-            howToBecomeP2PMerchant: "Nasıl P2P Tüccarı olurum?",
-            howStakingWorks: "Staking nasıl çalışır?"
+        dataMinimization: {
+          title: "Veri Minimizasyonu ve Amaç Sınırlaması",
+          description: "Yalnızca belirli, meşru amaçlar için gerekli olanı topluyoruz."
         },
-        answers: {
-            verificationProcess: "Resmi bir kimlik ve selfie fotoğrafı yükleyin. Doğrulama genellikle saatler içinde onaylanır."
+        privacyByDesign: {
+          title: "Tasarımda Gizlilik",
+          description: "Gizlilik, tüm ürün ve hizmetlerimize baştan itibaren yerleştirilmiştir."
+        }
+      },
+      userRights: {
+        title: "Gizlilik Haklarınız",
+        content: "Uygulamamız veya web formumuz aracılığıyla verilerinize erişmek ve yönetmek için araçlarınız var, ayrıntılı bilgiler Gizlilik Bildirimimizde mevcut.",
+        note: "Kişisel bilgilerinize erişme, düzeltme veya silme haklarınızı istediğiniz zaman kullanın."
+      },
+      personalData: {
+        title: "Kişisel Veri Nedir?",
+        definition: "Kişisel veriler, bir bireyi tanımlayan herhangi bir bilgiyi ifade eder.",
+        examples: "Örnekler: ad, BINEX ID, e-posta adresi, konum verileri, işlem geçmişi ve cihaz bilgileri."
+      },
+      dataUsage: {
+        title: "Verilerinizi Nasıl Kullanıyoruz",
+        accountManagement: {
+          title: "Hesap Yönetimi",
+          description: "Hesabınızı oluşturmak ve sürdürmek, hizmet sağlamak ve sizinle iletişim kurmak için."
         },
-        steps: {
-            goToWebsite: "https://BINEX-exchange.com adresine gidin",
-            clickSignUp: '"Kayıt Ol"a tıklayın',
-            enterDetails: "Bilgilerinizi girin",
-            verifyEmail: "E-posta adresinizi doğrulayın",
-            completeVerification: "Önce doğrulamayı tamamlayın",
-            clickBuyCrypto: '"Kripto Satın Al"a tıklayın',
-            selectCoinAndPayment: "Coin ve ödeme yöntemini seçin",
-            confirmTransaction: "İşlemi onaylayın",
-            cryptoInWallet: "Kripto cüzdanınızda görünecek",
-            goToTradeMarkets: '"İşlem/Piyasalar"a gidin',
-            pickTradingPair: "Bir işlem çifti seçin (ör. BTC/USDT)",
-            placeOrders: "Piyasa veya limit emirleri verin",
-            receiveCrypto: "Cüzdan > Al'a gidin → adresi veya QR kodu kopyalayın",
-            sendCrypto: "Cüzdan > Gönder'e gidin → adres/miktar girin → onaylayın",
-            applyP2P: '"P2P" bölümü altında başvurun',
-            meetCriteria: "Uygunluk kriterlerini karşılayın",
-            createOffers: "Onaylandıktan sonra teklifler oluşturun ve işlem yapın",
-            goToStaking: "Cüzdanlar > Staking'e gidin",
-            pickStakingPlan: "Bir staking planı seçin",
-            selectAmount: "Stake edilecek miktarı seçin",
-            confirmStaking: "İşlemi onaylayın",
-            rewardsProcessed: "Ödüller dönem sonunda otomatik olarak işlenir"
+        legalCompliance: {
+          title: "Yasal Uyum",
+          description: "Kara Para Aklamayı Önleme (AML) düzenlemeleri dahil olmak üzere uygulanabilir yasalar altındaki yükümlülüklerimizi yerine getirmek için."
         },
-        labels: {
-            toReceive: "Almak için:",
-            toSend: "Göndermek için:"
+        securityFraud: {
+          title: "Güvenlik ve Dolandırıcılık Önleme",
+          description: "Hesabınızı korumak, dolandırıcılığı tespit etmek ve önlemek ve platform güvenliğini sağlamak için."
+        },
+        customerSupport: {
+          title: "Müşteri Desteği",
+          description: "Soru ve taleplerinize yanıt vermek ve gerektiğinde teknik destek sağlamak için."
+        },
+        marketing: {
+          title: "Pazarlama ve İletişim",
+          description: "Size ilgili güncellemeler, ürün bilgileri ve promosyon materyalleri göndermek için (izin verirseniz)."
+        },
+        transactionProcessing: {
+          title: "İşlem İşleme",
+          description: "Kripto para işlemlerini kolaylaştırmak ve işlem kayıtlarını tutmak için."
+        }
+      },
+      dataRetention: {
+        title: "Veri Saklama",
+        content: "Hizmetlerimizi sağlamak, yasal yükümlülüklere (vergi ve AML gereksinimleri gibi) uymak, anlaşmazlıkları çözmek ve anlaşmalarımızı uygulamak için gerekli olduğu sürece verilerinizi saklıyoruz."
+      },
+      dataSharing: {
+        title: "Veri Paylaşımı",
+        content: "Verilerinizi diğer BINEX kuruluşları veya güvenilir üçüncü taraflarla sıkı sözleşme güvenceleri altında, yalnızca Gizlilik Bildirimimizde belirtilen amaçlar için gerekli olduğunda paylaşabiliriz."
+      },
+      cookies: {
+        title: "Çerezler ve İzleme",
+        content: "Kullanıcı deneyiminizi geliştirmek, kişiselleştirilmiş pazarlama sağlamak ve hizmetlerimizin nasıl kullanıldığını analiz etmek için çerezler ve benzer teknolojiler kullanıyoruz.",
+        link: "Tam Çerez Politikamızı görüntüleyin"
+      },
+      actionCards: {
+        privacyNotice: {
+          title: "Gizlilik Bildirimi",
+          description: "Tam gizlilik politikamızı okuyun"
+        },
+        manageData: {
+          title: "Verileri Yönet",
+          description: "Bilgilerinize erişin ve kontrol edin"
+        },
+        cookieSettings: {
+          title: "Çerez Ayarları",
+          description: "İzleme tercihlerinizi ayarlayın"
+        },
+        helpCenter: {
+          title: "Yardım Merkezi",
+          description: "Gizlilik sorularına yanıt alın"
+        }
+      },
+      notification: "İşlem başarıyla tamamlandı!"
+    },
+    
+    termsOfUse: {
+      title: "Kullanım Şartları",
+      hero: {
+        title: "BINEX Kullanım Şartları"
+      },
+      agreement: {
+        title: "Sözleşme",
+        content: "Bu, siz (kullanıcı) ile BINEX arasında bağlayıcı bir sözleşmedir. Eriştiğiniz veya kullandığınız tüm BINEX Hizmetlerini kapsar."
+      },
+      riskWarning: {
+        title: "Risk Uyarısı",
+        content: "Dijital varlıklar oynaktır ve değer olarak önemli ölçüde dalgalanabilir. BINEX bir aracı, finansal danışman veya yatırım danışmanı değildir. Herhangi bir finansal karar vermeden önce kendi araştırmanızı yapmalısınız."
+      },
+      aboutServices: {
+        title: "Hizmetlerimiz Hakkında",
+        aboutBINEX: {
+          title: "BINEX Hakkında",
+          content: "BINEX, platformumuz aracılığıyla dijital varlık değişimi, saklama hizmetleri ve ilgili finansal hizmetler sağlar."
+        },
+        eligibility: {
+          title: "Uygunluk",
+          content: "En az 18 yaşında olmalı, yasal olarak sözleşme yapabilir durumda olmalı, hizmetlerimizi kullanmaktan kısıtlanmamış olmalı ve yasaklı yargı bölgelerinde bulunmamalısınız."
+        },
+        communication: {
+          title: "İletişim",
+          content: "İletişim bilgilerinizi güncel tutmalısınız. BINEX, hesabınız ve hizmetlerimiz hakkında sizinle e-posta, SMS veya telefon yoluyla iletişime geçecektir."
+        }
+      },
+      services: {
+        title: "Hizmetlerimiz",
+        servicesProvided: {
+          title: "Sağlanan Hizmetler",
+          content: "BINEX hem otomatik botlar hem de insan temsilcileri aracılığıyla dijital varlık ticareti, güvenli saklama çözümleri ve müşteri desteği sunar. Kullanıcı sohbet işlevselliği de mevcuttur."
+        },
+        fees: {
+          title: "Ücretler",
+          content: "Tüm geçerli ücretler Ücret Yapısı sayfamızda listelenmiştir ve güncellemelere tabidir. İşlem yapmadan önce güncel ücret programını incelemek sizin sorumluluğunuzdadır."
+        }
+      },
+      accountManagement: {
+        title: "Hesap Yönetimi",
+        accountCreation: {
+          title: "Hesap Oluşturma",
+          content: "Hizmetlerimize erişmek için bir hesap (bireysel veya kurumsal) açmalısınız. Bu, yasa gereği kimlik doğrulama prosedürlerini (KYC/AML) tamamlamayı gerektirir."
+        },
+        identityVerification: {
+          title: "Kimlik Doğrulama",
+          content: "Belirli hizmetleri kullanmadan önce Müşterinizi Tanıyın (KYC) ve Kara Para Aklamayı Önleme (AML) doğrulama süreçlerimizi tamamlamalısınız."
+        },
+        accountRecords: {
+          title: "Hesap Kayıtları",
+          content: "Hesap yönetimi politikalarımızda belirtilen belirli koşullar altında kayıt tutabilir ve alt hesaplar oluşturabilirsiniz."
+        }
+      },
+      transactions: {
+        title: "İşlemler",
+        sufficientBalance: {
+          title: "Yeterli Bakiye",
+          content: "Başlattığınız herhangi bir işlem için hesabınızda yeterli bakiye bulundurmalısınız. Yetersiz fon mevcutsa işlemler başarısız olabilir veya ek ücretlere tabi olabilir."
+        },
+        transactionCancellation: {
+          title: "İşlem İptali",
+          content: "BINEX, dolandırıcılık şüphesi, hatalar veya bu Şartların ihlali durumlarında işlemleri iptal etme veya değiştirme hakkını saklı tutar."
+        },
+        unauthorizedTransactions: {
+          title: "Yetkisiz İşlemler",
+          content: "Uyuşmazlık çözüm sürecimiz aracılığıyla aksini kanıtlayamadığınız sürece herhangi bir yetkisiz işlemden siz sorumlusunuz."
+        }
+      },
+      digitalAssets: {
+        title: "Dijital Varlıklar",
+        supportedAssets: {
+          title: "Desteklenen Varlıklar",
+          content: "Yalnızca BINEX tarafından açıkça desteklenen dijital varlıklarla işlem yapabilirsiniz. Desteklenmeyen varlıkları yatırmaya çalışmak kalıcı kayıpla sonuçlanabilir."
+        },
+        forksAirdrops: {
+          title: "Fork'lar ve Airdrop'lar",
+          content: "BINEX blockchain fork'ları, airdrop'ları veya benzer diğer olaylar için destek garantisi vermez. Destek kararları yalnızca takdirimize bağlı olarak alınır."
+        }
+      },
+      accountSecurity: {
+        title: "Hesap Güvenliği",
+        securityRequirements: {
+          title: "Güvenlik Gereksinimleri",
+          content: "Güçlü bir şifre kullanmalı, çok faktörlü kimlik doğrulamayı (MFA) etkinleştirmeli, kimlik bilgilerini asla paylaşmamalı, hesap etkinliğini düzenli olarak izlemeli ve güvenlik ihlallerini hemen bildirmelisiniz."
+        }
+      },
+      privacy: {
+        title: "Gizlilik",
+        content: "Gizliliğiniz, kişisel bilgilerinizi nasıl topladığımızı, kullandığımızı ve koruduğumuzu açıklayan BINEX Gizlilik Bildirimi tarafından yönetilir."
+      },
+      termination: {
+        title: "Hesap Sonlandırma",
+        terminationSuspension: {
+          title: "Sonlandırma/Askıya Alma",
+          content: "BINEX, dolandırıcılık, yasa ihlalleri, şüpheli faaliyetler veya Şartların ihlali durumlarında hesapları kısıtlayabilir, askıya alabilir veya sonlandırabilir. Kullanıcılar, dondurulmuş veya hareketsiz olmadığı sürece hesaplarını kapatabilir."
+        }
+      },
+      prohibitedUse: {
+        title: "Yasak Kullanım",
+        content: "BINEX hizmetlerini dolandırıcılık, piyasa manipülasyonu, yasa dışı faaliyetler, yetkisiz erişim veya uygulanabilir yasaları veya bu Şartları ihlal eden herhangi bir amaç için kullanamazsınız."
+      },
+      liability: {
+        title: "Sorumluluk ve Fikri Mülkiyet",
+        liability: {
+          title: "Sorumluluk",
+          content: "BINEX, kanıtlanmış ağır ihmal veya dolandırıcılık durumları hariç kayıplardan sorumlu değildir. Piyasa dalgalanmalarından, teknik sorunlardan veya üçüncü taraf eylemlerinden sorumlu değiliz."
+        },
+        intellectualProperty: {
+          title: "Fikri Mülkiyet",
+          content: "BINEX, platformumuz, teknolojimiz ve markalamamız üzerindeki tüm fikri mülkiyet haklarını saklı tutar. Kullanıcılar, bu Şartlarda belirtildiği şekilde hizmetlerimizi kullanmak için sınırlı bir lisans alır."
+        },
+        indemnity: {
+          title: "Tazminat",
+          content: "Hizmetlerimizi kötüye kullanmanızdan veya bu Şartları ihlal etmenizden kaynaklanan herhangi bir talep, kayıp veya hasara karşı BINEX'i tazmin etmeyi ve zarara uğratmamayı kabul edersiniz."
+        }
+      },
+      importantNotice: {
+        title: "Önemli Uyarı",
+        content: "BINEX hizmetlerini kullanarak, bu Kullanım Şartlarını okuduğunuzu, anladığınızı ve bunlara bağlı olmayı kabul ettiğinizi onaylarsınız. Kabul etmiyorsanız, hizmetlerimizi kullanmayı derhal durdurmalısınız."
+      },
+      actionCards: {
+        security: {
+          title: "Güvenlik",
+          description: "Hesabınızı güvende tutun."
+        },
+        helpCenter: {
+          title: "Yardım Merkezi",
+          description: "Sorularınıza yanıt alın"
+        },
+        privacyPolicy: {
+          title: "Gizlilik Politikası",
+          description: "Gizlilik uygulamalarımızı inceleyin"
+        },
+        legal: {
+          title: "Yasal",
+          description: "Tüm yasal belgeleri görüntüleyin"
+        }
+      },
+      footer: {
+        copyright: "© 2025 BINEX. Tüm hakları saklıdır.",
+        lastUpdated: "Son güncelleme: 6 Mayıs 2025"
+      }
+    },
+    
+    assetsDetail: {
+      title: "Varlık Detayları",
+      today: "Bugün",
+      yesterday: "Dün",
+      filter: "Filtre",
+      transactionHistory: {
+        title: "İşlem Geçmişi"
+      },
+      noTransactions: {
+        title: "Henüz İşlem Yok",
+        description: "İşlem geçmişiniz ticarete başladığınızda burada görünecek."
+      },
+      status: {
+        completed: "Tamamlandı",
+        pending: "Beklemede",
+        canceled: "İptal Edildi"
+      },
+      filterModal: {
+        title: "İşlemleri Filtrele",
+        status: "Durum",
+        type: "Tür",
+        direction: "Yön",
+        startDate: "Başlangıç Tarihi",
+        endDate: "Bitiş Tarihi",
+        allStatuses: "Tüm Durumlar",
+        allTypes: "Tüm Türler",
+        bothDirections: "Her İki Yön",
+        incoming: "Gelen",
+        outgoing: "Giden",
+        completed: "Tamamlandı",
+        pending: "Beklemede",
+        canceled: "İptal Edildi",
+        resetFilters: "Filtreleri Sıfırla",
+        applyFilters: "Filtreleri Uygula"
+      },
+      actions: {
+        deposit: "Yatır",
+        withdraw: "Çek"
+      },
+      transactionTypes: {
+        transaction: "İşlem",
+        deposit: "Yatırma",
+        withdrawal: "Çekme",
+        convertedFrom: "{{asset}}'den dönüştürüldü",
+        convertedTo: "{{asset}}'ye dönüştürüldü",
+        conversionIn: "Dönüşüm Girişi",
+        conversionOut: "Dönüşüm Çıkışı",
+        stakedAmount: "Stake Edilen Miktar",
+        stakingRewards: "Stake Ödülleri",
+        futuresReserved: "Futures Ayrıldı",
+        futuresProfit: "Futures Kârı",
+        futuresLoss: "Futures Zararı",
+        futuresSettlement: "Futures Kapanışı",
+        futuresFee: "Futures Ücreti",
+        futuresRefund: "Futures İadesi",
+        futuresBonus: "Futures Bonusu",
+        futuresCommission: "Futures Komisyonu",
+        manualProfit: "Manuel Kâr",
+        manualLoss: "Manuel Zarar",
+        manualAdjustment: "Manuel Düzeltme",
+        spotTradingProfit: "Spot Ticaret Kârı",
+        spotTradingLoss: "Spot Ticaret Zararı",
+        referralReward: "Davet Ödülü",
+        bonus: "Bonus",
+        referralCommission: "Davet Komisyonu",
+        orderReserved: "Emir Ayrıldı",
+        orderCancelled: "Emir İptal Edildi",
+        orderPartialFill: "Emir Kısmi Doldurma",
+        orderCompleted: "Emir Tamamlandı",
+        feePayment: "Ücret Ödemesi",
+        balanceAdjustment: "Bakiye Düzeltmesi",
+        transfer: "Transfer"
+      }
+    },
+    
+    invitation: {
+      title: "Arkadaşlarını Davet Et",
+      earnTogether: "Birlikte Kazanın",
+      description: "Arkadaşlarınızı BINEX'e katılmaya davet edin, kaydolup ticarete başladıklarında ödüller kazanın.",
+      yourReferralCode: "REFERANS KODUNUZ",
+      loading: "Yükleniyor...",
+      copied: "KOPYALANDI!",
+      copyCode: "KODU KOPYALA",
+      totalEarned: "Toplam Kazanılan",
+      allTimeCommission: "Tüm Zamanlar Komisyonu",
+      generationMembers: "Nesil Üyeleri",
+      noGenerationData: "Nesil verisi mevcut değil",
+      approvedMembers: "Onaylanan Üyeler",
+      pendingMembers: "Bekleyen Üyeler",
+      commissionStructure: "Komisyon Yapısı",
+      firstGeneration: "1. Nesil",
+      secondGeneration: "2. Nesil",
+      thirdGeneration: "3. Nesil",
+      firstDepositCommission: "İlk Yatırım Komisyonu",
+      stakingProfitsCommission: "Stake Kârları Komisyonu",
+      howItWorks: "Nasıl Çalışır",
+      steps: {
+        shareCode: {
+          title: "Referans Kodunuzu Paylaşın",
+          description: "Benzersiz kodunuzu arkadaşlarınıza gönderin veya sosyal medyada paylaşın."
+        },
+        friendsSignUp: {
+          title: "Arkadaşlar Kayıt Olur",
+          description: "Arkadaşlarınız referans kodunuzu kullanarak kayıt olur ve hesaplarını doğrular."
+        },
+        earnCommissions: {
+          title: "Komisyon Kazanın",
+          description: "Ağınızın ilk yatırımlarından ve stake kârlarından komisyon kazanın."
+        }
+      },
+      referralCopied: "Referans kodu panoya kopyalandı!",
+      loadingMembers: "Üyeler yükleniyor...",
+      approved: "Onaylandı",
+      joined: "Katıldı",
+      noMembersFound: "Üye bulunamadı"
+    },
+    
+    securityTips: {
+      title: "Güvenlik Merkezi",
+      essentialTips: "Temel Güvenlik İpuçları",
+      categories: {
+        passwordSecurity: "Şifre Güvenliği",
+        deviceSecurity: "Cihaz Güvenliği",
+        accountSecurity: "Hesap Güvenliği"
+      },
+      tips: {
+        strongPasswords: {
+          title: "Güçlü, Benzersiz Şifreler Kullanın",
+          description: "Büyük/küçük harf, sayı ve semboller içeren karmaşık şifreler oluşturun."
+        },
+        enable2FA: {
+          title: "İki Faktörlü Kimlik Doğrulamayı Etkinleştirin",
+          description: "Hesabınıza 2FA ile ekstra bir güvenlik katmanı ekleyin."
+        },
+        changePasswords: {
+          title: "Şifreleri Düzenli Olarak Değiştirin",
+          description: "Şifrelerinizi her 3-6 ayda bir güncelleyin."
+        },
+        softwareUpdated: {
+          title: "Yazılımı Güncel Tutun",
+          description: "İşletim sisteminizi, tarayıcınızı ve cüzdan yazılımınızı düzenli olarak güncelleyin."
+        },
+        antivirus: {
+          title: "Antivirüs Kullanın",
+          description: "Güvenilir antivirüs ve kötü amaçlı yazılımdan koruma yazılımı yükleyin."
+        },
+        publicWifi: {
+          title: "Herkese Açık WiFi'dan Kaçının",
+          description: "VPN olmadan herkese açık ağlarda cüzdanınıza asla erişmeyin."
+        },
+        loginNotifications: {
+          title: "Giriş Bildirimlerini Etkinleştirin",
+          description: "Hesabınıza yeni girişler için uyarılar alın."
+        },
+        reviewActivity: {
+          title: "Hesap Etkinliğini İnceleyin",
+          description: "Hesabınızı düzenli olarak şüpheli faaliyetler için kontrol edin."
+        },
+        whitelisting: {
+          title: "Beyaz Listeyi Kullanın",
+          description: "Ekstra güvenlik için güvenilir para çekme adreslerini beyaz listeye ekleyin."
+        }
+      },
+      actions: {
+        enable2FA: "2FA'yı Etkinleştir",
+        enable2FADesc: "Ekstra bir güvenlik katmanı ekleyin",
+        activityLog: "Etkinlik Günlüğü",
+        activityLogDesc: "Son hesap etkinliğini inceleyin",
+        settings: "Ayarlar",
+        settingsDesc: "Güvenlik tercihlerini yapılandırın",
+        backupCodes: "Yedek Kodlar",
+        backupCodesDesc: "Kurtarma kodlarınızı kaydedin"
+      },
+      emergency: {
+        title: "Acil Durum Prosedürleri",
+        unauthorizedAccess: "Hesabınıza yetkisiz erişim şüphesi duyuyorsanız, hemen şifrenizi değiştirin ve henüz aktif değilse 2FA'yı etkinleştirin.",
+        lostDevice: "Cihazınız kaybolur veya çalınırsa, hesap ayarlarından oturum erişimini hemen iptal edin.",
+        phishing: "Bir phishing girişimine kurban gittinizse, hesabınızı dondurun ve hemen destekle iletişime geçin.",
+        supportTitle: "7/24 Güvenlik Desteği",
+        supportEmail: "support@BINEX-exchange.com"
+      },
+      resources: {
+        title: "Güvenlik Kaynakları",
+        securityGuide: "Güvenlik Rehberi",
+        securityGuideLink: "Kapsamlı güvenlik belgelerini okuyun",
+        learningCenter: "Öğrenme Merkezi",
+        learningCenterLink: "Kripto güvenliği en iyi uygulamalarını öğrenin",
+        faq: "SSS",
+        faqLink: "Yaygın güvenlik sorularına yanıt bulun"
+      }
+    },
+    
+    notification: {
+      title: "Bildirim",
+      loading: "Yükleniyor",
+      filters: {
+        all: "Tümü",
+        unread: "Okunmamış",
+        read: "Okunmuş"
+      },
+      emptyState: {
+        title: "Henüz bildirim yok",
+        noNotifications: "Henüz hiç bildiriminiz yok",
+        noFilteredNotifications: "{0} bildirim bulunamadı"
+      },
+      types: {
+        deposit: {
+          title: "Yatırma Alındı",
+          message: "{0} yatırmanız onaylandı ve cüzdanınıza yatırıldı."
+        },
+        withdraw: {
+          title: "Para Çekme Başarılı",
+          message: "{0} para çekme işleminiz başarıyla işlendi."
+        },
+        staking: {
+          title: "Stake Kârı",
+          message: "Stake ödüllerinizden {0} kazandınız."
+        },
+        kyc: {
+          title: "KYC Güncellemesi",
+          defaultMessage: "Hesabınız etkinleştirildi."
+        },
+        commission: {
+          title: "Komisyon Alındı",
+          message: "{0} komisyon aldınız."
         },
         futures: {
-            title: "Vadeli İşlem Açıklaması",
-            whatAreFutures: "Vadeli işlem sözleşmeleri nedir?",
-            futuresExplanation: "Belirli bir tarihte önceden belirlenmiş bir fiyattan kripto alım veya satım anlaşmaları (nakit uzlaşmalı).",
-            whatIsLeverage: "Kaldıraç nedir?",
-            leverageExplanation: "Sahip olduğunuzdan daha fazla sermaye ile işlem yapma yeteneği (ör. 10x, 20x, 50x kaldıraç).",
-            longShortPositions: "Long ve Short pozisyonları nedir?",
-            long: "Long",
-            longExplanation: "= fiyatın yükseleceğine bahse girmek",
-            short: "Short",
-            shortExplanation: "= fiyatın düşeceğine bahse girmek",
-            marginLiquidation: "Teminat ve Likidasyon nedir?",
-            marginExplanation: "Pozisyonu sürdürmek için teminatınız çok düşerse pozisyon likidasyon riski.",
-            fundingRate: "Fonlama Oranı nedir?",
-            fundingRateExplanation: "Sürekli sözleşme fiyatlarını spot fiyatlarla dengelemek için uzun ve kısa vadeli yatırımcılar arasında her 8 saatte bir değiş tokuş edilen ücret.",
-            profitLossCalculation: "Kar/Zarar nasıl hesaplanır?",
-            profitLossExplanation: "Fiyat farkının kaldıracınız ve pozisyon büyüklüğünüzle çarpılmasına dayanarak hesaplanır."
+          title: "Futures Güncellemesi",
+          message: "{0} futures işlem tutarınız gerçekleştirildi."
         },
-        benefits: {
-            title: "Neden BINEX Futures'ı Seçmelisiniz?",
-            hedge: "Piyasa oynaklığına karşı korunun",
-            multiplyProfits: "Kaldıraçla karları katlayın",
-            tradeBothMarkets: "Hem yükselen hem de düşen piyasalarda işlem yapın",
-            advancedStrategies: "Gelişmiş işlem stratejileri uygulayın"
+        accountActivated: {
+          title: "KYC Doğrulama",
+          message: "Merhaba {0}, KYC belgeleriniz doğrulandı, artık BINEX'te sınırsız özelliklerin keyfini çıkarabilirsiniz"
         },
-        actionCards: {
-            contactSupport: "Destekle İletişime Geçin",
-            getHelp: "Ekibimizden yardım alın",
-            community: "Topluluk",
-            joinDiscussions: "Tartışmalara katılın"
+        custom: {
+          title: "Bildirim",
+          defaultMessage: "Yeni bir bildiriminiz var."
         },
-        footer: {
-            copyright: "© 2025 BINEX. Tüm hakları saklıdır.",
-            needHelp: "Daha fazla yardıma mı ihtiyacınız var? support@BINEX-exchange.com adresinden iletişime geçin"
+        cancelDeposit: {
+          title: "Yatırma İptal Edildi",
+          message: "{0} yatırmanız iptal edildi."
+        },
+        cancelWithdraw: {
+          title: "Para Çekme İptal Edildi",
+          message: "{0} para çekme işleminiz iptal edildi."
+        },
+        cancelActivated: {
+          title: "Etkinleştirme İptal Edildi",
+          message: "KYC'niz sistem tarafından reddedildi, lütfen tekrar deneyin veya yardım için Müşteri Desteği ile iletişime geçin"
         }
+      }
     },
+    
+    staking: {
+      title: "Staking",
+      totalStakedBalance: "Toplam Stake Edilen Bakiye",
+      earned: "kazanılan",
+      tabs: {
+        options: "Seçenekler",
+        active: "Aktif Stakeler",
+        completed: "Tamamlananlar"
+      },
+      daily: "Günlük",
+      minimumStake: "Minimum Stake",
+      unstakingPeriod: "Stake'den Çıkma Süresi",
+      days: "gün",
+      stakeButton: "{0} Stake Et",
+      status: {
+        active: "AKTİF",
+        completed: "TAMAMLANDI"
+      },
+      remaining: "Kalan",
+      dailyRate: "Günlük Oran",
+      duration: "Süre",
+      createdAt: "Oluşturulma Tarihi",
+      dateFinish: "Bitiş Tarihi",
+      totalCompletedRewards: "TOPLAM TAMAMLANAN ÖDÜLLER",
+      stake: "STAKE ET",
+      stakes: "STAKELER",
+      allRewardsFromCompleted: "Tamamlanan stakelerden gelen tüm ödüller",
+      totalRewardsEarned: "TOPLAM KAZANILAN ÖDÜLLER",
+      balance: "Bakiye",
+      maximumStake: "Maksimum Stake",
+      estimatedTotalRewards: "Tahmini Toplam Ödüller",
+      exploreStakingOptions: "Staking Seçeneklerini Keşfedin",
+      startStaking: "Staking'e Başla",
+      emptyStates: {
+        options: {
+          title: "Staking Planı Mevcut Değil",
+          message: "Şu anda mevcut staking planı yok. Lütfen yeni staking fırsatları için daha sonra kontrol edin."
+        },
+        active: {
+          title: "Aktif Stake Yok",
+          message: "Henüz aktif stakeniz yok. Kripto varlıklarınız üzerinde ödül kazanmak için staking'e başlayın."
+        },
+        completed: {
+          title: "Tamamlanan Stake Yok",
+          message: "Henüz hiç stake tamamlamadınız. Tamamlanan stakeleriniz bittiğinde burada görünecek."
+        }
+      },
+      stakeModal: {
+        title: "Stake Et",
+        amountToStake: "Stake Edilecek Miktar",
+        enterAmount: "Miktarı Girin"
+      }
+    },
+    
+    conversion: {
+      title: "Kripto Dönüştür",
+      loading: "Son fiyatlar yükleniyor...",
+      youSend: "Gönderiyorsunuz",
+      youReceive: "Alıyorsunuz",
+      balance: "Bakiye",
+      max: "MAKS",
+      enterAmount: "Miktarı girin",
+      insufficientBalance: "Yetersiz bakiye",
+      estimatedConversion: "Tahmini dönüşüm",
+      selectDifferentCurrencies: "Farklı para birimleri seçin",
+      convertNow: "Şimdi Dönüştür",
+      pricesUpdate: "Fiyatlar gerçek zamanlı güncellenir",
+      selectCurrency: "Para Birimi Seçin",
+      searchCurrencies: "Para birimlerini ara...",
+      confirmConversion: "Dönüşümü Onayla",
+      confirmExchange: "Takası Onayla",
+      conversionDetails: "Dönüşüm Detayları",
+      exchangeRate: "Döviz Kuru",
+      networkFee: "Ağ Ücreti",
+      estimatedArrival: "Tahmini Varış",
+      arrivalTime: "~30 saniye",
+      processingConversion: "Dönüşüm İşleniyor...",
+      cancel: "İptal"
+    },
+    
+    history: {
+      title: "İşlem Geçmişi",
+      emptyState: {
+        title: "İşlem bulunamadı",
+        description: "Daha fazla işlem görmek için filtrelerinizi değiştirmeyi deneyin"
+      },
+      filters: {
+        all: "Tümü",
+        deposits: "Yatırma",
+        withdrawals: "Çekme",
+        profits: "Kârlar",
+        losses: "Zararlar",
+        conversions: "Dönüşümler",
+        stacking: "Stacking"
+      },
+      statusFilters: {
+        allStatus: "Tüm Durumlar",
+        completed: "Tamamlandı",
+        pending: "Beklemede",
+        canceled: "İptal Edildi"
+      },
+      timeFilters: {
+        allTime: "Tüm Zamanlar",
+        today: "Bugün",
+        week: "Hafta",
+        month: "Ay",
+        year: "Yıl"
+      },
+      status: {
+        completed: "Tamamlandı",
+        pending: "Beklemede",
+        canceled: "İptal Edildi"
+      },
+      dateFormats: {
+        today: "Bugün, {0}",
+        yesterday: "Dün, {0}"
+      },
+      transactionTypes: {
+        transaction: "İşlem",
+        deposit: "Yatırma",
+        withdrawal: "Çekme",
+        convertedFrom: "{0}'den dönüştürüldü",
+        convertedTo: "{0}'ye dönüştürüldü",
+        conversionIn: "Dönüşüm Girişi",
+        conversionOut: "Dönüşüm Çıkışı",
+        stakedAmount: "Stake Edilen Miktar",
+        stakingRewards: "Stake Ödülleri",
+        futuresReserved: "Futures Ayrıldı",
+        futuresProfit: "Futures Kârı",
+        futuresLoss: "Futures Zararı",
+        futuresSettlement: "Futures Kapanışı",
+        futuresFee: "Futures Ücreti",
+        futuresRefund: "Futures İadesi",
+        futuresBonus: "Futures Bonusu",
+        futuresCommission: "Futures Komisyonu",
+        manualProfit: "Manuel Kâr",
+        manualLoss: "Manuel Zarar",
+        manualAdjustment: "Manuel Düzeltme",
+        spotTradingProfit: "Spot Ticaret Kârı",
+        spotTradingLoss: "Spot Ticaret Zararı",
+        referralReward: "Davet Ödülü",
+        bonus: "Bonus",
+        referralCommission: "Davet Komisyonu",
+        orderReserved: "Emir Ayrıldı",
+        orderCancelled: "Emir İptal Edildi",
+        orderPartialFill: "Emir Kısmi Doldurma",
+        orderCompleted: "Emir Tamamlandı",
+        feePayment: "Ücret Ödemesi",
+        balanceAdjustment: "Bakiye Düzeltmesi",
+        transfer: "Transfer"
+      }
+    },
+    
+    withdraw: {
+      title: "Kripto Çek",
+      selectCurrency: "Para Birimi Seçin",
+      selectPlaceholder: "Para birimi seçin",
+      selectHint: "Devam etmek için lütfen bir para birimi seçin",
+      withdrawalAddress: "Para Çekme Adresi",
+      withdrawalAmount: "Para Çekme Miktarı",
+      withdrawalPassword: "Para Çekme Şifresi",
+      passwordPlaceholder: "Para çekme şifresini girin",
+      available: "Mevcut",
+      amountWithdrawal: "Çekme miktarı",
+      minimumWithdrawal: "Minimum çekme",
+      networkFee: "Ağ ücreti",
+      youWillReceive: "Alacaksınız",
+      confirmWithdrawal: "Para Çekmeyi Onayla",
+      processing: "İşleniyor...",
+      securityVerification: "Güvenlik Doğrulama",
+      securityMessage: "Güvenliğiniz için, para çekmeler şifre onayı gerektirir ve incelemeye tabi olabilir. Yanlış adreslere para çekmeler geri alınamaz.",
+      networkInfo: "Ağ: {0} ({1})",
+      noWalletAddress: "(Cüzdan adresi yok)",
+      noWallet: {
+        title: "Cüzdan Adresi Bulunamadı",
+        description: "Henüz hiç cüzdan adresi eklemediniz. Lütfen işleminize devam etmek için bir para çekme adresi ekleyin.",
+        addButton: "Cüzdan Adresi Ekle"
+      },
+      security: {
+        title: "Güvenlik Öncelikli",
+        description: "Güvenliğiniz için, her kripto para birimi için doğrulanmış bir para çekme adresi gerektiriyoruz. Bu, hataları önlemeye ve fonlarınızın doğru hedefe ulaşmasını sağlamaya yardımcı olur."
+      },
+      errors: {
+        amountNumber: "Para çekme miktarı bir sayı olmalıdır",
+        amountRequired: "Para çekme miktarı gereklidir",
+        amountPositive: "Para çekme miktarı 0'dan büyük olmalıdır",
+        amountMin: "Miktar bu para birimi için minimum para çekme miktarının altında",
+        passwordRequired: "Para çekme şifresi gereklidir",
+        noWalletAddress: "{0} için cüzdan adresi bulunamadı. Lütfen önce bir cüzdan adresi ekleyin.",
+        minimumWithdraw: "{0} için minimum çekme: {1} {2}",
+        insufficientForFee: "Ücreti karşılayacak kadar bakiye yok ({0} {1})"
+      },
+      validation: {
+        selectCurrency: "Para birimi seçin",
+        enterAmount: "Miktarı girin",
+        belowMin: "Minimumun altında ({0} {1})",
+        insufficientBalance: "Yetersiz bakiye",
+        insufficientForFee: "Yetersiz bakiye (ücret dahil)",
+        enterPassword: "Şifre girin"
+      }
+    },
+    
+    deposit: {
+      title: "Kripto Yatır",
+      loading: "Yatırma yöntemi yükleniyor ...",
+      selectNetwork: "Ağ Seçin",
+      depositAddress: "Yatırma adresiniz",
+      copyAddress: "Adresi Kopyala",
+      amountLabel: "Yatırma miktarı ({0})",
+      amountPlaceholder: "Minimum: {0} {1}",
+      txidLabel: "İşlem Kimliği (TXID)",
+      txidPlaceholder: "TXID'yi girin",
+      minimumDeposit: "Minimum yatırma",
+      importantNotice: "Önemli Uyarı",
+      warningMessage: "Lütfen yatırmanız için doğru ağı seçtiğinizden emin olun. Yanlış ağ üzerinden fon göndermek, varlıklarınızın kalıcı kaybıyla sonuçlanabilir ve bu geri alınamaz.",
+      confirmDeposit: "Yatırmayı Onayla",
+      network: "Ağ",
+      estimatedArrival: "Tahmini varış",
+      networkConfirmations: "3 ağ onayı",
+      processingTime: "İşlem süresi",
+      processingTimeValue: "10-30 dakika",
+      noMethods: "Şu anda mevcut yatırma yöntemi yok.",
+      addressCopied: "Adres panoya kopyalandı!",
+      unknownNetwork: "Bilinmeyen Ağ"
+    },
+    
+    faq: {
+      title: "SSS Merkezi",
+      hero: {
+        title: "Sıkça Sorulan Sorular",
+        subtitle: "BINEX kullanımıyla ilgili yaygın sorulara yanıt bulun"
+      },
+      search: {
+        placeholder: "Yanıtları ara..."
+      },
+      categories: {
+        gettingStarted: "Başlarken",
+        managingAccount: "Hesabınızı Yönetme"
+      },
+      questions: {
+        howToCreateAccount: "Nasıl hesap oluştururum?",
+        howToCompleteVerification: "Doğrulamayı nasıl tamamlarım?",
+        howToBuyCrypto: "Nasıl kripto para satın alırım?",
+        howToTrade: "Kripto para birimleriyle nasıl işlem yaparım?",
+        howToSendReceive: "Kripto'yu nasıl alır ve gönderirim?",
+        howToBecomeP2PMerchant: "Nasıl P2P Satıcısı olurum?",
+        howStakingWorks: "Staking nasıl çalışır?"
+      },
+      answers: {
+        verificationProcess: "Resmi kimlik ve selfie fotoğrafı yükleyin. Doğrulama genellikle birkaç saat içinde onaylanır."
+      },
+      steps: {
+        goToWebsite: "https://BINEX-exchange.com'a gidin",
+        clickSignUp: '"Kaydol"a tıklayın',
+        enterDetails: "Bilgilerinizi girin",
+        verifyEmail: "E-posta adresinizi doğrulayın",
+        completeVerification: "Önce doğrulamayı tamamlayın",
+        clickBuyCrypto: '"Kripto Satın Al"a tıklayın',
+        selectCoinAndPayment: "Coin ve ödeme yöntemi seçin",
+        confirmTransaction: "İşlemi onaylayın",
+        cryptoInWallet: "Kripto cüzdanınızda görünecek",
+        goToTradeMarkets: '"Ticaret/Piyasalar"a gidin',
+        pickTradingPair: "Bir ticaret çifti seçin (örn. BTC/USDT)",
+        placeOrders: "Market veya limit emirleri verin",
+        receiveCrypto: "Cüzdan > Al'a gidin → adres veya QR kodu kopyalayın",
+        sendCrypto: "Cüzdan > Gönder'e gidin → adres/miktar girin → onaylayın",
+        applyP2P: '"P2P" bölümünde başvurun',
+        meetCriteria: "Uygunluk kriterlerini karşılayın",
+        createOffers: "Onaylandıktan sonra teklifler oluşturun ve ticaret yapın",
+        goToStaking: "Cüzdanlar > Staking'e gidin",
+        pickStakingPlan: "Bir staking planı seçin",
+        selectAmount: "Stake edilecek miktarı seçin",
+        confirmStaking: "İşlemi onaylayın",
+        rewardsProcessed: "Ödüller dönem sonunda otomatik olarak işlenir"
+      },
+      labels: {
+        toReceive: "Almak için:",
+        toSend: "Göndermek için:"
+      },
+      futures: {
+        title: "Futures Ticareti Açıklandı",
+        whatAreFutures: "Futures sözleşmeleri nedir?",
+        futuresExplanation: "Belirli bir gelecek tarihte önceden belirlenmiş bir fiyattan kripto almak veya satmak için anlaşmalar (nakit kapatılmış).",
+        whatIsLeverage: "Kaldıraç nedir?",
+        leverageExplanation: "Sahip olduğunuzdan daha fazla sermayeyle ticaret yapabilme yeteneği (örn. 10x, 20x, 50x kaldıraç).",
+        longShortPositions: "Uzun ve Kısa Pozisyonlar nedir?",
+        long: "Uzun",
+        longExplanation: "= fiyatın yükseleceğine bahis",
+        short: "Kısa",
+        shortExplanation: "= fiyatın düşeceğine bahis",
+        marginLiquidation: "Marj ve Tasfiye nedir?",
+        marginExplanation: "Pozisyonu sürdürmek için teminatlarınız çok düşerse pozisyon tasfiyesi riski.",
+        fundingRate: "Finansman Oranı nedir?",
+        fundingRateExplanation: "Sürekli kontrat fiyatlarını spot fiyatlarla dengelemek için uzun ve kısa tüccarlar arasında her 8 saatte bir değiştirilen ücret.",
+        profitLossCalculation: "Kâr/Zarar nasıl hesaplanır?",
+        profitLossExplanation: "Fiyat farkının kaldıracınız ve pozisyon büyüklüğünüzle çarpılmasına dayalı olarak hesaplanır."
+      },
+      benefits: {
+        title: "Neden BINEX Futures'ı Seçmelisiniz?",
+        hedge: "Piyasa oynaklığına karşı korunma",
+        multiplyProfits: "Kaldıraçla kârları çoğaltın",
+        tradeBothMarkets: "Hem yükselen hem de düşen piyasalarda işlem yapın",
+        advancedStrategies: "Gelişmiş ticaret stratejileri uygulayın"
+      },
+      actionCards: {
+        contactSupport: "Destekle İletişime Geçin",
+        getHelp: "Ekibimizden yardım alın",
+        community: "Topluluk",
+        joinDiscussions: "Tartışmalara katılın"
+      },
+      footer: {
+        copyright: "© 2025 BINEX. Tüm hakları saklıdır.",
+        needHelp: "Daha fazla yardıma mı ihtiyacınız var? support@BINEX-exchange.com ile iletişime geçin"
+      }
+    },
+    
     tabBottomNavigator: {
-        home: "ana sayfa",
-        grap: "grafik",
-        records: "kayıtlar",
-        starting: "başlangıç"
+      home: "ana sayfa",
+      grap: "grafik",
+      records: "kayıtlar",
+      starting: "başlangıç"
     },
+    
     language: {
-        title: "Uygulama Dili",
-        selectLanguage: "Dil Seçin",
-        choosePreferred: "Tercih ettiğiniz dili seçin",
-        searchPlaceholder: "Dillerde ara...",
-        currentLanguage: "Mevcut Dil",
-        languages: {
-            english: "İngilizce",
-            french: "Fransızca",
-            russian: "Rusça",
-            german: "Almanca",
-            spanish: "İspanyolca"
-        },
-        nativeNames: {
-            english: "English",
-            french: "Français",
-            russian: "Русский",
-            german: "Deutsch",
-            spanish: "Español"
-        }
+      title: "Uygulama Dili",
+      selectLanguage: "Dil Seçin",
+      choosePreferred: "Tercih ettiğiniz dili seçin",
+      searchPlaceholder: "Dilleri ara...",
+      currentLanguage: "Mevcut Dil",
+      languages: {
+        english: "İngilizce",
+        french: "Fransızca",
+        russian: "Rusça",
+        german: "Almanca",
+        spanish: "İspanyolca"
+      },
+      nativeNames: {
+        english: "English",
+        french: "Français",
+        russian: "Русский",
+        german: "Deutsch",
+        spanish: "Español"
+      }
     }
-},
+  },
 
 
   entities: {

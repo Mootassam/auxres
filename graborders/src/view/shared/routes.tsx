@@ -106,12 +106,6 @@ const screenRoutes = [
     exact: true,
   },
 
-    {
-    path: "/product/details/:id",
-    loader: () => import("src/view/pages/product/productDetails"),
-    permissionRequired: permissions.categoryRead,
-    exact: true,
-  },
 
   {
     path: "/wallets/:id",
@@ -181,10 +175,7 @@ const screenRoutes = [
     permissionRequired: permissions.categoryRead,
   },
 
-  {
-    path: "/market/detail/:id",
-    loader: () => import("src/view/pages/Market/MarketDetail"),
-  },
+
 
   {
     path: "/Withdraw",
@@ -347,21 +338,32 @@ const navRoutes = [
     loader: () => import("src/view/pages/Home/Home"),
   },
 
-
   {
     path: "/market",
     loader: () => import("src/view/pages/Market/Market"),
   },
 
+
+
+
+
+
+].filter(Boolean);
+
+const routeswithoutmobilemenue = [
+
+    {
+    path: "/product/details/:id",
+    loader: () => import("src/view/pages/product/productDetails"),
+  },
   {
-    path: "/liveChat",
-    loader: () => import("src/view/pages/LiveChat/LiveChat"),
+    path: "/market/detail/:id",
+    loader: () => import("src/view/pages/Market/MarketDetail"),
   },
 
-
   {
-    path: "/faq-center",
-    loader: () => import("src/view/pages/Home/Faq"),
+    path: "/online-service",
+    loader: () => import("src/view/pages/LiveChat/LiveChat"),
   },
 
 
@@ -375,5 +377,6 @@ export default {
   simpleRoutes,
   screenRoutes,
   navRoutes,
+  routeswithoutmobilemenue,
   emptyPermissionsRoutes,
 };

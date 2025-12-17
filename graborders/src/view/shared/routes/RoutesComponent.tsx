@@ -12,6 +12,7 @@ import EmptyPermissionsRoute from "src/view/shared/routes/EmptyPermissionsRoute"
 import NavRoute from "./NavRoute";
 import UserService from "src/modules/user/userService";
 import AuthCurrentTenant from "src/modules/auth/authCurrentTenant";
+import RoutesWihoutMenue from "./RoutesWihoutMenue";
 
 function RoutesComponent() {
   const isInitialMount = useRef(true);
@@ -67,6 +68,20 @@ function RoutesComponent() {
           currentTenant={currentTenant}
         />
       ))}
+
+      {routes.routeswithoutmobilemenue.map((route) => (
+        <RoutesWihoutMenue
+          exact
+          key={route.path}
+          path={route.path}
+          component={lazyRouter({ loader: route.loader })}
+          currentUser={currentUser}
+          currentTenant={currentTenant}
+        />
+      ))}
+
+
+      
       {routes.emptyPermissionsRoutes.map((route) => (
         <EmptyPermissionsRoute
           key={route.path}

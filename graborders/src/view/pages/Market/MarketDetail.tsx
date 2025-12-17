@@ -103,9 +103,9 @@ function MarketDetail() {
     const volumeNum = Number(vol);
     if (isNaN(volumeNum)) return "0.00";
     if (volumeNum >= 1000000000) {
-      return (volumeNum / 1000000000).toFixed(2) + "B";
+      return (volumeNum / 1000000000).toFixed(2) + i18n("pages.marketDetail.volume.billion");
     } else if (volumeNum >= 1000000) {
-      return (volumeNum / 1000000).toFixed(2) + "M";
+      return (volumeNum / 1000000).toFixed(2) + i18n("pages.marketDetail.volume.million");
     } else if (volumeNum >= 1000) {
       return (volumeNum / 1000).toFixed(2) + "K";
     } else {
@@ -128,7 +128,7 @@ function MarketDetail() {
           wsRef.current.onclose = null; // Remove onclose handler to prevent reconnection
           wsRef.current.close();
         } catch (error) {
-          console.warn("Error closing WebSocket:", error);
+          console.warn(i18n("pages.marketDetail.websocketCloseError"), error);
         }
         wsRef.current = null;
       }
@@ -187,7 +187,7 @@ function MarketDetail() {
       
       // Set timeout for API calls (5 seconds)
       const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Request timeout')), 5000);
+        setTimeout(() => reject(new Error(i18n("common.timeout"))), 5000);
       });
 
       const fetchPromise = Promise.all([
@@ -215,14 +215,14 @@ function MarketDetail() {
         setOrderBook(orderBookResponse.data);
         
         setIsLoading(false);
-        console.log("Initial data loaded for:", coin);
+        console.log(i18n("pages.marketDetail.initialDataLoaded"), coin);
       }
     } catch (error: any) {
       if (error.name === 'AbortError') {
-        console.log('Request aborted for:', coin);
+        console.log(i18n("common.requestAborted"), coin);
         return;
       }
-      console.error("Error fetching initial data for", coin, ":", error);
+      console.error(i18n("pages.marketDetail.fetchError"), coin, ":", error);
       if (currentCoinRef.current === coin) {
         setIsLoading(false);
         // Set fallback data to prevent empty state
@@ -241,7 +241,7 @@ function MarketDetail() {
     const coin = selectedCoin;
     if (!coin) return;
 
-    console.log("Setting up WebSockets for:", coin);
+    console.log(i18n("pages.marketDetail.setupWebsockets"), coin);
     currentCoinRef.current = coin;
 
     // Fetch initial data immediately
@@ -256,7 +256,7 @@ function MarketDetail() {
         const ws = new WebSocket(url);
         
         ws.onopen = () => {
-          console.log(`${type} WebSocket connected for:`, coin);
+          console.log(i18n("pages.marketDetail.websocketConnected"), type, coin);
         };
 
         ws.onmessage = (event: MessageEvent) => {
@@ -266,19 +266,19 @@ function MarketDetail() {
             const data = JSON.parse(event.data);
             onMessage(data);
           } catch (error) {
-            console.error(`Error parsing ${type} data:`, error);
+            console.error(i18n("pages.marketDetail.websocketParseError"), type, error);
           }
         };
 
         ws.onclose = (event) => {
-          console.log(`${type} WebSocket closed for:`, coin, "Code:", event.code);
+          console.log(i18n("pages.marketDetail.websocketClosed"), type, coin, i18n("pages.marketDetail.code"), event.code);
           
           if (isComponentMounted && currentCoinRef.current === coin) {
             // Only reconnect if it wasn't a normal closure
             if (event.code !== 1000) {
               reconnectTimeouts.current[type] = setTimeout(() => {
                 if (isComponentMounted && currentCoinRef.current === coin) {
-                  console.log(`Reconnecting ${type} WebSocket for:`, coin);
+                  console.log(i18n("pages.marketDetail.reconnecting"), type, coin);
                   const newWs = setupWebSocket(url, onMessage, type);
                   if (type === 'ticker' && newWs) tickerWs.current = newWs;
                   else if (type === 'trade' && newWs) tradeWs.current = newWs;
@@ -290,12 +290,12 @@ function MarketDetail() {
         };
 
         ws.onerror = (error) => {
-          console.error(`${type} WebSocket error for ${coin}:`, error);
+          console.error(i18n("pages.marketDetail.websocketError"), coin, type, error);
         };
 
         return ws;
       } catch (error) {
-        console.error(`Error creating ${type} WebSocket:`, error);
+        console.error(i18n("pages.marketDetail.websocketCreateError"), type, error);
         return null;
       }
     };
@@ -334,7 +334,7 @@ function MarketDetail() {
     }, 'depth');
 
     return () => {
-      console.log("Cleaning up WebSockets for:", coin);
+      console.log(i18n("pages.marketDetail.cleaningUp"), coin);
       isComponentMounted = false;
       
       // Clear all reconnection timeouts
@@ -358,7 +358,7 @@ function MarketDetail() {
       return;
     }
     
-    console.log("Selecting new coin:", coinSymbol);
+    console.log(i18n("pages.marketDetail.selectingCoin"), coinSymbol);
     // Navigate to the new coin's detail page
     history.push(`/market/detail/${coinSymbol}`);
   };
@@ -463,7 +463,7 @@ function MarketDetail() {
         selectedCoin={selectedCoin}
         onCoinSelect={handleCoinSelect}
         availableCoins={availableCoins}
-        title="Select Trading Pair"
+        title={i18n("pages.marketDetail.coinSelector.title")}
       />
 
       {/* Price Section */}
@@ -500,13 +500,15 @@ function MarketDetail() {
           <div className="stats-grid">
             <div className="stat-row">
               <div className="stat-item">
-                <div className="stat-label">24H High</div>
+                <div className="stat-label">{i18n("pages.marketDetail.stats.high")}</div>
                 <div className="stat-value">
                   {highPrice !== null ? formatNumber(highPrice) : <LoadingPlaceholder width="60px" height="12px" />}
                 </div>
               </div>
               <div className="stat-item">
-                <div className="stat-label">24H Volume({selectedCoin.replace("USDT", "")})</div>
+                <div className="stat-label">
+                  {i18n("pages.marketDetail.stats.volume")}({selectedCoin.replace("USDT", "")})
+                </div>
                 <div className="stat-value">
                   {volume !== null ? formatVolume(volume) : <LoadingPlaceholder width="60px" height="12px" />}
                 </div>
@@ -514,13 +516,15 @@ function MarketDetail() {
             </div>
             <div className="stat-row">
               <div className="stat-item">
-                <div className="stat-label">24H Low</div>
+                <div className="stat-label">{i18n("pages.marketDetail.stats.low")}</div>
                 <div className="stat-value">
                   {lowPrice !== null ? formatNumber(lowPrice) : <LoadingPlaceholder width="60px" height="12px" />}
                 </div>
               </div>
               <div className="stat-item">
-                <div className="stat-label">24H Volume(USDT)</div>
+                <div className="stat-label">
+                  {i18n("pages.marketDetail.stats.volume")}(USDT)
+                </div>
                 <div className="stat-value">
                   {quoteVolume !== null ? formatVolume(quoteVolume) : <LoadingPlaceholder width="60px" height="12px" />}
                 </div>
@@ -542,13 +546,13 @@ function MarketDetail() {
             className={`tab ${activeTab === 'orderBook' ? 'active' : ''}`}
             onClick={() => setActiveTab('orderBook')}
           >
-            Order
+            {i18n("pages.marketDetail.tabs.orderBook")}
           </div>
           <div 
             className={`tab ${activeTab === 'transactions' ? 'active' : ''}`}
             onClick={() => setActiveTab('transactions')}
           >
-            Last transaction
+            {i18n("pages.marketDetail.tabs.transactions")}
           </div>
         </div>
 
@@ -559,14 +563,16 @@ function MarketDetail() {
               <div className="order-book-table">
                 <div className="table-header">
                   <div className="buy-section">
-                    <div className="column-header">Buy</div>
-                    <div className="column-header">Quantity</div>
-                    <div className="column-header">Price (usdt)</div>
+                    <div className="column-header">{i18n("pages.marketDetail.orderBook.buy")}</div>
+                    <div className="column-header">{i18n("pages.marketDetail.orderBook.quantity")}</div>
+                    <div className="column-header">{i18n("pages.marketDetail.orderBook.price")}</div>
                   </div>
                   <div className="sell-section">
-                    <div className="column-header">Price (usdt)</div>
-                    <div className="column-header">Quantity</div>
-                    <div className="column-header" style={{textAlign:'right'}}>Sell</div>
+                    <div className="column-header">{i18n("pages.marketDetail.orderBook.price")}</div>
+                    <div className="column-header">{i18n("pages.marketDetail.orderBook.quantity")}</div>
+                    <div className="column-header" style={{textAlign:'right'}}>
+                      {i18n("pages.marketDetail.orderBook.sell")}
+                    </div>
                   </div>
                 </div>
 
@@ -609,9 +615,9 @@ function MarketDetail() {
           {activeTab === 'transactions' && (
             <div className="transactions-container">
               <div className="transactions-header">
-                <div className="header-item">Time</div>
-                <div className="header-item">Price</div>
-                <div className="header-item">Quantity</div>
+                <div className="header-item">{i18n("pages.marketDetail.recentTrades.time")}</div>
+                <div className="header-item">{i18n("pages.marketDetail.recentTrades.price")}</div>
+                <div className="header-item">{i18n("pages.marketDetail.recentTrades.amount")}</div>
               </div>
               <div className="transactions-list">
                 {recentTrades.length > 0 ? (
@@ -646,6 +652,7 @@ function MarketDetail() {
           )}
         </div>
       </div>
+
 
       <style>{`
         * {

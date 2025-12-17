@@ -100,7 +100,7 @@ const Market: React.FC = () => {
 
         // Set timeout for API call
         const timeoutPromise = new Promise<never>((_, reject) => {
-          setTimeout(() => reject(new Error('Request timeout')), 5000);
+          setTimeout(() => reject(new Error(i18n('common.timeout'))), 5000);
         });
 
         // Create symbols parameter for batch request
@@ -155,10 +155,10 @@ const Market: React.FC = () => {
         }
       } catch (error: any) {
         if (error.name === 'AbortError') {
-          console.log('Request aborted');
+          console.log(i18n('common.requestAborted'));
           return;
         }
-        console.error("Error fetching market data:", error);
+        console.error(i18n('common.fetchError'), error);
         
         // Set fallback data
         const fallbackData: { [key: string]: CryptoData } = {};
@@ -202,7 +202,7 @@ const Market: React.FC = () => {
         ws.current = new WebSocket(`wss://stream.binance.com:9443/ws/${streams}`);
 
         ws.current.onopen = () => {
-          console.log("Market WebSocket connected");
+          console.log(i18n('pages.market.websocketConnected'));
         };
 
         ws.current.onmessage = (event) => {
@@ -238,16 +238,16 @@ const Market: React.FC = () => {
               return newData;
             });
           } catch (error) {
-            console.error("Error parsing WebSocket data:", error);
+            console.error(i18n('pages.market.websocketParseError'), error);
           }
         };
 
         ws.current.onerror = (error) => {
-          console.error("Market WebSocket error:", error);
+          console.error(i18n('pages.market.websocketError'), error);
         };
 
         ws.current.onclose = (event) => {
-          console.log("Market WebSocket closed, code:", event.code);
+          console.log(i18n('pages.market.websocketClosed'), event.code);
           // Reconnect after delay if not normal closure
           if (event.code !== 1000 && isComponentMounted.current) {
             setTimeout(() => {
@@ -258,7 +258,7 @@ const Market: React.FC = () => {
           }
         };
       } catch (error) {
-        console.error("Error setting up WebSocket:", error);
+        console.error(i18n('pages.market.websocketSetupError'), error);
       }
     };
 
@@ -325,12 +325,12 @@ const Market: React.FC = () => {
     <div className="container" style={{ backgroundColor: "#106cf5" }}>
       {/* Header */}
       <div className="header">
-        <div className="header-title">Blockchain</div>
+        <div className="header-title">{i18n('pages.market.title')}</div>
         <div className="search-bar">
           <i className="fas fa-search" />
           <input
             type="text"
-            placeholder="Search crypto..."
+            placeholder={i18n('pages.market.search.placeholder')}
             value={searchTerm}
             onChange={handleSearchChange}
           />
@@ -346,6 +346,8 @@ const Market: React.FC = () => {
                 fontSize: '18px',
                 padding: '0 5px'
               }}
+              title={i18n('pages.market.search.clear')}
+              aria-label={i18n('pages.market.search.clear')}
             >
               ×
             </button>
@@ -364,13 +366,13 @@ const Market: React.FC = () => {
       >
         <div className="table-header">
           <div className="pair-col" style={{ fontSize: 12 }}>
-            Trading Pair
+            {i18n('pages.market.tableHeaders.pair')}
           </div>
           <div className="price-col" style={{ fontSize: 12 }}>
-            Latest Price
+            {i18n('pages.market.tableHeaders.latestPrice')}
           </div>
           <div className="change-col" style={{ fontSize: 12 }}>
-            24H Change
+            {i18n('pages.market.tableHeaders.change24h')}
           </div>
         </div>
 
@@ -439,10 +441,11 @@ const Market: React.FC = () => {
             color: '#666',
             fontSize: '16px'
           }}>
-            No cryptocurrencies found
+            {i18n('pages.market.noResults')}
           </div>
         )}
       </div>
+
 
       <style>{`
         .container {

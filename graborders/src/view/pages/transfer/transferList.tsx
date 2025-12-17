@@ -6,7 +6,7 @@ import selectors from 'src/modules/assets/list/assetsListSelectors';
 import { i18n } from "../../../i18n";
 import LoadingModal from 'src/shared/LoadingModal';
 
-function TransferList() { // Changed from transferList to TransferList
+function TransferList() {
   const dispatch = useDispatch();
   const transferList = useSelector(selectors.selectListTransfer);
   const loading = useSelector(selectors.selectLoading);
@@ -50,11 +50,11 @@ function TransferList() { // Changed from transferList to TransferList
   const getAccountDisplayName = (account) => {
     switch (account) {
       case 'trade':
-        return 'Trade Account';
+        return i18n("pages.transfer.accountTypes.trade");
       case 'perpetual':
-        return 'Perpetual Account';
+        return i18n("pages.transfer.accountTypes.perpetual");
       case 'exchange':
-        return 'Exchange Account';
+        return i18n("pages.transfer.accountTypes.exchange");
       default:
         return account;
     }
@@ -68,7 +68,7 @@ function TransferList() { // Changed from transferList to TransferList
           <Link to="/wallets" className="back-arrow">
             <i className="fas fa-arrow-left" />
           </Link>
-          <div className="page-title">{i18n("pages.transfer.title") || "Transfer History"}</div>
+          <div className="page-title">{i18n("pages.transfer.title")}</div>
         </div>
       </div>
 
@@ -102,7 +102,7 @@ function TransferList() { // Changed from transferList to TransferList
                             {getAccountDisplayName(transfer.fromAccount)} → {getAccountDisplayName(transfer.toAccount)}
                           </div>
                           <div className="transaction-date">
-                            {transfer.createdAt ? formatDate(transfer.createdAt) : 'Date not available'}
+                            {transfer.createdAt ? formatDate(transfer.createdAt) : i18n("common.dateNotAvailable")}
                           </div>
                         </div>
                       </div>
@@ -116,7 +116,7 @@ function TransferList() { // Changed from transferList to TransferList
                         <div
                           className={`transaction-status status-${transfer.status}`}
                         >
-                          {transfer.status === 'completed' ? 'Completed' : transfer.status}
+                          {transfer.status === 'completed' ? i18n("pages.transfer.status.completed") : transfer.status}
                         </div>
                       </div>
                     </div>
@@ -124,7 +124,7 @@ function TransferList() { // Changed from transferList to TransferList
                 ) : (
                   <div className="no-data-message">
                     <i className="fas fa-exchange-alt"></i>
-                    <p>No transfer history available</p>
+                    <p>{i18n("pages.transfer.noTransferHistory")}</p>
                   </div>
                 )}
               </div>
