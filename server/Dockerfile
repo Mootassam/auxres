@@ -1,6 +1,9 @@
 # Use a modern Node version
 FROM node:18-alpine
 
+# Install Python and build tools required for native modules
+RUN apk add --no-cache python3 py3-pip make g++
+
 WORKDIR /app
 COPY package*.json /app/
 COPY . /app/
@@ -12,5 +15,4 @@ ENV BACKEND_URL="https://binex-exchange.com/api"
 # Expose your app port
 EXPOSE 8084
 
-# Remove Redis installation and just start your app
 CMD ["npm", "start"]

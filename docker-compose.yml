@@ -10,6 +10,7 @@ services:
       - upload:/upload
     environment:
       DATABASE_CONNECTION: mongodb://db:27017/grap
+      
       REDIS_URL: redis://:91l3C92VHX9OytcgcV@redis:6379
       FUTURES_QUEUE_NAME: futures_queue
     depends_on:
