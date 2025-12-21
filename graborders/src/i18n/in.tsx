@@ -1528,7 +1528,7 @@ const In = {
         verificationProcess: "एक सरकारी आईडी और एक सेल्फी फोटो अपलोड करें। सत्यापन आमतौर पर कुछ घंटों के भीतर अनुमोदित हो जाता है।"
       },
       steps: {
-        goToWebsite: "https://BINEX-exchange.com पर जाएं",
+        goToWebsite: "https://binex-exchange.com पर जाएं",
         clickSignUp: '"साइन अप" पर क्लिक करें',
         enterDetails: "अपने विवरण दर्ज करें",
         verifyEmail: "अपना ईमेल पता सत्यापित करें",

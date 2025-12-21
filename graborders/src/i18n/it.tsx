@@ -1747,7 +1747,7 @@ common: {
         verificationProcess: "Carica un documento d'identità governativo e una foto selfie. La verifica viene solitamente approvata entro poche ore."
       },
       steps: {
-        goToWebsite: "Vai su https://BINEX-exchange.com",
+        goToWebsite: "Vai su https://binex-exchange.com",
         clickSignUp: 'Clicca "Registrati"',
         enterDetails: "Inserisci i tuoi dati",
         verifyEmail: "Verifica il tuo indirizzo email",

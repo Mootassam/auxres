@@ -15,7 +15,7 @@ RUN npm install --legacy-peer-deps
 COPY . .
 
 # Set environment variables
-ENV BACKEND_URL="http://162.0.228.113:8084/api"
+ENV BACKEND_URL="https://binex-exchange.com/api"
 
 # Expose your app port
 EXPOSE 8084

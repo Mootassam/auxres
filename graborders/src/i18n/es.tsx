@@ -1743,7 +1743,7 @@ common: {
         verificationProcess: "Cargue una identificación gubernamental y una foto selfie. La verificación generalmente se aprueba en unas horas."
       },
       steps: {
-        goToWebsite: "Vaya a https://BINEX-exchange.com",
+        goToWebsite: "Vaya a https://binex-exchange.com",
         clickSignUp: 'Haga clic en "Registrarse"',
         enterDetails: "Ingrese sus datos",
         verifyEmail: "Verifique su dirección de correo electrónico",

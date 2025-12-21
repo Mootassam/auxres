@@ -1715,7 +1715,7 @@ common: {
         verificationProcess: "Загрузите удостоверение личности государственного образца и фото-селфи. Верификация обычно одобряется в течение нескольких часов."
       },
       steps: {
-        goToWebsite: "Перейдите на https://BINEX-exchange.com",
+        goToWebsite: "Перейдите на https://binex-exchange.com",
         clickSignUp: 'Нажмите "Регистрация"',
         enterDetails: "Введите ваши данные",
         verifyEmail: "Подтвердите ваш адрес электронной почты",

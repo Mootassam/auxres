@@ -1736,7 +1736,7 @@ common: {
         verificationProcess: "Faça upload de uma identidade emitida pelo governo e uma foto selfie. A verificação geralmente é aprovada em algumas horas."
       },
       steps: {
-        goToWebsite: "Vá para https://BINEX-exchange.com",
+        goToWebsite: "Vá para https://binex-exchange.com",
         clickSignUp: 'Clique em "Cadastrar"',
         enterDetails: "Digite seus detalhes",
         verifyEmail: "Verifique seu endereço de e-mail",

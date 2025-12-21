@@ -1558,7 +1558,7 @@ const en = {
         verificationProcess: "Upload a government-issued ID and a selfie photo. Verification is usually approved within hours."
       },
       steps: {
-        goToWebsite: "Go to https://BINEX-exchange.com",
+        goToWebsite: "Go to https://binex-exchange.com",
         clickSignUp: 'Click "Sign Up"',
         enterDetails: "Enter your details",
         verifyEmail: "Verify your email address",

@@ -1513,7 +1513,7 @@ const ne = {
         verificationProcess: "सरकारी आईडी र सेल्फी फोटो अपलोड गर्नुहोस्। प्रमाणीकरण सामान्यतया घण्टाभित्र स्वीकृत हुन्छ।"
       },
       steps: {
-        goToWebsite: "https://BINEX-exchange.com मा जानुहोस्",
+        goToWebsite: "https://binex-exchange.com मा जानुहोस्",
         clickSignUp: '"साइन अप" मा क्लिक गर्नुहोस्',
         enterDetails: "आफ्ना विवरणहरू प्रविष्ट गर्नुहोस्",
         verifyEmail: "आफ्नो इमेल ठेगाना प्रमाणित गर्नुहोस्",

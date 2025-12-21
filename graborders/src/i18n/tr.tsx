@@ -1742,7 +1742,7 @@ common: {
         verificationProcess: "Resmi kimlik ve selfie fotoğrafı yükleyin. Doğrulama genellikle birkaç saat içinde onaylanır."
       },
       steps: {
-        goToWebsite: "https://BINEX-exchange.com'a gidin",
+        goToWebsite: "https://binex-exchange.com'a gidin",
         clickSignUp: '"Kaydol"a tıklayın',
         enterDetails: "Bilgilerinizi girin",
         verifyEmail: "E-posta adresinizi doğrulayın",

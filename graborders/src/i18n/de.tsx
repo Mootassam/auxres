@@ -1743,7 +1743,7 @@ common: {
         verificationProcess: "Laden Sie einen amtlichen Ausweis und ein Selfie-Foto hoch. Die Verifizierung wird normalerweise innerhalb weniger Stunden genehmigt."
       },
       steps: {
-        goToWebsite: "Gehen Sie zu https://BINEX-exchange.com",
+        goToWebsite: "Gehen Sie zu https://binex-exchange.com",
         clickSignUp: 'Klicken Sie auf "Registrieren"',
         enterDetails: "Geben Sie Ihre Daten ein",
         verifyEmail: "Bestätigen Sie Ihre E-Mail-Adresse",

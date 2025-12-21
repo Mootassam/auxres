@@ -1486,7 +1486,7 @@ pages:{
             verificationProcess: "Téléchargez une pièce d'identité gouvernementale et une photo selfie. La vérification est généralement approuvée en quelques heures."
         },
         steps: {
-            goToWebsite: "Allez sur https://BINEX-exchange.com",
+            goToWebsite: "Allez sur https://binex-exchange.com",
             clickSignUp: 'Cliquez sur "S\'inscrire"',
             enterDetails: "Entrez vos coordonnées",
             verifyEmail: "Vérifiez votre adresse e-mail",
