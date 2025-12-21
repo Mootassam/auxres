@@ -1,4 +1,6 @@
-FROM node:14.16.0-alpine3.13
+# Use a modern Node version
+FROM node:18-alpine
+
 WORKDIR /app
 COPY package*.json /app/
 COPY . /app/
