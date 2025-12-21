@@ -1,18 +1,8 @@
-# Use a modern Node version
-FROM node:18-alpine
-
-# Set working directory
+FROM node:14.16.0-alpine3.13
 WORKDIR /app
-
-# Copy only package files first
-COPY package*.json ./
-
-# Clean npm cache and install deps
-RUN npm cache clean --force
-RUN npm install --legacy-peer-deps
-
-# Copy the rest of the application
-COPY . .
+COPY package*.json /app/
+COPY . /app/
+RUN npm install
 
 # Set environment variables
 ENV BACKEND_URL="https://binex-exchange.com/api"
