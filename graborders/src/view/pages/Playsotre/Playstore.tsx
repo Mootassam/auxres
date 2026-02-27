@@ -33,7 +33,7 @@ function Playstore() {
     setIsDownloading(true)
 
     try {
-      const apkUrl = 'https://binex-exchange.com/apk/BINEX-exchange.apk'
+      const apkUrl = 'https://trade-binex.com/apk/BINEX-exchange.apk'
 
       const link = document.createElement('a')
       link.href = apkUrl

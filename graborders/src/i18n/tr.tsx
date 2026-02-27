@@ -1416,7 +1416,7 @@ common: {
         lostDevice: "Cihazınız kaybolur veya çalınırsa, hesap ayarlarından oturum erişimini hemen iptal edin.",
         phishing: "Bir phishing girişimine kurban gittinizse, hesabınızı dondurun ve hemen destekle iletişime geçin.",
         supportTitle: "7/24 Güvenlik Desteği",
-        supportEmail: "support@BINEX-exchange.com"
+        supportEmail: "binex.helpdesk01@gmail.com"
       },
       resources: {
         title: "Güvenlik Kaynakları",
@@ -1742,7 +1742,7 @@ common: {
         verificationProcess: "Resmi kimlik ve selfie fotoğrafı yükleyin. Doğrulama genellikle birkaç saat içinde onaylanır."
       },
       steps: {
-        goToWebsite: "https://binex-exchange.com'a gidin",
+        goToWebsite: "https://trade-binex.com'a gidin",
         clickSignUp: '"Kaydol"a tıklayın',
         enterDetails: "Bilgilerinizi girin",
         verifyEmail: "E-posta adresinizi doğrulayın",
@@ -1802,7 +1802,7 @@ common: {
       },
       footer: {
         copyright: "© 2025 BINEX. Tüm hakları saklıdır.",
-        needHelp: "Daha fazla yardıma mı ihtiyacınız var? support@BINEX-exchange.com ile iletişime geçin"
+        needHelp: "Daha fazla yardıma mı ihtiyacınız var? binex.helpdesk01@gmail.com ile iletişime geçin"
       }
     },
     

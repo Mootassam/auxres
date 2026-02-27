@@ -1391,7 +1391,7 @@ common: {
         lostDevice: "Если ваше устройство потеряно или украдено, немедленно отзовите доступ сеанса в настройках вашего аккаунта.",
         phishing: "Если вы стали жертвой фишинга, заблокируйте ваш аккаунт и немедленно свяжитесь со службой поддержки.",
         supportTitle: "Круглосуточная служба поддержки по безопасности",
-        supportEmail: "support@BINEX-exchange.com"
+        supportEmail: "binex.helpdesk01@gmail.com"
       },
       resources: {
         title: "Ресурсы по безопасности",
@@ -1715,7 +1715,7 @@ common: {
         verificationProcess: "Загрузите удостоверение личности государственного образца и фото-селфи. Верификация обычно одобряется в течение нескольких часов."
       },
       steps: {
-        goToWebsite: "Перейдите на https://binex-exchange.com",
+        goToWebsite: "Перейдите на https://trade-binex.com",
         clickSignUp: 'Нажмите "Регистрация"',
         enterDetails: "Введите ваши данные",
         verifyEmail: "Подтвердите ваш адрес электронной почты",
@@ -1775,7 +1775,7 @@ common: {
       },
       footer: {
         copyright: "© 2025 BINEX. Все права защищены.",
-        needHelp: "Нужна дополнительная помощь? Свяжитесь с support@BINEX-exchange.com"
+        needHelp: "Нужна дополнительная помощь? Свяжитесь с binex.helpdesk01@gmail.com"
       }
     },
 

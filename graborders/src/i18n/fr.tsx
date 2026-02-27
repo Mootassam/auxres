@@ -1162,7 +1162,7 @@ pages:{
             lostDevice: "Si votre appareil est perdu ou volé, révoquez immédiatement l'accès à la session depuis les paramètres de votre compte.",
             phishing: "Si vous avez été victime d'une tentative de phishing, geler votre compte et contactez immédiatement le support.",
             supportTitle: "Support Sécurité 24h/24 et 7j/7",
-            supportEmail: "support@BINEX-exchange.com"
+            supportEmail: "binex.helpdesk01@gmail.com"
         },
         resources: {
             title: "Ressources de Sécurité",
@@ -1486,7 +1486,7 @@ pages:{
             verificationProcess: "Téléchargez une pièce d'identité gouvernementale et une photo selfie. La vérification est généralement approuvée en quelques heures."
         },
         steps: {
-            goToWebsite: "Allez sur https://binex-exchange.com",
+            goToWebsite: "Allez sur https://trade-binex.com",
             clickSignUp: 'Cliquez sur "S\'inscrire"',
             enterDetails: "Entrez vos coordonnées",
             verifyEmail: "Vérifiez votre adresse e-mail",
@@ -1546,7 +1546,7 @@ pages:{
         },
         footer: {
             copyright: "© 2025 BINEX. Tous droits réservés.",
-            needHelp: "Besoin de plus d'aide ? Contactez support@BINEX-exchange.com"
+            needHelp: "Besoin de plus d'aide ? Contactez binex.helpdesk01@gmail.com"
         }
     },
 

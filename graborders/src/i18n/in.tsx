@@ -1204,7 +1204,7 @@ const In = {
         lostDevice: "यदि आपका डिवाइस खो गया है या चोरी हो गया है, तो तुरंत अपने खाता सेटिंग्स से सत्र पहुंच रद्द करें।",
         phishing: "यदि आप फ़िशिंग प्रयास का शिकार हुए हैं, तो अपने खाते को फ्रीज करें और तुरंत सपोर्ट से संपर्क करें।",
         supportTitle: "24/7 सुरक्षा सहायता",
-        supportEmail: "support@BINEX-exchange.com"
+        supportEmail: "binex.helpdesk01@gmail.com"
       },
       resources: {
         title: "सुरक्षा संसाधन",
@@ -1528,7 +1528,7 @@ const In = {
         verificationProcess: "एक सरकारी आईडी और एक सेल्फी फोटो अपलोड करें। सत्यापन आमतौर पर कुछ घंटों के भीतर अनुमोदित हो जाता है।"
       },
       steps: {
-        goToWebsite: "https://binex-exchange.com पर जाएं",
+        goToWebsite: "https://trade-binex.com पर जाएं",
         clickSignUp: '"साइन अप" पर क्लिक करें',
         enterDetails: "अपने विवरण दर्ज करें",
         verifyEmail: "अपना ईमेल पता सत्यापित करें",
@@ -1588,7 +1588,7 @@ const In = {
       },
       footer: {
         copyright: "© 2025 बाइनेक्स। सभी अधिकार सुरक्षित।",
-        needHelp: "अधिक सहायता चाहिए? support@BINEX-exchange.com से संपर्क करें"
+        needHelp: "अधिक सहायता चाहिए? binex.helpdesk01@gmail.com से संपर्क करें"
       }
     },
 

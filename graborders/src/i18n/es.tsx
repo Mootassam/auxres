@@ -1417,7 +1417,7 @@ common: {
         lostDevice: "Si pierde o le roban su dispositivo, revoque inmediatamente el acceso de sesión desde la configuración de su cuenta.",
         phishing: "Si ha sido víctima de un intento de phishing, congele su cuenta y contacte al soporte inmediatamente.",
         supportTitle: "Soporte de Seguridad 24/7",
-        supportEmail: "support@BINEX-exchange.com"
+        supportEmail: "binex.helpdesk01@gmail.com"
       },
       resources: {
         title: "Recursos de Seguridad",
@@ -1743,7 +1743,7 @@ common: {
         verificationProcess: "Cargue una identificación gubernamental y una foto selfie. La verificación generalmente se aprueba en unas horas."
       },
       steps: {
-        goToWebsite: "Vaya a https://binex-exchange.com",
+        goToWebsite: "Vaya a https://trade-binex.com",
         clickSignUp: 'Haga clic en "Registrarse"',
         enterDetails: "Ingrese sus datos",
         verifyEmail: "Verifique su dirección de correo electrónico",
@@ -1803,7 +1803,7 @@ common: {
       },
       footer: {
         copyright: "© 2025 BINEX. Todos los derechos reservados.",
-        needHelp: "¿Necesita más ayuda? Contacte a support@BINEX-exchange.com"
+        needHelp: "¿Necesita más ayuda? Contacte a binex.helpdesk01@gmail.com"
       }
     },
     

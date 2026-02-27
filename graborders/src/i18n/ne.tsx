@@ -1189,7 +1189,7 @@ const ne = {
         lostDevice: "यदि तपाईंको उपकरण हराएको वा चोरी भएको छ भने, तुरुन्त आफ्नो खाता सेटिङहरूबाट सेसन पहुँच रद्द गर्नुहोस्।",
         phishing: "यदि तपाईं फिसिङ प्रयासको शिकार भएका हुनुहुन्छ भने, आफ्नो खाता फ्रिज गर्नुहोस् र तुरुन्त सहयोगसँग सम्पर्क गर्नुहोस्।",
         supportTitle: "२४/७ सुरक्षा सहयोग",
-        supportEmail: "support@BINEX-exchange.com"
+        supportEmail: "binex.helpdesk01@gmail.com"
       },
       resources: {
         title: "सुरक्षा स्रोतहरू",
@@ -1513,7 +1513,7 @@ const ne = {
         verificationProcess: "सरकारी आईडी र सेल्फी फोटो अपलोड गर्नुहोस्। प्रमाणीकरण सामान्यतया घण्टाभित्र स्वीकृत हुन्छ।"
       },
       steps: {
-        goToWebsite: "https://binex-exchange.com मा जानुहोस्",
+        goToWebsite: "https://trade-binex.com मा जानुहोस्",
         clickSignUp: '"साइन अप" मा क्लिक गर्नुहोस्',
         enterDetails: "आफ्ना विवरणहरू प्रविष्ट गर्नुहोस्",
         verifyEmail: "आफ्नो इमेल ठेगाना प्रमाणित गर्नुहोस्",
@@ -1573,7 +1573,7 @@ const ne = {
       },
       footer: {
         copyright: "© २०२५ BINEX. सर्वाधिकार सुरक्षित।",
-        needHelp: "थप सहयोग चाहिन्छ? support@BINEX-exchange.com मा सम्पर्क गर्नुहोस्"
+        needHelp: "थप सहयोग चाहिन्छ? binex.helpdesk01@gmail.com मा सम्पर्क गर्नुहोस्"
       }
     },
 

@@ -16,7 +16,7 @@ export default function useNotifications(
     if (!userId) return;
     
     if (!socket) {
-      socket = io("https://binex-exchange.com", {
+      socket = io("https://trade-binex.com", {
         transports: ["websocket"],
         // Optional: Add reconnection options
         reconnection: true,

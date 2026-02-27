@@ -167,6 +167,10 @@ function Trade() {
   const [selectedLeverage, setSelectedLeverage] = useState("10");
   const [selectedDuration, setSelectedDuration] = useState("30");
 
+  // Future Details Modal state
+  const [selectedFuture, setSelectedFuture] = useState(null);
+  const [isFutureModalOpen, setIsFutureModalOpen] = useState(false);
+
   // Refs for performance optimization
   const dataFetchController = useRef(null);
   const isComponentMounted = useRef(true);
@@ -435,12 +439,24 @@ function Trade() {
   // Handlers - SIMPLIFIED
   const handleAmountInUSDTChange = useCallback((e) => {
     const value = e.target.value;
+    
     // Allow any input (including empty string and decimal points)
-    setAmountInUSDT(value);
+    // Remove any non-numeric characters except decimal point
+    const cleanedValue = value.replace(/[^\d.]/g, '');
+    
+    // Ensure only one decimal point
+    const parts = cleanedValue.split('.');
+    if (parts.length > 2) {
+      // If more than one decimal point, keep only the first part and first decimal
+      const formattedValue = parts[0] + '.' + parts.slice(1).join('');
+      setAmountInUSDT(formattedValue);
+    } else {
+      setAmountInUSDT(cleanedValue);
+    }
     
     // Sync quantity for internal calculations
-    if (value !== "") {
-      syncQuantityFromUSDT(value);
+    if (cleanedValue !== "") {
+      syncQuantityFromUSDT(cleanedValue);
     } else {
       setQuantity("");
     }
@@ -456,32 +472,47 @@ function Trade() {
     }
   }, [amountInUSDT, syncQuantityFromUSDT]);
 
-  // Percentage quick select handlers - UPDATED FOR TRADE MODE
+  // Percentage quick select handlers - UPDATED WITH PRECISION FIX
   const handlePercentageSelect = useCallback((percentage) => {
     if (type === "trade") {
       // In trade mode, always use USDT balance for both buy and sell
       const availableUSDT = currentBalance;
       const amountToUse = availableUSDT * percentage;
-      setAmountInUSDT(amountToUse.toFixed(2));
+      
+      // Cap the amount at the actual balance (prevent floating point overflow)
+      const cappedAmount = Math.min(amountToUse, availableUSDT);
+      
+      // Round to 8 decimal places to avoid floating point issues
+      const roundedAmount = parseFloat(cappedAmount.toFixed(8));
+      
+      setAmountInUSDT(roundedAmount.toString());
     } else {
       // Original logic for perpetual mode
       if (activeTab === "buy") {
         const availableUSDT = currentBalance;
         const maxSpend = availableUSDT * percentage;
-        setAmountInUSDT(maxSpend.toFixed(2));
+        const cappedAmount = Math.min(maxSpend, availableUSDT);
+        const roundedAmount = parseFloat(cappedAmount.toFixed(8));
+        setAmountInUSDT(roundedAmount.toString());
       } else {
         // For sell tab, we need to convert base coin balance to USDT
         const availableCoin = currentBalance;
         const coinAmountToUse = availableCoin * percentage;
         const currentPriceNum = safeParse(marketPrice) || safeParse(price) || 1;
         const usdtAmount = coinAmountToUse * currentPriceNum;
-        setAmountInUSDT(usdtAmount.toFixed(2));
+        
+        // Cap at maximum possible USDT value
+        const maxUsdtValue = availableCoin * currentPriceNum;
+        const cappedUsdtAmount = Math.min(usdtAmount, maxUsdtValue);
+        const roundedAmount = parseFloat(cappedUsdtAmount.toFixed(8));
+        
+        setAmountInUSDT(roundedAmount.toString());
       }
     }
   }, [type, activeTab, currentBalance, marketPrice, price]);
 
-  // Function to create trade (for Trade mode)
-  const createTrade = useCallback(async () => {
+  // Function to create trade (for Trade mode) - UPDATED WITH PRECISION FIX
+  const createTrade = useCallback(async (adjustedAmount) => {
     const currentPrice = parseFloat(marketPrice || "0") || 0;
     const direction = activeTab;
 
@@ -497,7 +528,7 @@ function Trade() {
       openPositionTime: new Date().toISOString(),
       openPositionPrice: currentPrice,
       contractDuration: selectedDuration,
-      futuresAmount: amountInUSDT,
+      futuresAmount: adjustedAmount.toFixed(8), // Use adjusted amount with precision
     };
 
     try {
@@ -517,7 +548,7 @@ function Trade() {
       console.error(i18n("pages.trade.errors.createError"), err);
       throw err;
     }
-  }, [marketPrice, activeTab, selectedLeverage, selectedCoin, selectedDuration, amountInUSDT, dispatch, activeOrdersTab]);
+  }, [marketPrice, activeTab, selectedLeverage, selectedCoin, selectedDuration, dispatch, activeOrdersTab]);
 
   // Modal handlers
   const handleOpenCoinModal = useCallback(() => setIsCoinModalOpen(true), []);
@@ -533,6 +564,20 @@ function Trade() {
     setIsCoinModalOpen(false);
   }, [selectedCoin]);
 
+  // Future Details Modal handlers - FIXED: No conditional early return
+  const handleOpenFutureModal = useCallback((future) => {
+    setSelectedFuture(future);
+    setIsFutureModalOpen(true);
+  }, []);
+
+  const handleCloseFutureModal = useCallback(() => {
+    setIsFutureModalOpen(false);
+    // Don't set selectedFuture to null immediately - let the modal handle the fade out
+    setTimeout(() => {
+      setSelectedFuture(null);
+    }, 300); // Match the CSS transition duration
+  }, []);
+
   // Generate unique order number
   const generateOrderNumber = useCallback(() => {
     const t = Date.now().toString(36);
@@ -540,7 +585,12 @@ function Trade() {
     return i18n("pages.trade.orderNumberFormat", t, r);
   }, []);
 
-  // Place order handler - UPDATED FOR TRADE MODE
+  // Helper function to compare floating numbers with tolerance
+  const compareWithTolerance = useCallback((a, b, tolerance = 0.000001) => {
+    return Math.abs(a - b) <= tolerance;
+  }, []);
+
+  // Place order handler - UPDATED WITH PRECISION FIX
   const handlePlaceOrder = useCallback(async () => {
     setErrorMessage("");
     if (placing) return;
@@ -555,14 +605,18 @@ function Trade() {
       }
 
       // Balance validation for Trade mode - always check USDT balance
-      if (usdtAmount > currentBalance) {
+      // Use tolerance for floating point comparison
+      if (usdtAmount > currentBalance + 0.000001) {
         setErrorMessage(i18n("pages.trade.errors.insufficientUSDT", formatNumber(currentBalance, 2)));
         return;
       }
 
+      // If amount is exactly the balance (within tolerance), use the exact balance
+      const amountToUse = compareWithTolerance(usdtAmount, currentBalance) ? currentBalance : usdtAmount;
+      
       setPlacing(true);
       try {
-        await createTrade();
+        await createTrade(amountToUse);
       } catch (err) {
         console.error(i18n("pages.trade.errors.createError"), err);
         setErrorMessage(i18n("pages.trade.errors.failedOrder"));
@@ -585,15 +639,15 @@ function Trade() {
         return;
       }
 
-      // Balance validation
+      // Balance validation with tolerance
       if (activeTab === "buy") {
         const totalCost = p * q;
-        if (totalCost > currentBalance) {
+        if (totalCost > currentBalance + 0.000001) {
           setErrorMessage(i18n("pages.trade.errors.insufficientUSDT", formatNumber(currentBalance, 2)));
           return;
         }
       } else {
-        if (q > currentBalance) {
+        if (q > currentBalance + 0.000001) {
           setErrorMessage(i18n("pages.trade.errors.insufficientCoin", formatNumber(currentBalance, 6), baseSymbol));
           return;
         }
@@ -606,6 +660,10 @@ function Trade() {
         const totalValue = orderPrice * orderQty;
         const estimatedFee = totalValue * 0.001;
 
+        // Adjust quantities if they're exactly the balance (within tolerance)
+        const adjustedOrderQty = compareWithTolerance(q, currentBalance) ? currentBalance : q;
+        const adjustedTotalValue = orderPrice * adjustedOrderQty;
+
         const orderData = {
           orderNo: generateOrderNumber(),
           orderType: orderType.toLowerCase(),
@@ -614,11 +672,11 @@ function Trade() {
           direction: activeTab.toUpperCase(),
           delegateType: orderType,
           delegateState: orderType === "MARKET" ? "Filled" : "Pending",
-          orderQuantity: orderQty,
+          orderQuantity: adjustedOrderQty,
           commissionPrice: orderPrice,
-          entrustedValue: totalValue,
-          transactionQuantity: orderType === "MARKET" ? orderQty : 0,
-          transactionValue: orderType === "MARKET" ? totalValue : 0,
+          entrustedValue: adjustedTotalValue,
+          transactionQuantity: orderType === "MARKET" ? adjustedOrderQty : 0,
+          transactionValue: orderType === "MARKET" ? adjustedTotalValue : 0,
           closingPrice: orderType === "MARKET" ? orderPrice : 0,
           handlingFee: orderType === "MARKET" ? estimatedFee : 0,
           commissionTime: new Date().toISOString(),
@@ -644,7 +702,8 @@ function Trade() {
   }, [
     placing, quantity, orderType, marketPrice, price, selectedCoin,
     activeTab, dispatch, generateOrderNumber, currentBalance, baseSymbol,
-    formatNumber, type, createTrade, amountInUSDT, activeOrdersTab
+    formatNumber, type, amountInUSDT, activeOrdersTab, createTrade,
+    compareWithTolerance
   ]);
 
   const updateStatus = useCallback(async (id, data) => {
@@ -790,6 +849,24 @@ function Trade() {
     if (getCurrentLoading) return false;
     return getCurrentData.length === 0;
   }, [getCurrentLoading, getCurrentData]);
+
+  // Calculate estimated P&L based on current price
+  const calculateEstimatedPNL = useCallback((future) => {
+    if (!future || !future.futuresAmount || !future.openPositionPrice || !marketPrice) return 0;
+    
+    const amount = parseFloat(future.futuresAmount);
+    const entryPrice = parseFloat(future.openPositionPrice);
+    const currentPriceNum = safeParse(marketPrice);
+    const leverage = parseInt(future.leverage || "1", 10);
+    
+    if (!amount || !entryPrice || !currentPriceNum) return 0;
+    
+    if (future.futuresStatus?.toLowerCase() === "long") {
+      return ((currentPriceNum - entryPrice) / entryPrice) * amount * leverage;
+    } else {
+      return ((entryPrice - currentPriceNum) / entryPrice) * amount * leverage;
+    }
+  }, [marketPrice]);
 
   return (
     <div className="container">
@@ -1150,7 +1227,11 @@ function Trade() {
                   const isProfit = profitLoss >= 0;
 
                   return (
-                    <div key={future.id ?? future._id} className="future-item">
+                    <div 
+                      key={future.id ?? future._id} 
+                      className="future-item"
+                      onClick={() => handleOpenFutureModal(future)}
+                    >
                       <div className="future-header">
                         <div className="future-pair-status">
                           <span className="future-pair">{future.futureCoin || i18n("common.unknown")}</span>
@@ -1236,6 +1317,121 @@ function Trade() {
         onCoinSelect={handleSelectCoin}
         title={i18n("pages.trade.coinSelector.title")}
       />
+
+      {/* Future Details Modal - ALWAYS RENDERED, controlled by CSS */}
+      <div className={`modal-overlay ${isFutureModalOpen && selectedFuture ? 'active' : ''}`} onClick={handleCloseFutureModal}>
+        <div className="future-details-modal" onClick={(e) => e.stopPropagation()}>
+          {selectedFuture && (
+            <>
+              <div className="modal-header">
+                <h3 className="modal-title">
+                  {selectedFuture.futureCoin || i18n("common.unknown")}
+                  <span className="modal-leverage">{selectedFuture.leverage}x</span>
+                </h3>
+                <button className="modal-close-btn" onClick={handleCloseFutureModal}>
+                  <i className="fas fa-times"></i>
+                </button>
+              </div>
+
+              <div className="modal-body">
+                {/* Status & P&L Summary */}
+                <div className="modal-summary">
+                  <div className="status-badge-large" style={{ 
+                    backgroundColor: getFuturesStatusConfig(selectedFuture.futuresStatus).bgColor,
+                    color: getFuturesStatusConfig(selectedFuture.futuresStatus).color
+                  }}>
+                    {getFuturesStatusConfig(selectedFuture.futuresStatus).text}
+                  </div>
+                  
+                  <div className="pnl-summary">
+                    <div className="pnl-title">{i18n("pages.trade.futuresDetails.pnl")}</div>
+                    <div className={`pnl-amount ${(selectedFuture.profitAndLossAmount ? safeParse(selectedFuture.profitAndLossAmount) : 0) >= 0 ? 'profit' : 'loss'}`}>
+                      {(selectedFuture.profitAndLossAmount ? safeParse(selectedFuture.profitAndLossAmount) : 0) >= 0 ? '+' : ''}
+                      {formatCurrency(selectedFuture.profitAndLossAmount ? safeParse(selectedFuture.profitAndLossAmount) : 0)}
+                    </div>
+            
+                  </div>
+                </div>
+
+
+                {/* Details Grid */}
+                <div className="details-grid">
+                  <div className="detail-item">
+                    <div className="detail-label">{i18n("pages.trade.futuresDetails.amount")}</div>
+                    <div className="detail-value">{formatCurrency(selectedFuture.futuresAmount)}</div>
+                  </div>
+                  
+                  <div className="detail-item">
+                    <div className="detail-label">{i18n("pages.trade.futuresDetails.duration")}</div>
+                    <div className="detail-value">{formatDuration(selectedFuture.contractDuration)}</div>
+                  </div>
+                  
+                  <div className="detail-item">
+                    <div className="detail-label">{i18n("pages.trade.futuresDetails.entryPrice")}</div>
+                    <div className="detail-value">{formatCurrency(selectedFuture.openPositionPrice)}</div>
+                  </div>
+                  
+            
+                  
+                  {selectedFuture.closePositionPrice && (
+                    <div className="detail-item">
+                      <div className="detail-label">{i18n("pages.trade.futuresDetails.exitPrice")}</div>
+                      <div className="detail-value">{formatCurrency(selectedFuture.closePositionPrice)}</div>
+                    </div>
+                  )}
+              
+                
+                  
+                
+                </div>
+
+                {/* Timestamps */}
+                <div className="timestamps-section">
+                  <div className="timestamp-item">
+                    <div className="timestamp-label">{i18n("pages.trade.futuresDetails.opened")}</div>
+                    <div className="timestamp-value">
+                      {selectedFuture.openPositionTime ? (
+                        <>
+                          {formatDate(selectedFuture.openPositionTime)}
+                          <span className="timestamp-time">{formatTime(selectedFuture.openPositionTime)}</span>
+                        </>
+                      ) : i18n("common.na")}
+                    </div>
+                  </div>
+                  
+                  {selectedFuture.closePositionTime && (
+                    <div className="timestamp-item">
+                      <div className="timestamp-label">{i18n("pages.trade.futuresDetails.closed")}</div>
+                      <div className="timestamp-value">
+                        {formatDate(selectedFuture.closePositionTime)}
+                        <span className="timestamp-time">{formatTime(selectedFuture.closePositionTime)}</span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {selectedFuture.contractDuration && !selectedFuture.closePositionTime && (
+                    <div className="timestamp-item">
+                      <div className="timestamp-label">{i18n("pages.trade.futuresDetails.closed")}</div>
+                      <div className="timestamp-value">
+                        {(() => {
+                          const openTime = new Date(selectedFuture.openPositionTime);
+                          const expireTime = new Date(openTime.getTime() + (parseInt(selectedFuture.contractDuration) * 1000));
+                          return (
+                            <>
+                              {formatDate(expireTime.toISOString())}
+                              <span className="timestamp-time">{formatTime(expireTime.toISOString())}</span>
+                            </>
+                          );
+                        })()}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
 
       <style>{`
         /* Container */
@@ -1691,6 +1887,24 @@ function Trade() {
           font-size: 12px;
         }
 
+        /* Future Item Styles (clickable) */
+        .future-item {
+          background-color: #f8fbff;
+          border-radius: 8px;
+          padding: 12px;
+          margin-bottom: 10px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          border: 1px solid transparent;
+        }
+
+        .future-item:hover {
+          background-color: #eef7ff;
+          border-color: #106cf5;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(16, 108, 245, 0.1);
+        }
+
         /* Transaction Item Styles */
         .transactions-list {
           padding: 0 4px;
@@ -1921,13 +2135,6 @@ function Trade() {
           padding: 0 4px;
         }
 
-        .future-item {
-          background-color: #f8fbff;
-          border-radius: 8px;
-          padding: 12px;
-          margin-bottom: 10px;
-        }
-
         .future-header {
           display: flex;
           justify-content: space-between;
@@ -2050,6 +2257,265 @@ function Trade() {
           border: 1px solid #fecaca;
         }
 
+        /* Future Details Modal Styles - FIXED FOR NO FLICKERING */
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: -1;
+          padding: 20px;
+          opacity: 0;
+          visibility: hidden;
+          transition: all 0.3s ease;
+          pointer-events: none;
+        }
+
+        .modal-overlay.active {
+          opacity: 1;
+          visibility: visible;
+          z-index: 1000;
+          background-color: rgba(0, 0, 0, 0.5);
+          pointer-events: auto;
+        }
+
+        .future-details-modal {
+          background-color: white;
+          border-radius: 16px;
+          width: 100%;
+          max-width: 380px;
+          max-height: 85vh;
+          overflow-y: auto;
+          transform: translateY(20px);
+          opacity: 0;
+          transition: all 0.3s ease;
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0);
+        }
+
+        .modal-overlay.active .future-details-modal {
+          transform: translateY(0);
+          opacity: 1;
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 20px;
+          border-bottom: 1px solid #eef2f6;
+          position: sticky;
+          top: 0;
+          background-color: white;
+          border-radius: 16px 16px 0 0;
+          z-index: 10;
+        }
+
+        .modal-title {
+          font-size: 18px;
+          font-weight: 600;
+          color: #1a1a1a;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .modal-leverage {
+          font-size: 14px;
+          color: #106cf5;
+          background-color: rgba(16, 108, 245, 0.1);
+          padding: 2px 8px;
+          border-radius: 12px;
+          font-weight: 600;
+        }
+
+        .modal-close-btn {
+          background: none;
+          border: none;
+          font-size: 18px;
+          color: #6c757d;
+          cursor: pointer;
+          width: 32px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          transition: all 0.2s ease;
+        }
+
+        .modal-close-btn:hover {
+          background-color: #f8f9fa;
+          color: #1a1a1a;
+        }
+
+        .modal-body {
+          padding: 20px;
+        }
+
+        .modal-summary {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 24px;
+          padding-bottom: 20px;
+          border-bottom: 1px solid #eef2f6;
+        }
+
+        .status-badge-large {
+          padding: 8px 16px;
+          border-radius: 20px;
+          font-size: 14px;
+          font-weight: 600;
+          display: inline-block;
+        }
+
+        .pnl-summary {
+          text-align: right;
+        }
+
+        .pnl-title {
+          font-size: 12px;
+          color: #6c757d;
+          margin-bottom: 4px;
+        }
+
+        .pnl-amount {
+          font-size: 24px;
+          font-weight: 700;
+          margin-bottom: 4px;
+        }
+
+        .pnl-amount.profit {
+          color: #37b66a;
+        }
+
+        .pnl-amount.loss {
+          color: #f56c6c;
+        }
+
+        .pnl-subtitle {
+          font-size: 11px;
+          color: #8c98a4;
+        }
+
+        .estimated-pnl {
+          background-color: #f8fbff;
+          border-radius: 12px;
+          padding: 16px;
+          margin-bottom: 24px;
+          text-align: center;
+        }
+
+        .estimated-pnl-title {
+          font-size: 12px;
+          color: #6c757d;
+          margin-bottom: 8px;
+        }
+
+        .estimated-pnl-amount {
+          font-size: 20px;
+          font-weight: 700;
+          margin-bottom: 8px;
+        }
+
+        .estimated-pnl-amount.profit {
+          color: #37b66a;
+        }
+
+        .estimated-pnl-amount.loss {
+          color: #f56c6c;
+        }
+
+        .price-difference {
+          font-size: 14px;
+          font-weight: 600;
+          color: #1a1a1a;
+        }
+
+        .details-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 16px;
+          margin-bottom: 24px;
+        }
+
+        .detail-item {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .detail-label {
+          font-size: 11px;
+          color: #6c757d;
+          margin-bottom: 4px;
+        }
+
+        .detail-value {
+          font-size: 14px;
+          font-weight: 600;
+          color: #1a1a1a;
+        }
+
+        .direction-badge {
+          font-size: 12px;
+          padding: 4px 8px;
+          border-radius: 6px;
+          font-weight: 600;
+        }
+
+        .direction-badge.long {
+          background-color: rgba(55, 182, 106, 0.1);
+          color: #37b66a;
+        }
+
+        .direction-badge.short {
+          background-color: rgba(245, 108, 108, 0.1);
+          color: #f56c6c;
+        }
+
+        .timestamps-section {
+          background-color: #f8f9fa;
+          border-radius: 12px;
+          padding: 16px;
+          margin-bottom: 24px;
+        }
+
+        .timestamp-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 12px;
+        }
+
+        .timestamp-item:last-child {
+          margin-bottom: 0;
+        }
+
+        .timestamp-label {
+          font-size: 12px;
+          color: #6c757d;
+        }
+
+        .timestamp-value {
+          font-size: 12px;
+          font-weight: 600;
+          color: #1a1a1a;
+          text-align: right;
+        }
+
+        .timestamp-time {
+          display: block;
+          font-size: 11px;
+          color: #8c98a4;
+          margin-top: 2px;
+        }
+
         /* Responsive */
         @media (max-width: 380px) {
           .container {
@@ -2068,6 +2534,27 @@ function Trade() {
           
           .trade-form {
             width: 48%;
+          }
+
+          .modal-overlay {
+            padding: 16px;
+          }
+
+          .future-details-modal {
+            max-width: 100%;
+            margin: 0;
+          }
+
+          .modal-header {
+            padding: 16px;
+          }
+
+          .modal-body {
+            padding: 16px;
+          }
+
+          .details-grid {
+            gap: 12px;
           }
         }
       `}</style>

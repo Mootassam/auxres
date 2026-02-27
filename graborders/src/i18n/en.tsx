@@ -513,7 +513,8 @@ const en = {
         exitPrice: "Exit Price",
         pnl: "P&L",
         opened: "Opened",
-        closed: "Closed"
+        closed: "Closed",
+        leverage:"Leverage"
       },
       futuresStatus: {
         long: "Long",
@@ -1231,7 +1232,7 @@ const en = {
         lostDevice: "If your device is lost or stolen, immediately revoke session access from your account settings.",
         phishing: "If you've fallen victim to a phishing attempt, freeze your account and contact support immediately.",
         supportTitle: "24/7 Security Support",
-        supportEmail: "support@BINEX-exchange.com"
+        supportEmail: "binex.helpdesk01@gmail.com"
       },
       resources: {
         title: "Security Resources",
@@ -1558,7 +1559,7 @@ const en = {
         verificationProcess: "Upload a government-issued ID and a selfie photo. Verification is usually approved within hours."
       },
       steps: {
-        goToWebsite: "Go to https://binex-exchange.com",
+        goToWebsite: "Go to https://trade-binex.com",
         clickSignUp: 'Click "Sign Up"',
         enterDetails: "Enter your details",
         verifyEmail: "Verify your email address",
@@ -1618,7 +1619,7 @@ const en = {
       },
       footer: {
         copyright: "© 2025 BINEX. All rights reserved.",
-        needHelp: "Need more help? Contact support@BINEX-exchange.com"
+        needHelp: "Need more help? Contact binex.helpdesk01@gmail.com"
       }
     },
 
