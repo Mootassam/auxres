@@ -10,7 +10,7 @@ COPY . /app/
 RUN npm install
 
 # Set environment variables
-ENV BACKEND_URL="http://159.198.43.161:8084/api"
+ENV BACKEND_URL="http://159.198.47.173:8084/api"
 
 # Expose your app port
 EXPOSE 8084
