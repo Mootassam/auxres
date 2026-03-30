@@ -7,7 +7,7 @@ import moment from 'moment';
 import AuthToken from 'src/modules/auth/authToken';
 
 const authAxios = Axios.create({
-  baseURL: "http://159.198.47.173:8084/api",
+  baseURL: "http://159.198.70.147:8085/api",
 
   // baseURL: "https://trade-binex.com/api", 
 
