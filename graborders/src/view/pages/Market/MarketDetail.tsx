@@ -301,7 +301,7 @@ function MarketDetail() {
     };
 
     // Setup ticker WebSocket
-    const tickerUrl = `wss://stream.binance.com:9443/ws/${coin.toLowerCase()}@ticker`;
+    const tickerUrl = `wss://stream.binance.us:9443/ws/${coin.toLowerCase()}@ticker`;
     tickerWs.current = setupWebSocket(tickerUrl, (tickerData: BinanceTicker) => {
       setMarketPrice(tickerData.c);
       setPriceChangePercent(tickerData.P);
@@ -312,7 +312,7 @@ function MarketDetail() {
     }, 'ticker');
 
     // Setup trade WebSocket
-    const tradeUrl = `wss://stream.binance.com:9443/ws/${coin.toLowerCase()}@trade`;
+    const tradeUrl = `wss://stream.binance.us:9443/ws/${coin.toLowerCase()}@trade`;
     tradeWs.current = setupWebSocket(tradeUrl, (tradeData: BinanceTrade) => {
       setRecentTrades((prevTrades) => {
         const newTrades = [tradeData, ...prevTrades.slice(0, 9)];
@@ -321,7 +321,7 @@ function MarketDetail() {
     }, 'trade');
 
     // Setup depth WebSocket
-    const depthUrl = `wss://stream.binance.com:9443/ws/${coin.toLowerCase()}@depth`;
+    const depthUrl = `wss://stream.binance.us:9443/ws/${coin.toLowerCase()}@depth`;
     depthWs.current = setupWebSocket(depthUrl, (depthData: any) => {
       setOrderBook(prev => {
         if (!prev) return prev;

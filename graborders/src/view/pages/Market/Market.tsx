@@ -199,7 +199,7 @@ const Market: React.FC = () => {
       try {
         // Create individual streams for better performance
         const streams = targetPairs.map(pair => `${pair.toLowerCase()}@ticker`).join('/');
-        ws.current = new WebSocket(`wss://stream.binance.com:9443/ws/${streams}`);
+        ws.current = new WebSocket(`wss://stream.binance.us:9443/ws/${streams}`);
 
         ws.current.onopen = () => {
           console.log(i18n('pages.market.websocketConnected'));

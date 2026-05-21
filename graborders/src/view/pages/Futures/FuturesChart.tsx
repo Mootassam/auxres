@@ -115,7 +115,7 @@ const FuturesChart: React.FC<FuturesChartProps> = ({ symbol = "BTCUSDT" }) => {
   // websocket live updates
   const startWS = (tf: TF) => {
     wsRef.current?.close();
-    const stream = `wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@kline_${tfToBinance[tf]}`;
+    const stream = `wss://stream.binance.us:9443/ws/${symbol.toLowerCase()}@kline_${tfToBinance[tf]}`;
     try {
       const ws = new WebSocket(stream);
       wsRef.current = ws;

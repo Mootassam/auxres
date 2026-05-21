@@ -242,7 +242,7 @@ function Futures() {
 
       try {
         tickerWs.current = new WebSocket(
-          `wss://stream.binance.com:9443/ws/${selectedCoin.toLowerCase()}@ticker`
+          `wss://stream.binance.us:9443/ws/${selectedCoin.toLowerCase()}@ticker`
         );
 
         tickerWs.current.onopen = () => {

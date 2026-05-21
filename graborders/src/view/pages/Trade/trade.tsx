@@ -329,12 +329,12 @@ function Trade() {
 
   // WebSocket URLs
   const tickerUrl = useMemo(() => 
-    selectedCoin ? `wss://stream.binance.com:9443/ws/${selectedCoin.toLowerCase()}@ticker` : null,
+    selectedCoin ? `wss://stream.binance.us:9443/ws/${selectedCoin.toLowerCase()}@ticker` : null,
     [selectedCoin]
   );
 
   const depthUrl = useMemo(() => 
-    selectedCoin ? `wss://stream.binance.com:9443/ws/${selectedCoin.toLowerCase()}@depth20@100ms` : null,
+    selectedCoin ? `wss://stream.binance.us:9443/ws/${selectedCoin.toLowerCase()}@depth20@100ms` : null,
     [selectedCoin]
   );
 
