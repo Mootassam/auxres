@@ -125,7 +125,7 @@ function Conversion() {
     const fetchInitialPrices = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get("https://api.binance.com/api/v3/ticker/24hr");
+        const response = await axios.get("https://api.binance.us/api/v3/ticker/24hr");
 
         const initialPrices: { [key: string]: number } = { USDT: 1 };
 
@@ -203,7 +203,7 @@ function Conversion() {
       try {
         // Only update if confirmation modal is NOT open
         if (!showConfirmationModal && !isConverting) {
-          const response = await axios.get("https://api.binance.com/api/v3/ticker/24hr");
+          const response = await axios.get("https://api.binance.us/api/v3/ticker/24hr");
 
           const updatedPrices: { [key: string]: number } = { USDT: 1 };
 

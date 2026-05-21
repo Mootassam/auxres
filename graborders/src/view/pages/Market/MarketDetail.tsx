@@ -191,9 +191,9 @@ function MarketDetail() {
       });
 
       const fetchPromise = Promise.all([
-        axios.get(`https://api.binance.com/api/v3/ticker/24hr?symbol=${coin}`, { signal }),
-        axios.get(`https://api.binance.com/api/v3/trades?symbol=${coin}&limit=10`, { signal }),
-        axios.get(`https://api.binance.com/api/v3/depth?symbol=${coin}&limit=10`, { signal })
+        axios.get(`https://api.binance.us/api/v3/ticker/24hr?symbol=${coin}`, { signal }),
+        axios.get(`https://api.binance.us/api/v3/trades?symbol=${coin}&limit=10`, { signal }),
+        axios.get(`https://api.binance.us/api/v3/depth?symbol=${coin}&limit=10`, { signal })
       ]);
 
       const [tickerResponse, tradesResponse, orderBookResponse] = await Promise.race([fetchPromise, timeoutPromise]);

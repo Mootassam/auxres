@@ -36,7 +36,7 @@ const CoinListModal = ({ isOpen, onClose, onSelectCoin }) => {
     const fetchAllPrices = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get('https://api.binance.com/api/v3/ticker/24hr');
+        const response = await axios.get('https://api.binance.us/api/v3/ticker/24hr');
         
         // Process only USDT pairs
         const usdtPairs = response.data.filter((item: any) => 

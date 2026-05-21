@@ -105,7 +105,7 @@ const Market: React.FC = () => {
 
         // Create symbols parameter for batch request
         const symbolsParam = targetPairs.map(symbol => `"${symbol}"`).join(',');
-        const url = `https://api.binance.com/api/v3/ticker/24hr?symbols=[${symbolsParam}]`;
+        const url = `https://api.binance.us/api/v3/ticker/24hr?symbols=[${symbolsParam}]`;
 
         const fetchPromise = axios.get(url, { signal });
         const response = await Promise.race([fetchPromise, timeoutPromise]);

@@ -94,7 +94,7 @@ const FuturesChart: React.FC<FuturesChartProps> = ({ symbol = "BTCUSDT" }) => {
   // fetch historical data
   const loadData = async (tf: TF) => {
     try {
-      const url = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${tfToBinance[tf]}&limit=500`;
+      const url = `https://api.binance.us/api/v3/klines?symbol=${symbol}&interval=${tfToBinance[tf]}&limit=500`;
       const res = await fetch(url);
       const raw = await res.json();
       const data: KLineData[] = raw.map((d: any) => ({

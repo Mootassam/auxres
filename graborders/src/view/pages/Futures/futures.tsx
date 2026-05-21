@@ -196,7 +196,7 @@ function Futures() {
       try {
         setIsLoading(true);
         const response = await fetch(
-          `https://api.binance.com/api/v3/ticker/24hr?symbol=${selectedCoin}`
+          `https://api.binance.us/api/v3/ticker/24hr?symbol=${selectedCoin}`
         );
 
         if (!response.ok) throw new Error("Failed to fetch ticker data");
